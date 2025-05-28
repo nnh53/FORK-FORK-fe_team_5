@@ -1,0 +1,24 @@
+{
+  "name": "@fcinema-workspace/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build-all-skip-cache": "nx run-many -t build --skip-nx-cache",
+    "format:write": "nx format:write",
+    "prepare": "node -e \"process.env.CI || process.env.DOCKER || process.exit(1)\" || (husky && git config --local include.path .gitconfig)",
+    "prettier:write": "prettier --write ."
+  },
+  "private": true,
+  "devDependencies": {
+    "@commitlint/config-conventional": "^19.8.1",
+    "@nx/js": "21.1.2",
+    "@swc-node/register": "~1.9.1",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
+    "husky": "^9.1.7",
+    "nx": "21.1.2",
+    "prettier": "^2.6.2",
+    "tslib": "^2.3.0",
+    "typescript": "~5.7.2"
+  }
+}
