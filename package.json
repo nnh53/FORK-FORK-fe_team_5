@@ -6,7 +6,8 @@
     "build-all-skip-cache": "nx run-many -t build --skip-nx-cache",
     "format:write": "nx format:write",
     "prepare": "node -e \"process.env.CI || process.env.DOCKER || process.exit(1)\" || (husky && git config --local include.path .gitconfig)",
-    "prettier:write": "prettier --write ."
+    "prettier:write": "prettier --write .",
+    "clean-node-modules": "pnpx npkill"
   },
   "private": true,
   "devDependencies": {
