@@ -1,7 +1,39 @@
 {
-  "editor.formatOnSave": true,
+  "conventionalCommits.scopes": ["be", "fe"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.guides.bracketPairs": true,
+  "editor.inlineSuggest.syntaxHighlightingEnabled": true,
+  "highlight-matching-tag.highlightFromContent": true,
+  "highlight-matching-tag.highlightSelfClosing": true,
+  "highlight-matching-tag.styles": {
+    "closing": {
+      "left": {
+        "underline": "yellow"
+      },
+      "name": {
+        "surround": "yellow",
+        "underline": "yellow"
+      },
+      "right": {
+        "underline": "yellow"
+      }
+    },
+    "opening": {
+      "left": {
+        "underline": "yellow"
+      },
+      "name": {
+        "surround": "yellow",
+        "underline": "yellow"
+      },
+      "right": {
+        "underline": "yellow"
+      }
+    }
+  },
   "javascript.updateImportsOnFileMove.enabled": "always",
   "nxConsole.generateAiAgentRules": true,
-  "conventionalCommits.scopes": ["be", "fe"]
+  "workbench.tree.indent": 15,
+  "workbench.tree.renderIndentGuides": "always"
 }
