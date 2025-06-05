@@ -20,6 +20,7 @@ interface LoginFormData {
 
 const Login: React.FC = () => {
   const [index, setIndex] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
 
   const transitions = useTransition(index, {
     key: index,
@@ -103,7 +104,7 @@ const Login: React.FC = () => {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Email
               </label>
               <input
@@ -112,39 +113,48 @@ const Login: React.FC = () => {
                 {...register('email')}
                 placeholder="Nhập email của bạn"
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 
-                  ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-red-500'}`}
+                  ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
               />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
             </div>
 
-            <div>
-              <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">
+            <div className="relative">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Mật khẩu
               </label>
-              <input
-                type="password"
-                id="password"
-                {...register('password')}
-                placeholder="Nhập mật khẩu"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 
-                  ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-red-500'}`}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  {...register('password')}
+                  placeholder="Nhập mật khẩu"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10
+                    ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
+                />
+                <a
+                  onMouseDown={() => setShowPassword(true)}
+                  onMouseUp={() => setShowPassword(false)}
+                  onMouseLeave={() => setShowPassword(false)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  <img src="/icons/view.svg" alt="toggle password visibility" className="w-5 h-5 cursor-pointer" />
+                </a>
+              </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
               <a href="#" className="text-sm text-red-600 hover:underline float-right mt-1">
                 Quên mật khẩu?
               </a>
             </div>
 
-            <button type="submit" className="w-full bg-red-800 text-white py-2 rounded-md hover:bg-red-700 transition duration-300">
-              Đăng nhập
-            </button>
+            <NavigateButton to="/login" className="w-full">
+              <span>Đăng nhập</span>
+            </NavigateButton>
 
             <div className="text-center mt-4">
               <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
-              <NavigateButton to="/register"
-              >
+              <a href="/register" className="text-sm text-red-600 hover:underline">
                 Đăng ký ngay
-              </NavigateButton>
+              </a>
             </div>
           </form>
         </div>
@@ -154,5 +164,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-
-

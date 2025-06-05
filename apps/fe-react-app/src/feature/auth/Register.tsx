@@ -23,6 +23,8 @@ const slides = [
 
 const Register: React.FC = () => {
   const [index, setIndex] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Background transition using useTransition
   const transitions = useTransition(index, {
@@ -81,7 +83,7 @@ const Register: React.FC = () => {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label htmlFor="fullName" className="block mb-2 text-sm font-medium text-gray-700">
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Họ và tên
               </label>
               <input
@@ -90,13 +92,13 @@ const Register: React.FC = () => {
                 {...register('fullName')}
                 placeholder="Nhập họ và tên"
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 
-                  ${errors.fullName ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-red-500'}`}
+                  ${errors.fullName ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
               />
               {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
             </div>
 
             <div>
-              <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Email
               </label>
               <input
@@ -105,48 +107,70 @@ const Register: React.FC = () => {
                 {...register('email')}
                 placeholder="Nhập email của bạn"
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 
-                  ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-red-500'}`}
+                  ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
               />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
             </div>
 
-            <div>
-              <label htmlFor="password" className="block  font-medium text-gray-700">
+            <div className="relative">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Mật khẩu
               </label>
-              <input
-                type="password"
-                id="password"
-                {...register('password')}
-                placeholder="Nhập mật khẩu"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 
-                  ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-red-500'}`}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  {...register('password')}
+                  placeholder="Nhập mật khẩu"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10
+                    ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
+                />
+                <a
+                  onMouseDown={() => setShowPassword(true)}
+                  onMouseUp={() => setShowPassword(false)}
+                  onMouseLeave={() => setShowPassword(false)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  <img src="/icons/view.svg" alt="toggle password visibility" className="w-5 h-5 cursor-pointer" />
+                </a>
+              </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
             </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium text-gray-700">
+            <div className="relative">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Xác nhận mật khẩu
               </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                {...register('confirmPassword')}
-                placeholder="Nhập lại mật khẩu"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 
-                  ${errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-red-500'}`}
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  {...register('confirmPassword')}
+                  placeholder="Nhập lại mật khẩu"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10
+                    ${errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
+                />
+                <a
+                  onMouseDown={() => setShowConfirmPassword(true)}
+                  onMouseUp={() => setShowConfirmPassword(false)}
+                  onMouseLeave={() => setShowConfirmPassword(false)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  <img src="/icons/view.svg" alt="toggle password visibility" className="w-5 h-5 cursor-pointer" />
+                </a>
+              </div>
               {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
             </div>
 
-            <button type="submit" className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition duration-300">
-              Đăng ký
-            </button>
+            <NavigateButton to="/register" className="w-full">
+              <span>Đăng ký</span>
+            </NavigateButton>
 
             <div className="text-center mt-4">
               <span className="text-sm text-gray-600">Đã có tài khoản? </span>
-              <NavigateButton to="/login">Đăng nhập ngay</NavigateButton>
+              <a href="/login" className="text-sm text-red-600 hover:underline">
+                Đăng nhập ngay
+              </a>
             </div>
           </form>
         </div>
@@ -186,4 +210,3 @@ const Register: React.FC = () => {
 };
 
 export default Register;
-
