@@ -3,6 +3,9 @@ import './App.css';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Login from './feature/auth/Login';
 import Register from './feature/auth/Register';
+import Loading from './components/shared/Loading';
+import NotFoundError from './components/error/NotFoundError';
+import InternalServerError from './components/error/InternalServerError';
 
 const TITLE = "FCinema";
 
@@ -16,6 +19,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/loading" element={<Loading />} />
+        <Route path="/error" element={<NotFoundError />} />
+        <Route path="/internal-server-error" element={<InternalServerError />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
 
