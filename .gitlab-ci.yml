@@ -8,8 +8,13 @@ CI:
   only:
     - main
     - merge_requests
+  before_script:
+    - npm install --global corepack@latest
+    - corepack enable
+    - corepack prepare pnpm@latest-10 --activate
+    - pnpm config set store-dir .pnpm-store
   script:
-    - npm install --prefix=$HOME/.local -g pnpm@8
+    # - npm install --prefix=$HOME/.local -g pnpm@8
 
     # This enables task distribution via Nx Cloud
     # Run this command as early as possible, before dependencies are installed
@@ -25,3 +30,10 @@ CI:
     # - pnpm exec nx-cloud record -- echo Hello World
     # Nx Affected runs only tasks affected by the changes in this PR/commit. Learn more: https://nx.dev/ci/features/affected
     - pnpm exec nx affected -t lint test build
+
+  cache:
+    key:
+      files:
+        - pnpm-lock.yaml
+    paths:
+      - .pnpm-store
