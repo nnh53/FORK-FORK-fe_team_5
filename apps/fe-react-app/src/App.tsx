@@ -1,29 +1,18 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import './App.css';
+// src/App.tsx
+import React from 'react';
+import MemberManagementPage from './feature/member/pages/MemberManagementPage'; // Kiểm tra lại đường dẫn
+// import './App.css'; // Hoặc file CSS global của bạn
+// Đảm bảo `src/index.css` (chứa Tailwind directives) được import ở `src/main.tsx`
 
 function App() {
-  const [count, setCount] = useState(0);
-
+  // Bạn có thể đã có router hoặc các layout khác ở đây
+  // Để DaisyUI hoạt động, bạn cần set theme. Có thể set trong tailwind.config.js hoặc thẻ html.
+  // Ví dụ: đặt theme cho toàn bộ app
   return (
-    <div>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1 className="bg-red-500">Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
+    <div data-theme="cupcake">
+      {' '}
+      {/* Chọn một theme của DaisyUI, ví dụ "cupcake" */}
+      <MemberManagementPage />
     </div>
   );
 }
