@@ -7,6 +7,8 @@ import Register from './feature/auth/Register';
 import InternalServerError from './components/error/InternalServerError';
 import NotFoundError from './components/error/NotFoundError';
 import PageTransition from './components/shared/PageTransition';
+// import LiquidButton from './components/liquidButoon/LiquidButton';
+import LogVIAReg from './components/auth/LogVIAReg';
 
 const TITLE = 'FCinema';
 
@@ -55,6 +57,22 @@ function App() {
           element={
             <PageTransition>
               <InternalServerError />
+            </PageTransition>
+          }
+        />
+        {/* <Route
+          path="/liquidbutton"
+          element={
+            <PageTransition>
+              <LiquidButton />
+            </PageTransition>
+          }
+        /> */}
+        <Route
+          path="/logviareg"
+          element={
+            <PageTransition>
+              <LogVIAReg />
             </PageTransition>
           }
         />
