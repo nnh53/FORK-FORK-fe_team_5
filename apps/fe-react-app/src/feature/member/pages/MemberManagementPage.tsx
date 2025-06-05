@@ -43,7 +43,7 @@ const MemberForm = forwardRef(({ onSubmit, initialData, isEdit }: MemberFormProp
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-semibold text-gray-700">Họ và tên*</label>
+        <label className="flex text-sm font-semibold text-gray-700">Họ và tên*</label>
         <input
           type="text"
           placeholder="VD: Trần Văn Phượng"
@@ -54,7 +54,7 @@ const MemberForm = forwardRef(({ onSubmit, initialData, isEdit }: MemberFormProp
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-700">Email*</label>
+        <label className="flex text-sm font-semibold text-gray-700">Email*</label>
         <input
           type="email"
           placeholder="VD: acv@gmail.com"
@@ -65,7 +65,7 @@ const MemberForm = forwardRef(({ onSubmit, initialData, isEdit }: MemberFormProp
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-700">Số điện thoại</label>
+        <label className="flex text-sm font-semibold text-gray-700">Số điện thoại</label>
         <input
           type="tel"
           placeholder="VD: 09xxxx"
@@ -75,7 +75,7 @@ const MemberForm = forwardRef(({ onSubmit, initialData, isEdit }: MemberFormProp
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-700">Địa chỉ</label>
+        <label className="flex text-sm font-semibold text-gray-700">Địa chỉ</label>
         <input
           type="text"
           placeholder="VD: TP HCM"
@@ -85,7 +85,7 @@ const MemberForm = forwardRef(({ onSubmit, initialData, isEdit }: MemberFormProp
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-700">Ngày sinh</label>
+        <label className="flex text-sm font-semibold text-gray-700">Ngày sinh</label>
         <input
           type="text"
           placeholder="YYYY-MM-DD"
@@ -95,7 +95,7 @@ const MemberForm = forwardRef(({ onSubmit, initialData, isEdit }: MemberFormProp
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-700">CCCD/CMND</label>
+        <label className="flex text-sm font-semibold text-gray-700">CCCD/CMND</label>
         <input
           type="text"
           placeholder="VD: 097xxxx"
@@ -104,12 +104,25 @@ const MemberForm = forwardRef(({ onSubmit, initialData, isEdit }: MemberFormProp
           onChange={(e) => setIdentityCard(e.target.value)}
         />
       </div>
-      <div className="form-control">
-        <label className="block text-sm font-semibold text-gray-700">Giới tính (Nam nếu chọn)</label>
-        <input type="checkbox" className="toggle toggle-primary mt-2" checked={gender} onChange={(e) => setGender(e.target.checked)} />
+      <div className="flex items-center space-x-4">
+        <label className="text-lg font-medium">Gender</label>
+        <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+          <button
+            className={`px-4 py-2 transition-colors ${gender ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            onClick={() => setGender(true)}
+          >
+            Nam
+          </button>
+          <button
+            className={`px-4 py-2 transition-colors ${!gender ? 'bg-pink-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            onClick={() => setGender(false)}
+          >
+            Nữ
+          </button>
+        </div>
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-700">Vai trò</label>
+        <label className="flex text-sm font-semibold text-gray-700">Vai trò</label>
         <select className="w-full border border-gray-300 rounded-md p-2" value={role} onChange={(e) => setRole(e.target.value)}>
           <option value="customer">Customer</option>
           <option value="employee">Employee</option>
@@ -201,7 +214,7 @@ const MemberManagementPage: React.FC = () => {
   return (
     <div className="container mx-auto p-4 md:p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Quản Lý Thành Viên 🧑‍🤝‍🧑</h1>
+        <h1 className="text-4xl font-bold">Quản Lý Thành Viên </h1>
         <button className="btn btn-primary bg-red-500 text-white px-4 py-2 rounded-md shadow-sm" onClick={handleAddNew}>
           Thêm Thành Viên Mới +
         </button>
@@ -209,7 +222,7 @@ const MemberManagementPage: React.FC = () => {
 
       <div className="overflow-x-auto bg-base-100 shadow-xl rounded-xl">
         <table className="table table-zebra w-full">
-          <thead className="bg-gray-200">
+          <thead className="bg-base-300">
             <tr>
               <th className="p-4">ID</th>
               <th className="p-4">Tên</th>
@@ -223,7 +236,7 @@ const MemberManagementPage: React.FC = () => {
           <tbody>
             {members && members.length > 0 ? (
               members.map((member) => (
-                <tr key={member.member_id} className="hover:bg-gray-50">
+                <tr key={member.member_id} className="hover">
                   <td className="p-4 font-mono text-xs">{member.member_id}</td>
                   <td className="p-4 font-semibold">{member.name}</td>
                   <td className="p-4">{member.email}</td>
@@ -265,17 +278,16 @@ const MemberManagementPage: React.FC = () => {
             )}
           </tbody>
         </table>
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title={editingMember ? 'Sửa thông tin thành viên' : 'Thêm thành viên mới'}
+          onSubmit={() => formRef.current?.handleSubmit()}
+          submitLabel={editingMember ? 'Sửa' : 'Thêm'}
+        >
+          <MemberForm ref={formRef} onSubmit={handleSubmitForm} initialData={editingMember || undefined} isEdit={!!editingMember} />
+        </Modal>
       </div>
-
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        title={editingMember ? 'Sửa thông tin thành viên' : 'Thêm thành viên mới'}
-        onSubmit={() => formRef.current?.handleSubmit()}
-        submitLabel={editingMember ? 'Sửa' : 'Thêm'}
-      >
-        <MemberForm ref={formRef} onSubmit={handleSubmitForm} initialData={editingMember || undefined} isEdit={!!editingMember} />
-      </Modal>
 
       <div className="mt-8 text-center">
         <button className="btn btn-outline btn-accent" onClick={() => refetch()} disabled={isLoading}>
