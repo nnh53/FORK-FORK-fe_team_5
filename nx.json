@@ -5,7 +5,6 @@
     "production": ["default", "!{projectRoot}/.eslintrc.json", "!{projectRoot}/eslint.config.mjs"],
     "sharedGlobals": ["{workspaceRoot}/.gitlab-ci.yml"]
   },
-  "nxCloudId": "68361955b669490c99c4b905",
   "neverConnectToCloud": true,
   "plugins": [
     {
@@ -35,5 +34,12 @@
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     }
+  },
+  "s3": {
+    "endpoint": "https://b87c0f742b88aa3fe168e80816e507ba.r2.cloudflarestorage.com",
+    "region": "us-east-1",
+    "bucket": "nx-cache-cicd-bucket",
+    "forcePathStyle": true,
+    "localMode": "read-write"
   }
 }

@@ -8,6 +8,7 @@
 dist
 tmp
 out-tsc
+gitlab-ci-local
 
 # dependencies
 node_modules
