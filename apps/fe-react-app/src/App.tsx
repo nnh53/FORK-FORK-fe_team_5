@@ -1,7 +1,7 @@
 // src/App.tsx
 import React from 'react';
 import MemberManagementPage from './feature/member/pages/MemberManagementPage'; // Kiểm tra lại đường dẫn
-// import './App.css'; // Hoặc file CSS global của bạn
+import './App.css'; // Hoặc file CSS global của bạn
 // Đảm bảo `src/index.css` (chứa Tailwind directives) được import ở `src/main.tsx`
 
 function App() {
