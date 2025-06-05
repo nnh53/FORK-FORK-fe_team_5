@@ -9,7 +9,7 @@ function App() {
   // Để DaisyUI hoạt động, bạn cần set theme. Có thể set trong tailwind.config.js hoặc thẻ html.
   // Ví dụ: đặt theme cho toàn bộ app
   return (
-    <div data-theme="cupcake">
+    <div data-theme="">
       {' '}
       {/* Chọn một theme của DaisyUI, ví dụ "cupcake" */}
       <MemberManagementPage />

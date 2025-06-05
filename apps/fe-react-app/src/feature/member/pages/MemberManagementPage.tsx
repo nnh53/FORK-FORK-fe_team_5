@@ -1,28 +1,25 @@
-// src/feature/member/pages/MemberManagementPage.tsx
-import React, { useState } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useGetMembers, useCreateMember, useUpdateMember, useDeleteMember } from '../hooks/useMemberQueries';
-import { Member } from '../types'; // Adjust path if necessary
+import { Member } from '../types';
+import Modal from '../../../components/ui/modal';
 
-// Component Form (có thể tách ra file riêng nếu phức tạp hơn)
 interface MemberFormProps {
-  onSubmit: (memberData: Omit<Member, 'member_id' | 'password'>) => void; // Không cần member_id, password khi submit
-  initialData?: Partial<Member>; // Dữ liệu ban đầu cho form (khi edit)
-  onCancel: () => void;
+  onSubmit: (memberData: Omit<Member, 'member_id' | 'password'>) => void;
+  initialData?: Partial<Member>;
   isEdit?: boolean;
 }
 
-const MemberForm: React.FC<MemberFormProps> = ({ onSubmit, initialData, onCancel, isEdit }) => {
+const MemberForm = forwardRef(({ onSubmit, initialData, isEdit }: MemberFormProps, ref) => {
   const [name, setName] = useState(initialData?.name || '');
   const [email, setEmail] = useState(initialData?.email || '');
   const [phone, setPhone] = useState(initialData?.phone || '');
   const [address, setAddress] = useState(initialData?.address || '');
   const [dateOfBirth, setDateOfBirth] = useState(initialData?.date_of_birth || '');
   const [identityCard, setIdentityCard] = useState(initialData?.identity_card || '');
-  const [gender, setGender] = useState(initialData?.gender === undefined ? false : initialData.gender); // Mặc định là false (Female)
+  const [gender, setGender] = useState(initialData?.gender === undefined ? false : initialData.gender);
   const [role, setRole] = useState(initialData?.role || 'customer');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (!name || !email) {
       alert('Tên và Email là bắt buộc.');
       return;
@@ -39,112 +36,89 @@ const MemberForm: React.FC<MemberFormProps> = ({ onSubmit, initialData, onCancel
     });
   };
 
+  useImperativeHandle(ref, () => ({
+    handleSubmit,
+  }));
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-6 mb-8 bg-base-200 rounded-xl shadow-md">
-      <h3 className="text-2xl font-semibold mb-4">{isEdit ? 'Chỉnh Sửa Thành Viên' : 'Thêm Thành Viên Mới'}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="label">
-            <span className="label-text">Tên*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Tên"
-            className="input input-bordered w-full"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="label">
-            <span className="label-text">Email*</span>
-          </label>
-          <input
-            type="email"
-            placeholder="Email"
-            className="input input-bordered w-full"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="label">
-            <span className="label-text">Số điện thoại</span>
-          </label>
-          <input
-            type="tel"
-            placeholder="Số điện thoại"
-            className="input input-bordered w-full"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="label">
-            <span className="label-text">Địa chỉ</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Địa chỉ"
-            className="input input-bordered w-full"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="label">
-            <span className="label-text">Ngày sinh</span>
-          </label>
-          <input
-            type="text"
-            placeholder="YYYY-MM-DD"
-            className="input input-bordered w-full"
-            value={dateOfBirth}
-            onChange={(e) => setDateOfBirth(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="label">
-            <span className="label-text">CMND/CCCD</span>
-          </label>
-          <input
-            type="text"
-            placeholder="CMND/CCCD"
-            className="input input-bordered w-full"
-            value={identityCard}
-            onChange={(e) => setIdentityCard(e.target.value)}
-          />
-        </div>
-        <div className="form-control">
-          <label className="label cursor-pointer">
-            <span className="label-text">Giới tính (Nam nếu chọn)</span>
-          </label>
-          <input type="checkbox" className="toggle toggle-primary" checked={gender} onChange={(e) => setGender(e.target.checked)} />
-        </div>
-        <div>
-          <label className="label">
-            <span className="label-text">Vai trò</span>
-          </label>
-          <select className="select select-bordered w-full" value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="customer">Customer</option>
-            <option value="employee">Employee</option>
-            <option value="manager">Manager</option>
-          </select>
-        </div>
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Họ và tên*</label>
+        <input
+          type="text"
+          placeholder="VD: Trần Văn Phượng"
+          className="w-full border border-gray-300 rounded-md p-2"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
       </div>
-      <div className="flex justify-end space-x-3 mt-6">
-        <button type="button" className="btn btn-ghost" onClick={onCancel}>
-          Hủy
-        </button>
-        <button type="submit" className="btn btn-primary">
-          {isEdit ? 'Cập Nhật' : 'Thêm Mới'}
-        </button>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Email*</label>
+        <input
+          type="email"
+          placeholder="VD: acv@gmail.com"
+          className="w-full border border-gray-300 rounded-md p-2"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
       </div>
-    </form>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Số điện thoại</label>
+        <input
+          type="tel"
+          placeholder="VD: 09xxxx"
+          className="w-full border border-gray-300 rounded-md p-2"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Địa chỉ</label>
+        <input
+          type="text"
+          placeholder="VD: TP HCM"
+          className="w-full border border-gray-300 rounded-md p-2"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Ngày sinh</label>
+        <input
+          type="text"
+          placeholder="YYYY-MM-DD"
+          className="w-full border border-gray-300 rounded-md p-2"
+          value={dateOfBirth}
+          onChange={(e) => setDateOfBirth(e.target.value)}
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">CCCD/CMND</label>
+        <input
+          type="text"
+          placeholder="VD: 097xxxx"
+          className="w-full border border-gray-300 rounded-md p-2"
+          value={identityCard}
+          onChange={(e) => setIdentityCard(e.target.value)}
+        />
+      </div>
+      <div className="form-control">
+        <label className="block text-sm font-semibold text-gray-700">Giới tính (Nam nếu chọn)</label>
+        <input type="checkbox" className="toggle toggle-primary mt-2" checked={gender} onChange={(e) => setGender(e.target.checked)} />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Vai trò</label>
+        <select className="w-full border border-gray-300 rounded-md p-2" value={role} onChange={(e) => setRole(e.target.value)}>
+          <option value="customer">Customer</option>
+          <option value="employee">Employee</option>
+          <option value="manager">Manager</option>
+        </select>
+      </div>
+    </div>
   );
-};
+});
 
 const MemberManagementPage: React.FC = () => {
   const { data: members, isLoading, error, refetch } = useGetMembers();
@@ -153,37 +127,34 @@ const MemberManagementPage: React.FC = () => {
   const deleteMemberMutation = useDeleteMember();
 
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const formRef = useRef<{ handleSubmit: () => void }>(null);
 
   const handleAddNew = () => {
     setEditingMember(null);
-    setShowForm(true);
+    setIsModalOpen(true);
   };
 
   const handleEdit = (member: Member) => {
     setEditingMember(member);
-    setShowForm(true);
-    window.scrollTo(0, 0); // Cuộn lên đầu trang để thấy form
+    setIsModalOpen(true);
   };
 
-  const handleCancelForm = () => {
-    setShowForm(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
     setEditingMember(null);
   };
 
   const handleSubmitForm = async (memberData: Omit<Member, 'member_id' | 'password'>) => {
     try {
       if (editingMember) {
-        // Chế độ Edit
         await updateMemberMutation.mutateAsync({ ...editingMember, ...memberData });
         alert('Cập nhật thành viên thành công! 🎉');
       } else {
-        // Chế độ Create
-        // API mock có thể cần trường password, thêm một password mặc định ở service nếu cần
         await createMemberMutation.mutateAsync(memberData);
         alert('Thêm thành viên mới thành công! 🎉');
       }
-      setShowForm(false);
+      setIsModalOpen(false);
       setEditingMember(null);
     } catch (err) {
       console.error('Lỗi khi lưu thành viên:', err);
@@ -231,23 +202,14 @@ const MemberManagementPage: React.FC = () => {
     <div className="container mx-auto p-4 md:p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Quản Lý Thành Viên 🧑‍🤝‍🧑</h1>
-        <button className="btn btn-primary btn-md shadow-lg" onClick={handleAddNew}>
+        <button className="btn btn-primary bg-red-500 text-white px-4 py-2 rounded-md shadow-sm" onClick={handleAddNew}>
           Thêm Thành Viên Mới +
         </button>
       </div>
 
-      {showForm && (
-        <MemberForm
-          onSubmit={handleSubmitForm}
-          initialData={editingMember || undefined} // Nếu editingMember là null thì initialData là undefined
-          onCancel={handleCancelForm}
-          isEdit={!!editingMember}
-        />
-      )}
-
       <div className="overflow-x-auto bg-base-100 shadow-xl rounded-xl">
         <table className="table table-zebra w-full">
-          <thead className="bg-base-300">
+          <thead className="bg-gray-200">
             <tr>
               <th className="p-4">ID</th>
               <th className="p-4">Tên</th>
@@ -261,7 +223,7 @@ const MemberManagementPage: React.FC = () => {
           <tbody>
             {members && members.length > 0 ? (
               members.map((member) => (
-                <tr key={member.member_id} className="hover">
+                <tr key={member.member_id} className="hover:bg-gray-50">
                   <td className="p-4 font-mono text-xs">{member.member_id}</td>
                   <td className="p-4 font-semibold">{member.name}</td>
                   <td className="p-4">{member.email}</td>
@@ -304,6 +266,17 @@ const MemberManagementPage: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={editingMember ? 'Sửa thông tin thành viên' : 'Thêm thành viên mới'}
+        onSubmit={() => formRef.current?.handleSubmit()}
+        submitLabel={editingMember ? 'Sửa' : 'Thêm'}
+      >
+        <MemberForm ref={formRef} onSubmit={handleSubmitForm} initialData={editingMember || undefined} isEdit={!!editingMember} />
+      </Modal>
+
       <div className="mt-8 text-center">
         <button className="btn btn-outline btn-accent" onClick={() => refetch()} disabled={isLoading}>
           {isLoading ? <span className="loading loading-spinner loading-xs"></span> : 'Làm Mới Dữ Liệu 🔄'}
