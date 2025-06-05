@@ -1,6 +1,5 @@
-import React from "react";
-import FCinema_Logo from "../../../assets/FCinema_Logo.png";
-import bgTop from "../../../assets/bg-top.png";
+import FCinema_Logo from '../../../assets/FCinema_Logo.png';
+import bgTop from '../../../assets/bg-top.png';
 
 function Footer() {
   return (
@@ -8,8 +7,8 @@ function Footer() {
       className="w-full bg-repeat-x flex-col"
       style={{
         backgroundImage: `url(${bgTop})`,
-        backgroundRepeat: "repeat-x",
-        backgroundSize: "auto 100%", // Hoặc "100% 100%" nếu bạn muốn căng hình nền
+        backgroundRepeat: 'repeat-x',
+        backgroundSize: 'auto 100%', // Hoặc "100% 100%" nếu bạn muốn căng hình nền
       }}
     >
       <div className="max-w-7xl mx-auto">
@@ -20,28 +19,16 @@ function Footer() {
           </div>
 
           <div className="flex space-x-6">
-            <a
-              href="#"
-              className="text-amber-50 hover:text-red-500 transition duration-300"
-            >
+            <a href="#" className="text-amber-50 hover:text-red-500 transition duration-300">
               <i className="fab fa-facebook-f text-2xl"></i>
             </a>
-            <a
-              href="#"
-              className="text-amber-50 hover:text-red-500 transition duration-300"
-            >
+            <a href="#" className="text-amber-50 hover:text-red-500 transition duration-300">
               <i className="fab fa-twitter text-2xl"></i>
             </a>
-            <a
-              href="#"
-              className="text-amber-50 hover:text-red-500 transition duration-300"
-            >
+            <a href="#" className="text-amber-50 hover:text-red-500 transition duration-300">
               <i className="fab fa-instagram text-2xl"></i>
             </a>
-            <a
-              href="#"
-              className="text-amber-50 hover:text-red-500 transition duration-300"
-            >
+            <a href="#" className="text-amber-50 hover:text-red-500 transition duration-300">
               <i className="fab fa-youtube text-2xl"></i>
             </a>
           </div>
@@ -49,31 +36,20 @@ function Footer() {
           {/* Middle section */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 mt-4">
             <div>
-              <h3 className="text-red-500 font-bold text-lg mb-2">
-                VỀ CHÚNG TÔI
-              </h3>
+              <h3 className="text-red-500 font-bold text-lg mb-2">VỀ CHÚNG TÔI</h3>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-red-500 transition duration-300"
-                  >
+                  <a href="#" className="hover:text-red-500 transition duration-300">
                     Giới thiệu
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-red-500 transition duration-300"
-                  >
+                  <a href="#" className="hover:text-red-500 transition duration-300">
                     Liên hệ
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-red-500 transition duration-300"
-                  >
+                  <a href="#" className="hover:text-red-500 transition duration-300">
                     Tuyển dụng
                   </a>
                 </li>
@@ -81,31 +57,20 @@ function Footer() {
             </div>
 
             <div>
-              <h3 className="text-red-500 font-bold text-lg mb-2">
-                ĐIỀU KHOẢN
-              </h3>
+              <h3 className="text-red-500 font-bold text-lg mb-2">ĐIỀU KHOẢN</h3>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-red-500 transition duration-300"
-                  >
+                  <a href="#" className="hover:text-red-500 transition duration-300">
                     Điều khoản sử dụng
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-red-500 transition duration-300"
-                  >
+                  <a href="#" className="hover:text-red-500 transition duration-300">
                     Chính sách bảo mật
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-red-500 transition duration-300"
-                  >
+                  <a href="#" className="hover:text-red-500 transition duration-300">
                     Khiếu nại
                   </a>
                 </li>
@@ -116,26 +81,17 @@ function Footer() {
               <h3 className="text-red-500 font-bold text-lg mb-2">HỖ TRỢ</h3>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-red-500 transition duration-300"
-                  >
+                  <a href="#" className="hover:text-red-500 transition duration-300">
                     Góp ý
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-red-500 transition duration-300"
-                  >
+                  <a href="#" className="hover:text-red-500 transition duration-300">
                     Câu hỏi thường gặp
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-red-500 transition duration-300"
-                  >
+                  <a href="#" className="hover:text-red-500 transition duration-300">
                     Hướng dẫn sử dụng
                   </a>
                 </li>
