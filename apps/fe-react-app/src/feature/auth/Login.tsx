@@ -137,7 +137,11 @@ const Login: React.FC = () => {
                   onMouseLeave={() => setShowPassword(false)}
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
-                  <img src="/icons/view.svg" alt="toggle password visibility" className="w-5 h-5 cursor-pointer" />
+                  <img
+                    src={showPassword ? '/icons/eye-open.svg' : '/icons/eye-closed.svg'}
+                    alt="toggle password visibility"
+                    className="w-5 h-5 cursor-pointer"
+                  />
                 </a>
               </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
