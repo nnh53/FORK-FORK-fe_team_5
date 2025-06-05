@@ -1,13 +1,14 @@
 import MemberManagementPage from './feature/member/pages/MemberManagementPage'; // Kiểm tra lại đường dẫn
 import './App.css';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import Loading from './components/shared/Loading';
 import Login from './feature/auth/Login';
 import Register from './feature/auth/Register';
-import Loading from './components/shared/Loading';
-import NotFoundError from './components/error/NotFoundError';
 import InternalServerError from './components/error/InternalServerError';
+import NotFoundError from './components/error/NotFoundError';
+import PageTransition from './components/shared/PageTransition';
 
-const TITLE = "FCinema";
+const TITLE = 'FCinema';
 
 function App() {
   // Bạn có thể đã có router hoặc các layout khác ở đây
@@ -17,11 +18,46 @@ function App() {
     <div data-theme="">
       <title>{TITLE}</title>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/loading" element={<Loading />} />
-        <Route path="/error" element={<NotFoundError />} />
-        <Route path="/internal-server-error" element={<InternalServerError />} />
+        <Route
+          path="/login"
+          element={
+            <PageTransition>
+              <Login />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PageTransition>
+              <Register />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/loading"
+          element={
+            <PageTransition>
+              <Loading />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/error"
+          element={
+            <PageTransition>
+              <NotFoundError />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/internal-server-error"
+          element={
+            <PageTransition>
+              <InternalServerError />
+            </PageTransition>
+          }
+        />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
 
