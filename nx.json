@@ -2,7 +2,7 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "production": ["default", "!{projectRoot}/.eslintrc.json", "!{projectRoot}/eslint.config.mjs"],
+    "production": ["default"],
     "sharedGlobals": ["{workspaceRoot}/.gitlab-ci.yml"]
   },
   "neverConnectToCloud": true,
@@ -20,21 +20,8 @@
           "watchDepsName": "watch-deps"
         }
       }
-    },
-    {
-      "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "eslint:lint"
-      }
     }
   ],
-  "targetDefaults": {
-    "@nx/esbuild:esbuild": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    }
-  },
   "s3": {
     "endpoint": "https://b87c0f742b88aa3fe168e80816e507ba.r2.cloudflarestorage.com",
     "region": "us-east-1",
