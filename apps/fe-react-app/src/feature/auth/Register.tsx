@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Logo } from '../../components/logo/Logo';
 import NavigateButton from '../../components/shared/NavigateButton';
-import { registerValidationSchema } from '../../utils/validation';
+import { registerValidationSchema } from '../../utils/validation.utils';
 
 interface RegisterFormData {
   fullName: string;

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Logo } from '../../components/logo/Logo';
 import NavigateButton from '../../components/shared/NavigateButton';
-import { loginValidationSchema } from '../../utils/validation';
+import { loginValidationSchema } from '../../utils/validation.utils';
 
 const slides = [
   'photo-1524985069026-dd778a71c7b4',
