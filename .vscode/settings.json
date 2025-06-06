@@ -35,5 +35,8 @@
   "javascript.updateImportsOnFileMove.enabled": "always",
   "nxConsole.generateAiAgentRules": true,
   "workbench.tree.indent": 15,
-  "workbench.tree.renderIndentGuides": "always"
+  "workbench.tree.renderIndentGuides": "always",
+  "conventionalCommits.gitmoji": false,
+  "conventionalCommits.promptBody": false,
+  "conventionalCommits.promptFooter": false
 }
