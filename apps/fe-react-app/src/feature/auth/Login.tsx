@@ -112,7 +112,7 @@ const Login: React.FC = () => {
                 id="email"
                 {...register('email')}
                 placeholder="Nhập email của bạn"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2
                   ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
               />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
@@ -150,7 +150,7 @@ const Login: React.FC = () => {
               </a>
             </div>
 
-            <NavigateButton to="/login" className="w-full">
+            <NavigateButton to="/welcome" className="w-full">
               <span>Đăng nhập</span>
             </NavigateButton>
 

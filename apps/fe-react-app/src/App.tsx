@@ -9,6 +9,7 @@ import PageTransition from './components/shared/PageTransition';
 import LogVIAReg from './components/auth/LogVIAReg';
 import Unauthorized from './components/unauth/Unauthor';
 
+
 const TITLE = 'FCinema';
 
 function App() {
@@ -56,14 +57,6 @@ function App() {
             </PageTransition>
           }
         />
-        {/* <Route
-          path="/liquidbutton"
-          element={
-            <PageTransition>
-              <LiquidButton />
-            </PageTransition>
-          }
-        /> */}
         <Route
           path="/logviareg"
           element={

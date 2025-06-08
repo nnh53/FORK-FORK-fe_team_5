@@ -12,10 +12,11 @@
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
     "@react-spring/web": "^10.0.1",
+    "@supabase/supabase-js": "^2.50.0",
     "@tailwindcss/vite": "^4.1.7",
     "@tanstack/react-query": "^5.80.5",
-    "axios": "1.7.2",
     "@types/jquery": "^3.5.32",
+    "axios": "1.7.2",
     "daisyui": "^5.0.43",
     "framer-motion": "^12.16.0",
     "gsap": "^3.13.0",
@@ -24,6 +25,7 @@
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.57.0",
     "react-router-dom": "^7.6.1",
+    "supabase": "^2.24.3",
     "tailwindcss": "^4.1.7",
     "yup": "^1.6.1"
   },
