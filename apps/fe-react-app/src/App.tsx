@@ -9,6 +9,7 @@ import Unauthorized from './components/unauth/Unauthor';
 import Login from './feature/auth/Login';
 import Register from './feature/auth/Register';
 import Welcome from './feature/theme/Welcome';
+import ForgotPassword from './feature/auth/ForgotPassword';
 
 const TITLE = 'FCinema';
 
@@ -78,6 +79,14 @@ function App() {
           element={
             <PageTransition>
               <Welcome />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <PageTransition>
+              <ForgotPassword />
             </PageTransition>
           }
         />

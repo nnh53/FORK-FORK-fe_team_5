@@ -166,7 +166,7 @@ const Login: React.FC = () => {
                 </a>
               </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
-              <a href="#" className="text-sm text-red-600 hover:underline float-right mt-1">
+              <a href="/forgot-password" className="text-sm text-red-600 hover:underline float-right mt-1">
                 Quên mật khẩu?
               </a>
             </div>
