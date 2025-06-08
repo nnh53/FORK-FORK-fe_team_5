@@ -12,8 +12,6 @@ variables:
   SECRET_DETECTION_ENABLED: 'true'
   CI: 'true'
   DOCKER_HOST: 'unix:///var/run/docker.sock'
-services:
-  - docker:24.0.5-dind
 
 before_script:
   - echo $CI_JOB_TOKEN

@@ -8,6 +8,7 @@ shutdown_timeout = 0
 [[runners]]
   name = "machine-on-digital-ocean"
   url = "https://git.fa.edu.vn/"
+  clone_url = "https://git.fa.edu.vn/"
   id = 350
   token = "glrt-RgLnSYFnhk77nQxeEjT9"
   token_obtained_at = 2025-06-08T18:53:49Z
