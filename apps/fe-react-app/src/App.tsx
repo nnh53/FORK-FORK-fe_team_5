@@ -5,11 +5,12 @@ import InternalServerError from './components/error/InternalServerError';
 import NotFoundError from './components/error/NotFoundError';
 import Loading from './components/shared/Loading';
 import PageTransition from './components/shared/PageTransition';
+import ThemeSwitch from './components/theme/ThemeSwitch';
 import Unauthorized from './components/unauth/Unauthor';
+import ForgotPassword from './feature/auth/ForgotPassword';
 import Login from './feature/auth/Login';
 import Register from './feature/auth/Register';
 import Welcome from './feature/theme/Welcome';
-import ForgotPassword from './feature/auth/ForgotPassword';
 
 const TITLE = 'FCinema';
 
@@ -92,6 +93,7 @@ function App() {
         />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
+      <ThemeSwitch />
     </div>
   );
 }

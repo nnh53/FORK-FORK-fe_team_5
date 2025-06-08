@@ -196,7 +196,7 @@ const Login: React.FC = () => {
             <NavigateButton
               text={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               to="#"
-              className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
+              className="w-full bg-red-600 text-red py-2 rounded-md  justify-center"
               type="submit"
               disabled={loading}
             />
