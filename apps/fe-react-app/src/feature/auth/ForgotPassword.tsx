@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Logo } from '../../components/logo/Logo';
+import NavigateButton from '../../components/shared/NavigateButton';
 import { supaClient } from '../../services/supabase';
 import { forgotPasswordValidationSchema } from '../../utils/validation.utils';
 
@@ -196,13 +197,10 @@ const ForgotPassword: React.FC = () => {
               </div>
               {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message as string}</p>}
             </div>
-            <button type="submit" className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors" disabled={loading}>
-              {loading ? 'Đang đổi mật khẩu...' : 'Đổi mật khẩu'}
-            </button>
+            <NavigateButton type="submit" text="Đổi mật khẩu"  className="w-full bg-red-600 text-red py-2 rounded-md hover:bg-red-700 transition-colors"  />
+
             <div className="text-center mt-4">
-              <a href="/login" className="text-sm text-red-600 hover:underline">
-                Quay lại đăng nhập
-              </a>
+              <NavigateButton text="Quay lại đăng nhập" to="/login" className="text-sm text-red-600 hover:underline mx-auto" />
             </div>
           </form>
           <ToastContainer />

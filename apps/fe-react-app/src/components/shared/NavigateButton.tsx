@@ -1,17 +1,8 @@
-import { animated, useSpring } from '@react-spring/web';
-import React from 'react';
+// import { useSpring } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-
-interface NavigateButtonProps {
-  to: string;
-  children: React.ReactNode;
-  className?: string;
-}
-
-const NavigateButton: React.FC<NavigateButtonProps> = ({ to, children, className = '' }) => {
+import { useSpring } from '@react-spring/web';
+const NavigateButton = ({ text, to, icon, className }: { text?: string; to: string; icon?: JSX.Element; className?: string }) => {
   const navigate = useNavigate();
-
-  // Animation props
   const animationProps = useSpring({
     from: {
       transform: 'scale(1)',
@@ -35,15 +26,11 @@ const NavigateButton: React.FC<NavigateButtonProps> = ({ to, children, className
     },
     loop: { reverse: true },
   });
-
-  const handleClick = () => {
-    navigate(to);
-  };
-
   return (
-    <animated.button style={animationProps} onClick={handleClick} className={`text-sm text-red-600 hover:underline ${className}`}>
-      {children}
-    </animated.button>
+    <button style={animationProps} onClick={() => navigate(to)} className={`text-sm text-red-600 hover:underline ${className}`}>
+      {icon && <span className="mr-2">{icon}</span>} {/* Render icon if provided */}
+      {text}
+    </button>
   );
 };
 

@@ -3,6 +3,7 @@ import { animated, useSpring, useTransition } from '@react-spring/web';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Logo } from '../../components/logo/Logo';
+import NavigateButton from '../../components/shared/NavigateButton';
 import { supaClient } from '../../services/supabase';
 import { registerValidationSchema } from '../../utils/validation.utils';
 
@@ -233,12 +234,16 @@ const Register: React.FC = () => {
               </div>
               {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
             </div>
-            <button type="submit" className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors" disabled={loading}>
-              {loading ? 'Đang đăng ký...' : 'Đăng ký'}
-            </button>
+            <NavigateButton
+              text={loading ? 'Đang đăng ký...' : 'Đăng ký'}
+              to="#"
+              className="w-full bg-red-600 text-red py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
+              type="submit"
+              disabled={loading}
+            />
             <div className="text-center mt-4">
               <span className="text-sm text-gray-600">Đã có tài khoản? </span>
-              <a href="/login" className="text-sm text-red-600 hover:underline">
+              <a href="/login">
                 Đăng nhập ngay
               </a>
             </div>

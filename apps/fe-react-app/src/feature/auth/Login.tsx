@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Logo } from '../../components/logo/Logo';
+import NavigateButton from '../../components/shared/NavigateButton';
 import { supaClient } from '../../services/supabase';
 import { loginValidationSchema } from '../../utils/validation.utils';
 
@@ -173,9 +174,13 @@ const Login: React.FC = () => {
 
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
 
-            <button type="submit" className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors" disabled={loading}>
-              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-            </button>
+            <NavigateButton
+              text={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              to="#"
+              className="w-full bg-red-600 text-red py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
+              type="submit"
+              disabled={loading}
+            />
 
             <div className="text-center mt-4">
               <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
