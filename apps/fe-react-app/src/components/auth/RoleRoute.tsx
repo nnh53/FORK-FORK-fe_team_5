@@ -22,7 +22,7 @@ interface RoleRouteProps {
 }
 
 const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles, redirectPath = '/login' }) => {
-  const isLoggedIn = true;//tam thoi 
+  const isLoggedIn = true;//tam thoi
 
   if (!isLoggedIn) {
     return <Navigate to={redirectPath} replace />;
@@ -39,7 +39,6 @@ const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles, redirectPath = '/lo
 
   return <Outlet />;
 
-  return <Outlet />;
 };
 
 export default RoleRoute;

@@ -3,11 +3,12 @@ import { animated, useSpring, useTransition } from '@react-spring/web';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Logo } from '../../components/logo/Logo';
-import NavigateButton from '../../components/shared/NavigateButton';
+import { supaClient } from '../../services/supabase';
 import { registerValidationSchema } from '../../utils/validation.utils';
 
 interface RegisterFormData {
   fullName: string;
+  dateOfBirth: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -25,6 +26,9 @@ const Register: React.FC = () => {
   const [index, setIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   // Background transition using useTransition
   const transitions = useTransition(index, {
@@ -45,13 +49,48 @@ const Register: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<RegisterFormData>({
     resolver: yupResolver(registerValidationSchema),
   });
 
-  const onSubmit = (data: RegisterFormData) => {
-    //từ từ add sau nhé
-    console.log('Registration attempt', data);
+  const onSubmit = async (data: RegisterFormData) => {
+    setError(null);
+    setMessage(null);
+    setLoading(true);
+    if (data.password !== data.confirmPassword) {
+      setError('Passwords do not match.');
+      setLoading(false);
+      return;
+    }
+    try {
+      const { data: signUpData, error: authError } = await supaClient.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            full_name: data.fullName,
+            date_of_birth: data.dateOfBirth,
+          },
+        },
+      });
+      if (authError) {
+        setError(authError.message);
+      } else if (signUpData.user) {
+        if (signUpData.user.identities && signUpData.user.identities.length > 0 && !signUpData.user.email_confirmed_at) {
+          setMessage(`Đăng ký thành công! Vui lòng kiểm tra ${signUpData.user.email} để xác nhận email.`);
+        } else {
+          setMessage('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
+        }
+        reset();
+      } else {
+        setMessage('Đăng ký đã được gửi. Nếu bật xác nhận email, vui lòng kiểm tra email.');
+      }
+    } catch (e: any) {
+      setError('Có lỗi xảy ra. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Page entrance animation
@@ -82,6 +121,16 @@ const Register: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {error && (
+              <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-400 rounded-md" role="alert">
+                {error}
+              </div>
+            )}
+            {message && (
+              <div className="p-3 text-sm text-green-700 bg-green-100 border border-green-400 rounded-md" role="alert">
+                {message}
+              </div>
+            )}
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Họ và tên
@@ -91,12 +140,26 @@ const Register: React.FC = () => {
                 id="fullName"
                 {...register('fullName')}
                 placeholder="Nhập họ và tên"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 
+                disabled={loading}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2
                   ${errors.fullName ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
               />
               {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
             </div>
-
+            <div>
+              <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 text-left mb-1">
+                Ngày sinh
+              </label>
+              <input
+                type="date"
+                id="dateOfBirth"
+                {...register('dateOfBirth')}
+                disabled={loading}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2
+                  ${errors.dateOfBirth ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
+              />
+              {errors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth.message}</p>}
+            </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Email
@@ -106,12 +169,12 @@ const Register: React.FC = () => {
                 id="email"
                 {...register('email')}
                 placeholder="Nhập email của bạn"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 
+                disabled={loading}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2
                   ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
               />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
             </div>
-
             <div className="relative">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Mật khẩu
@@ -122,6 +185,7 @@ const Register: React.FC = () => {
                   id="password"
                   {...register('password')}
                   placeholder="Nhập mật khẩu"
+                  disabled={loading}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10
                     ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
                 />
@@ -140,7 +204,6 @@ const Register: React.FC = () => {
               </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
             </div>
-
             <div className="relative">
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Xác nhận mật khẩu
@@ -151,6 +214,7 @@ const Register: React.FC = () => {
                   id="confirmPassword"
                   {...register('confirmPassword')}
                   placeholder="Nhập lại mật khẩu"
+                  disabled={loading}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10
                     ${errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
                 />
@@ -169,11 +233,9 @@ const Register: React.FC = () => {
               </div>
               {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
             </div>
-
-            <NavigateButton to="/register" className="w-full">
-              <span>Đăng ký</span>
-            </NavigateButton>
-
+            <button type="submit" className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors" disabled={loading}>
+              {loading ? 'Đang đăng ký...' : 'Đăng ký'}
+            </button>
             <div className="text-center mt-4">
               <span className="text-sm text-gray-600">Đã có tài khoản? </span>
               <a href="/login" className="text-sm text-red-600 hover:underline">
@@ -218,3 +280,4 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+
