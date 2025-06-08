@@ -1,14 +1,14 @@
-import './App.css';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import Loading from './components/shared/Loading';
-import Login from './feature/auth/Login';
-import Register from './feature/auth/Register';
+import './App.css';
+import LogVIAReg from './components/auth/LogVIAReg';
 import InternalServerError from './components/error/InternalServerError';
 import NotFoundError from './components/error/NotFoundError';
+import Loading from './components/shared/Loading';
 import PageTransition from './components/shared/PageTransition';
-import LogVIAReg from './components/auth/LogVIAReg';
 import Unauthorized from './components/unauth/Unauthor';
-
+import Login from './feature/auth/Login';
+import Register from './feature/auth/Register';
+import Welcome from './feature/theme/Welcome';
 
 const TITLE = 'FCinema';
 
@@ -70,6 +70,14 @@ function App() {
           element={
             <PageTransition>
               <Unauthorized />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/welcome"
+          element={
+            <PageTransition>
+              <Welcome />
             </PageTransition>
           }
         />

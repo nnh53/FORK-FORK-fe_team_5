@@ -2,8 +2,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { animated, useSpring, useTransition } from '@react-spring/web';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { Logo } from '../../components/logo/Logo';
-import NavigateButton from '../../components/shared/NavigateButton';
+import { supaClient } from '../../services/supabase';
 import { loginValidationSchema } from '../../utils/validation.utils';
 
 const slides = [
@@ -21,6 +22,9 @@ interface LoginFormData {
 const Login: React.FC = () => {
   const [index, setIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const transitions = useTransition(index, {
     key: index,
@@ -44,9 +48,26 @@ const Login: React.FC = () => {
     resolver: yupResolver(loginValidationSchema),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    //từ từ add sau
-    console.log('Login attempt', data);
+  const onSubmit = async (data: LoginFormData) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const { data: loginData, error: authError } = await supaClient.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      if (authError) {
+        setError(authError.message || 'Đăng nhập thất bại.');
+      } else if (loginData.user) {
+        navigate('/welcome');
+      } else {
+        setError('Đăng nhập thất bại.');
+      }
+    } catch {
+      setError('Có lỗi xảy ra.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // reactspring-page transition
@@ -150,9 +171,11 @@ const Login: React.FC = () => {
               </a>
             </div>
 
-            <NavigateButton to="/welcome" className="w-full">
-              <span>Đăng nhập</span>
-            </NavigateButton>
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+
+            <button type="submit" className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors" disabled={loading}>
+              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            </button>
 
             <div className="text-center mt-4">
               <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
