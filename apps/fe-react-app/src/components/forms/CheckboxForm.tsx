@@ -72,7 +72,7 @@ const CheckboxForm: React.FC<CheckboxProps> = ({ name, label, control, errors })
                   }}
                   className="custom-checkbox absolute opacity-0 cursor-pointer w-full h-full"
                 />
-                <svg viewBox="0 0 21 21" className="absolute top-0 left-0 w-5 h-5 -translate-x-0.4
+                <svg viewBox="0 0 21 21" className="absolute top-0 left-0 w-5 h-5 -translate-x-0.5
                 ">
                   <path
                     ref={pathRef}

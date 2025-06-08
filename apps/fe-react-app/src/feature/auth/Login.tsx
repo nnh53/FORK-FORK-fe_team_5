@@ -7,6 +7,7 @@ import { Logo } from '../../components/logo/Logo';
 import NavigateButton from '../../components/shared/NavigateButton';
 import { supaClient } from '../../services/supabase';
 import { loginValidationSchema } from '../../utils/validation.utils';
+import CheckboxForm from '../../components/forms/CheckboxForm';
 
 const slides = [
   'photo-1524985069026-dd778a71c7b4',
@@ -15,9 +16,11 @@ const slides = [
   'photo-1542204637-e9f12f144cca',
 ];
 
+// THAY ĐỔI 1: Thêm 'rememberMe' vào interface form data
 interface LoginFormData {
   email: string;
   password: string;
+  rememberMe?: boolean; // Thêm trường này để quản lý checkbox
 }
 
 const Login: React.FC = () => {
@@ -41,18 +44,29 @@ const Login: React.FC = () => {
     exitBeforeEnter: true,
   });
 
+  // THAY ĐỔI 2: Lấy 'control' từ useForm và set giá trị mặc định
   const {
     register,
     handleSubmit,
+    control, // Lấy control để truyền cho CheckboxForm
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: yupResolver(loginValidationSchema),
+    defaultValues: {
+      // Set giá trị mặc định cho form
+      email: '',
+      password: '',
+      rememberMe: false,
+    },
   });
 
   const onSubmit = async (data: LoginFormData) => {
     setError(null);
     setLoading(true);
     try {
+      // Xử lý logic 'rememberMe' nếu cần
+      console.log('Form Data:', data);
+
       const { data: loginData, error: authError } = await supaClient.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -140,7 +154,7 @@ const Login: React.FC = () => {
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
             </div>
 
-            <div className="relative">
+            <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 text-left mb-1">
                 Mật khẩu
               </label>
@@ -167,9 +181,14 @@ const Login: React.FC = () => {
                 </a>
               </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
-              <a href="/forgot-password" className="text-sm text-red-600 hover:underline float-right mt-1">
+            </div>
+
+            {/* THAY ĐỔI 3: Tạo container Flexbox để chứa link và checkbox */}
+            <div className="flex justify-between items-center">
+              <a href="/forgot-password" className="text-sm text-red-600 hover:underline">
                 Quên mật khẩu?
               </a>
+              <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
             </div>
 
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -177,7 +196,7 @@ const Login: React.FC = () => {
             <NavigateButton
               text={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               to="#"
-              className="w-full bg-red-600 text-red py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
+              className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
               type="submit"
               disabled={loading}
             />
@@ -196,4 +215,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-
