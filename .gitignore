@@ -9,6 +9,7 @@ dist
 tmp
 out-tsc
 gitlab-ci-local
+gl-secret-detection-report.json
 
 # dependencies
 node_modules

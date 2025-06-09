@@ -15,8 +15,7 @@ variables:
 
 before_script:
   - echo $CI_JOB_TOKEN
-  # - echo \$CI_JOB_TOKEN
-  # - echo process.env.CI_JOB_TOKEN
+  - echo $DOPPLER_TOKEN
 
 secret_detection:
   stage: secret-detection-and-lint-commit
@@ -58,7 +57,7 @@ ci:
     - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
 
     # - doppler run --command="echo \$DOPPLER_TOKEN"
-    - doppler run -- pnpm exec nx affected -t lint test build --verbose
+    - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx affected -t lint test build --verbose
   cache:
     key:
       files:
