@@ -6,7 +6,8 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-  - secret-detection-and-lint-commit
+  - secret-detection
+  - lint-commit
   - ci
 variables:
   SECRET_DETECTION_ENABLED: 'true'
@@ -18,7 +19,7 @@ before_script:
   - echo $DOPPLER_TOKEN
 
 secret_detection:
-  stage: secret-detection-and-lint-commit
+  stage: secret-detection
 include:
   - template: Security/Secret-Detection.gitlab-ci.yml
 
@@ -26,7 +27,7 @@ lint-commit:
   image:
     name: registry.hub.docker.com/commitlint/commitlint:latest
     entrypoint: ['']
-  stage: secret-detection-and-lint-commit
+  stage: lint-commit
   script:
     - commitlint --from ${CI_MERGE_REQUEST_DIFF_BASE_SHA} --to ${CI_COMMIT_SHA}
 
@@ -45,7 +46,6 @@ ci:
     - curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh | sh
   script:
     # - npm install --prefix=$HOME/.local -g pnpm@8
-
     # This enables task distribution via Nx Cloud
     # Run this command as early as possible, before dependencies are installed
     # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
@@ -56,10 +56,9 @@ ci:
     - NX_HEAD=$CI_COMMIT_SHA
     - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
 
+    - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx run-many -t lint test build -p fe-react-app --parallel=1 --verbose
     # - doppler run --command="echo \$DOPPLER_TOKEN"
     # - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx affected -t lint test build --verbose
-    - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx run-many -t lint test build -p fe-react-app --parallel=1 --verbose
-
   cache:
     key:
       files:
