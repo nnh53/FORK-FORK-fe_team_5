@@ -5,5 +5,5 @@ export const ROUTING_PATH = {
   MANAGERS_SHOW: '/managers/show',
   MANAGERS_TICKET: '/managers/ticket',
   MANAGERS_STAFF: '/managers/staff',
-  MANAGERS_SETTING: '/managers/setting',
+  MANAGERS_MEMBER: '/managers/member',
 } as const;
