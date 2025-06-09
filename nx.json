@@ -22,6 +22,25 @@
       }
     }
   ],
+  "targetDefaults": {
+    "lint": {
+      "cache": true
+    },
+    "test": {
+      "cache": true
+    },
+    "build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "outputs": [
+        "{workspaceRoot}/apps/**/dist",
+        "{workspaceRoot}/apps/**/build",
+        "{projectRoot}/dist",
+        "{projectRoot}/build",
+        "{projectRoot}/public/build"
+      ]
+    }
+  },
   "s3": {
     "endpoint": "https://b87c0f742b88aa3fe168e80816e507ba.r2.cloudflarestorage.com",
     "region": "us-east-1",

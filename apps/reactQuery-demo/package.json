@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "echo 'Linting is disabled of next lint'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

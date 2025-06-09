@@ -58,7 +58,7 @@ ci:
 
     # - doppler run --command="echo \$DOPPLER_TOKEN"
     # - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx affected -t lint test build --verbose
-    - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx run-many -t lint test build -p fe-react-app --verbose
+    - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx run-many -t lint test build -p fe-react-app --parallel=1 --verbose
 
   cache:
     key:

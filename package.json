@@ -8,6 +8,7 @@
     "prepare": "node -e \"process.env.CI || process.env.DOCKER || process.exit(1)\" || (husky && git config --local include.path .gitconfig && pnpm run setup-nx-powerpack)",
     "prettier:write": "prettier --write .",
     "clean-node-modules": "pnpx npkill",
+    "clean-nx-cache": "nx reset --only-workspace-data",
     "setup-nx-powerpack": "doppler secrets download --project fcinema --config prd --no-file --format env > .env"
   },
   "private": true,
