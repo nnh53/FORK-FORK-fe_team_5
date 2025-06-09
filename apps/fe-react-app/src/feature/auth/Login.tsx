@@ -167,7 +167,8 @@ const Login: React.FC = () => {
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10
                     ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
                 />
-                <a
+                <button
+                  type="button"
                   onMouseDown={() => setShowPassword(true)}
                   onMouseUp={() => setShowPassword(false)}
                   onMouseLeave={() => setShowPassword(false)}
@@ -178,7 +179,7 @@ const Login: React.FC = () => {
                     alt="toggle password visibility"
                     className="w-5 h-5 cursor-pointer"
                   />
-                </a>
+                </button>
               </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
             </div>
@@ -197,8 +198,6 @@ const Login: React.FC = () => {
               text={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               to="#"
               className="w-full bg-red-600 text-red py-2 rounded-md  justify-center"
-              type="submit"
-              disabled={loading}
             />
 
             <div className="text-center mt-4">

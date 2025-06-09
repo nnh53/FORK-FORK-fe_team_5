@@ -1,7 +1,7 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { animated, useSpring, useTransition } from '@react-spring/web';
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver, type SubmitHandler } from 'react-hook-form';
 import { Logo } from '../../components/logo/Logo';
 import NavigateButton from '../../components/shared/NavigateButton';
 import { supaClient } from '../../services/supabase';
@@ -52,7 +52,7 @@ const Register: React.FC = () => {
     formState: { errors },
     reset,
   } = useForm<RegisterFormData>({
-    resolver: yupResolver(registerValidationSchema),
+    resolver: yupResolver(registerValidationSchema) as Resolver<RegisterFormData>,
   });
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -87,7 +87,7 @@ const Register: React.FC = () => {
       } else {
         setMessage('Đăng ký đã được gửi. Nếu bật xác nhận email, vui lòng kiểm tra email.');
       }
-    } catch (e: any) {
+    } catch {
       setError('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setLoading(false);
@@ -121,7 +121,7 @@ const Register: React.FC = () => {
             <p className="text-gray-600">Tạo tài khoản mới để trải nghiệm dịch vụ tốt nhất</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit as SubmitHandler<RegisterFormData>)} className="space-y-4">
             {error && (
               <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-400 rounded-md" role="alert">
                 {error}
@@ -190,7 +190,8 @@ const Register: React.FC = () => {
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10
                     ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
                 />
-                <a
+                <button
+                  type="button"
                   onMouseDown={() => setShowPassword(true)}
                   onMouseUp={() => setShowPassword(false)}
                   onMouseLeave={() => setShowPassword(false)}
@@ -201,7 +202,7 @@ const Register: React.FC = () => {
                     alt="toggle password visibility"
                     className="w-5 h-5 cursor-pointer"
                   />
-                </a>
+                </button>
               </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
             </div>
@@ -219,7 +220,8 @@ const Register: React.FC = () => {
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10
                     ${errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
                 />
-                <a
+                <button
+                  type="button"
                   onMouseDown={() => setShowConfirmPassword(true)}
                   onMouseUp={() => setShowConfirmPassword(false)}
                   onMouseLeave={() => setShowConfirmPassword(false)}
@@ -230,7 +232,7 @@ const Register: React.FC = () => {
                     alt="toggle password visibility"
                     className="w-5 h-5 cursor-pointer"
                   />
-                </a>
+                </button>
               </div>
               {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
             </div>
@@ -238,14 +240,10 @@ const Register: React.FC = () => {
               text={loading ? 'Đang đăng ký...' : 'Đăng ký'}
               to="#"
               className="w-full bg-red-600 text-red py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
-              type="submit"
-              disabled={loading}
             />
             <div className="text-center mt-4">
               <span className="text-sm text-gray-600">Đã có tài khoản? </span>
-              <a href="/login">
-                Đăng nhập ngay
-              </a>
+              <a href="/login">Đăng nhập ngay</a>
             </div>
           </form>
         </div>
@@ -285,4 +283,3 @@ const Register: React.FC = () => {
 };
 
 export default Register;
-

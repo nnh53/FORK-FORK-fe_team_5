@@ -1,23 +1,22 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useGetMembers, useCreateMember, useUpdateMember, useDeleteMember } from '../hooks/useMemberQueries';
-import { Member } from '../types';
+import type { Member } from '../types';
 import Modal from '../../../components/ui/modal';
 
 interface MemberFormProps {
   onSubmit: (memberData: Omit<Member, 'member_id' | 'password'>) => void;
   initialData?: Partial<Member>;
-  isEdit?: boolean;
 }
 
-const MemberForm = forwardRef(({ onSubmit, initialData, isEdit }: MemberFormProps, ref) => {
-  const [name, setName] = useState(initialData?.name || '');
-  const [email, setEmail] = useState(initialData?.email || '');
-  const [phone, setPhone] = useState(initialData?.phone || '');
-  const [address, setAddress] = useState(initialData?.address || '');
-  const [dateOfBirth, setDateOfBirth] = useState(initialData?.date_of_birth || '');
-  const [identityCard, setIdentityCard] = useState(initialData?.identity_card || '');
-  const [gender, setGender] = useState(initialData?.gender === undefined ? false : initialData.gender);
-  const [role, setRole] = useState(initialData?.role || 'customer');
+const MemberForm = forwardRef(({ onSubmit, initialData }: MemberFormProps, ref) => {
+  const [name, setName] = useState(initialData?.name ?? '');
+  const [email, setEmail] = useState(initialData?.email ?? '');
+  const [phone, setPhone] = useState(initialData?.phone ?? '');
+  const [address, setAddress] = useState(initialData?.address ?? '');
+  const [dateOfBirth, setDateOfBirth] = useState(initialData?.date_of_birth ?? '');
+  const [identityCard, setIdentityCard] = useState(initialData?.identity_card ?? '');
+  const [gender, setGender] = useState(initialData?.gender ?? false);
+  const [role, setRole] = useState(initialData?.role ?? 'customer');
 
   const handleSubmit = () => {
     if (!name || !email) {
@@ -285,7 +284,7 @@ const MemberManagementPage: React.FC = () => {
           onSubmit={() => formRef.current?.handleSubmit()}
           submitLabel={editingMember ? 'Sửa' : 'Thêm'}
         >
-          <MemberForm ref={formRef} onSubmit={handleSubmitForm} initialData={editingMember || undefined} isEdit={!!editingMember} />
+          <MemberForm ref={formRef} onSubmit={handleSubmitForm} initialData={editingMember || undefined} />
         </Modal>
       </div>
 

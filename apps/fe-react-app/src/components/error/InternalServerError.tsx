@@ -9,14 +9,12 @@ const InternalServerError = () => {
             <span className="sr-only">Error</span>500
           </h2>
           <p className="text-2xl font-semibold md:text-3xl">Internal Server Error.</p>
-          <p className="mb-8 mt-4 dark:text-gray-600">BBut don't worry, you can find plenty of other things on our homepage.</p>
-          <NavigateButton to="/"><span>Back to Home</span></NavigateButton>
+          <p className="mb-8 mt-4 dark:text-gray-600">But don&apos;t worry, you can find plenty of other things on our homepage.</p>
+          <NavigateButton to="/" text="Back to Home" />
         </div>
       </div>
     </section>
   );
-}
+};
 
-
-
-export default InternalServerError
+export default InternalServerError;

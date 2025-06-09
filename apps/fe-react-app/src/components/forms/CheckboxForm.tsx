@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import React, { useEffect, useRef } from 'react';
-import { Controller, Control, FieldErrors } from 'react-hook-form';
+import { Controller, type Control, type FieldErrors } from 'react-hook-form';
 
 // Register DrawSVG plugin
 gsap.registerPlugin(DrawSVGPlugin);
@@ -9,7 +9,7 @@ gsap.registerPlugin(DrawSVGPlugin);
 interface CheckboxProps {
   name: string;
   label: string;
-  control: Control<any>;
+  control: Control<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
   errors?: FieldErrors;
 }
 
@@ -42,7 +42,11 @@ const CheckboxForm: React.FC<CheckboxProps> = ({ name, label, control, errors })
       );
 
       const handleChange = () => {
-        tl.reversed() ? tl.play() : tl.reverse();
+        if (tl.reversed()) {
+          tl.play();
+        } else {
+          tl.reverse();
+        }
       };
 
       checkbox.addEventListener('change', handleChange);
@@ -72,8 +76,11 @@ const CheckboxForm: React.FC<CheckboxProps> = ({ name, label, control, errors })
                   }}
                   className="custom-checkbox absolute opacity-0 cursor-pointer w-full h-full"
                 />
-                <svg viewBox="0 0 21 21" className="absolute top-0 left-0 w-5 h-5 -translate-x-0.5
-                ">
+                <svg
+                  viewBox="0 0 21 21"
+                  className="absolute top-0 left-0 w-5 h-5 -translate-x-0.5
+                "
+                >
                   <path
                     ref={pathRef}
                     d="M5,10.75 L8.5,14.25 L19.4,2.3 C18.8333333,1.43333333 18.0333333,1 17,1 L4,1 C2.35,1 1,2.35 1,4 L1,17 C1,18.65 2.35,20 4,20 L17,20 C18.65,20 20,18.65 20,17 L20,7.99769186"

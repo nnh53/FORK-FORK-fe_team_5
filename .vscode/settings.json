@@ -38,5 +38,7 @@
   "workbench.tree.renderIndentGuides": "always",
   "conventionalCommits.gitmoji": false,
   "conventionalCommits.promptBody": false,
-  "conventionalCommits.promptFooter": false
+  "conventionalCommits.promptFooter": false,
+  "cSpell.words": ["supa"]
 }
+

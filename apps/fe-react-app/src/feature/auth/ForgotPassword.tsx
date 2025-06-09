@@ -152,7 +152,8 @@ const ForgotPassword: React.FC = () => {
                     errors.password ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'
                   }`}
                 />
-                <a
+                <button
+                  type="button"
                   onMouseDown={() => setShowPassword(true)}
                   onMouseUp={() => setShowPassword(false)}
                   onMouseLeave={() => setShowPassword(false)}
@@ -163,7 +164,7 @@ const ForgotPassword: React.FC = () => {
                     alt="toggle password visibility"
                     className="w-5 h-5 cursor-pointer"
                   />
-                </a>
+                </button>
               </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message as string}</p>}
             </div>
@@ -182,7 +183,8 @@ const ForgotPassword: React.FC = () => {
                     errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'
                   }`}
                 />
-                <a
+                <button
+                  type="button"
                   onMouseDown={() => setShowConfirmPassword(true)}
                   onMouseUp={() => setShowConfirmPassword(false)}
                   onMouseLeave={() => setShowConfirmPassword(false)}
@@ -193,11 +195,11 @@ const ForgotPassword: React.FC = () => {
                     alt="toggle password visibility"
                     className="w-5 h-5 cursor-pointer"
                   />
-                </a>
+                </button>
               </div>
               {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message as string}</p>}
             </div>
-            <NavigateButton type="submit" text="Đổi mật khẩu"  className="w-full bg-red-600 text-red py-2 rounded-md hover:bg-red-700 transition-colors"  />
+            <NavigateButton to="/" text="Đổi mật khẩu" className="w-full bg-red-600 text-red py-2 rounded-md hover:bg-red-700 transition-colors" />
 
             <div className="text-center mt-4">
               <NavigateButton text="Quay lại đăng nhập" to="/login" className="text-sm text-red-600 hover:underline mx-auto" />

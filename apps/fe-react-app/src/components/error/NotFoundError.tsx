@@ -10,14 +10,11 @@ const NotFoundError = () => {
           </h2>
           <p className="text-2xl font-semibold md:text-3xl">Sorry, we couldn't find this page.</p>
           <p className="mb-8 mt-4 dark:text-gray-600">But don't worry, you can find plenty of other things on our homepage.</p>
-          <NavigateButton to="/"><span>Back to Home</span></NavigateButton>
+          <NavigateButton to="/" text="Back to Home" />
         </div>
       </div>
     </section>
   );
-}
+};
 
-
-
-
-export default NotFoundError
+export default NotFoundError;

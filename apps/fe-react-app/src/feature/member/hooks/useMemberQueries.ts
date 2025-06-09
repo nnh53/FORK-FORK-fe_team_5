@@ -1,7 +1,7 @@
 // src/feature/member/hooks/useMemberQueries.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMembers, createMember, updateMember, deleteMember } from '../services/memberApi';
-import { Member } from '../types'; // Adjust path if necessary
+import type { Member } from '../types'; // Adjust path if necessary
 
 export const MEMBER_QUERY_KEY = 'members'; // Key để quản lý cache của react-query
 
@@ -30,7 +30,8 @@ export function useUpdateMember() {
   const queryClient = useQueryClient();
   return useMutation<Member, Error, Member>({
     mutationFn: updateMember,
-    onSuccess: (updatedMember) => {
+    onSuccess: () => {
+      // onSuccess: (updatedMember) => {
       queryClient.invalidateQueries({ queryKey: [MEMBER_QUERY_KEY] });
       // Optional: cập nhật cache cho member cụ thể nếu có trang chi tiết
       // queryClient.setQueryData([MEMBER_QUERY_KEY, updatedMember.member_id], updatedMember);
