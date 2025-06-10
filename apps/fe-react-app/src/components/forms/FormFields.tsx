@@ -8,12 +8,30 @@ interface FormFieldProps {
   type?: string;
   control: Control<any>;
   errors: FieldErrors;
+  isRequired?: boolean;
 }
 
-const FormField: React.FC<FormFieldProps> = ({ name, label, type = 'text', control, errors }) => (
+const FormField: React.FC<FormFieldProps> = ({ name, label, type = 'text', control, errors, isRequired = true }) => (
   <div className="flex flex-col">
-    <label htmlFor={name} className="text-lg text-gray-700 text-left">
-      <span className="text-red-500">*</span> {label}
+    <style>
+      {`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .error-message {
+          animation: slideDown 0.2s ease-out forwards;
+        }
+      `}
+    </style>
+    <label htmlFor={name} className="mb-2 text-lg text-gray-700 text-left">
+      {isRequired && <span className="text-red-500">*</span>} {label}
     </label>
     <Controller
       name={name}
@@ -26,11 +44,11 @@ const FormField: React.FC<FormFieldProps> = ({ name, label, type = 'text', contr
           className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10 ${
             errors[name] ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'
           }`}
-          placeholder={`Enter your ${label}`}
+          placeholder={`Nhập ${label}`}
         />
       )}
     />
-    {errors[name] && <p className="error text-red-500 mt-1 text-left text-sm">{errors[name]?.message as string}</p>}
+    {errors[name] && <p className="error text-red-500 mt-1 text-left text-sm error-message">{errors[name]?.message as string}</p>}
   </div>
 );
 

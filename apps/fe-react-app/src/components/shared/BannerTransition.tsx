@@ -3,14 +3,12 @@ import React, { useState } from 'react';
 
 interface BannerTransitionProps {
   slides: string[];
-  className?: string;
-  textTitle?: string;
-  textDesc?: string;
   children?: React.ReactNode;
 }
 
-const BannerTransition: React.FC<BannerTransitionProps> = ({ slides, className = '', textTitle, textDesc, children }) => {
+const BannerTransition: React.FC<BannerTransitionProps> = ({ slides, children }) => {
   const [index, setIndex] = useState(0);
+
   const transitions = useTransition(index, {
     key: index,
     from: { opacity: 0 },
@@ -26,10 +24,7 @@ const BannerTransition: React.FC<BannerTransitionProps> = ({ slides, className =
   });
 
   return (
-    <div
-      className={`w-1/2 bg-red-700 text-white flex flex-col justify-center p-12 relative overflow-hidden ${className}`}
-      style={{ minHeight: '100%' }}
-    >
+    <div className="w-1/2 bg-red-700 text-white flex flex-col justify-center p-12 relative overflow-hidden">
       {transitions((style, i) => (
         <animated.div
           key={i}
@@ -46,13 +41,7 @@ const BannerTransition: React.FC<BannerTransitionProps> = ({ slides, className =
           }}
         />
       ))}
-      {/* Optional dark overlay for better text contrast */}
-      <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50" style={{ zIndex: 1 }} />
-      <div className="relative z-10">
-        {textTitle && <h2 className="text-3xl font-bold">{textTitle}</h2>}
-        {textDesc && <p className="text-lg">{textDesc}</p>}
-        {children}
-      </div>
+      <div className="relative z-10">{children}</div>
     </div>
   );
 };

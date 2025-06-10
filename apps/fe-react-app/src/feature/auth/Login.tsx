@@ -1,13 +1,14 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { animated, useSpring, useTransition } from '@react-spring/web';
+import { animated, useSpring } from '@react-spring/web';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import CheckboxForm from '../../components/forms/CheckboxForm';
+import FormField from '../../components/forms/FormFields';
 import { Logo } from '../../components/logo/Logo';
-import NavigateButton from '../../components/shared/NavigateButton';
+import BannerTransition from '../../components/shared/BannerTransition';
 import { supaClient } from '../../services/supabase';
 import { loginValidationSchema } from '../../utils/validation.utils';
-import CheckboxForm from '../../components/forms/CheckboxForm';
 
 const slides = [
   'photo-1524985069026-dd778a71c7b4',
@@ -16,44 +17,24 @@ const slides = [
   'photo-1542204637-e9f12f144cca',
 ];
 
-// THAY ĐỔI 1: Thêm 'rememberMe' vào interface form data
 interface LoginFormData {
   email: string;
   password: string;
-  rememberMe?: boolean; // Thêm trường này để quản lý checkbox
+  rememberMe?: boolean;
 }
 
 const Login: React.FC = () => {
-  const [index, setIndex] = useState(0);
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const transitions = useTransition(index, {
-    key: index,
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 },
-    config: { duration: 3000 },
-    onRest: (_a, _b, item) => {
-      if (index === item) {
-        setIndex((state) => (state + 1) % slides.length);
-      }
-    },
-    exitBeforeEnter: true,
-  });
-
-  // THAY ĐỔI 2: Lấy 'control' từ useForm và set giá trị mặc định
   const {
-    register,
     handleSubmit,
-    control, // Lấy control để truyền cho CheckboxForm
+    control,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: yupResolver(loginValidationSchema),
     defaultValues: {
-      // Set giá trị mặc định cho form
       email: '',
       password: '',
       rememberMe: false,
@@ -64,7 +45,6 @@ const Login: React.FC = () => {
     setError(null);
     setLoading(true);
     try {
-      // Xử lý logic 'rememberMe' nếu cần
       console.log('Form Data:', data);
 
       const { data: loginData, error: authError } = await supaClient.auth.signInWithPassword({
@@ -85,7 +65,6 @@ const Login: React.FC = () => {
     }
   };
 
-  // reactspring-page transition
   const pageAnimation = useSpring({
     from: {
       opacity: 0,
@@ -103,102 +82,38 @@ const Login: React.FC = () => {
 
   return (
     <animated.div style={pageAnimation} className="flex h-screen">
-      {/*left-banner*/}
-      <div className="w-1/2 bg-red-700 text-white flex flex-col justify-center p-12 relative overflow-hidden">
-        {transitions((style, i) => (
-          <animated.div
-            key={i}
-            style={{
-              ...style,
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              backgroundImage: `url(https://images.unsplash.com/${slides[i]}?w=1920&q=80&auto=format&fit=crop)`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
-        ))}
-
-        {/*text form*/}
-        <div className="relative z-10">
-          <h2 className="text-3xl font-bold">Chào mừng trở lại</h2>
-          <p className="text-lg">Trải nghiệm những bộ phim tuyệt vời nhất tại rạp chiếu phim hiện đại</p>
-        </div>
-      </div>
+      <BannerTransition slides={slides}>
+        <h2 className="text-3xl font-bold">Chào mừng trở lại</h2>
+        <p className="text-lg">Trải nghiệm những bộ phim tuyệt vời nhất tại rạp chiếu phim hiện đại</p>
+      </BannerTransition>
 
       {/*right banner*/}
       <div className="w-1/2 flex items-center justify-center p-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <Logo className="mx-auto mb-4" />
-            <h3 className=" text-2xl font-semibold">Đăng Nhập</h3>
+            <h3 className="text-2xl font-semibold">Đăng Nhập</h3>
             <p className="text-gray-600">Tạo tài khoản mới để trải nghiệm dịch vụ tốt nhất</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 text-left mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                {...register('email')}
-                placeholder="Nhập email của bạn"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2
-                  ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
-              />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
-            </div>
+            <FormField name="email" label="Email" type="email" control={control} errors={errors} />
+            <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 text-left mb-1">
-                Mật khẩu
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  {...register('password')}
-                  placeholder="Nhập mật khẩu"
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10
-                    ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'}`}
-                />
-                <button
-                  type="button"
-                  onMouseDown={() => setShowPassword(true)}
-                  onMouseUp={() => setShowPassword(false)}
-                  onMouseLeave={() => setShowPassword(false)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  <img
-                    src={showPassword ? '/icons/eye-open.svg' : '/icons/eye-closed.svg'}
-                    alt="toggle password visibility"
-                    className="w-5 h-5 cursor-pointer"
-                  />
-                </button>
-              </div>
-              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
-            </div>
-
-            {/* THAY ĐỔI 3: Tạo container Flexbox để chứa link và checkbox */}
             <div className="flex justify-between items-center">
-              <a href="/forgot-password" className="text-sm text-red-600 hover:underline">
-                Quên mật khẩu?
-              </a>
+              <a href="/forgot-password">Quên mật khẩu?</a>
               <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
             </div>
 
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
 
-            <NavigateButton
-              text={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-              to="#"
-              className="w-full bg-red-600 text-red py-2 rounded-md  justify-center"
-            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
+            >
+              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            </button>
 
             <div className="text-center mt-4">
               <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
