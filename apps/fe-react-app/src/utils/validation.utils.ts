@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import type { MyInfoData } from '../interfaces/users.interface';
 
 export const loginValidationSchema = Yup.object().shape({
   email: Yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),

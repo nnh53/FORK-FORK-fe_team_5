@@ -1,7 +1,7 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { animated, useSpring } from '@react-spring/web';
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import FormField from '../../components/forms/FormFields';
 import { Logo } from '../../components/logo/Logo';
 import BannerTransition from '../../components/shared/BannerTransition';
@@ -10,7 +10,7 @@ import { registerValidationSchema } from '../../utils/validation.utils';
 
 interface RegisterFormData {
   fullName: string;
-  dateOfBirth?: string;
+  dateOfBirth: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -35,14 +35,7 @@ const Register: React.FC = () => {
     formState: { errors },
     reset,
   } = useForm<RegisterFormData>({
-    resolver: yupResolver(registerValidationSchema),
-    defaultValues: {
-      fullName: '',
-      dateOfBirth: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
+    resolver: yupResolver(registerValidationSchema) as Resolver<RegisterFormData>,
   });
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -77,7 +70,7 @@ const Register: React.FC = () => {
       } else {
         setMessage('Đăng ký đã được gửi. Nếu bật xác nhận email, vui lòng kiểm tra email.');
       }
-    } catch (error) {
+    } catch {
       setError('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setLoading(false);

@@ -1,7 +1,7 @@
 import { Box, Button, MenuItem, Stack, TextField } from '@mui/material';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import type { Movie, MovieFormData } from '../../../interfaces/movies.interface';
+import { MovieStatus, type Movie, type MovieFormData } from '../../../interfaces/movies.interface';
 
 interface MovieDetailProps {
   movie?: Movie;
@@ -20,7 +20,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
       rating: 5,
       description: '',
       poster: '',
-      status: 'active',
+      status: MovieStatus.ACTIVE,
     },
   });
 
