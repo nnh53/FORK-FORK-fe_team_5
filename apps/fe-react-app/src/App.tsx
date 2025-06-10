@@ -11,6 +11,7 @@ import ForgotPassword from './feature/auth/ForgotPassword';
 import Login from './feature/auth/Login';
 import Register from './feature/auth/Register';
 import Welcome from './feature/theme/Welcome';
+import MovieManagement from './feature/manager/movie/MovieManagement';
 
 const TITLE = 'FCinema';
 
@@ -88,6 +89,16 @@ function App() {
           element={
             <PageTransition>
               <ForgotPassword />
+            </PageTransition>
+          }
+        />
+
+        //chưa auth
+        <Route
+          path="/movie-management"
+          element={
+            <PageTransition>
+              <MovieManagement />
             </PageTransition>
           }
         />
