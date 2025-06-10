@@ -22,6 +22,7 @@
     "@types/jquery": "^3.5.32",
     "axios": "1.7.2",
     "daisyui": "^5.0.43",
+    "formik": "^2.4.6",
     "framer-motion": "^12.16.0",
     "gsap": "^3.13.0",
     "jquery": "^3.7.1",

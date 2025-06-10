@@ -31,3 +31,21 @@ export const forgotPasswordValidationSchema = Yup.object().shape({
     .oneOf([Yup.ref('password')], 'Mật khẩu không khớp')
     .required('Xác nhận mật khẩu là bắt buộc'),
 });
+
+type MyInfoFormData = Omit<MyInfoData, 'id'>;
+export const MyInfoSchema: Yup.ObjectSchema<MyInfoFormData> = Yup.object().shape({
+  name: Yup.string().required('Họ tên bắt buộc'),
+  phone: Yup.string()
+    .matches(/^[0-9]{9,11}$/, 'Số điện thoại không hợp lệ')
+    .required('Số điện thoại bắt buộc'),
+  dob: Yup.string()
+    .nullable()
+    .matches(/^\d{4}-\d{2}-\d{2}$/, 'Ngày sinh không hợp lệ')
+    .default(null),
+  email: Yup.string().email('Email không hợp lệ').required('Email bắt buộc'),
+  gender: Yup.mixed<'Nam' | 'Nu' | 'BD'>().oneOf(['Nam', 'Nu', 'BD'], 'Giới tính không hợp lệ').nullable('').default(null),
+  city: Yup.string().nullable().default(null),
+  district: Yup.string().nullable().default(null),
+  address: Yup.string().nullable().default(null),
+  img: Yup.string().nullable().url('Ảnh phải là một URL hợp lệ').default(null),
+});

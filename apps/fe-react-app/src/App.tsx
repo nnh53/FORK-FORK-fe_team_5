@@ -12,6 +12,8 @@ import Login from './feature/auth/Login';
 import Register from './feature/auth/Register';
 import Welcome from './feature/theme/Welcome';
 import MovieManagement from './feature/manager/movie/MovieManagement';
+import UserLayout from './layouts/userLayout/UserLayout';
+import { MyUserManagement } from './feature/user-management/MyUserManagement';
 
 const TITLE = 'FCinema';
 
@@ -92,7 +94,6 @@ function App() {
             </PageTransition>
           }
         />
-
         //chưa auth
         <Route
           path="/movie-management"
@@ -102,6 +103,7 @@ function App() {
             </PageTransition>
           }
         />
+        <Route path="/myAccount" element={<UserLayout children={<MyUserManagement />} />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
       <ThemeSwitch />

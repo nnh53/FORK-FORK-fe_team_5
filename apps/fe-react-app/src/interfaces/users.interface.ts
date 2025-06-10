@@ -1,9 +1,9 @@
-import { type Role } from "./roles.interface";
+import { type Role } from './roles.interface';
 
 export type Member = User;
 export type Staff = User;
 
-export type USER_STATUS = "VERIFY" | "UNVERIFY" | "BANNED";
+export type USER_STATUS = 'VERIFY' | 'UNVERIFY' | 'BANNED';
 
 export interface User {
   id: string;
@@ -29,22 +29,34 @@ export type LoginResponse = {
 };
 
 export type UserRegister = {
-    full_name: string;
-    email: string;
-    password: string;
-    // phoneNumber: string;
-    // address: string;
-    role_name: string;
-}
+  full_name: string;
+  email: string;
+  password: string;
+  // phoneNumber: string;
+  // address: string;
+  role_name: string;
+};
 
-export type RegisterDTO = UserRegister &{
-    confirm_password: string;
-    status: string;
-    role_id: number;
-}
+export type RegisterDTO = UserRegister & {
+  confirm_password: string;
+  status: string;
+  role_id: number;
+};
 
 export type UpdatePasswordDTO = {
-    email: string;
-    new_password: string;
-    old_password: string;
+  email: string;
+  new_password: string;
+  old_password: string;
+};
+export interface MyInfoData {
+  id: string;
+  name: string;
+  phone: string;
+  dob: string | null;
+  email: string;
+  gender: 'Nam' | 'Nu' | 'BD' | null;
+  city: string | null;
+  district: string | null;
+  address: string | null;
+  img: string | null;
 }
