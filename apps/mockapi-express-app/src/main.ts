@@ -9,6 +9,7 @@ import * as path from 'path';
 import { blogsMockData } from './blogs.mockapi';
 import { healthMetricListMockData } from './health-metric.mockapi';
 import { User } from './myInfo.mockapi';
+import { loginMock, usersMockData } from './users.mockapi';
 import { myMembership } from './myMembership';
 import { myMovieHistory } from './myMovieHistory';
 import { mockVoucherHistory, mockVouchers } from './voucher.mockapi';
@@ -19,6 +20,9 @@ const corsOptions = {
   origin: ['http://localhost:4222', 'http://localhost:5173'],
 };
 app.use(cors(corsOptions));
+
+//middleware
+app.use(express.json());
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
@@ -79,6 +83,46 @@ app.get('/myVoucher', (req, res) => {
 app.get('/myVoucherHistory', (req, res) => {
   res.send(mockVoucherHistory);
 });
+// Add login endpoint
+app.post('/users/login', (req, res) => {
+  const { email, password } = req.body;
+
+  const userData = loginMock(email, password);
+
+  if (userData) {
+    res.status(200).json(userData);
+  } else {
+    res.status(401).json({ message: 'Invalid email or password' });
+  }
+});
+
+// Add register endpoint
+app.post('/users/register', (req, res) => {
+  const { email, password, full_name, date_of_birth } = req.body;
+
+  // Check if user already exists
+  if (usersMockData[email]) {
+    return res.status(400).json({ message: 'Email already registered' });
+  }
+
+  // In a real app, we would save the user to a database
+  // For this mock, we'll just return a success response
+  res.status(200).json({
+    message: 'Registration successful',
+    user: {
+      email,
+      full_name,
+      date_of_birth,
+    },
+  });
+});
+
+// Add logout endpoint
+app.post('/users/logout', (req, res) => {
+  // In a real app, we would invalidate the token here
+  res.status(200).json({ message: 'Logged out successfully' });
+});
+
 const port = 3000;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/`);

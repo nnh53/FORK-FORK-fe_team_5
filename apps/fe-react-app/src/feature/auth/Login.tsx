@@ -3,65 +3,77 @@ import { animated, useSpring } from '@react-spring/web';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { RoleRouteToEachPage } from '../../components/auth/RoleRoute';
 import CheckboxForm from '../../components/forms/CheckboxForm';
 import FormField from '../../components/forms/FormFields';
 import { Logo } from '../../components/logo/Logo';
 import BannerTransition from '../../components/shared/BannerTransition';
-import { supaClient } from '../../services/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import type { LoginDTO } from '../../interfaces/users.interface';
 import { loginValidationSchema } from '../../utils/validation.utils';
 
-const slides = [
-  'photo-1524985069026-dd778a71c7b4',
-  'photo-1489599849927-2ee91cede3ba',
-  'photo-1536440136628-1c6cb5a2a869',
-  'photo-1542204637-e9f12f144cca',
-];
-
-interface LoginFormData {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-}
+// Mock user data for direct login
+const mockUserData = {
+  guest: {
+    token: 'mock-jwt-token-for-guest-user',
+    roles: ['ROLE_GUEST'],
+    id: 1,
+    username: 'Guest User',
+    refresh_token: 'mock-refresh-token-for-guest-user',
+  },
+};
 
 const Login: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { authLogin } = useAuth();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
-    handleSubmit,
     control,
+    handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
+  } = useForm({
     resolver: yupResolver(loginValidationSchema),
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
+      rememberMe: true,
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    setError(null);
-    setLoading(true);
+  const onSubmit = async (data: LoginDTO) => {
+    setIsLoading(true);
     try {
-      console.log('Form Data:', data);
+      // Mock login - check if email is guest@example.com
+      if (data.email === 'guest@example.com') {
+        // Simulate API delay
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-      const { data: loginData, error: authError } = await supaClient.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-      if (authError) {
-        setError(authError.message || 'Đăng nhập thất bại.');
-      } else if (loginData.user) {
-        navigate('/welcome');
+        // Use mock data instead of API call
+        const userData = mockUserData.guest;
+
+        authLogin({
+          token: userData.token,
+          roles: userData.roles,
+          id: userData.id,
+          username: userData.username,
+          refresh_token: userData.refresh_token,
+        });
+
+        toast.success('Login successfully!');
+        setTimeout(() => {
+          navigate(RoleRouteToEachPage(userData.roles[0]));
+        }, 1000);
       } else {
-        setError('Đăng nhập thất bại.');
+        // For any other email, show error
+        toast.error('Invalid email or password');
       }
-    } catch {
-      setError('Có lỗi xảy ra.');
+    } catch (error) {
+      const errorMessage = (error as Error).message || 'An error occurred during login';
+      toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -82,7 +94,7 @@ const Login: React.FC = () => {
 
   return (
     <animated.div style={pageAnimation} className="flex h-screen">
-      <BannerTransition slides={slides}>
+      <BannerTransition>
         <h2 className="text-3xl font-bold">Chào mừng trở lại</h2>
         <p className="text-lg">Trải nghiệm những bộ phim tuyệt vời nhất tại rạp chiếu phim hiện đại</p>
       </BannerTransition>
@@ -105,14 +117,12 @@ const Login: React.FC = () => {
               <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
             </div>
 
-            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-
             <button
               type="submit"
-              disabled={loading}
               className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
+              disabled={isLoading}
             >
-              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </button>
 
             <div className="text-center mt-4">

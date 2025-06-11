@@ -1,9 +1,9 @@
-import React from 'react'
-import type { Role } from '../../interfaces/roles.interface';
+import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import type { Role } from '../../interfaces/roles.interface';
 
-
-export function userRoleRoute(roleName: Role):string {
+export function RoleRouteToEachPage(roleName: Role): string {
   switch (roleName) {
     case 'ROLE_MANAGER':
       return '/managers';
@@ -11,6 +11,8 @@ export function userRoleRoute(roleName: Role):string {
       return '/staffs';
     case 'ROLE_MEMBER':
       return '/members';
+    case 'ROLE_GUEST':
+      return '/welcome';
     default:
       return '/';
   }
@@ -22,23 +24,22 @@ interface RoleRouteProps {
 }
 
 const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles, redirectPath = '/login' }) => {
-  const isLoggedIn = true;//tam thoi
+  const { isLoggedIn, user } = useAuth();
 
   if (!isLoggedIn) {
     return <Navigate to={redirectPath} replace />;
   }
 
-  console.log("Allowed Roles: ", allowedRoles);
+  console.log('Allowed Roles: ', allowedRoles);
 
-  const userRoles = ['ROLE_MANAGER']; // Example roles, replace with actual user roles
-  const hasAllowedRole = allowedRoles.some(role => userRoles.includes(role));
+  const userRoles = user?.roles || [];
+  const hasAllowedRole = allowedRoles.some((role) => userRoles.includes(role));
 
-  if (!hasAllowedRole) {//tam thoi
+  if (!hasAllowedRole) {
     return <Navigate to="/unauthorized" replace />;
   }
 
   return <Outlet />;
-
 };
 
 export default RoleRoute;

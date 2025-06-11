@@ -1,11 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { animated, useSpring } from '@react-spring/web';
+import axios from 'axios';
 import React, { useState } from 'react';
 import { useForm, type Resolver } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import FormField from '../../components/forms/FormFields';
 import { Logo } from '../../components/logo/Logo';
 import BannerTransition from '../../components/shared/BannerTransition';
-import { supaClient } from '../../services/supabase';
+import { API_URL } from '../../constants/endpoints';
 import { registerValidationSchema } from '../../utils/validation.utils';
 
 interface RegisterFormData {
@@ -28,6 +30,7 @@ const Register: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const {
     handleSubmit,
@@ -48,30 +51,27 @@ const Register: React.FC = () => {
       return;
     }
     try {
-      const { data: signUpData, error: authError } = await supaClient.auth.signUp({
+      // Using our mock API instead of Supabase
+      const response = await axios.post(`${API_URL}/users/register`, {
         email: data.email,
         password: data.password,
-        options: {
-          data: {
-            full_name: data.fullName,
-            date_of_birth: data.dateOfBirth,
-          },
-        },
+        full_name: data.fullName,
+        date_of_birth: data.dateOfBirth,
       });
-      if (authError) {
-        setError(authError.message);
-      } else if (signUpData.user) {
-        if (signUpData.user.identities && signUpData.user.identities.length > 0 && !signUpData.user.email_confirmed_at) {
-          setMessage(`Đăng ký thành công! Vui lòng kiểm tra ${signUpData.user.email} để xác nhận email.`);
-        } else {
-          setMessage('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
-        }
+
+      if (response.status === 200) {
+        setMessage('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
         reset();
-      } else {
-        setMessage('Đăng ký đã được gửi. Nếu bật xác nhận email, vui lòng kiểm tra email.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       }
-    } catch {
-      setError('Có lỗi xảy ra. Vui lòng thử lại.');
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+      } else {
+        setError('Có lỗi xảy ra. Vui lòng thử lại.');
+      }
     } finally {
       setLoading(false);
     }
@@ -129,7 +129,7 @@ const Register: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full text-red-600 py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
+              className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
             >
               {loading ? 'Đang đăng ký...' : 'Đăng ký'}
             </button>

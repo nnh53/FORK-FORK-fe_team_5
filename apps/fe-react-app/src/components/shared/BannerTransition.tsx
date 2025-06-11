@@ -2,11 +2,18 @@ import { animated, useTransition } from '@react-spring/web';
 import React, { useState } from 'react';
 
 interface BannerTransitionProps {
-  slides: string[];
+  slides?: string[];
   children?: React.ReactNode;
 }
 
-const BannerTransition: React.FC<BannerTransitionProps> = ({ slides, children }) => {
+const DEFAULT_SLIDES = [
+  'photo-1524985069026-dd778a71c7b4',
+  'photo-1489599849927-2ee91cede3ba',
+  'photo-1536440136628-1c6cb5a2a869',
+  'photo-1542204637-e9f12f144cca',
+];
+
+const BannerTransition: React.FC<BannerTransitionProps> = ({ slides = DEFAULT_SLIDES, children }) => {
   const [index, setIndex] = useState(0);
 
   const transitions = useTransition(index, {
