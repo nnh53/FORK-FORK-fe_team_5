@@ -9,6 +9,10 @@ import * as path from 'path';
 import { blogsMockData } from './blogs.mockapi';
 import { healthMetricListMockData } from './health-metric.mockapi';
 import { User } from './myInfo.mockapi';
+import { myMembership } from './myMembership';
+import { myMovieHistory } from './myMovieHistory';
+import { mockVoucherHistory, mockVouchers } from './voucher.mockapi';
+import { myPoint } from './mypoint';
 
 const app = express();
 const corsOptions = {
@@ -58,7 +62,23 @@ app.put('/myInfo', (req, res) => {
 
   res.send(user);
 });
+app.get('/myMembership', (req, res) => {
+  res.send(myMembership);
+});
 
+app.get('/myMovieHistory', (req, res) => {
+  res.send(myMovieHistory);
+});
+app.get('/myPoint', (req, res) => {
+  res.send(myPoint);
+});
+
+app.get('/myVoucher', (req, res) => {
+  res.send(mockVouchers);
+});
+app.get('/myVoucherHistory', (req, res) => {
+  res.send(mockVoucherHistory);
+});
 const port = 3000;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/`);

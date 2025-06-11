@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Card Details</title>
+    <!-- Tailwind CSS & DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-white-100 flex items-center justify-center min-h-screen bg-white p-6 md:p-8 rounded-b-lg rounded-r-lg shadow-md">
+    <!-- Main Card Component with Dark Background -->
+    <div class="w-full max-w-7xl bg-white-200 shadow-xl  p-6 sm:p-8">
+      <!-- Light-themed Table Wrapper -->
+      <div data-theme="light" class=" p-1 bg-base-100">
+        <!-- Responsive Table Wrapper -->
+        <div class="overflow-x-auto">
+          <table class="table table-zebra w-full">
+            <!-- Table Head -->
+            <thead>
+              <tr class="text-xs text-neutral-600 uppercase">
+                <th class="border border-base-300">Số thẻ</th>
+                <th class="border border-base-300">Hạng thẻ</th>
+                <th class="border border-base-300">Ngày kích hoạt</th>
+                <th class="border border-base-300">Tổng chi tiêu</th>
+                <th class="border border-base-300">Điểm tích lũy</th>
+                <th class="border border-base-300">Điểm đã tiêu</th>
+                <th class="border border-base-300">Điểm khả dụng</th>
+                <th class="border border-base-300">Điểm sắp hết hạn</th>
+                <th class="border border-base-300">Ngày hết hạn</th>
+              </tr>
+            </thead>
+            <!-- Table Body -->
+            <tbody>
+              <tr>
+                <!-- Card Number -->
+                <td class="border border-base-300">
+                  <div class="font-medium text-base-content">9002000003178674</div>
+                  <div class="text-sm text-neutral-500">(Đang dùng)</div>
+                </td>
+                <!-- Card Tier -->
+                <td class="border border-base-300">
+                  <div class="font-medium text-base-content">Khách hàng</div>
+                  <div class="font-bold text-base-content">STANDARD</div>
+                </td>
+                <!-- Activation Date -->
+                <td class="font-medium text-base-content border border-base-300">22/05/2025</td>
+                <!-- Total Spent -->
+                <td class="font-medium text-base-content border border-base-300">00 đ</td>
+                <!-- Points Earned -->
+                <td class="font-medium text-base-content border border-base-300">00</td>
+                <!-- Points Spent -->
+                <td class="font-medium text-base-content border border-base-300">00</td>
+                <!-- Available Points -->
+                <td class="font-medium text-base-content border border-base-300">00</td>
+                <!-- Expiring Points -->
+                <td class="border border-base-300"></td>
+                <!-- Expiration Date -->
+                <td class="border border-base-300"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Upgrade Information Section (this will be on dark background) -->
+      <div class="mt-8 text-center">
+        <p class="text-lg text-base-content">
+          Bạn cần tích lũy thêm <span class="font-bold text-primary">3.000.000 đ</span> để nâng hạng Khách hàng VIP
+        </p>
+      </div>
+
+      <!-- Progress Bar Section -->
+      <div class="mt-4 px-1">
+        <progress class="progress progress-primary w-full" value="0" max="3000000"></progress>
+        <div class="flex justify-between text-sm font-semibold text-base-content mt-2">
+          <span>0</span>
+          <span>3.000.000</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

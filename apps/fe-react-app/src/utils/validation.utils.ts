@@ -50,3 +50,30 @@ export const MyInfoSchema: Yup.ObjectSchema<MyInfoFormData> = Yup.object().shape
   address: Yup.string().nullable().default(null),
   img: Yup.string().nullable().url('Ảnh phải là một URL hợp lệ').default(null),
 });
+
+export function formatMovieSlot(isoString :string) {
+  // Return a placeholder if the input string is empty or null
+  if (!isoString) {
+    return 'N/A';
+  }
+
+  const date = new Date(isoString);
+
+  if (isNaN(date.getTime())) {
+    return 'Invalid Date';
+  }
+
+  const formattedDate = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+
+  const formattedTime = new Intl.DateTimeFormat('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false, 
+  }).format(date);
+
+  return `${formattedDate} - ${formattedTime}`;
+}

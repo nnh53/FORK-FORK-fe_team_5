@@ -21,3 +21,13 @@ export interface Movie {
 export interface MovieFormData extends Omit<Movie, 'id' | 'createdAt' | 'updatedAt'> {
   id?: string;
 }
+
+export interface MovieHistory {
+  receiptId: string;
+  movieName: string;
+  room: string;
+  movieSlot: string;
+  seats: string[];
+  usedPoints: number;
+  availablePoints: number;
+}

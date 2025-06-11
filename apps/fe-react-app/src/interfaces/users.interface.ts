@@ -52,11 +52,36 @@ export interface MyInfoData {
   id: string;
   name: string;
   phone: string;
-  dob: string | null;
+  dob?: string | null;
   email: string;
-  gender: 'Nam' | 'Nu' | 'BD' | null;
-  city: string | null;
-  district: string | null;
-  address: string | null;
-  img: string | null;
+  gender?: 'Nam' | 'Nu' | 'BD' | null;
+  city?: string | null;
+  district?: string | null;
+  address?: string | null;
+  img?: string | null;
+}
+
+export interface MyMembershipData {
+  cardNumber: string;
+  tier: string;
+  activationDate: string;
+  totalSpent: number;
+  accumulatePoints: number;
+  usedPoints: number;
+  availablePoints: number;
+  nearExpiringPoints: number;
+  expiredDate: string;
+}
+
+export interface MyPointHistory {
+  date: string;
+  points: string;
+  description: string;
+}
+export interface MyPoint {
+  accumulatePoints: number;
+  usedPoints: number;
+  availablePoints: number;
+  nearExpiringPoints: number;
+  pointHistory: MyPointHistory[];
 }

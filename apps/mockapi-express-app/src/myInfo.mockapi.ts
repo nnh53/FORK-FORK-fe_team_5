@@ -9,12 +9,17 @@ export interface User {
   address: string | null;
   img: string | null;
 }
+const formattedDate = new Intl.DateTimeFormat('en-GB', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).format(dob);
 
 export let user: User = {
   id: 'asdasfasd',
   name: 'Lucian Nguyen',
   phone: '0292920322',
-  dob: new Date('2000-02-21'),
+  dob: new Date('2000-21-02'),
   email: 'lucianNguyen@gmail.com',
   city: null,
   district: null,
