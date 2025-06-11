@@ -1,5 +1,5 @@
-import { animated, useTransition } from '@react-spring/web';
-import React, { useState } from 'react';
+import { animated, useTransition } from "@react-spring/web";
+import React, { useState } from "react";
 
 interface BannerTransitionProps {
   slides?: string[];
@@ -37,14 +37,14 @@ const BannerTransition: React.FC<BannerTransitionProps> = ({ slides = DEFAULT_SL
           key={i}
           style={{
             ...style,
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100%',
+            width: "100%",
+            height: "100%",
             backgroundImage: `url(https://images.unsplash.com/${slides[i]}?w=1920&q=80&auto=format&fit=crop)`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         />
       ))}

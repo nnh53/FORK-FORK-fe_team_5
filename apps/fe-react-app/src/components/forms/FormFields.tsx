@@ -1,6 +1,6 @@
-import React from 'react';
-import type { Control, FieldErrors } from 'react-hook-form';
-import { Controller } from 'react-hook-form';
+import React from "react";
+import type { Control, FieldErrors } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 interface FormFieldProps {
   name: string;
@@ -12,7 +12,7 @@ interface FormFieldProps {
   isRequired?: boolean;
 }
 
-const FormField: React.FC<FormFieldProps> = ({ name, label, type = 'text', control, errors, isRequired = true }) => (
+const FormField: React.FC<FormFieldProps> = ({ name, label, type = "text", control, errors, isRequired = true }) => (
   <div className="flex flex-col">
     <style>
       {`
@@ -43,7 +43,7 @@ const FormField: React.FC<FormFieldProps> = ({ name, label, type = 'text', contr
           type={type}
           id={name}
           className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10 ${
-            errors[name] ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'
+            errors[name] ? "border-red-500 focus:ring-red-500" : "border-blue-300 hover:border-blue-500 focus:ring-blue-500"
           }`}
           placeholder={`Nhập ${label}`}
         />

@@ -1,49 +1,49 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Loader2, CheckCircle, XCircle, Undo2 } from "lucide-react"
-import { postsApi } from "../api/posts"
-import type { Post, CreatePostData } from "../types"
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CheckCircle, Loader2, Undo2, XCircle } from "lucide-react";
+import { useState } from "react";
+import { postsApi } from "../api/posts";
+import type { CreatePostData, Post } from "../types";
 
 export default function OptimisticUpdates() {
-  const [title, setTitle] = useState("")
-  const [body, setBody] = useState("")
-  const [shouldFail, setShouldFail] = useState(false)
-  const queryClient = useQueryClient()
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [shouldFail, setShouldFail] = useState(false);
+  const queryClient = useQueryClient();
 
   // Query để fetch posts
   const { data: posts, isLoading } = useQuery({
     queryKey: ["posts", "optimistic"],
     queryFn: postsApi.getPosts,
-  })
+  });
 
   // Mutation với optimistic update
   const createPostMutation = useMutation({
     mutationFn: async (newPost: CreatePostData) => {
       // Simulate failure nếu shouldFail = true
       if (shouldFail) {
-        throw new Error("Simulated network error")
+        throw new Error("Simulated network error");
       }
-      return postsApi.createPost(newPost)
+      return postsApi.createPost(newPost);
     },
 
     // Optimistic update - chạy ngay lập tức
     onMutate: async (newPost) => {
       // Cancel any outgoing refetches để không overwrite optimistic update
-      await queryClient.cancelQueries({ queryKey: ["posts", "optimistic"] })
+      await queryClient.cancelQueries({ queryKey: ["posts", "optimistic"] });
 
       // Snapshot previous value để rollback nếu cần
-      const previousPosts = queryClient.getQueryData(["posts", "optimistic"])
+      const previousPosts = queryClient.getQueryData(["posts", "optimistic"]);
 
       // Optimistically update cache
       const optimisticPost: Post = {
@@ -51,92 +51,92 @@ export default function OptimisticUpdates() {
         title: newPost.title,
         body: newPost.body,
         userId: newPost.userId,
-      }
+      };
 
       queryClient.setQueryData(["posts", "optimistic"], (old: Post[] | undefined) => {
-        return old ? [optimisticPost, ...old] : [optimisticPost]
-      })
+        return old ? [optimisticPost, ...old] : [optimisticPost];
+      });
 
       // Return context object với snapshot
-      return { previousPosts, optimisticPost }
+      return { previousPosts, optimisticPost };
     },
 
     // Nếu mutation thành công, replace optimistic data với real data
     onSuccess: (data, variables, context) => {
       queryClient.setQueryData(["posts", "optimistic"], (old: Post[] | undefined) => {
-        if (!old) return [data]
+        if (!old) return [data];
 
         // Replace optimistic post với real post
-        return old.map((post) => (post.id === context?.optimisticPost.id ? data : post))
-      })
+        return old.map((post) => (post.id === context?.optimisticPost.id ? data : post));
+      });
     },
 
     // Nếu mutation thất bại, rollback
     onError: (err, variables, context) => {
       if (context?.previousPosts) {
-        queryClient.setQueryData(["posts", "optimistic"], context.previousPosts)
+        queryClient.setQueryData(["posts", "optimistic"], context.previousPosts);
       }
     },
 
     // Always refetch sau khi mutation hoàn thành
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts", "optimistic"] })
+      queryClient.invalidateQueries({ queryKey: ["posts", "optimistic"] });
     },
-  })
+  });
 
   // Mutation để delete với optimistic update
   const deletePostMutation = useMutation({
     mutationFn: async (postId: number) => {
       if (shouldFail) {
-        throw new Error("Simulated delete error")
+        throw new Error("Simulated delete error");
       }
-      return postsApi.deletePost(postId)
+      return postsApi.deletePost(postId);
     },
 
     onMutate: async (postId) => {
-      await queryClient.cancelQueries({ queryKey: ["posts", "optimistic"] })
+      await queryClient.cancelQueries({ queryKey: ["posts", "optimistic"] });
 
-      const previousPosts = queryClient.getQueryData(["posts", "optimistic"])
+      const previousPosts = queryClient.getQueryData(["posts", "optimistic"]);
 
       // Optimistically remove post
       queryClient.setQueryData(["posts", "optimistic"], (old: Post[] | undefined) => {
-        return old ? old.filter((post) => post.id !== postId) : []
-      })
+        return old ? old.filter((post) => post.id !== postId) : [];
+      });
 
-      return { previousPosts, deletedPostId: postId }
+      return { previousPosts, deletedPostId: postId };
     },
 
     onError: (err, variables, context) => {
       if (context?.previousPosts) {
-        queryClient.setQueryData(["posts", "optimistic"], context.previousPosts)
+        queryClient.setQueryData(["posts", "optimistic"], context.previousPosts);
       }
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts", "optimistic"] })
+      queryClient.invalidateQueries({ queryKey: ["posts", "optimistic"] });
     },
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!title.trim() || !body.trim()) return
+    e.preventDefault();
+    if (!title.trim() || !body.trim()) return;
 
     const postData: CreatePostData = {
       title: title.trim(),
       body: body.trim(),
       userId: 1,
-    }
+    };
 
-    createPostMutation.mutate(postData)
+    createPostMutation.mutate(postData);
 
     // Reset form
-    setTitle("")
-    setBody("")
-  }
+    setTitle("");
+    setBody("");
+  };
 
   const handleDelete = (postId: number) => {
-    deletePostMutation.mutate(postId)
-  }
+    deletePostMutation.mutate(postId);
+  };
 
   return (
     <div className="space-y-6">
@@ -149,13 +149,7 @@ export default function OptimisticUpdates() {
         <CardContent className="space-y-4">
           {/* Failure simulation toggle */}
           <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="shouldFail"
-              checked={shouldFail}
-              onChange={(e) => setShouldFail(e.target.checked)}
-              className="rounded"
-            />
+            <input type="checkbox" id="shouldFail" checked={shouldFail} onChange={(e) => setShouldFail(e.target.checked)} className="rounded" />
             <Label htmlFor="shouldFail">Simulate network failure</Label>
             {shouldFail && <Badge variant="destructive">Failures enabled</Badge>}
           </div>
@@ -224,8 +218,7 @@ export default function OptimisticUpdates() {
               <AlertDescription>
                 <div className="flex items-center gap-2">
                   <Undo2 className="h-4 w-4" />
-                  Delete failed - post restored:{" "}
-                  {deletePostMutation.error instanceof Error ? deletePostMutation.error.message : "Unknown error"}
+                  Delete failed - post restored: {deletePostMutation.error instanceof Error ? deletePostMutation.error.message : "Unknown error"}
                 </div>
               </AlertDescription>
             </Alert>
@@ -274,12 +267,7 @@ export default function OptimisticUpdates() {
                           )}
                         </CardDescription>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDelete(post.id)}
-                        disabled={deletePostMutation.isPending}
-                      >
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(post.id)} disabled={deletePostMutation.isPending}>
                         {deletePostMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : "Delete"}
                       </Button>
                     </div>
@@ -309,5 +297,5 @@ export default function OptimisticUpdates() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

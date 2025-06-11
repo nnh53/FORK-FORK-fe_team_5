@@ -1,4 +1,4 @@
-import NavigateButton from '../../components/shared/NavigateButton';
+import NavigateButton from "../../components/shared/NavigateButton";
 
 const NotFoundError = () => {
   return (

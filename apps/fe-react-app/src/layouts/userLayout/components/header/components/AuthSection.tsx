@@ -1,7 +1,7 @@
 // src/components/Header/AuthSection.tsx
-import React from 'react';
-import UserAvatar from './UserAvatar';
-import type { User } from '../../../type/userLayout.ts';
+import React from "react";
+import type { User } from "../../../type/userLayout.ts";
+import UserAvatar from "./UserAvatar";
 
 interface AuthSectionProps {
   user: User | null; // User có thể là null nếu chưa đăng nhập

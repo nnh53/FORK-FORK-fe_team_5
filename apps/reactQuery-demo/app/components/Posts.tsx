@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { RefreshCw, Trash2 } from "lucide-react"
-import { postsApi } from "../api/posts"
-import type { Post } from "../types"
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { RefreshCw, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { postsApi } from "../api/posts";
+import type { Post } from "../types";
 
 export default function Posts() {
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
-  const queryClient = useQueryClient()
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const queryClient = useQueryClient();
 
   // Query để fetch tất cả posts
   const {
@@ -26,7 +26,7 @@ export default function Posts() {
     queryKey: ["posts"],
     queryFn: postsApi.getPosts,
     staleTime: 5 * 60 * 1000, // 5 phút
-  })
+  });
 
   // Query để fetch post detail (chỉ chạy khi có selectedPostId)
   const {
@@ -37,19 +37,19 @@ export default function Posts() {
     queryKey: ["post", selectedPostId],
     queryFn: () => postsApi.getPost(selectedPostId!),
     enabled: !!selectedPostId, // Chỉ chạy khi có selectedPostId
-  })
+  });
 
   const handleRefresh = () => {
-    refetch()
-  }
+    refetch();
+  };
 
   const handleInvalidateCache = () => {
-    queryClient.invalidateQueries({ queryKey: ["posts"] })
-  }
+    queryClient.invalidateQueries({ queryKey: ["posts"] });
+  };
 
   const handleClearCache = () => {
-    queryClient.removeQueries({ queryKey: ["posts"] })
-  }
+    queryClient.removeQueries({ queryKey: ["posts"] });
+  };
 
   if (isLoading) {
     return (
@@ -67,7 +67,7 @@ export default function Posts() {
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -75,7 +75,7 @@ export default function Posts() {
       <Alert variant="destructive">
         <AlertDescription>Error: {error instanceof Error ? error.message : "Something went wrong"}</AlertDescription>
       </Alert>
-    )
+    );
   }
 
   return (
@@ -104,9 +104,7 @@ export default function Posts() {
             {posts?.map((post: Post) => (
               <Card
                 key={post.id}
-                className={`cursor-pointer transition-colors ${
-                  selectedPostId === post.id ? "ring-2 ring-primary" : ""
-                }`}
+                className={`cursor-pointer transition-colors ${selectedPostId === post.id ? "ring-2 ring-primary" : ""}`}
                 onClick={() => setSelectedPostId(post.id)}
               >
                 <CardHeader className="pb-2">
@@ -146,9 +144,7 @@ export default function Posts() {
             </Card>
           ) : postError ? (
             <Alert variant="destructive">
-              <AlertDescription>
-                Error loading post: {postError instanceof Error ? postError.message : "Unknown error"}
-              </AlertDescription>
+              <AlertDescription>Error loading post: {postError instanceof Error ? postError.message : "Unknown error"}</AlertDescription>
             </Alert>
           ) : selectedPost ? (
             <Card>
@@ -166,5 +162,5 @@ export default function Posts() {
         </div>
       </div>
     </div>
-  )
+  );
 }

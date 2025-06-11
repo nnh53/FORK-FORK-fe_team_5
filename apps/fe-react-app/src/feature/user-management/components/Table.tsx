@@ -18,7 +18,7 @@ export const CustomTable = <T extends object>({ tableColumns, tableData }: Custo
             <tr className="text-lg text-neutral-600 uppercase">
               {tableColumns &&
                 tableColumns.map((column) => (
-                  <th className={`h-auto whitespace-normal border border-base-300 ${column.width ? column.width : ''}`}>{column.header}</th>
+                  <th className={`h-auto whitespace-normal border border-base-300 ${column.width ? column.width : ""}`}>{column.header}</th>
                 ))}
             </tr>
           </thead>

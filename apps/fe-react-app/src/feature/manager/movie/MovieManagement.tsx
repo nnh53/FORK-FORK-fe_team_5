@@ -1,9 +1,9 @@
-import { Add as AddIcon } from '@mui/icons-material';
-import { Alert, Box, Button, Dialog, Snackbar } from '@mui/material';
-import { useState } from 'react';
-import type { Movie, MovieFormData } from '../../../interfaces/movies.interface';
-import MovieDetail from './MovieDetail';
-import MovieList from './MovieList';
+import { Add as AddIcon } from "@mui/icons-material";
+import { Alert, Box, Button, Dialog, Snackbar } from "@mui/material";
+import { useState } from "react";
+import type { Movie, MovieFormData } from "../../../interfaces/movies.interface";
+import MovieDetail from "./MovieDetail";
+import MovieList from "./MovieList";
 
 const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,11 +11,11 @@ const MovieManagement = () => {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   const handleCreate = () => {
@@ -33,7 +33,7 @@ const MovieManagement = () => {
     setSelectedMovie(undefined);
   };
 
-  const showSnackbar = (message: string, severity: 'success' | 'error') => {
+  const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({
       open: true,
       message,
@@ -50,29 +50,29 @@ const MovieManagement = () => {
       if (selectedMovie) {
         // Update existing movie
         await fetch(`http://localhost:3000/movies/${selectedMovie.id}`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(values),
         });
-        showSnackbar('Movie updated successfully', 'success');
+        showSnackbar("Movie updated successfully", "success");
       } else {
         // Create new movie
-        await fetch('http://localhost:3000/movies', {
-          method: 'POST',
+        await fetch("http://localhost:3000/movies", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(values),
         });
-        showSnackbar('Movie created successfully', 'success');
+        showSnackbar("Movie created successfully", "success");
       }
       setIsModalOpen(false);
       setSelectedMovie(undefined);
     } catch (error) {
-      console.error('Error saving movie:', error);
-      showSnackbar('Failed to save movie', 'error');
+      console.error("Error saving movie:", error);
+      showSnackbar("Failed to save movie", "error");
     }
   };
 
@@ -90,8 +90,8 @@ const MovieManagement = () => {
         <MovieDetail movie={selectedMovie} onSubmit={handleSubmit} onCancel={handleCancel} />
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
           {snackbar.message}
         </Alert>
       </Snackbar>

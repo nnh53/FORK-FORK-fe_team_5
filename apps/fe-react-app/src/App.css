@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -221,10 +221,10 @@
   themes: false;
 }
 @plugin "daisyui/theme" {
-  name: 'caramellatte';
+  name: "caramellatte";
   default: true;
   prefersdark: false;
-  color-scheme: 'light';
+  color-scheme: "light";
   --color-base-100: oklch(98% 0.016 73.684);
   --color-base-200: oklch(95% 0.038 75.164);
   --color-base-300: oklch(90% 0.076 70.697);
@@ -258,9 +258,9 @@
 /* ae tự thêm  */
 
 #root {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 /* @layer base {
   html {

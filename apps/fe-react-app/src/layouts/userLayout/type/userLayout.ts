@@ -12,14 +12,14 @@ export interface FooterLink {
 
 // Dữ liệu cho một cột chứa các link
 export interface FooterLinkColumn {
-  type: 'links';
+  type: "links";
   title: string;
   links: FooterLink[];
 }
 
 // Dữ liệu cho cột thông tin liên hệ
 export interface FooterContactColumn {
-  type: 'contact';
+  type: "contact";
   title: string;
   address: string;
   phone: string;

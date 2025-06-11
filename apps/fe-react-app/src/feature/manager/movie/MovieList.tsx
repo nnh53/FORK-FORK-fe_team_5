@@ -1,4 +1,4 @@
-import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 import {
   Button,
   Chip,
@@ -17,9 +17,9 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-} from '@mui/material';
-import { useEffect, useState } from 'react';
-import type { Movie } from '../../../interfaces/movies.interface';
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import type { Movie } from "../../../interfaces/movies.interface";
 
 interface MovieListProps {
   onEdit: (movie: Movie) => void;
@@ -30,19 +30,19 @@ const MovieList = ({ onEdit }: MovieListProps) => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [orderBy, setOrderBy] = useState<keyof Movie>('title');
-  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const [orderBy, setOrderBy] = useState<keyof Movie>("title");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
 
   const fetchMovies = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/movies');
+      const response = await fetch("http://localhost:3000/movies");
       const data = await response.json();
       setMovies(data);
     } catch (error) {
-      console.error('Error fetching movies:', error);
+      console.error("Error fetching movies:", error);
     } finally {
       setLoading(false);
     }
@@ -53,8 +53,8 @@ const MovieList = ({ onEdit }: MovieListProps) => {
   }, []);
 
   const handleSort = (property: keyof Movie) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
@@ -76,11 +76,11 @@ const MovieList = ({ onEdit }: MovieListProps) => {
     if (movieToDelete) {
       try {
         await fetch(`http://localhost:3000/movies/${movieToDelete.id}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
         fetchMovies();
       } catch (error) {
-        console.error('Error deleting movie:', error);
+        console.error("Error deleting movie:", error);
       }
     }
     setDeleteDialogOpen(false);
@@ -88,7 +88,7 @@ const MovieList = ({ onEdit }: MovieListProps) => {
   };
 
   const sortedMovies = [...movies].sort((a, b) => {
-    if (order === 'asc') {
+    if (order === "asc") {
       return a[orderBy] > b[orderBy] ? 1 : -1;
     } else {
       return b[orderBy] > a[orderBy] ? 1 : -1;
@@ -98,13 +98,13 @@ const MovieList = ({ onEdit }: MovieListProps) => {
   const paginatedMovies = sortedMovies.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Paper sx={{ width: "100%", overflow: "hidden" }}>
       <TableContainer>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>
-                <TableSortLabel active={orderBy === 'title'} direction={orderBy === 'title' ? order : 'asc'} onClick={() => handleSort('title')}>
+                <TableSortLabel active={orderBy === "title"} direction={orderBy === "title" ? order : "asc"} onClick={() => handleSort("title")}>
                   Title
                 </TableSortLabel>
               </TableCell>
@@ -112,16 +112,16 @@ const MovieList = ({ onEdit }: MovieListProps) => {
               <TableCell>Director</TableCell>
               <TableCell>
                 <TableSortLabel
-                  active={orderBy === 'releaseYear'}
-                  direction={orderBy === 'releaseYear' ? order : 'asc'}
-                  onClick={() => handleSort('releaseYear')}
+                  active={orderBy === "releaseYear"}
+                  direction={orderBy === "releaseYear" ? order : "asc"}
+                  onClick={() => handleSort("releaseYear")}
                 >
                   Release Year
                 </TableSortLabel>
               </TableCell>
               <TableCell>Duration</TableCell>
               <TableCell>
-                <TableSortLabel active={orderBy === 'rating'} direction={orderBy === 'rating' ? order : 'asc'} onClick={() => handleSort('rating')}>
+                <TableSortLabel active={orderBy === "rating"} direction={orderBy === "rating" ? order : "asc"} onClick={() => handleSort("rating")}>
                   Rating
                 </TableSortLabel>
               </TableCell>
@@ -145,10 +145,10 @@ const MovieList = ({ onEdit }: MovieListProps) => {
                   <TableCell>{movie.releaseYear}</TableCell>
                   <TableCell>{movie.duration} min</TableCell>
                   <TableCell>
-                    <Chip label={movie.rating.toFixed(1)} color={movie.rating >= 8 ? 'success' : movie.rating >= 6 ? 'warning' : 'error'} />
+                    <Chip label={movie.rating.toFixed(1)} color={movie.rating >= 8 ? "success" : movie.rating >= 6 ? "warning" : "error"} />
                   </TableCell>
                   <TableCell>
-                    <Chip label={movie.status.toUpperCase()} color={movie.status === 'active' ? 'success' : 'error'} />
+                    <Chip label={movie.status.toUpperCase()} color={movie.status === "active" ? "success" : "error"} />
                   </TableCell>
                   <TableCell>
                     <IconButton color="primary" onClick={() => onEdit(movie)} size="small">

@@ -1,39 +1,39 @@
-import { useState, useEffect } from 'react';
-import { CustomTable, type TableColumns } from './components/Table';
-import type { MovieHistory } from '../../interfaces/movies.interface';
-import { formatMovieSlot } from '../../utils/validation.utils';
+import { useEffect, useState } from "react";
+import type { MovieHistory } from "../../interfaces/movies.interface";
+import { formatMovieSlot } from "../../utils/validation.utils";
+import { CustomTable, type TableColumns } from "./components/Table";
 
 export const MyMovieHistory: React.FC = () => {
   const tableColumns: TableColumns[] = [
     {
-      header: 'Mã hóa đơn',
-      accessorKey: 'receiptId',
-      width: 'w-[15%]',
+      header: "Mã hóa đơn",
+      accessorKey: "receiptId",
+      width: "w-[15%]",
     },
     {
-      header: 'Phim',
-      accessorKey: 'movieName',
-      width: 'w-[20%]',
+      header: "Phim",
+      accessorKey: "movieName",
+      width: "w-[20%]",
     },
     {
-      header: 'Rạp Chiếu',
-      accessorKey: 'room',
+      header: "Rạp Chiếu",
+      accessorKey: "room",
     },
     {
-      header: 'Suất chiếu',
-      accessorKey: 'movieSlot',
+      header: "Suất chiếu",
+      accessorKey: "movieSlot",
     },
     {
-      header: 'Ghế đã đặt',
-      accessorKey: 'seats',
+      header: "Ghế đã đặt",
+      accessorKey: "seats",
     },
     {
-      header: 'Ngày đặt',
-      accessorKey: 'usedPoints',
+      header: "Ngày đặt",
+      accessorKey: "usedPoints",
     },
     {
-      header: 'Điểm',
-      accessorKey: 'availablePoints',
+      header: "Điểm",
+      accessorKey: "availablePoints",
     },
   ];
 
@@ -42,7 +42,7 @@ export const MyMovieHistory: React.FC = () => {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/myMovieHistory');
+        const response = await fetch("http://localhost:3000/myMovieHistory");
         if (!response.ok) {
           throw new Error(`Failed to fetch profile: ${response.statusText}`);
         }
@@ -57,9 +57,9 @@ export const MyMovieHistory: React.FC = () => {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unknown error occurred.');
+          setError("An unknown error occurred.");
         }
-        console.error('Error fetching user profile:', err);
+        console.error("Error fetching user profile:", err);
       }
     };
     getData();
@@ -70,7 +70,7 @@ export const MyMovieHistory: React.FC = () => {
   return (
     <>
       {errors && <p className="text-red-500">{errors}</p>}
-      <CustomTable tableColumns={tableColumns} tableData={tableData} />{' '}
+      <CustomTable tableColumns={tableColumns} tableData={tableData} />{" "}
     </>
   );
 };

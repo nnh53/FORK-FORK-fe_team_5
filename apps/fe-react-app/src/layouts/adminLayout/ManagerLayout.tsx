@@ -1,10 +1,9 @@
-import React from 'react'
-import DashBoardLayout from './DashBoardLayout';
-import MemberManagementPage from '../../feature/member/pages/MemberManagementPage';
-import { Route, Routes } from 'react-router-dom';
-import MovieManagement from '../../feature/manager/movie/MovieManagement';
+import { Route, Routes } from "react-router-dom";
+import MovieManagement from "../../feature/manager/movie/MovieManagement";
+import MemberManagementPage from "../../feature/member/pages/MemberManagementPage";
+import DashBoardLayout from "./DashBoardLayout";
 
-function ManagerLayout ()  {
+function ManagerLayout() {
   return (
     <DashBoardLayout>
       <Routes>
@@ -12,10 +11,9 @@ function ManagerLayout ()  {
         <Route path="member" element={<MemberManagementPage />} />
         {/* <Route path="staff" element={<StaffManagementPage />} /> */}
         <Route path="movie" element={<MovieManagement />} />
-
       </Routes>
     </DashBoardLayout>
-  )
+  );
 }
 
 export default ManagerLayout;

@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
-import { CustomTable, type TableColumns } from './components/Table';
-import { formatMovieSlot } from '../../utils/validation.utils';
-import type { MyPoint, MyPointHistory } from '../../interfaces/users.interface';
+import { useEffect, useState } from "react";
+import type { MyPoint, MyPointHistory } from "../../interfaces/users.interface";
+import { formatMovieSlot } from "../../utils/validation.utils";
+import { CustomTable, type TableColumns } from "./components/Table";
 
 export const MyPointManagement: React.FC = () => {
   const tableColumns: TableColumns[] = [
     {
-      header: 'Thời gian',
-      accessorKey: 'receiptId',
-      width: 'w-[15%]',
+      header: "Thời gian",
+      accessorKey: "receiptId",
+      width: "w-[15%]",
     },
     {
-      header: 'Số điểm',
-      accessorKey: 'movieName',
-      width: 'w-[20%]',
+      header: "Số điểm",
+      accessorKey: "movieName",
+      width: "w-[20%]",
     },
     {
-      header: 'Nội dung sử dụng',
-      accessorKey: 'description',
+      header: "Nội dung sử dụng",
+      accessorKey: "description",
     },
   ];
   const [pointSummary, setPointSummary] = useState<MyPoint | null>(null);
@@ -26,7 +26,7 @@ export const MyPointManagement: React.FC = () => {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/myPoint');
+        const response = await fetch("http://localhost:3000/myPoint");
         if (!response.ok) {
           throw new Error(`Failed to fetch profile: ${response.statusText}`);
         }
@@ -42,9 +42,9 @@ export const MyPointManagement: React.FC = () => {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unknown error occurred.');
+          setError("An unknown error occurred.");
         }
-        console.error('Error fetching user profile:', err);
+        console.error("Error fetching user profile:", err);
       }
     };
     getData();
@@ -82,7 +82,7 @@ export const MyPointManagement: React.FC = () => {
         </div>
       </div>
       <h2 className="text-2xl font-bold text-[#E52226] uppercase mb-5">Lịch sử điểm</h2>
-      <CustomTable tableColumns={tableColumns} tableData={tableData} />{' '}
+      <CustomTable tableColumns={tableColumns} tableData={tableData} />{" "}
     </>
   );
 };

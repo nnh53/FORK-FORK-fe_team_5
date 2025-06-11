@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { Formik, Form, Field } from 'formik';
-import type { MyInfoData } from '../../interfaces/users.interface';
-import { MyInfoSchema } from '../../utils/validation.utils';
+import { Field, Form, Formik } from "formik";
+import { useEffect, useRef, useState } from "react";
+import type { MyInfoData } from "../../interfaces/users.interface";
+import { MyInfoSchema } from "../../utils/validation.utils";
 
 export const MyInfo: React.FC = () => {
   const [formData, setFormData] = useState<MyInfoData | null>(null);
@@ -11,7 +11,7 @@ export const MyInfo: React.FC = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await fetch('http://localhost:3000/myInfo');
+        const response = await fetch("http://localhost:3000/myInfo");
         if (!response.ok) {
           throw new Error(`Failed to fetch profile: ${response.statusText}`);
         }
@@ -21,9 +21,9 @@ export const MyInfo: React.FC = () => {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unknown error occurred.');
+          setError("An unknown error occurred.");
         }
-        console.error('Error fetching user profile:', err);
+        console.error("Error fetching user profile:", err);
       }
     };
     getUser();
@@ -37,15 +37,15 @@ export const MyInfo: React.FC = () => {
   }
   function normalizeUserData(user: MyInfoData) {
     return {
-      city: user?.city || '',
-      district: user?.district || '',
-      dob: user?.dob ? user.dob.split('T')[0] : '',
+      city: user?.city || "",
+      district: user?.district || "",
+      dob: user?.dob ? user.dob.split("T")[0] : "",
       id: user?.id,
       name: user?.name,
       phone: user?.phone,
       email: user?.email,
-      gender: user?.gender || '',
-      img: user?.img || '',
+      gender: user?.gender || "",
+      img: user?.img || "",
     };
   }
 
@@ -64,8 +64,8 @@ export const MyInfo: React.FC = () => {
         validationSchema={MyInfoSchema}
         onSubmit={(values) => {
           // api call here
-          console.log('why it not running ');
-          console.log('Submitted data:', values);
+          console.log("why it not running ");
+          console.log("Submitted data:", values);
         }}
       >
         {({ setFieldValue, handleSubmit, errors }) => {
@@ -85,7 +85,7 @@ export const MyInfo: React.FC = () => {
                     onChange={(event) => {
                       const file = event.currentTarget.files?.[0];
                       if (file) {
-                        setFieldValue('avatar', file);
+                        setFieldValue("avatar", file);
                         const reader = new FileReader();
                         reader.onloadend = () => setImagePreview(reader.result as string);
                         reader.readAsDataURL(file);

@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { usersApi, postsApi, commentsApi } from "../api/posts"
-import type { User, Post, Comment } from "../types"
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { commentsApi, postsApi, usersApi } from "../api/posts";
+import type { Comment, Post, User } from "../types";
 
 export default function UserPosts() {
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
   // Query 1: Fetch all users (independent)
   const {
@@ -22,7 +22,7 @@ export default function UserPosts() {
   } = useQuery({
     queryKey: ["users"],
     queryFn: usersApi.getUsers,
-  })
+  });
 
   // Query 2: Fetch posts by selected user (dependent on selectedUserId)
   const {
@@ -33,7 +33,7 @@ export default function UserPosts() {
     queryKey: ["posts", "user", selectedUserId],
     queryFn: () => postsApi.getPostsByUser(selectedUserId!),
     enabled: !!selectedUserId, // Chỉ chạy khi có selectedUserId
-  })
+  });
 
   // Query 3: Fetch comments for selected post (dependent on selectedPostId)
   const {
@@ -44,15 +44,15 @@ export default function UserPosts() {
     queryKey: ["comments", "post", selectedPostId],
     queryFn: () => commentsApi.getCommentsByPost(selectedPostId!),
     enabled: !!selectedPostId, // Chỉ chạy khi có selectedPostId
-  })
+  });
 
   const handleUserChange = (userId: string) => {
-    const id = Number.parseInt(userId)
-    setSelectedUserId(id)
-    setSelectedPostId(null) // Reset selected post khi đổi user
-  }
+    const id = Number.parseInt(userId);
+    setSelectedUserId(id);
+    setSelectedPostId(null); // Reset selected post khi đổi user
+  };
 
-  const selectedUser = users?.find((user) => user.id === selectedUserId)
+  const selectedUser = users?.find((user) => user.id === selectedUserId);
 
   return (
     <div className="space-y-6">
@@ -67,9 +67,7 @@ export default function UserPosts() {
             <Skeleton className="h-10 w-full" />
           ) : usersError ? (
             <Alert variant="destructive">
-              <AlertDescription>
-                Error loading users: {usersError instanceof Error ? usersError.message : "Unknown error"}
-              </AlertDescription>
+              <AlertDescription>Error loading users: {usersError instanceof Error ? usersError.message : "Unknown error"}</AlertDescription>
             </Alert>
           ) : (
             <Select onValueChange={handleUserChange}>
@@ -144,18 +142,14 @@ export default function UserPosts() {
               </div>
             ) : postsError ? (
               <Alert variant="destructive">
-                <AlertDescription>
-                  Error loading posts: {postsError instanceof Error ? postsError.message : "Unknown error"}
-                </AlertDescription>
+                <AlertDescription>Error loading posts: {postsError instanceof Error ? postsError.message : "Unknown error"}</AlertDescription>
               </Alert>
             ) : userPosts && userPosts.length > 0 ? (
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 {userPosts.map((post: Post) => (
                   <Card
                     key={post.id}
-                    className={`cursor-pointer transition-colors ${
-                      selectedPostId === post.id ? "ring-2 ring-primary" : ""
-                    }`}
+                    className={`cursor-pointer transition-colors ${selectedPostId === post.id ? "ring-2 ring-primary" : ""}`}
                     onClick={() => setSelectedPostId(post.id)}
                   >
                     <CardHeader className="pb-2">
@@ -234,15 +228,10 @@ export default function UserPosts() {
         </CardHeader>
         <CardContent className="text-xs space-y-1">
           <div>Users Query: {isLoadingUsers ? "Loading" : users ? "Success" : "Idle"}</div>
-          <div>
-            Posts Query: {!selectedUserId ? "Disabled" : isLoadingPosts ? "Loading" : userPosts ? "Success" : "Idle"}
-          </div>
-          <div>
-            Comments Query:{" "}
-            {!selectedPostId ? "Disabled" : isLoadingComments ? "Loading" : postComments ? "Success" : "Idle"}
-          </div>
+          <div>Posts Query: {!selectedUserId ? "Disabled" : isLoadingPosts ? "Loading" : userPosts ? "Success" : "Idle"}</div>
+          <div>Comments Query: {!selectedPostId ? "Disabled" : isLoadingComments ? "Loading" : postComments ? "Success" : "Idle"}</div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

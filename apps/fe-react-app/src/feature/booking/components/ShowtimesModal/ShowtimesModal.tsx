@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import ShowtimesGroup from '../ShowtimesGroup/ShowtimesGroup';
-import Modal from '../../../../components/shared/Modal/Modal.tsx';
-import ShowDateSelector from '../ShowDateSelector/ShowDateSelector.tsx';
+import React, { useEffect, useMemo, useState } from "react";
+import Modal from "../../../../components/shared/Modal/Modal.tsx";
+import ShowDateSelector from "../ShowDateSelector/ShowDateSelector.tsx";
+import ShowtimesGroup from "../ShowtimesGroup/ShowtimesGroup";
 
 export interface Showtime {
   time: string;

@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { MyInfo } from './MyInfoManagement';
-import { MyMembership } from './MyMembershipManagement';
-import { MyMovieHistory } from './MovieHistory';
-import { MyPointManagement } from './MyPointManagement';
-import { MyVoucherManagement } from './MyVoucherManagement';
+import { useState } from "react";
+import { MyMovieHistory } from "./MovieHistory";
+import { MyInfo } from "./MyInfoManagement";
+import { MyMembership } from "./MyMembershipManagement";
+import { MyPointManagement } from "./MyPointManagement";
+import { MyVoucherManagement } from "./MyVoucherManagement";
 
 interface Tab {
   id: string;
@@ -12,11 +12,11 @@ interface Tab {
 }
 
 const tabsData: Tab[] = [
-  { id: 'account', label: 'THÔNG TIN TÀI KHOẢN', component: <MyInfo /> },
-  { id: 'membership', label: 'THẺ THÀNH VIÊN', component: <MyMembership /> },
-  { id: 'journey', label: 'HÀNH TRÌNH ĐIỆN ẢNH', component: <MyMovieHistory /> },
-  { id: 'points', label: 'ĐIỂM FCINEMA', component: <MyPointManagement /> },
-  { id: 'vouchers', label: 'VOUCHER', component: <MyVoucherManagement /> },
+  { id: "account", label: "THÔNG TIN TÀI KHOẢN", component: <MyInfo /> },
+  { id: "membership", label: "THẺ THÀNH VIÊN", component: <MyMembership /> },
+  { id: "journey", label: "HÀNH TRÌNH ĐIỆN ẢNH", component: <MyMovieHistory /> },
+  { id: "points", label: "ĐIỂM FCINEMA", component: <MyPointManagement /> },
+  { id: "vouchers", label: "VOUCHER", component: <MyVoucherManagement /> },
 ];
 export const MyUserManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>(tabsData[0].id);
@@ -33,7 +33,7 @@ export const MyUserManagement: React.FC = () => {
             className={`
               py-3 px-6
               focus:outline-none
-              ${activeTab === tab.id ? 'text-white bg-[#E52226] -mb-[2px] border-b-2 border-[#E52226]' : 'text-gray-800 hover:bg-gray-100'}
+              ${activeTab === tab.id ? "text-white bg-[#E52226] -mb-[2px] border-b-2 border-[#E52226]" : "text-gray-800 hover:bg-gray-100"}
             `}
           >
             {tab.label}

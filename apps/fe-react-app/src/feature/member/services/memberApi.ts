@@ -1,18 +1,18 @@
 // src/feature/member/services/memberApi.ts
-import axios from 'axios';
-import type { Member } from '../types'; // Adjust path if necessary
+import axios from "axios";
+import type { Member } from "../types"; // Adjust path if necessary
 
-const API_URL = 'https://67b28b81bc0165def8cdc590.mockapi.io/member';
+const API_URL = "https://67b28b81bc0165def8cdc590.mockapi.io/member";
 
 export const getMembers = async (): Promise<Member[]> => {
   const response = await axios.get<Member[]>(API_URL);
   return response.data;
 };
 
-export const createMember = async (memberData: Omit<Member, 'member_id'>): Promise<Member> => {
+export const createMember = async (memberData: Omit<Member, "member_id">): Promise<Member> => {
   // MockAPI thường tự tạo member_id
   // Đảm bảo gửi đủ các trường mà MockAPI yêu cầu (ví dụ: password)
-  const payload = { ...memberData, password: memberData.password ?? 'defaultPassword123' };
+  const payload = { ...memberData, password: memberData.password ?? "defaultPassword123" };
   const response = await axios.post<Member>(API_URL, payload);
   return response.data;
 };

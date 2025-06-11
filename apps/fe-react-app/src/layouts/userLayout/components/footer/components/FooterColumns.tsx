@@ -1,6 +1,6 @@
 // src/components/Footer/FooterColumns.tsx
-import React from 'react';
-import type { FooterContactColumn, FooterLinkColumn } from '../../../type/userLayout.ts';
+import React from "react";
+import type { FooterContactColumn, FooterLinkColumn } from "../../../type/userLayout.ts";
 
 export type FooterColumnData = FooterLinkColumn | FooterContactColumn;
 
@@ -15,7 +15,7 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ columns }) => {
         <div key={column.title}>
           <h3 className="text-red-500 font-bold text-lg mb-4">{column.title}</h3>
           {/* Kiểm tra loại cột để render cho đúng */}
-          {column.type === 'links' ? (
+          {column.type === "links" ? (
             <ul className="space-y-1">
               {column.links.map((link) => (
                 <li key={link.label}>

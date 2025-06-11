@@ -1,7 +1,7 @@
 // File: src/components/showtimesGroup/ShowtimesGroup.tsx
 
-import React, { useMemo } from 'react';
-import type { SchedulePerDay, Showtime } from '../ShowtimesModal/ShowtimesModal';
+import React, { useMemo } from "react";
+import type { SchedulePerDay, Showtime } from "../ShowtimesModal/ShowtimesModal";
 
 interface ShowtimesGroupProps {
   scheduleForDay?: SchedulePerDay;
@@ -12,10 +12,13 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
   const groupedShowtimes = useMemo(() => {
     if (!scheduleForDay?.showtimes) return {};
 
-    return scheduleForDay.showtimes.reduce((acc, showtime) => {
-      (acc[showtime.format] = acc[showtime.format] || []).push(showtime);
-      return acc;
-    }, {} as Record<string, Showtime[]>);
+    return scheduleForDay.showtimes.reduce(
+      (acc, showtime) => {
+        (acc[showtime.format] = acc[showtime.format] || []).push(showtime);
+        return acc;
+      },
+      {} as Record<string, Showtime[]>,
+    );
   }, [scheduleForDay]);
 
   if (!scheduleForDay || scheduleForDay.showtimes.length === 0) {
@@ -41,7 +44,7 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
               >
                 {/* CẬP NHẬT: Style lại text bên trong */}
                 <p className="font-bold text-base text-gray-900">{showtime.time}</p>
-                <p className="text-xs text-gray-500">{showtime.availableSeats > 0 ? `${showtime.availableSeats} ghế trống` : 'Hết vé'}</p>
+                <p className="text-xs text-gray-500">{showtime.availableSeats > 0 ? `${showtime.availableSeats} ghế trống` : "Hết vé"}</p>
               </button>
             ))}
           </div>

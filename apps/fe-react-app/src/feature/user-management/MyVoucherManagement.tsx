@@ -1,48 +1,48 @@
-import { useState, useEffect } from 'react';
-import { CustomTable, type TableColumns } from './components/Table';
-import { formatMovieSlot } from '../../utils/validation.utils';
-import type { MyVoucher, MyVoucherHistory } from '../../interfaces/voucher.interface';
+import { useEffect, useState } from "react";
+import type { MyVoucher, MyVoucherHistory } from "../../interfaces/voucher.interface";
+import { formatMovieSlot } from "../../utils/validation.utils";
+import { CustomTable, type TableColumns } from "./components/Table";
 
 export const MyVoucherManagement: React.FC = () => {
   const voucherColumns: TableColumns[] = [
     {
-      header: 'Mã Voucher',
-      accessorKey: 'voucherId',
-      width: 'w-[15%]',
+      header: "Mã Voucher",
+      accessorKey: "voucherId",
+      width: "w-[15%]",
     },
     {
-      header: 'Nội dung voucher',
-      accessorKey: 'voucherDescription',
-      width: 'w-[30%]',
+      header: "Nội dung voucher",
+      accessorKey: "voucherDescription",
+      width: "w-[30%]",
     },
     {
-      header: 'Loại voucher',
-      accessorKey: 'voucherType',
+      header: "Loại voucher",
+      accessorKey: "voucherType",
     },
     {
-      header: 'Ngày hết hạn',
-      accessorKey: 'expiredDate',
+      header: "Ngày hết hạn",
+      accessorKey: "expiredDate",
     },
   ];
 
   const voucherHistoryColumns: TableColumns[] = [
     {
-      header: 'Thời gian',
-      accessorKey: 'date',
-      width: 'w-[15%]',
+      header: "Thời gian",
+      accessorKey: "date",
+      width: "w-[15%]",
     },
     {
-      header: 'Mã voucher',
-      accessorKey: 'voucherId',
-      width: 'w-[30%]',
+      header: "Mã voucher",
+      accessorKey: "voucherId",
+      width: "w-[30%]",
     },
     {
-      header: 'Nội dung voucher',
-      accessorKey: 'voucherDescription',
+      header: "Nội dung voucher",
+      accessorKey: "voucherDescription",
     },
     {
-      header: 'Trạng thái',
-      accessorKey: 'status',
+      header: "Trạng thái",
+      accessorKey: "status",
     },
   ];
   const [myVoucherData, setMyVoucherData] = useState<MyVoucher[] | null>([]);
@@ -51,7 +51,7 @@ export const MyVoucherManagement: React.FC = () => {
   useEffect(() => {
     const getVoucher = async () => {
       try {
-        const response = await fetch('http://localhost:3000/myVoucher');
+        const response = await fetch("http://localhost:3000/myVoucher");
         if (!response.ok) {
           throw new Error(`Failed to fetch profile: ${response.statusText}`);
         }
@@ -65,14 +65,14 @@ export const MyVoucherManagement: React.FC = () => {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unknown error occurred.');
+          setError("An unknown error occurred.");
         }
-        console.error('Error fetching user profile:', err);
+        console.error("Error fetching user profile:", err);
       }
     };
     const getVoucherHistory = async () => {
       try {
-        const response = await fetch('http://localhost:3000/myVoucherHistory');
+        const response = await fetch("http://localhost:3000/myVoucherHistory");
         if (!response.ok) {
           throw new Error(`Failed to fetch profile: ${response.statusText}`);
         }
@@ -86,9 +86,9 @@ export const MyVoucherManagement: React.FC = () => {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unknown error occurred.');
+          setError("An unknown error occurred.");
         }
-        console.error('Error fetching user profile:', err);
+        console.error("Error fetching user profile:", err);
       }
     };
     getVoucher();

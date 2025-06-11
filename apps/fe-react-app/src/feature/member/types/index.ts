@@ -9,5 +9,5 @@ export interface Member {
   identity_card: string;
   address: string;
   password?: string; // Mật khẩu có thể không luôn cần thiết ở client
-  role: 'employee' | 'customer' | 'manager' | string; // Cho phép các role khác nếu API linh hoạt
+  role: "employee" | "customer" | "manager" | string; // Cho phép các role khác nếu API linh hoạt
 }

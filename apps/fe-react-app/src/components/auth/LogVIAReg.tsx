@@ -1,6 +1,6 @@
-import { gsap } from 'gsap';
-import React, { useCallback, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { gsap } from "gsap";
+import React, { useCallback, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 //thằng này sử dụng khi guest nhấn vào luồng chính
 const LogVIAReg: React.FC = () => {
@@ -13,7 +13,7 @@ const LogVIAReg: React.FC = () => {
     // GSAP Animation for initial load
     if (!containerRef.current || !loginButtonRef.current || !registerButtonRef.current) return;
 
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
     tl.fromTo(containerRef.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8 }).fromTo(
       [loginButtonRef.current, registerButtonRef.current],
@@ -23,8 +23,8 @@ const LogVIAReg: React.FC = () => {
         opacity: 1,
         duration: 0.6,
         stagger: 0.2,
-        ease: 'back.out(1.7)',
-      }
+        ease: "back.out(1.7)",
+      },
     );
 
     // Hover and interaction animations
@@ -37,7 +37,7 @@ const LogVIAReg: React.FC = () => {
         gsap.to(button, {
           scale: 1.05,
           duration: 0.3,
-          ease: 'power1.out',
+          ease: "power1.out",
         });
       };
 
@@ -45,17 +45,17 @@ const LogVIAReg: React.FC = () => {
         gsap.to(button, {
           scale: 1,
           duration: 0.3,
-          ease: 'power1.out',
+          ease: "power1.out",
         });
       };
 
-      button.addEventListener('mouseenter', mouseEnterHandler);
-      button.addEventListener('mouseleave', mouseLeaveHandler);
+      button.addEventListener("mouseenter", mouseEnterHandler);
+      button.addEventListener("mouseleave", mouseLeaveHandler);
 
       // Return cleanup function
       return () => {
-        button.removeEventListener('mouseenter', mouseEnterHandler);
-        button.removeEventListener('mouseleave', mouseLeaveHandler);
+        button.removeEventListener("mouseenter", mouseEnterHandler);
+        button.removeEventListener("mouseleave", mouseLeaveHandler);
       };
     });
 
@@ -74,12 +74,12 @@ const LogVIAReg: React.FC = () => {
             .to(buttonRef.current, {
               scale: 0.9,
               duration: 0.1,
-              ease: 'power1.inOut',
+              ease: "power1.inOut",
             })
             .to(buttonRef.current, {
               scale: 1,
               duration: 0.1,
-              ease: 'power1.inOut',
+              ease: "power1.inOut",
               onComplete: () => {
                 navigate(navigatePath);
               },
@@ -87,18 +87,18 @@ const LogVIAReg: React.FC = () => {
         }
       };
     },
-    [navigate]
+    [navigate],
   );
 
   const handleLogin = useCallback(() => {
     if (loginButtonRef.current) {
-      createButtonAnimation(loginButtonRef as React.RefObject<HTMLButtonElement>, '/login')();
+      createButtonAnimation(loginButtonRef as React.RefObject<HTMLButtonElement>, "/login")();
     }
   }, [createButtonAnimation]);
 
   const handleRegister = useCallback(() => {
     if (registerButtonRef.current) {
-      createButtonAnimation(registerButtonRef as React.RefObject<HTMLButtonElement>, '/register')();
+      createButtonAnimation(registerButtonRef as React.RefObject<HTMLButtonElement>, "/register")();
     }
   }, [createButtonAnimation]);
 
@@ -145,4 +145,3 @@ const LogVIAReg: React.FC = () => {
 };
 
 export default LogVIAReg;
-

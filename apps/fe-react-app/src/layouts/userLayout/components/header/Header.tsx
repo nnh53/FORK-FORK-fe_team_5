@@ -1,8 +1,8 @@
-import React from 'react';
-import './Header.scss'; // File SCSS vẫn giữ nguyên cho các style tùy chỉnh
-import NavigationBar, { type NavItemData } from './components/NavigationBar';
-import AuthSection from './components/AuthSection';
-import type { User } from '../../type/userLayout.ts';
+import React from "react";
+import type { User } from "../../type/userLayout.ts";
+import "./Header.scss"; // File SCSS vẫn giữ nguyên cho các style tùy chỉnh
+import AuthSection from "./components/AuthSection";
+import NavigationBar, { type NavItemData } from "./components/NavigationBar";
 
 // Props của Header bây giờ rất linh động
 interface HeaderProps {

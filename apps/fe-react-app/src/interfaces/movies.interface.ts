@@ -1,6 +1,6 @@
 export enum MovieStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
+  ACTIVE = "active",
+  INACTIVE = "inactive",
 }
 
 export interface Movie {
@@ -18,7 +18,7 @@ export interface Movie {
   updatedAt: string;
 }
 
-export interface MovieFormData extends Omit<Movie, 'id' | 'createdAt' | 'updatedAt'> {
+export interface MovieFormData extends Omit<Movie, "id" | "createdAt" | "updatedAt"> {
   id?: string;
 }
 

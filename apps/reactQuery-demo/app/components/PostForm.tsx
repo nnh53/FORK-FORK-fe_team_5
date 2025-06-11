@@ -1,78 +1,78 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Loader2, CheckCircle, XCircle } from "lucide-react"
-import { postsApi } from "../api/posts"
-import type { CreatePostData } from "../types"
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CheckCircle, Loader2, XCircle } from "lucide-react";
+import { useState } from "react";
+import { postsApi } from "../api/posts";
+import type { CreatePostData } from "../types";
 
 export default function PostForm() {
-  const [title, setTitle] = useState("")
-  const [body, setBody] = useState("")
-  const [userId, setUserId] = useState(1)
-  const queryClient = useQueryClient()
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [userId, setUserId] = useState(1);
+  const queryClient = useQueryClient();
 
   // Mutation để tạo post mới
   const createPostMutation = useMutation({
     mutationFn: postsApi.createPost,
     onSuccess: (newPost) => {
       // Invalidate và refetch posts list
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
 
       // Optionally, add the new post to cache immediately
       queryClient.setQueryData(["posts"], (oldPosts: any) => {
-        return oldPosts ? [newPost, ...oldPosts] : [newPost]
-      })
+        return oldPosts ? [newPost, ...oldPosts] : [newPost];
+      });
 
       // Reset form
-      setTitle("")
-      setBody("")
-      setUserId(1)
+      setTitle("");
+      setBody("");
+      setUserId(1);
     },
     onError: (error) => {
-      console.error("Error creating post:", error)
+      console.error("Error creating post:", error);
     },
-  })
+  });
 
   // Mutation để update post
   const updatePostMutation = useMutation({
     mutationFn: postsApi.updatePost,
     onSuccess: (updatedPost) => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
-      queryClient.setQueryData(["post", updatedPost.id], updatedPost)
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.setQueryData(["post", updatedPost.id], updatedPost);
     },
-  })
+  });
 
   // Mutation để delete post
   const deletePostMutation = useMutation({
     mutationFn: postsApi.deletePost,
     onSuccess: (_, deletedId) => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
-      queryClient.removeQueries({ queryKey: ["post", deletedId] })
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.removeQueries({ queryKey: ["post", deletedId] });
     },
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!title.trim() || !body.trim()) return
+    e.preventDefault();
+    if (!title.trim() || !body.trim()) return;
 
     const postData: CreatePostData = {
       title: title.trim(),
       body: body.trim(),
       userId,
-    }
+    };
 
-    createPostMutation.mutate(postData)
-  }
+    createPostMutation.mutate(postData);
+  };
 
   const handleUpdateExample = () => {
     updatePostMutation.mutate({
@@ -80,12 +80,12 @@ export default function PostForm() {
       title: "Updated Post Title",
       body: "This post has been updated via mutation",
       userId: 1,
-    })
-  }
+    });
+  };
 
   const handleDeleteExample = () => {
-    deletePostMutation.mutate(1)
-  }
+    deletePostMutation.mutate(1);
+  };
 
   return (
     <div className="space-y-6">
@@ -99,14 +99,7 @@ export default function PostForm() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="userId">User ID</Label>
-              <Input
-                id="userId"
-                type="number"
-                value={userId}
-                onChange={(e) => setUserId(Number(e.target.value))}
-                min="1"
-                max="10"
-              />
+              <Input id="userId" type="number" value={userId} onChange={(e) => setUserId(Number(e.target.value))} min="1" max="10" />
             </div>
 
             <div>
@@ -132,11 +125,7 @@ export default function PostForm() {
               />
             </div>
 
-            <Button
-              type="submit"
-              disabled={createPostMutation.isPending || !title.trim() || !body.trim()}
-              className="w-full"
-            >
+            <Button type="submit" disabled={createPostMutation.isPending || !title.trim() || !body.trim()} className="w-full">
               {createPostMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -160,8 +149,7 @@ export default function PostForm() {
             <Alert variant="destructive" className="mt-4">
               <XCircle className="h-4 w-4" />
               <AlertDescription>
-                Error:{" "}
-                {createPostMutation.error instanceof Error ? createPostMutation.error.message : "Failed to create post"}
+                Error: {createPostMutation.error instanceof Error ? createPostMutation.error.message : "Failed to create post"}
               </AlertDescription>
             </Alert>
           )}
@@ -213,8 +201,7 @@ export default function PostForm() {
           {updatePostMutation.isError && (
             <Alert variant="destructive">
               <AlertDescription>
-                Update error:{" "}
-                {updatePostMutation.error instanceof Error ? updatePostMutation.error.message : "Unknown error"}
+                Update error: {updatePostMutation.error instanceof Error ? updatePostMutation.error.message : "Unknown error"}
               </AlertDescription>
             </Alert>
           )}
@@ -222,13 +209,12 @@ export default function PostForm() {
           {deletePostMutation.isError && (
             <Alert variant="destructive">
               <AlertDescription>
-                Delete error:{" "}
-                {deletePostMutation.error instanceof Error ? deletePostMutation.error.message : "Unknown error"}
+                Delete error: {deletePostMutation.error instanceof Error ? deletePostMutation.error.message : "Unknown error"}
               </AlertDescription>
             </Alert>
           )}
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

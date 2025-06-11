@@ -1,6 +1,6 @@
-import React from 'react';
-import Header from './components/header/Header'; // Assuming Header.tsx is the correct path
-import Footer from './components/footer/Footer';
+import React from "react";
+import Footer from "./components/footer/Footer";
+import Header from "./components/header/Header"; // Assuming Header.tsx is the correct path
 
 interface UserLayoutProps {
   children: React.ReactNode;

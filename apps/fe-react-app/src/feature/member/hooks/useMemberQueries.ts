@@ -1,9 +1,9 @@
 // src/feature/member/hooks/useMemberQueries.ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMembers, createMember, updateMember, deleteMember } from '../services/memberApi';
-import type { Member } from '../types'; // Adjust path if necessary
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createMember, deleteMember, getMembers, updateMember } from "../services/memberApi";
+import type { Member } from "../types"; // Adjust path if necessary
 
-export const MEMBER_QUERY_KEY = 'members'; // Key để quản lý cache của react-query
+export const MEMBER_QUERY_KEY = "members"; // Key để quản lý cache của react-query
 
 // Hook để lấy danh sách members
 export function useGetMembers() {
@@ -16,7 +16,7 @@ export function useGetMembers() {
 // Hook để tạo member mới
 export function useCreateMember() {
   const queryClient = useQueryClient();
-  return useMutation<Member, Error, Omit<Member, 'member_id'>>({
+  return useMutation<Member, Error, Omit<Member, "member_id">>({
     mutationFn: createMember,
     onSuccess: () => {
       // Sau khi tạo thành công, làm mới lại query 'members' để cập nhật danh sách

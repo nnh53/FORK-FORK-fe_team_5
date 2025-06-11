@@ -1,26 +1,26 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
-import { useGetMembers, useCreateMember, useUpdateMember, useDeleteMember } from '../hooks/useMemberQueries';
-import type { Member } from '../types';
-import Modal from '../../../components/ui/modal';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import Modal from "../../../components/ui/modal";
+import { useCreateMember, useDeleteMember, useGetMembers, useUpdateMember } from "../hooks/useMemberQueries";
+import type { Member } from "../types";
 
 interface MemberFormProps {
-  onSubmit: (memberData: Omit<Member, 'member_id' | 'password'>) => void;
+  onSubmit: (memberData: Omit<Member, "member_id" | "password">) => void;
   initialData?: Partial<Member>;
 }
 
 const MemberForm = forwardRef(({ onSubmit, initialData }: MemberFormProps, ref) => {
-  const [name, setName] = useState(initialData?.name ?? '');
-  const [email, setEmail] = useState(initialData?.email ?? '');
-  const [phone, setPhone] = useState(initialData?.phone ?? '');
-  const [address, setAddress] = useState(initialData?.address ?? '');
-  const [dateOfBirth, setDateOfBirth] = useState(initialData?.date_of_birth ?? '');
-  const [identityCard, setIdentityCard] = useState(initialData?.identity_card ?? '');
+  const [name, setName] = useState(initialData?.name ?? "");
+  const [email, setEmail] = useState(initialData?.email ?? "");
+  const [phone, setPhone] = useState(initialData?.phone ?? "");
+  const [address, setAddress] = useState(initialData?.address ?? "");
+  const [dateOfBirth, setDateOfBirth] = useState(initialData?.date_of_birth ?? "");
+  const [identityCard, setIdentityCard] = useState(initialData?.identity_card ?? "");
   const [gender, setGender] = useState(initialData?.gender ?? false);
-  const [role, setRole] = useState(initialData?.role ?? 'customer');
+  const [role, setRole] = useState(initialData?.role ?? "customer");
 
   const handleSubmit = () => {
     if (!name || !email) {
-      alert('Tên và Email là bắt buộc.');
+      alert("Tên và Email là bắt buộc.");
       return;
     }
     onSubmit({
@@ -107,13 +107,13 @@ const MemberForm = forwardRef(({ onSubmit, initialData }: MemberFormProps, ref) 
         <label className="text-lg font-medium">Gender</label>
         <div className="flex border border-gray-300 rounded-lg overflow-hidden">
           <button
-            className={`px-4 py-2 transition-colors ${gender ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            className={`px-4 py-2 transition-colors ${gender ? "bg-blue-500 text-white" : "bg-gray-100 hover:bg-gray-200"}`}
             onClick={() => setGender(true)}
           >
             Nam
           </button>
           <button
-            className={`px-4 py-2 transition-colors ${!gender ? 'bg-pink-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            className={`px-4 py-2 transition-colors ${!gender ? "bg-pink-500 text-white" : "bg-gray-100 hover:bg-gray-200"}`}
             onClick={() => setGender(false)}
           >
             Nữ
@@ -157,31 +157,31 @@ const MemberManagementPage: React.FC = () => {
     setEditingMember(null);
   };
 
-  const handleSubmitForm = async (memberData: Omit<Member, 'member_id' | 'password'>) => {
+  const handleSubmitForm = async (memberData: Omit<Member, "member_id" | "password">) => {
     try {
       if (editingMember) {
         await updateMemberMutation.mutateAsync({ ...editingMember, ...memberData });
-        alert('Cập nhật thành viên thành công! 🎉');
+        alert("Cập nhật thành viên thành công! 🎉");
       } else {
         await createMemberMutation.mutateAsync(memberData);
-        alert('Thêm thành viên mới thành công! 🎉');
+        alert("Thêm thành viên mới thành công! 🎉");
       }
       setIsModalOpen(false);
       setEditingMember(null);
     } catch (err) {
-      console.error('Lỗi khi lưu thành viên:', err);
-      alert(`Lỗi: ${editingMember ? 'cập nhật' : 'thêm mới'} thành viên thất bại.`);
+      console.error("Lỗi khi lưu thành viên:", err);
+      alert(`Lỗi: ${editingMember ? "cập nhật" : "thêm mới"} thành viên thất bại.`);
     }
   };
 
   const handleDeleteMember = async (id: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa thành viên này?')) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
       try {
         await deleteMemberMutation.mutateAsync(id);
-        alert('Xóa thành viên thành công! 🗑️');
+        alert("Xóa thành viên thành công! 🗑️");
       } catch (err) {
-        console.error('Lỗi khi xóa thành viên:', err);
-        alert('Xóa thành viên thất bại.');
+        console.error("Lỗi khi xóa thành viên:", err);
+        alert("Xóa thành viên thất bại.");
       }
     }
   };
@@ -240,11 +240,11 @@ const MemberManagementPage: React.FC = () => {
                   <td className="p-4 font-semibold">{member.name}</td>
                   <td className="p-4">{member.email}</td>
                   <td className="p-4">{member.phone}</td>
-                  <td className="p-4">{member.gender ? 'Nam' : 'Nữ'}</td>
+                  <td className="p-4">{member.gender ? "Nam" : "Nữ"}</td>
                   <td className="p-4">
                     <span
                       className={`badge ${
-                        member.role === 'manager' ? 'badge-primary' : member.role === 'employee' ? 'badge-secondary' : 'badge-accent'
+                        member.role === "manager" ? "badge-primary" : member.role === "employee" ? "badge-secondary" : "badge-accent"
                       } badge-lg`}
                     >
                       {member.role}
@@ -262,7 +262,7 @@ const MemberManagementPage: React.FC = () => {
                       {deleteMemberMutation.isPending && deleteMemberMutation.variables === member.member_id ? (
                         <span className="loading loading-spinner loading-xs"></span>
                       ) : (
-                        'Xóa 🗑️'
+                        "Xóa 🗑️"
                       )}
                     </button>
                   </td>
@@ -280,9 +280,9 @@ const MemberManagementPage: React.FC = () => {
         <Modal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          title={editingMember ? 'Sửa thông tin thành viên' : 'Thêm thành viên mới'}
+          title={editingMember ? "Sửa thông tin thành viên" : "Thêm thành viên mới"}
           onSubmit={() => formRef.current?.handleSubmit()}
-          submitLabel={editingMember ? 'Sửa' : 'Thêm'}
+          submitLabel={editingMember ? "Sửa" : "Thêm"}
         >
           <MemberForm ref={formRef} onSubmit={handleSubmitForm} initialData={editingMember || undefined} />
         </Modal>
@@ -290,7 +290,7 @@ const MemberManagementPage: React.FC = () => {
 
       <div className="mt-8 text-center">
         <button className="btn btn-outline btn-accent" onClick={() => refetch()} disabled={isLoading}>
-          {isLoading ? <span className="loading loading-spinner loading-xs"></span> : 'Làm Mới Dữ Liệu 🔄'}
+          {isLoading ? <span className="loading loading-spinner loading-xs"></span> : "Làm Mới Dữ Liệu 🔄"}
         </button>
       </div>
     </div>

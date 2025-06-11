@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Loader2 } from "lucide-react"
-import { postsApi } from "../api/posts"
-import type { Post } from "../types"
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { postsApi } from "../api/posts";
+import type { Post } from "../types";
 
 export default function InfinitePosts() {
   const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useInfiniteQuery({
@@ -16,10 +16,10 @@ export default function InfinitePosts() {
     queryFn: ({ pageParam = 1 }) => postsApi.getPostsPaginated(pageParam, 5),
     getNextPageParam: (lastPage, pages) => {
       // JSONPlaceholder có 100 posts, mỗi page 5 posts = 20 pages
-      return pages.length < 20 ? pages.length + 1 : undefined
+      return pages.length < 20 ? pages.length + 1 : undefined;
     },
     initialPageParam: 1,
-  })
+  });
 
   if (status === "pending") {
     return (
@@ -37,7 +37,7 @@ export default function InfinitePosts() {
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   if (status === "error") {
@@ -45,10 +45,10 @@ export default function InfinitePosts() {
       <Alert variant="destructive">
         <AlertDescription>Error: {error instanceof Error ? error.message : "Something went wrong"}</AlertDescription>
       </Alert>
-    )
+    );
   }
 
-  const allPosts = data?.pages.flat() || []
+  const allPosts = data?.pages.flat() || [];
 
   return (
     <div className="space-y-6">
@@ -114,5 +114,5 @@ export default function InfinitePosts() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

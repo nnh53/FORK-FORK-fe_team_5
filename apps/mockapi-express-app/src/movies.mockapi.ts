@@ -1,6 +1,6 @@
 enum Status {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
+  ACTIVE = "active",
+  INACTIVE = "inactive",
 }
 
 export interface Movie {
@@ -20,77 +20,77 @@ export interface Movie {
 
 export const moviesMockData: Movie[] = [
   {
-    id: '1',
-    title: 'The Shawshank Redemption',
-    genre: 'Drama',
-    director: 'Frank Darabont',
+    id: "1",
+    title: "The Shawshank Redemption",
+    genre: "Drama",
+    director: "Frank Darabont",
     releaseYear: 1994,
     duration: 142,
     rating: 9.3,
-    description: 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.',
-    poster: 'https://example.com/shawshank.jpg',
+    description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+    poster: "https://example.com/shawshank.jpg",
     status: Status.ACTIVE,
-    createdAt: '2024-03-15T10:00:00Z',
-    updatedAt: '2024-03-15T10:00:00Z',
+    createdAt: "2024-03-15T10:00:00Z",
+    updatedAt: "2024-03-15T10:00:00Z",
   },
   {
-    id: '2',
-    title: 'The Godfather',
-    genre: 'Crime',
-    director: 'Francis Ford Coppola',
+    id: "2",
+    title: "The Godfather",
+    genre: "Crime",
+    director: "Francis Ford Coppola",
     releaseYear: 1972,
     duration: 175,
     rating: 9.2,
-    description: 'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.',
-    poster: 'https://example.com/godfather.jpg',
+    description: "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+    poster: "https://example.com/godfather.jpg",
     status: Status.ACTIVE,
-    createdAt: '2024-03-15T11:00:00Z',
-    updatedAt: '2024-03-15T11:00:00Z',
+    createdAt: "2024-03-15T11:00:00Z",
+    updatedAt: "2024-03-15T11:00:00Z",
   },
   {
-    id: '3',
-    title: 'Pulp Fiction',
-    genre: 'Crime',
-    director: 'Quentin Tarantino',
+    id: "3",
+    title: "Pulp Fiction",
+    genre: "Crime",
+    director: "Quentin Tarantino",
     releaseYear: 1994,
     duration: 154,
     rating: 8.9,
     description:
-      'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.',
-    poster: 'https://example.com/pulp-fiction.jpg',
+      "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
+    poster: "https://example.com/pulp-fiction.jpg",
     status: Status.ACTIVE,
-    createdAt: '2024-03-15T12:00:00Z',
-    updatedAt: '2024-03-15T12:00:00Z',
+    createdAt: "2024-03-15T12:00:00Z",
+    updatedAt: "2024-03-15T12:00:00Z",
   },
   {
-    id: '4',
-    title: 'The Dark Knight',
-    genre: 'Action',
-    director: 'Christopher Nolan',
+    id: "4",
+    title: "The Dark Knight",
+    genre: "Action",
+    director: "Christopher Nolan",
     releaseYear: 2008,
     duration: 152,
     rating: 9.0,
     description:
-      'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
-    poster: 'https://example.com/dark-knight.jpg',
+      "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
+    poster: "https://example.com/dark-knight.jpg",
     status: Status.ACTIVE,
-    createdAt: '2024-03-15T13:00:00Z',
-    updatedAt: '2024-03-15T13:00:00Z',
+    createdAt: "2024-03-15T13:00:00Z",
+    updatedAt: "2024-03-15T13:00:00Z",
   },
   {
-    id: '5',
-    title: 'Inception',
-    genre: 'Sci-Fi',
-    director: 'Christopher Nolan',
+    id: "5",
+    title: "Inception",
+    genre: "Sci-Fi",
+    director: "Christopher Nolan",
     releaseYear: 2010,
     duration: 148,
     rating: 8.8,
     description:
-      'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
-    poster: 'https://example.com/inception.jpg',
+      "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
+    poster: "https://example.com/inception.jpg",
     status: Status.INACTIVE,
-    createdAt: '2024-03-15T14:00:00Z',
-    updatedAt: '2024-03-15T14:00:00Z',
+    createdAt: "2024-03-15T14:00:00Z",
+    updatedAt: "2024-03-15T14:00:00Z",
   },
 ];
 
@@ -100,7 +100,7 @@ export const moviesAPI = {
 
   getById: (id: string) => moviesMockData.find((movie) => movie.id === id),
 
-  create: (movieData: Omit<Movie, 'id' | 'createdAt' | 'updatedAt'>) => {
+  create: (movieData: Omit<Movie, "id" | "createdAt" | "updatedAt">) => {
     const newMovie: Movie = {
       ...movieData,
       id: (moviesMockData.length + 1).toString(),
@@ -111,7 +111,7 @@ export const moviesAPI = {
     return newMovie;
   },
 
-  update: (id: string, movieData: Partial<Omit<Movie, 'id' | 'createdAt'>>) => {
+  update: (id: string, movieData: Partial<Omit<Movie, "id" | "createdAt">>) => {
     const index = moviesMockData.findIndex((movie) => movie.id === id);
     if (index !== -1) {
       moviesMockData[index] = {

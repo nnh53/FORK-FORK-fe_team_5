@@ -1,7 +1,7 @@
-import { gsap } from 'gsap';
-import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
-import React, { useEffect, useRef } from 'react';
-import { Controller, type Control, type FieldErrors } from 'react-hook-form';
+import { gsap } from "gsap";
+import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
+import React, { useEffect, useRef } from "react";
+import { Controller, type Control, type FieldErrors } from "react-hook-form";
 
 // Register DrawSVG plugin
 gsap.registerPlugin(DrawSVGPlugin);
@@ -27,18 +27,18 @@ const CheckboxForm: React.FC<CheckboxProps> = ({ name, label, control, errors })
       tl.fromTo(
         path,
         {
-          drawSVG: '90% 100%',
-          stroke: '#27BDBE',
+          drawSVG: "90% 100%",
+          stroke: "#27BDBE",
           strokeWidth: 2,
           opacity: 0,
         },
         {
           duration: 0.5,
-          drawSVG: '0% 20%',
-          stroke: '#E70000',
+          drawSVG: "0% 20%",
+          stroke: "#E70000",
           strokeWidth: 3,
           opacity: 1,
-        }
+        },
       );
 
       const handleChange = () => {
@@ -49,10 +49,10 @@ const CheckboxForm: React.FC<CheckboxProps> = ({ name, label, control, errors })
         }
       };
 
-      checkbox.addEventListener('change', handleChange);
+      checkbox.addEventListener("change", handleChange);
 
       return () => {
-        checkbox.removeEventListener('change', handleChange);
+        checkbox.removeEventListener("change", handleChange);
       };
     }
   }, []);

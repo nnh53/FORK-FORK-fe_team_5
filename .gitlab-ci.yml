@@ -12,9 +12,9 @@ stages:
   - deploy
 
 variables:
-  SECRET_DETECTION_ENABLED: 'true'
-  CI: 'true'
-  DOCKER_HOST: 'unix:///var/run/docker.sock'
+  SECRET_DETECTION_ENABLED: "true"
+  CI: "true"
+  DOCKER_HOST: "unix:///var/run/docker.sock"
 
 before_script:
   - echo $CI_JOB_TOKEN
@@ -28,7 +28,7 @@ include:
 lint-commit:
   image:
     name: registry.hub.docker.com/commitlint/commitlint:latest
-    entrypoint: ['']
+    entrypoint: [""]
   stage: lint-commit
   script:
     - commitlint --from ${CI_MERGE_REQUEST_DIFF_BASE_SHA} --to ${CI_COMMIT_SHA}

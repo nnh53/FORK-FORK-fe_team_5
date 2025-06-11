@@ -1,26 +1,26 @@
-"use client"
+"use client";
 
-import { useQueries, useQuery } from "@tanstack/react-query"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { RefreshCw } from "lucide-react"
-import { usersApi, postsApi } from "../api/posts"
-import type { User, Post } from "../types"
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { RefreshCw } from "lucide-react";
+import { postsApi, usersApi } from "../api/posts";
+import type { Post, User } from "../types";
 
 export default function ParallelQueries() {
   // Method 1: Multiple useQuery hooks (parallel by default)
   const usersQuery = useQuery({
     queryKey: ["users"],
     queryFn: usersApi.getUsers,
-  })
+  });
 
   const postsQuery = useQuery({
     queryKey: ["posts"],
     queryFn: postsApi.getPosts,
-  })
+  });
 
   // Method 2: useQueries for dynamic parallel queries
   const userDetailQueries = useQueries({
@@ -29,7 +29,7 @@ export default function ParallelQueries() {
       queryFn: () => usersApi.getUser(id),
       staleTime: 5 * 60 * 1000,
     })),
-  })
+  });
 
   // Method 3: Parallel queries với different configurations
   const specificPostQueries = useQueries({
@@ -50,19 +50,12 @@ export default function ParallelQueries() {
         retry: 1,
       },
     ],
-  })
+  });
 
   const isLoadingAny =
-    usersQuery.isLoading ||
-    postsQuery.isLoading ||
-    userDetailQueries.some((q) => q.isLoading) ||
-    specificPostQueries.some((q) => q.isLoading)
+    usersQuery.isLoading || postsQuery.isLoading || userDetailQueries.some((q) => q.isLoading) || specificPostQueries.some((q) => q.isLoading);
 
-  const hasAnyError =
-    usersQuery.error ||
-    postsQuery.error ||
-    userDetailQueries.some((q) => q.error) ||
-    specificPostQueries.some((q) => q.error)
+  const hasAnyError = usersQuery.error || postsQuery.error || userDetailQueries.some((q) => q.error) || specificPostQueries.some((q) => q.error);
 
   return (
     <div className="space-y-6">
@@ -75,10 +68,10 @@ export default function ParallelQueries() {
               size="sm"
               variant="outline"
               onClick={() => {
-                usersQuery.refetch()
-                postsQuery.refetch()
-                userDetailQueries.forEach((q) => q.refetch())
-                specificPostQueries.forEach((q) => q.refetch())
+                usersQuery.refetch();
+                postsQuery.refetch();
+                userDetailQueries.forEach((q) => q.refetch());
+                specificPostQueries.forEach((q) => q.refetch());
               }}
             >
               <RefreshCw className="h-4 w-4" />
@@ -175,7 +168,7 @@ export default function ParallelQueries() {
           <CardContent>
             <div className="space-y-3">
               {userDetailQueries.map((query, index) => {
-                const userId = index + 1
+                const userId = index + 1;
                 return (
                   <div key={userId} className="p-3 border rounded">
                     {query.isLoading ? (
@@ -196,7 +189,7 @@ export default function ParallelQueries() {
                       </div>
                     ) : null}
                   </div>
-                )
+                );
               })}
             </div>
           </CardContent>
@@ -212,14 +205,12 @@ export default function ParallelQueries() {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
             {specificPostQueries.map((query, index) => {
-              const postId = index + 1
+              const postId = index + 1;
               return (
                 <Card key={postId}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm">Post #{postId}</CardTitle>
-                    <CardDescription>
-                      {query.isLoading ? "Loading..." : query.error ? "Error" : query.isSuccess ? "Loaded" : "Idle"}
-                    </CardDescription>
+                    <CardDescription>{query.isLoading ? "Loading..." : query.error ? "Error" : query.isSuccess ? "Loaded" : "Idle"}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {query.isLoading ? (
@@ -237,7 +228,7 @@ export default function ParallelQueries() {
                     ) : null}
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </CardContent>
@@ -250,24 +241,12 @@ export default function ParallelQueries() {
         </CardHeader>
         <CardContent className="text-xs space-y-1">
           <div>Total Queries: {2 + userDetailQueries.length + specificPostQueries.length}</div>
-          <div>
-            Loading:{" "}
-            {[usersQuery, postsQuery, ...userDetailQueries, ...specificPostQueries].filter((q) => q.isLoading).length}
-          </div>
-          <div>
-            Success:{" "}
-            {[usersQuery, postsQuery, ...userDetailQueries, ...specificPostQueries].filter((q) => q.isSuccess).length}
-          </div>
-          <div>
-            Error:{" "}
-            {[usersQuery, postsQuery, ...userDetailQueries, ...specificPostQueries].filter((q) => q.error).length}
-          </div>
-          <div>
-            Fetching:{" "}
-            {[usersQuery, postsQuery, ...userDetailQueries, ...specificPostQueries].filter((q) => q.isFetching).length}
-          </div>
+          <div>Loading: {[usersQuery, postsQuery, ...userDetailQueries, ...specificPostQueries].filter((q) => q.isLoading).length}</div>
+          <div>Success: {[usersQuery, postsQuery, ...userDetailQueries, ...specificPostQueries].filter((q) => q.isSuccess).length}</div>
+          <div>Error: {[usersQuery, postsQuery, ...userDetailQueries, ...specificPostQueries].filter((q) => q.error).length}</div>
+          <div>Fetching: {[usersQuery, postsQuery, ...userDetailQueries, ...specificPostQueries].filter((q) => q.isFetching).length}</div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

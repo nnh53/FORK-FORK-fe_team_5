@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface ModalProps {
 
 const DRAG_THRESHOLD = 200;
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, containerClassName = 'w-full max-w-lg' }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, containerClassName = "w-full max-w-lg" }) => {
   const [offsetY, setOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startYRef = useRef<number | null>(null);
@@ -19,7 +19,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, containerClass
     setIsDragging(true);
     startYRef.current = clientY;
     if (modalRef.current) {
-      modalRef.current.style.transition = 'none';
+      modalRef.current.style.transition = "none";
     }
   };
 
@@ -36,7 +36,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, containerClass
     if (!isDragging) return;
 
     if (modalRef.current) {
-      modalRef.current.style.transition = 'transform 0.3s ease';
+      modalRef.current.style.transition = "transform 0.3s ease";
     }
 
     if (offsetY > DRAG_THRESHOLD) {
@@ -59,17 +59,17 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, containerClass
     const onTouchEnd = () => handleDragEnd();
 
     if (isDragging) {
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
-      window.addEventListener('touchmove', onTouchMove);
-      window.addEventListener('touchend', onTouchEnd);
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp);
+      window.addEventListener("touchmove", onTouchMove);
+      window.addEventListener("touchend", onTouchEnd);
     }
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
     };
   }, [isDragging, offsetY]); // cần đưa offsetY vào để đảm bảo cập nhật đúng
 

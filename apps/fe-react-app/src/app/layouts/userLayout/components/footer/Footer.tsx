@@ -1,5 +1,5 @@
-import FCinema_Logo from '../../../assets/FCinema_Logo.png';
-import bgTop from '../../../assets/bg-top.png';
+import FCinema_Logo from "../../../assets/FCinema_Logo.png";
+import bgTop from "../../../assets/bg-top.png";
 
 function Footer() {
   return (
@@ -7,8 +7,8 @@ function Footer() {
       className="w-full bg-repeat-x flex-col"
       style={{
         backgroundImage: `url(${bgTop})`,
-        backgroundRepeat: 'repeat-x',
-        backgroundSize: 'auto 100%', // Hoặc "100% 100%" nếu bạn muốn căng hình nền
+        backgroundRepeat: "repeat-x",
+        backgroundSize: "auto 100%", // Hoặc "100% 100%" nếu bạn muốn căng hình nền
       }}
     >
       <div className="max-w-7xl mx-auto">

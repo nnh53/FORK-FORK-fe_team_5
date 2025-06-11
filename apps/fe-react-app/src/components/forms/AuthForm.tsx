@@ -1,6 +1,6 @@
-import React from 'react';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface AuthFormProps {
   children: React.ReactNode;
@@ -14,4 +14,3 @@ const AuthForm: React.FC<AuthFormProps> = ({ children }) => (
 );
 
 export default AuthForm;
-

@@ -11,14 +11,14 @@ interface Membership {
 }
 export const myMembership: Membership[] = [
   {
-    cardNumber: '9002000003178674',
-    tier: 'Khách hàng STANDARD',
-    activationDate: '22/05/2025',
+    cardNumber: "9002000003178674",
+    tier: "Khách hàng STANDARD",
+    activationDate: "22/05/2025",
     totalSpent: 0,
     accumulatePoints: 0,
     usedPoints: 0,
     availablePoints: 0,
     nearExpiringPoints: 0,
-    expiringDate: '00 đ',
+    expiringDate: "00 đ",
   },
 ];

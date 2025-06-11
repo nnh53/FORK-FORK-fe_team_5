@@ -1,7 +1,7 @@
-import React from 'react';
-import SocialLinks from './components/SocialLinks';
-import FooterColumns, { type FooterColumnData } from './components/FooterColumns';
-import type { SocialLink } from '../../type/userLayout.ts';
+import React from "react";
+import type { SocialLink } from "../../type/userLayout.ts";
+import FooterColumns, { type FooterColumnData } from "./components/FooterColumns";
+import SocialLinks from "./components/SocialLinks";
 
 interface FooterProps {
   logoSrc: string;
@@ -17,8 +17,8 @@ const Footer: React.FC<FooterProps> = ({ logoSrc, bgSrc, socialLinks, columns, c
       className="w-full bg-repeat-x pt-6"
       style={{
         backgroundImage: `url(${bgSrc})`,
-        backgroundRepeat: 'repeat-x',
-        backgroundSize: 'auto 100%',
+        backgroundRepeat: "repeat-x",
+        backgroundSize: "auto 100%",
       }}
     >
       <div className="max-w-7xl mx-auto px-4">

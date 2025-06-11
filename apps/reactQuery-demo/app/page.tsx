@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import Posts from "./components/Posts"
-import PostForm from "./components/PostForm"
-import InfinitePosts from "./components/InfinitePosts"
-import UserPosts from "./components/UserPosts"
-import ParallelQueries from "./components/ParallelQueries"
-import OptimisticUpdates from "./components/OptimisticUpdates"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import InfinitePosts from "./components/InfinitePosts";
+import OptimisticUpdates from "./components/OptimisticUpdates";
+import ParallelQueries from "./components/ParallelQueries";
+import PostForm from "./components/PostForm";
+import Posts from "./components/Posts";
+import UserPosts from "./components/UserPosts";
 
 // Tạo QueryClient với cấu hình tùy chỉnh
 const queryClient = new QueryClient({
@@ -24,7 +24,7 @@ const queryClient = new QueryClient({
       retry: 1,
     },
   },
-})
+});
 
 export default function App() {
   return (
@@ -122,5 +122,5 @@ export default function App() {
       {/* React Query DevTools */}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  )
+  );
 }

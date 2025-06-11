@@ -1,6 +1,6 @@
 // src/components/Header/UserAvatar.tsx
-import React, { useState, useRef, useEffect } from 'react';
-import type { UserAvatarProps } from '../../../type/userLayout.ts';
+import React, { useEffect, useRef, useState } from "react";
+import type { UserAvatarProps } from "../../../type/userLayout.ts";
 
 const UserAvatar: React.FC<UserAvatarProps> = ({ user, onLogout }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -12,8 +12,8 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ user, onLogout }) => {
         setDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
