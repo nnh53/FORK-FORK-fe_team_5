@@ -8,6 +8,7 @@ import TicketConfirmModal from '../components/TicketConfirmModal/TicketConfirmMo
 
 import type { SchedulePerDay } from '../components/ShowtimesModal/ShowtimesModal.tsx';
 import type { MovieCardProps } from '../../../components/movie/MovieCard/MovieCard.tsx';
+import { useNavigate } from 'react-router-dom';
 
 // 1. MOCK DATA PHIM
 const mockMovies: MovieCardProps[] = [
@@ -193,6 +194,8 @@ interface FinalSelection {
 }
 
 function HomePage() {
+  const navigate = useNavigate();
+
   const movieBaner: string[] = [
     'https://weliveentertainment.com/wp-content/uploads/2025/04/minecraft-movie-banner.png',
     'https://files.betacorp.vn/media/images/2025/06/04/1702x621-13-104719-040625-85.png',
@@ -220,8 +223,18 @@ function HomePage() {
   };
 
   const handleConfirmBooking = () => {
-    setIsConfirmModalOpen(false);
-    alert(`Xác nhận thành công! Chuẩn bị chuyển đến trang chọn ghế cho phim "${selectedMovie?.title}"`);
+    setIsConfirmModalOpen(false); // Đóng modal xác nhận
+
+    // Điều hướng đến trang chọn ghế và truyền dữ liệu qua state
+    navigate('/booking', {
+      state: {
+        movie: selectedMovie,
+        selection: finalSelection,
+        cinemaName: 'F-CINEMA', // Có thể truyền thêm các thông tin khác
+      },
+    });
+
+    // Reset state sau khi điều hướng để chuẩn bị cho lần đặt vé tiếp theo
     setSelectedMovie(null);
     setFinalSelection(null);
   };
