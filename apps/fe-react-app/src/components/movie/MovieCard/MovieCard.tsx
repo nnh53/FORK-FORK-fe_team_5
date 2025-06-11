@@ -11,6 +11,7 @@ export interface MovieCardProps {
   duration: string;
   isHot?: boolean;
   ageBadgeUrl: string;
+  trailerUrl: string;
   onPosterClick?: () => void;
   onTitleClick?: () => void;
   onBuyTicketClick?: () => void;
