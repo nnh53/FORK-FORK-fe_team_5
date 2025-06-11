@@ -18,6 +18,7 @@ import UserLayout from './layouts/userLayout/UserLayout';
 import BookingPage from './feature/booking/booking-page/BookingPage.tsx';
 import CheckoutPage from './feature/booking/checkout-page/CheckoutPage.tsx';
 import ThemeSwitch from './components/theme/ThemeSwitch.tsx';
+import { DataTableDemo } from "@/components/shared/Test.tsx";
 
 const TITLE = 'FCinema';
 
@@ -27,6 +28,15 @@ function App() {
       <div data-theme="">
         <title>{TITLE}</title>
         <Routes>
+          <Route
+            path="/test"
+            element={
+              <PageTransition>
+                <h1>test</h1>
+                <DataTableDemo />
+              </PageTransition>
+            }
+          />
           <Route
             path="/"
             element={
@@ -133,6 +143,7 @@ function App() {
             }
           />
           <Route path="/myAccount" element={<UserLayout children={<MyUserManagement />} />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
         <ThemeSwitch />
       </div>
