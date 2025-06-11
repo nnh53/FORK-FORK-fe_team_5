@@ -16,6 +16,8 @@ import Welcome from './feature/theme/Welcome';
 import { MyUserManagement } from './feature/user-management/MyUserManagement';
 import HomePage from './feature/booking/home-page/HomePage.tsx';
 import UserLayout from './layouts/userLayout/UserLayout';
+import BookingPage from './feature/booking/booking-page/BookingPage.tsx';
+import CheckoutPage from './feature/booking/checkout-page/CheckoutPage.tsx';
 
 const TITLE = 'FCinema';
 
@@ -30,6 +32,22 @@ function App() {
             element={
               <PageTransition>
                 <HomePage />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/booking"
+            element={
+              <PageTransition>
+                <BookingPage />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <PageTransition>
+                <CheckoutPage />
               </PageTransition>
             }
           />
@@ -123,4 +141,3 @@ function App() {
 }
 
 export default App;
-
