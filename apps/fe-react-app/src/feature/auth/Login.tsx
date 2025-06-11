@@ -10,6 +10,7 @@ import FormField from '../../components/forms/FormFields';
 import { Logo } from '../../components/logo/Logo';
 import BannerTransition from '../../components/shared/BannerTransition';
 import { useAuth } from '../../contexts/AuthContext';
+import type { Role } from '../../interfaces/roles.interface';
 import type { LoginDTO } from '../../interfaces/users.interface';
 import { loginValidationSchema } from '../../utils/validation.utils';
 
@@ -17,7 +18,7 @@ import { loginValidationSchema } from '../../utils/validation.utils';
 const mockUserData = {
   guest: {
     token: 'mock-jwt-token-for-guest-user',
-    roles: ['ROLE_GUEST'],
+    roles: ['ROLE_GUEST' as Role],
     id: 1,
     username: 'Guest User',
     refresh_token: 'mock-refresh-token-for-guest-user',
