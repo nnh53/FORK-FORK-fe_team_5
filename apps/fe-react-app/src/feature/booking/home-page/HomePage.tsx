@@ -227,7 +227,7 @@ function HomePage() {
   };
 
   return (
-    <UserLayout>
+    <UserLayout background={'https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg'}>
       <Carousel autoplayInterval={2000} images={movieBaner} height={'600px'} />
       <div className="flex w-full items-center my-12" aria-hidden="true">
         <div className="h-px flex-grow bg-amber-50"></div>

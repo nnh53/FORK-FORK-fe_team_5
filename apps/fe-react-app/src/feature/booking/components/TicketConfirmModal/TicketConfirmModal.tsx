@@ -1,5 +1,6 @@
 import React from 'react';
 import Modal from '../../../../components/shared/Modal/Modal.tsx';
+import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -62,7 +63,7 @@ const TicketConfirmModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose,
                      transition duration-200 flex items-center justify-center text-base relative mt-4
                      cursor-pointer"
           >
-            <i className="fa fa-ticket rotate-45 text-5xl opacity-40 absolute left-1" aria-hidden="true"></i>
+            <LocalActivityRoundedIcon fontSize={'inherit'}></LocalActivityRoundedIcon>
             <span>ĐỒNG Ý</span>
           </button>
         </div>
