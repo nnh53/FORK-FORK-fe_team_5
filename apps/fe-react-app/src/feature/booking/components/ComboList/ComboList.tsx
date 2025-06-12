@@ -1,5 +1,5 @@
-import React from 'react';
-import ComboItem, { type Combo } from '../ComboItem/ComboItem.tsx';
+import React from "react";
+import ComboItem, { type Combo } from "../ComboItem/ComboItem.tsx";
 
 interface ComboListProps {
   combos: Combo[];

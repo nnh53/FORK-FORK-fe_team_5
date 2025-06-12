@@ -1,14 +1,14 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { animated, useSpring } from '@react-spring/web';
-import axios from 'axios';
-import React, { useState } from 'react';
-import { useForm, type Resolver } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import FormField from '../../components/forms/FormFields';
-import { Logo } from '../../components/logo/Logo';
-import BannerTransition from '../../components/shared/BannerTransition';
-import { API_URL } from '../../constants/endpoints';
-import { registerValidationSchema } from '../../utils/validation.utils';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { animated, useSpring } from "@react-spring/web";
+import axios from "axios";
+import React, { useState } from "react";
+import { useForm, type Resolver } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import FormField from "../../components/forms/FormFields";
+import { Logo } from "../../components/logo/Logo";
+import BannerTransition from "../../components/shared/BannerTransition";
+import { API_URL } from "../../constants/endpoints";
+import { registerValidationSchema } from "../../utils/validation.utils";
 
 interface RegisterFormData {
   fullName: string;
@@ -20,10 +20,10 @@ interface RegisterFormData {
 
 // Cinema-related images for background transition
 const slides = [
-  'photo-1524985069026-dd778a71c7b4',
-  'photo-1489599849927-2ee91cede3ba',
-  'photo-1536440136628-1c6cb5a2a869',
-  'photo-1542204637-e9f12f144cca',
+  "photo-1524985069026-dd778a71c7b4",
+  "photo-1489599849927-2ee91cede3ba",
+  "photo-1536440136628-1c6cb5a2a869",
+  "photo-1542204637-e9f12f144cca",
 ];
 
 const Register: React.FC = () => {
@@ -46,7 +46,7 @@ const Register: React.FC = () => {
     setMessage(null);
     setLoading(true);
     if (data.password !== data.confirmPassword) {
-      setError('Passwords do not match.');
+      setError("Passwords do not match.");
       setLoading(false);
       return;
     }
@@ -60,17 +60,17 @@ const Register: React.FC = () => {
       });
 
       if (response.status === 200) {
-        setMessage('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
+        setMessage("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
         reset();
         setTimeout(() => {
-          navigate('/login');
+          navigate("/login");
         }, 2000);
       }
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+        setError(err.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
       } else {
-        setError('Có lỗi xảy ra. Vui lòng thử lại.');
+        setError("Có lỗi xảy ra. Vui lòng thử lại.");
       }
     } finally {
       setLoading(false);
@@ -81,11 +81,11 @@ const Register: React.FC = () => {
   const pageAnimation = useSpring({
     from: {
       opacity: 0,
-      transform: 'translateX(-50px)',
+      transform: "translateX(-50px)",
     },
     to: {
       opacity: 1,
-      transform: 'translateX(0px)',
+      transform: "translateX(0px)",
     },
     config: {
       tension: 280,
@@ -131,7 +131,7 @@ const Register: React.FC = () => {
               disabled={loading}
               className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
             >
-              {loading ? 'Đang đăng ký...' : 'Đăng ký'}
+              {loading ? "Đang đăng ký..." : "Đăng ký"}
             </button>
 
             <div className="text-center mt-4">

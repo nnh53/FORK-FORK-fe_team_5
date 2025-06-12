@@ -1,6 +1,6 @@
-import React from 'react';
-import Modal from '../../../../components/shared/Modal/Modal.tsx';
-import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
+import LocalActivityRoundedIcon from "@mui/icons-material/LocalActivityRounded";
+import React from "react";
+import Modal from "../../../../components/shared/Modal/Modal.tsx";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -14,8 +14,8 @@ interface ConfirmationModalProps {
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
@@ -63,7 +63,7 @@ const TicketConfirmModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose,
                      transition duration-200 flex items-center justify-center text-base relative mt-4
                      cursor-pointer"
           >
-            <LocalActivityRoundedIcon fontSize={'inherit'}></LocalActivityRoundedIcon>
+            <LocalActivityRoundedIcon fontSize={"inherit"}></LocalActivityRoundedIcon>
             <span>ĐỒNG Ý</span>
           </button>
         </div>

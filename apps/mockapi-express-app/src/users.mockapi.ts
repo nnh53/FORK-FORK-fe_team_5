@@ -1,5 +1,5 @@
 // Define the types locally to avoid import issues
-type Role = 'ROLE_MANAGER' | 'ROLE_STAFF' | 'ROLE_MEMBER' | 'ROLE_GUEST';
+type Role = "ROLE_MANAGER" | "ROLE_STAFF" | "ROLE_MEMBER" | "ROLE_GUEST";
 
 interface UserLoginResponse {
   tokenType: string;
@@ -13,15 +13,15 @@ interface UserLoginResponse {
 }
 
 export const usersMockData: Record<string, UserLoginResponse> = {
-  'guest@example.com': {
-    tokenType: 'Bearer',
+  "guest@example.com": {
+    tokenType: "Bearer",
     id: 1,
-    username: 'Guest User',
-    full_name: 'Guest User',
-    roles: ['ROLE_GUEST'],
-    message: 'Login successful',
-    token: 'mock-jwt-token-for-guest-user',
-    refresh_token: 'mock-refresh-token-for-guest-user',
+    username: "Guest User",
+    full_name: "Guest User",
+    roles: ["ROLE_GUEST"],
+    message: "Login successful",
+    token: "mock-jwt-token-for-guest-user",
+    refresh_token: "mock-refresh-token-for-guest-user",
   },
 };
 
@@ -32,4 +32,3 @@ export const loginMock = (email: string, password: string): UserLoginResponse | 
   }
   return null;
 };
-

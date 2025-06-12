@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const paymentMethods = [
-  { id: 'momo', name: 'Momo', logo: 'https://developers.momo.vn/images/logo.png' },
-  { id: 'vnpay', name: 'VNPAY', logo: 'https://vnpay.vn/s1/statics.vnpay.vn/logo-vnpay-qr-1.png' },
-  { id: 'card', name: 'Thẻ quốc tế', logo: 'https://cdn-icons-png.flaticon.com/512/349/349221.png' },
+  { id: "momo", name: "Momo", logo: "https://developers.momo.vn/images/logo.png" },
+  { id: "vnpay", name: "VNPAY", logo: "https://vnpay.vn/s1/statics.vnpay.vn/logo-vnpay-qr-1.png" },
+  { id: "card", name: "Thẻ quốc tế", logo: "https://cdn-icons-png.flaticon.com/512/349/349221.png" },
 ];
 
 const PaymentMethodSelector: React.FC = () => {
-  const [selectedMethod, setSelectedMethod] = useState<string>('momo');
+  const [selectedMethod, setSelectedMethod] = useState<string>("momo");
 
   return (
     <div className="space-y-4">
@@ -18,7 +18,7 @@ const PaymentMethodSelector: React.FC = () => {
             key={method.id}
             onClick={() => setSelectedMethod(method.id)}
             className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all
-                        ${selectedMethod === method.id ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
+                        ${selectedMethod === method.id ? "border-red-500 bg-red-50" : "border-gray-200"}`}
           >
             <img src={method.logo} alt={method.name} className="h-8 object-contain" />
             <span className="font-semibold text-sm">{method.name}</span>

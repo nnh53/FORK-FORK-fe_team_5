@@ -1,5 +1,5 @@
-import React from 'react';
-import type { SeatType } from '../../booking-page/BookingPage.tsx';
+import React from "react";
+import type { SeatType } from "../../booking-page/BookingPage.tsx";
 
 interface PaymentInfoProps {
   user: {
@@ -11,18 +11,21 @@ interface PaymentInfoProps {
 }
 
 const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats }) => {
-  const groupedSeats = selectedSeats.reduce((acc, seat) => {
-    const key = seat.type;
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(seat.id);
-    return acc;
-  }, {} as Record<SeatType['type'], string[]>);
+  const groupedSeats = selectedSeats.reduce(
+    (acc, seat) => {
+      const key = seat.type;
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(seat.id);
+      return acc;
+    },
+    {} as Record<SeatType["type"], string[]>,
+  );
 
-  const getPricePerSeat = (type: SeatType['type']) => {
-    if (type === 'vip') return 90000;
-    if (type === 'double') return 150000;
+  const getPricePerSeat = (type: SeatType["type"]) => {
+    if (type === "vip") return 90000;
+    if (type === "double") return 150000;
     return 75000;
   };
 
@@ -48,10 +51,10 @@ const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats }) => {
         {Object.entries(groupedSeats).map(([type, seats]) => (
           <div key={type} className="flex justify-between items-center border-t pt-2">
             <div>
-              <p className="font-semibold capitalize">{`Ghế ${type === 'standard' ? 'thường' : type}`}</p>
-              <p className="text-xs text-gray-500">{seats.join(', ')}</p>
+              <p className="font-semibold capitalize">{`Ghế ${type === "standard" ? "thường" : type}`}</p>
+              <p className="text-xs text-gray-500">{seats.join(", ")}</p>
             </div>
-            <p className="font-semibold">{`${seats.length} x ${getPricePerSeat(type as SeatType['type']).toLocaleString('vi-VN')}đ`}</p>
+            <p className="font-semibold">{`${seats.length} x ${getPricePerSeat(type as SeatType["type"]).toLocaleString("vi-VN")}đ`}</p>
           </div>
         ))}
       </div>

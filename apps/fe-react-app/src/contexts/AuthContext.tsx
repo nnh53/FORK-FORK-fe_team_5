@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { eraseCookie, getCookie, setCookie, parseRoles } from '../utils/cookie.utils';
-import type { UserLoginResponse } from '../interfaces/users.interface';
-import type { AuthLoginData } from '../interfaces/auth.interface';
-import { logout } from '../utils/api.utils';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import type { AuthLoginData } from "../interfaces/auth.interface";
+import type { UserLoginResponse } from "../interfaces/users.interface";
+import { logout } from "../utils/api.utils";
+import { eraseCookie, getCookie, parseRoles, setCookie } from "../utils/cookie.utils";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -15,9 +15,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<AuthLoginData | null>(null);
   const navigate = useNavigate();
@@ -39,7 +37,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-
   const authLogin = (userData: Partial<UserLoginResponse>) => {
     if (!userData.token || !userData.roles) {
       console.error("Invalid login data");
@@ -58,8 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setCookie("user_roles", JSON.stringify(userData.roles), 1);
     if (userData.id) setCookie("user_id", userData.id.toString(), 1);
     if (userData.username) setCookie("username", userData.username, 1);
-    if (userData.refresh_token)
-      setCookie("refresh_token", userData.refresh_token, 7); // Set refresh token to expire in 7 days
+    if (userData.refresh_token) setCookie("refresh_token", userData.refresh_token, 7); // Set refresh token to expire in 7 days
   };
 
   const authLogout = async () => {
@@ -79,13 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const getToken = () => getCookie("access_token");
 
-  return (
-    <AuthContext.Provider
-      value={{ isLoggedIn, user, authLogin, authLogout, getToken }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ isLoggedIn, user, authLogin, authLogout, getToken }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

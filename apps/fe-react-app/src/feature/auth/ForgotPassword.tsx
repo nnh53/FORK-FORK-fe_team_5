@@ -1,20 +1,20 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { animated, useSpring, useTransition } from '@react-spring/web';
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Logo } from '../../components/logo/Logo';
-import NavigateButton from '../../components/shared/NavigateButton';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { animated, useSpring, useTransition } from "@react-spring/web";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Logo } from "../../components/logo/Logo";
+import NavigateButton from "../../components/shared/NavigateButton";
 
-import { forgotPasswordValidationSchema } from '../../utils/validation.utils';
+import { forgotPasswordValidationSchema } from "../../utils/validation.utils";
 
 const slides = [
-  'photo-1524985069026-dd778a71c7b4',
-  'photo-1489599849927-2ee91cede3ba',
-  'photo-1536440136628-1c6cb5a2a869',
-  'photo-1542204637-e9f12f144cca',
+  "photo-1524985069026-dd778a71c7b4",
+  "photo-1489599849927-2ee91cede3ba",
+  "photo-1536440136628-1c6cb5a2a869",
+  "photo-1542204637-e9f12f144cca",
 ];
 
 interface ForgotPasswordFormData {
@@ -62,12 +62,12 @@ const ForgotPassword: React.FC = () => {
     try {
       // This is a placeholder for now - we'll implement this later
       // Instead of using Supabase, we'll just show a success message
-      setMessage('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
-      toast.success('Đổi mật khẩu thành công!');
-      setTimeout(() => navigate('/login'), 2000);
+      setMessage("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
+      toast.success("Đổi mật khẩu thành công!");
+      setTimeout(() => navigate("/login"), 2000);
       reset();
     } catch {
-      setError('Có lỗi xảy ra. Vui lòng thử lại.');
+      setError("Có lỗi xảy ra. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -77,11 +77,11 @@ const ForgotPassword: React.FC = () => {
   const pageAnimation = useSpring({
     from: {
       opacity: 0,
-      transform: 'translateX(50px)',
+      transform: "translateX(50px)",
     },
     to: {
       opacity: 1,
-      transform: 'translateX(0px)',
+      transform: "translateX(0px)",
     },
     config: {
       tension: 280,
@@ -98,14 +98,14 @@ const ForgotPassword: React.FC = () => {
             key={i}
             style={{
               ...style,
-              position: 'absolute',
+              position: "absolute",
               top: 0,
               left: 0,
-              width: '100%',
-              height: '100%',
+              width: "100%",
+              height: "100%",
               backgroundImage: `url(https://images.unsplash.com/${slides[i]}?w=1920&q=80&auto=format&fit=crop)`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
           />
         ))}
@@ -139,13 +139,13 @@ const ForgotPassword: React.FC = () => {
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   id="password"
-                  {...register('password')}
+                  {...register("password")}
                   placeholder="Nhập mật khẩu mới"
                   disabled={loading}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10 ${
-                    errors.password ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'
+                    errors.password ? "border-red-500 focus:ring-red-500" : "border-blue-300 hover:border-blue-500 focus:ring-blue-500"
                   }`}
                 />
                 <button
@@ -156,7 +156,7 @@ const ForgotPassword: React.FC = () => {
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
                   <img
-                    src={showPassword ? '/icons/eye-open.svg' : '/icons/eye-closed.svg'}
+                    src={showPassword ? "/icons/eye-open.svg" : "/icons/eye-closed.svg"}
                     alt="toggle password visibility"
                     className="w-5 h-5 cursor-pointer"
                   />
@@ -170,13 +170,13 @@ const ForgotPassword: React.FC = () => {
               </label>
               <div className="relative">
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
-                  {...register('confirmPassword')}
+                  {...register("confirmPassword")}
                   placeholder="Nhập lại mật khẩu mới"
                   disabled={loading}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10 ${
-                    errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-blue-300 hover:border-blue-500 focus:ring-blue-500'
+                    errors.confirmPassword ? "border-red-500 focus:ring-red-500" : "border-blue-300 hover:border-blue-500 focus:ring-blue-500"
                   }`}
                 />
                 <button
@@ -187,7 +187,7 @@ const ForgotPassword: React.FC = () => {
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
                   <img
-                    src={showConfirmPassword ? '/icons/eye-open.svg' : '/icons/eye-closed.svg'}
+                    src={showConfirmPassword ? "/icons/eye-open.svg" : "/icons/eye-closed.svg"}
                     alt="toggle password visibility"
                     className="w-5 h-5 cursor-pointer"
                   />

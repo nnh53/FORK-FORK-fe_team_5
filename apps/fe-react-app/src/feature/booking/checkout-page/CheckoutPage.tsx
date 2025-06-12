@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import UserLayout from '../../../layouts/userLayout/UserLayout';
-import { mockCombos } from '../components/ComboItem/ComboItem.tsx';
-import PaymentInfo from '../components/PaymentInfo/PaymentInfo.tsx';
-import ComboList from '../components/ComboList/ComboList.tsx';
-import PaymentMethodSelector from '../components/PaymentMethodSelector/PaymentMethodSelector.tsx';
-import PaymentSummary from '../components/PaymentSummary/PaymentSummary.tsx';
-import BookingSummary from '../components/BookingSummary/BookingSummary.tsx';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import UserLayout from "../../../layouts/userLayout/UserLayout";
+import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
+import { mockCombos } from "../components/ComboItem/ComboItem.tsx";
+import ComboList from "../components/ComboList/ComboList.tsx";
+import PaymentInfo from "../components/PaymentInfo/PaymentInfo.tsx";
+import PaymentMethodSelector from "../components/PaymentMethodSelector/PaymentMethodSelector.tsx";
+import PaymentSummary from "../components/PaymentSummary/PaymentSummary.tsx";
 
 const CheckoutPage: React.FC = () => {
   const location = useLocation();
@@ -35,7 +35,7 @@ const CheckoutPage: React.FC = () => {
   const finalTotalCost = ticketCost + comboCost;
 
   const handlePayment = () => {
-    alert('thành công');
+    alert("thành công");
   };
 
   if (!location.state) {
@@ -43,7 +43,7 @@ const CheckoutPage: React.FC = () => {
     return (
       <UserLayout>
         <div className="text-center p-10">
-          Lỗi dữ liệu, vui lòng{' '}
+          Lỗi dữ liệu, vui lòng{" "}
           <Link to="/" className="text-blue-500">
             quay lại trang chủ
           </Link>
@@ -54,7 +54,7 @@ const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <UserLayout background={'https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg'}>
+    <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
       <div className="max-w-screen-2xl mx-auto p-4 md:p-8">
         {/* Breadcrumbs */}
         <div className="text-sm breadcrumbs mb-4 text-white">
@@ -74,7 +74,7 @@ const CheckoutPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cột trái: Thông tin và lựa chọn */}
           <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md space-y-8">
-            <PaymentInfo user={{ name: 'Phát Đạt', phone: '0123456789', email: 'test@gmail.com' }} selectedSeats={selectedSeats} />
+            <PaymentInfo user={{ name: "Phát Đạt", phone: "0123456789", email: "test@gmail.com" }} selectedSeats={selectedSeats} />
             <ComboList combos={mockCombos} selectedCombos={selectedCombos} onQuantityChange={handleQuantityChange} />
             <PaymentSummary ticketCost={ticketCost} comboCost={comboCost} totalCost={finalTotalCost} />
             <PaymentMethodSelector />

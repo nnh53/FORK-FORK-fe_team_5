@@ -1,9 +1,9 @@
-import { type Role } from './roles.interface';
+import { type Role } from "./roles.interface";
 
 export type Member = UserBase;
 export type Staff = UserBase;
 
-export type USER_STATUS = 'ACTIVE' | 'UNVERIFY' | 'BAN';
+export type USER_STATUS = "ACTIVE" | "UNVERIFY" | "BAN";
 
 export type UserDetailsResponse = UserBase & {
   created_at: string | null;
@@ -55,7 +55,7 @@ export type UserRegisterDTO = UserRegisterBase & {
   acceptPolicy?: boolean;
 };
 
-export type StaffRegisterDTO = Omit<UserRegisterBase, 'password'> & {
+export type StaffRegisterDTO = Omit<UserRegisterBase, "password"> & {
   password: string;
   is_active?: boolean | number;
   is_subscription?: boolean | number;
@@ -73,7 +73,7 @@ export interface MyInfoData {
   phone: string;
   dob?: string | null;
   email: string;
-  gender?: 'Nam' | 'Nu' | 'BD' | null;
+  gender?: "Nam" | "Nu" | "BD" | null;
   city?: string | null;
   district?: string | null;
   address?: string | null;

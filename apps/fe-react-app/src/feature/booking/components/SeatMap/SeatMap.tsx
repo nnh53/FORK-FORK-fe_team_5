@@ -1,8 +1,8 @@
 // src/pages/SeatSelectionPage/components/SeatMap.tsx
-import React from 'react';
-import type { SeatType } from '../../booking-page/BookingPage.tsx';
-import SeatLegend from '../SeatLegend/SeatLegend.tsx';
-import Seat from '../Seat/Seat.tsx';
+import React from "react";
+import type { SeatType } from "../../booking-page/BookingPage.tsx";
+import Seat from "../Seat/Seat.tsx";
+import SeatLegend from "../SeatLegend/SeatLegend.tsx";
 
 interface SeatMapProps {
   seatMap: { rows: string[]; seats: SeatType[] };
@@ -32,7 +32,7 @@ const SeatMap: React.FC<SeatMapProps> = ({ seatMap, selectedSeats, onSeatSelect 
               .map((seat) => (
                 <Seat
                   key={seat.id}
-                  seatData={{ ...seat, status: selectedSeats.some((s) => s.id === seat.id) ? 'selected' : seat.status }}
+                  seatData={{ ...seat, status: selectedSeats.some((s) => s.id === seat.id) ? "selected" : seat.status }}
                   onClick={onSeatSelect}
                 />
               ))}

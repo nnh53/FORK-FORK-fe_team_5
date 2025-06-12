@@ -1,6 +1,6 @@
 // src/pages/SeatSelectionPage/components/BookingFooter.tsx
-import React, { useState, useEffect } from 'react';
-import type { SeatType } from '../../booking-page/BookingPage.tsx';
+import React, { useEffect, useState } from "react";
+import type { SeatType } from "../../booking-page/BookingPage.tsx";
 
 interface BookingFooterProps {
   selectedSeats: SeatType[];
@@ -44,14 +44,17 @@ const BookingFooter: React.FC<BookingFooterProps> = ({ selectedSeats, totalCost 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
   };
 
   // Đếm số lượng từng loại ghế
-  const seatCounts = selectedSeats.reduce((acc, seat) => {
-    acc[seat.type] = (acc[seat.type] || 0) + 1;
-    return acc;
-  }, {} as Record<SeatType['type'], number>);
+  const seatCounts = selectedSeats.reduce(
+    (acc, seat) => {
+      acc[seat.type] = (acc[seat.type] || 0) + 1;
+      return acc;
+    },
+    {} as Record<SeatType["type"], number>,
+  );
 
   return (
     <div className="mt-8 p-4 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-4 items-center">
@@ -83,7 +86,7 @@ const BookingFooter: React.FC<BookingFooterProps> = ({ selectedSeats, totalCost 
       {/* Tổng tiền */}
       <div className="text-center">
         <p className="text-sm text-gray-500">Tổng tiền</p>
-        <p className="font-bold text-xl text-red-600">{totalCost.toLocaleString('vi-VN')}đ</p>
+        <p className="font-bold text-xl text-red-600">{totalCost.toLocaleString("vi-VN")}đ</p>
       </div>
 
       {/* Thời gian còn lại */}

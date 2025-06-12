@@ -1,9 +1,9 @@
 // File: MovieCard.tsx
 
-import React from 'react';
-import hotBadgeAsset from '../../../assets/hotBadge.png';
-import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
-import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
+import LocalActivityRoundedIcon from "@mui/icons-material/LocalActivityRounded";
+import PlayCircleRoundedIcon from "@mui/icons-material/PlayCircleRounded";
+import React from "react";
+import hotBadgeAsset from "../../../assets/hotBadge.png";
 
 export interface MovieCardProps {
   id: string | number;
@@ -43,7 +43,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         />
         <div className="absolute inset-0 flex items-center justify-center cursor-pointer">
           <div className="fa fa-play-circle text-6xl text-white opacity-0 group-hover:opacity-90 transition-opacity duration-300" aria-hidden="true">
-            <PlayCircleRoundedIcon fontSize={'inherit'}></PlayCircleRoundedIcon>
+            <PlayCircleRoundedIcon fontSize={"inherit"}></PlayCircleRoundedIcon>
           </div>
         </div>
         {ageBadgeUrl && (
@@ -70,15 +70,15 @@ const MovieCard: React.FC<MovieCardProps> = ({
             }}
             className="text-lg sm:text-xl font-bold text-red-600 overflow-hidden hover:text-red-700 hover:underline"
             style={{
-              display: '-webkit-box',
+              display: "-webkit-box",
               WebkitLineClamp: 1,
-              WebkitBoxOrient: 'vertical',
+              WebkitBoxOrient: "vertical",
             }}
           >
             {title}
           </h3>
           <p className="text-sm text-gray-600 truncate">
-            <span className="font-bold">Thể loại:</span> {genres.join(', ')}
+            <span className="font-bold">Thể loại:</span> {genres.join(", ")}
           </p>
           <p className="text-sm text-gray-600">
             <span className="font-bold">Thời lượng:</span> {duration}
@@ -92,11 +92,11 @@ const MovieCard: React.FC<MovieCardProps> = ({
                      transition duration-200 flex items-center justify-center text-base relative mt-4
                      cursor-pointer"
         >
-          <span className={'text-7xl'}>
+          <span className={"text-7xl"}>
             <LocalActivityRoundedIcon
               className="absolute -left-1 -top-2 text-9xl opacity-60"
               fontSize="inherit"
-              style={{ transform: 'rotate(45deg)' }}
+              style={{ transform: "rotate(45deg)" }}
               aria-hidden="true"
             />
           </span>

@@ -1,27 +1,27 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { animated, useSpring } from '@react-spring/web';
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { RoleRouteToEachPage } from '../../components/auth/RoleRoute';
-import CheckboxForm from '../../components/forms/CheckboxForm';
-import FormField from '../../components/forms/FormFields';
-import { Logo } from '../../components/logo/Logo';
-import BannerTransition from '../../components/shared/BannerTransition';
-import { useAuth } from '../../contexts/AuthContext';
-import type { Role } from '../../interfaces/roles.interface';
-import type { LoginDTO } from '../../interfaces/users.interface';
-import { loginValidationSchema } from '../../utils/validation.utils';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { animated, useSpring } from "@react-spring/web";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { RoleRouteToEachPage } from "../../components/auth/RoleRoute";
+import CheckboxForm from "../../components/forms/CheckboxForm";
+import FormField from "../../components/forms/FormFields";
+import { Logo } from "../../components/logo/Logo";
+import BannerTransition from "../../components/shared/BannerTransition";
+import { useAuth } from "../../contexts/AuthContext";
+import type { Role } from "../../interfaces/roles.interface";
+import type { LoginDTO } from "../../interfaces/users.interface";
+import { loginValidationSchema } from "../../utils/validation.utils";
 
 // Mock user data for direct login
 const mockUserData = {
   guest: {
-    token: 'mock-jwt-token-for-guest-user',
-    roles: ['ROLE_GUEST' as Role],
+    token: "mock-jwt-token-for-guest-user",
+    roles: ["ROLE_GUEST" as Role],
     id: 1,
-    username: 'Guest User',
-    refresh_token: 'mock-refresh-token-for-guest-user',
+    username: "Guest User",
+    refresh_token: "mock-refresh-token-for-guest-user",
   },
 };
 
@@ -37,8 +37,8 @@ const Login: React.FC = () => {
   } = useForm({
     resolver: yupResolver(loginValidationSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
       rememberMe: true,
     },
   });
@@ -47,7 +47,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
     try {
       // Mock login - check if email is guest@example.com
-      if (data.email === 'guest@example.com') {
+      if (data.email === "guest@example.com") {
         // Simulate API delay
         await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -62,16 +62,16 @@ const Login: React.FC = () => {
           refresh_token: userData.refresh_token,
         });
 
-        toast.success('Login successfully!');
+        toast.success("Login successfully!");
         setTimeout(() => {
           navigate(RoleRouteToEachPage(userData.roles[0]));
         }, 1000);
       } else {
         // For any other email, show error
-        toast.error('Invalid email or password');
+        toast.error("Invalid email or password");
       }
     } catch (error) {
-      const errorMessage = (error as Error).message || 'An error occurred during login';
+      const errorMessage = (error as Error).message || "An error occurred during login";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -81,11 +81,11 @@ const Login: React.FC = () => {
   const pageAnimation = useSpring({
     from: {
       opacity: 0,
-      transform: 'translateX(50px)',
+      transform: "translateX(50px)",
     },
     to: {
       opacity: 1,
-      transform: 'translateX(0px)',
+      transform: "translateX(0px)",
     },
     config: {
       tension: 280,
@@ -123,7 +123,7 @@ const Login: React.FC = () => {
               className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
               disabled={isLoading}
             >
-              {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
 
             <div className="text-center mt-4">

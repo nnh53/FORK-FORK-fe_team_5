@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export interface Combo {
   id: string;
@@ -10,32 +10,32 @@ export interface Combo {
 
 export const mockCombos: Combo[] = [
   {
-    id: 'combo1',
-    name: 'Family Combo Bắp',
-    description: '02 bắp ngọt lớn + 02 nước siêu lớn',
+    id: "combo1",
+    name: "Family Combo Bắp",
+    description: "02 bắp ngọt lớn + 02 nước siêu lớn",
     price: 129000,
-    imageUrl: 'https://www.betacinemas.vn/images/common/combo-1.png',
+    imageUrl: "https://www.betacinemas.vn/images/common/combo-1.png",
   },
   {
-    id: 'combo2',
-    name: 'Combo lon Milo',
-    description: '01 lon Milo + 01 bắp ngọt lớn',
+    id: "combo2",
+    name: "Combo lon Milo",
+    description: "01 lon Milo + 01 bắp ngọt lớn",
     price: 89000,
-    imageUrl: 'https://www.betacinemas.vn/images/common/combo-milo.png',
+    imageUrl: "https://www.betacinemas.vn/images/common/combo-milo.png",
   },
   {
-    id: 'combo3',
-    name: 'Beta Combo Bắp',
-    description: '01 bắp ngọt lớn + 01 nước siêu lớn',
+    id: "combo3",
+    name: "Beta Combo Bắp",
+    description: "01 bắp ngọt lớn + 01 nước siêu lớn",
     price: 79000,
-    imageUrl: 'https://www.betacinemas.vn/images/common/combo-2.png',
+    imageUrl: "https://www.betacinemas.vn/images/common/combo-2.png",
   },
   {
-    id: 'combo4',
-    name: 'Sweet Combo Bắp',
-    description: '01 bắp ngọt lớn + 01 KitKat + 01 nước ngọt',
+    id: "combo4",
+    name: "Sweet Combo Bắp",
+    description: "01 bắp ngọt lớn + 01 KitKat + 01 nước ngọt",
     price: 95000,
-    imageUrl: 'https://www.betacinemas.vn/images/common/sweet-combo.png',
+    imageUrl: "https://www.betacinemas.vn/images/common/sweet-combo.png",
   },
 ];
 
@@ -52,7 +52,7 @@ const ComboItem: React.FC<ComboItemProps> = ({ combo, quantity, onQuantityChange
       <div className="flex-grow">
         <p className="font-bold">{combo.name}</p>
         <p className="text-xs text-gray-500">{combo.description}</p>
-        <p className="text-sm font-semibold text-red-600">{combo.price.toLocaleString('vi-VN')}đ</p>
+        <p className="text-sm font-semibold text-red-600">{combo.price.toLocaleString("vi-VN")}đ</p>
       </div>
       <div className="flex items-center gap-2">
         <button

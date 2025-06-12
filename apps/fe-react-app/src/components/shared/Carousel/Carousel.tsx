@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
-import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
+import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
+import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
+import React, { useEffect, useRef, useState } from "react";
 
 const DEFAULT_IMAGES: string[] = [
-  'https://img.daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.webp',
-  'https://img.daisyui.com/images/stock/photo-1609621838510-5ad474b7d25d.webp',
-  'https://img.daisyui.com/images/stock/photo-1414694762283-acccc27bca85.webp',
-  'https://img.daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.webp',
+  "https://img.daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.webp",
+  "https://img.daisyui.com/images/stock/photo-1609621838510-5ad474b7d25d.webp",
+  "https://img.daisyui.com/images/stock/photo-1414694762283-acccc27bca85.webp",
+  "https://img.daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.webp",
 ];
 
 interface CarouselProps {
@@ -24,7 +24,7 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
   const carouselRef = useRef<HTMLDivElement>(null);
 
   // Hàm để cuộn tới một slide cụ thể
-  const navigateToSlide = (slideIndex: number, behavior: ScrollBehavior = 'smooth') => {
+  const navigateToSlide = (slideIndex: number, behavior: ScrollBehavior = "smooth") => {
     if (!carouselRef.current || numImages === 0) return;
 
     const targetSlideId = `slide${slideIndex + 1}`;
@@ -45,7 +45,7 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
   };
 
   useEffect(() => {
-    navigateToSlide(currentSlide, 'smooth');
+    navigateToSlide(currentSlide, "smooth");
   }, [currentSlide, numImages]);
 
   // Effect 2: Logic Autoplay
@@ -70,7 +70,7 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
     if (targetIndex !== currentSlide) {
       setCurrentSlide(targetIndex); // Sẽ kích hoạt Effect 1 để cuộn
     } else {
-      navigateToSlide(targetIndex, 'smooth');
+      navigateToSlide(targetIndex, "smooth");
     }
   };
 
@@ -89,9 +89,9 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
 
           const itemStyle: React.CSSProperties = {};
           if (height) itemStyle.height = height;
-          let finalImgClassName = 'w-full';
+          let finalImgClassName = "w-full";
           if (imgClassName) finalImgClassName = imgClassName;
-          else if (height) finalImgClassName = 'w-full h-full object-cover';
+          else if (height) finalImgClassName = "w-full h-full object-cover";
 
           return (
             <div
@@ -108,7 +108,7 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
                   className="btn btn-circle opacity-50 hover:opacity-100"
                   aria-label="Previous slide"
                 >
-                  <ArrowBackIosNewRoundedIcon fontSize={'medium'}></ArrowBackIosNewRoundedIcon>
+                  <ArrowBackIosNewRoundedIcon fontSize={"medium"}></ArrowBackIosNewRoundedIcon>
                 </a>
                 <a
                   href={`#${slideId}`} // Tương tự
@@ -116,7 +116,7 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
                   className="btn btn-circle opacity-50 hover:opacity-100"
                   aria-label="Next slide"
                 >
-                  <ArrowForwardIosRoundedIcon fontSize={'medium'}></ArrowForwardIosRoundedIcon>
+                  <ArrowForwardIosRoundedIcon fontSize={"medium"}></ArrowForwardIosRoundedIcon>
                 </a>
               </div>
             </div>
@@ -134,7 +134,7 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
               onClick={(e) => handleNavClick(e, index)}
               aria-label={`Go to slide ${index + 1}`}
               className={`w-3 h-3 rounded-full cursor-pointer transition-all duration-300 ease-in-out
-                                        ${currentSlide === index ? 'bg-red-500 scale-125' : 'bg-gray-400 hover:bg-gray-500'}`}
+                                        ${currentSlide === index ? "bg-red-500 scale-125" : "bg-gray-400 hover:bg-gray-500"}`}
             ></a>
           ))}
         </div>

@@ -1,9 +1,9 @@
-import { gsap } from 'gsap';
-import { Draggable } from 'gsap/Draggable';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import $ from 'jquery';
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { gsap } from "gsap";
+import { Draggable } from "gsap/Draggable";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import $ from "jquery";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, Draggable);
@@ -34,18 +34,18 @@ const IntroViaLogin: React.FC = () => {
     if (!headingRef.current) return;
 
     // Split text into spans for letter animation
-    const text = headingRef.current.textContent || '';
-    headingRef.current.innerHTML = '';
+    const text = headingRef.current.textContent || "";
+    headingRef.current.innerHTML = "";
 
-    text.split('').forEach((char) => {
-      const span = document.createElement('span');
+    text.split("").forEach((char) => {
+      const span = document.createElement("span");
       span.textContent = char;
-      span.style.display = 'inline-block';
+      span.style.display = "inline-block";
       headingRef.current?.appendChild(span);
     });
 
     // Animate each letter
-    const letters = headingRef.current.querySelectorAll('span');
+    const letters = headingRef.current.querySelectorAll("span");
 
     gsap.from(letters, {
       opacity: 0,
@@ -53,7 +53,7 @@ const IntroViaLogin: React.FC = () => {
       rotationX: 90,
       stagger: 0.1,
       duration: 1,
-      ease: 'back.out',
+      ease: "back.out",
     });
 
     // Page 2 animation with ScrollTrigger
@@ -61,8 +61,8 @@ const IntroViaLogin: React.FC = () => {
       gsap.from(page2Ref.current.children, {
         scrollTrigger: {
           trigger: page2Ref.current,
-          start: 'top center',
-          end: 'bottom center',
+          start: "top center",
+          end: "bottom center",
           scrub: 1,
         },
         y: 100,
@@ -77,8 +77,8 @@ const IntroViaLogin: React.FC = () => {
       gsap.from(page3Ref.current, {
         scrollTrigger: {
           trigger: page3Ref.current,
-          start: 'top bottom',
-          end: 'center center',
+          start: "top bottom",
+          end: "center center",
           scrub: 1,
         },
         y: 150,
@@ -90,8 +90,8 @@ const IntroViaLogin: React.FC = () => {
     // Setup ScrollTrigger for entire sections
     ScrollTrigger.create({
       trigger: containerRef.current,
-      start: 'top top',
-      end: 'bottom bottom',
+      start: "top top",
+      end: "bottom bottom",
       markers: false, // Set to true for debugging
       pin: false,
     });
@@ -102,7 +102,7 @@ const IntroViaLogin: React.FC = () => {
     if (!ticketStubRef.current || !ticketRef.current) return;
 
     // Add ticket animation styles
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       .ticket-container {
         perspective: 1000px;
@@ -240,7 +240,7 @@ const IntroViaLogin: React.FC = () => {
     // Initialize draggable for the ticket stub
     if (!isTorn) {
       const draggable = Draggable.create(ticketStubRef.current, {
-        type: 'x',
+        type: "x",
         bounds: {
           minX: 0,
           maxX: 200,
@@ -271,9 +271,9 @@ const IntroViaLogin: React.FC = () => {
             gsap.to(ticketStubRef.current, {
               x: 0,
               rotation: 0,
-              boxShadow: 'none',
+              boxShadow: "none",
               duration: 0.5,
-              ease: 'elastic.out(1, 0.5)',
+              ease: "elastic.out(1, 0.5)",
             });
 
             if (tearLineRef.current) {
@@ -292,17 +292,17 @@ const IntroViaLogin: React.FC = () => {
         gsap.to(ticketStubRef.current, {
           x: 150,
           rotation: 10,
-          boxShadow: '-10px 0 20px rgba(0, 0, 0, 0.3)',
+          boxShadow: "-10px 0 20px rgba(0, 0, 0, 0.3)",
           duration: 0.5,
-          ease: 'power3.out',
+          ease: "power3.out",
           onComplete: () => {
             // Update state to show the stub has been torn
             setIsTorn(true);
 
             // Show the book now button
-            const bookNowBtn = document.querySelector('.book-now-btn');
+            const bookNowBtn = document.querySelector(".book-now-btn");
             if (bookNowBtn) {
-              bookNowBtn.classList.add('visible');
+              bookNowBtn.classList.add("visible");
             }
 
             // Stop draggable
@@ -319,9 +319,9 @@ const IntroViaLogin: React.FC = () => {
         }
 
         // Hide tear icon
-        const tearIcon = document.querySelector('.tear-icon');
+        const tearIcon = document.querySelector(".tear-icon");
         if (tearIcon) {
-          tearIcon.classList.add('hidden');
+          tearIcon.classList.add("hidden");
         }
       };
     }
@@ -347,7 +347,7 @@ const IntroViaLogin: React.FC = () => {
         scale: 1,
         duration: 0.1,
         onComplete: () => {
-          navigate('/logviareg');
+          navigate("/logviareg");
         },
       });
   };
@@ -441,7 +441,7 @@ const IntroViaLogin: React.FC = () => {
                 </div>
               </div>
 
-              <div className="ticket-stub" ref={ticketStubRef} style={{ transform: isTorn ? 'translateX(150px) rotate(10deg)' : 'none' }}>
+              <div className="ticket-stub" ref={ticketStubRef} style={{ transform: isTorn ? "translateX(150px) rotate(10deg)" : "none" }}>
                 <div className="ticket-stub-content">TEAR HERE</div>
               </div>
 
@@ -451,7 +451,7 @@ const IntroViaLogin: React.FC = () => {
               </svg>
 
               {/* Tear Icon */}
-              <div className={`tear-icon ${isTorn ? 'hidden' : ''}`}>
+              <div className={`tear-icon ${isTorn ? "hidden" : ""}`}>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                 </svg>
@@ -460,7 +460,7 @@ const IntroViaLogin: React.FC = () => {
           </div>
 
           {/* Book Now Button (hidden initially, shown after tear) */}
-          <a href="#" className={`book-now-btn mt-12 ${isTorn ? 'visible' : ''}`} onClick={handleBookNowClick}>
+          <a href="#" className={`book-now-btn mt-12 ${isTorn ? "visible" : ""}`} onClick={handleBookNowClick}>
             Đặt phim ngay
           </a>
         </div>
@@ -470,4 +470,3 @@ const IntroViaLogin: React.FC = () => {
 };
 
 export default IntroViaLogin;
-

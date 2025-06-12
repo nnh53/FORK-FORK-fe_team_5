@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const LegendItem: React.FC<{ color: string; label: string }> = ({ color, label }) => (
   <div className="flex items-center gap-2">

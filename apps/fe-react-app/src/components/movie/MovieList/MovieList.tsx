@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
-import MovieCard, { type MovieCardProps } from '../MovieCard/MovieCard.tsx';
-import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
-import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
+import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
+import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
+import React, { useRef } from "react";
+import MovieCard, { type MovieCardProps } from "../MovieCard/MovieCard.tsx";
 
 export interface MovieListProps {
   movies: MovieCardProps[];
@@ -14,20 +14,20 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const gridLayoutConfig = {
-    2: 'grid-cols-1 sm:grid-cols-2',
-    3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-    4: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
-    5: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
-    6: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
+    2: "grid-cols-1 sm:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    4: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+    5: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+    6: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6",
   };
 
   const responsiveClasses = gridLayoutConfig[cardsPerRow] || gridLayoutConfig[4];
 
-  const handleScroll = (direction: 'left' | 'right') => {
+  const handleScroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const scrollAmount = scrollRef.current.clientWidth * 0.8; // 80% of container width for smooth partial scroll
       const currentScroll = scrollRef.current.scrollLeft;
-      const targetScroll = direction === 'left' ? currentScroll - scrollAmount : currentScroll + scrollAmount;
+      const targetScroll = direction === "left" ? currentScroll - scrollAmount : currentScroll + scrollAmount;
 
       // Smooth scroll with requestAnimationFrame for better performance
       const startTime = performance.now();
@@ -58,10 +58,10 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
       <div className="relative w-4/5 mx-auto">
         {/* Nút cuộn trái */}
         <button
-          onClick={() => handleScroll('left')}
+          onClick={() => handleScroll("left")}
           className="btn btn-circle absolute z-10 -left-12 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-3 transition-all duration-300 hover:scale-110"
         >
-          <ArrowBackIosNewRoundedIcon fontSize={'medium'}></ArrowBackIosNewRoundedIcon>
+          <ArrowBackIosNewRoundedIcon fontSize={"medium"}></ArrowBackIosNewRoundedIcon>
         </button>
 
         {/* Vùng cuộn phim */}
@@ -75,10 +75,10 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
 
         {/* Nút cuộn phải */}
         <button
-          onClick={() => handleScroll('right')}
+          onClick={() => handleScroll("right")}
           className="btn btn-circle absolute z-10 -right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg p-3 transition-all duration-300 hover:scale-110"
         >
-          <ArrowForwardIosRoundedIcon fontSize={'medium'}></ArrowForwardIosRoundedIcon>
+          <ArrowForwardIosRoundedIcon fontSize={"medium"}></ArrowForwardIosRoundedIcon>
         </button>
       </div>
     );

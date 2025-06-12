@@ -1,9 +1,9 @@
 // src/pages/SeatSelectionPage/components/BookingSummary.tsx
-import React from 'react';
+import React from "react";
 
-import type { MovieCardProps } from '../../../../components/movie/MovieCard/MovieCard.tsx';
-import type { SeatType } from '../../booking-page/BookingPage.tsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import type { MovieCardProps } from "../../../../components/movie/MovieCard/MovieCard.tsx";
+import type { SeatType } from "../../booking-page/BookingPage.tsx";
 
 interface BookingSummaryProps {
   movie: MovieCardProps;
@@ -52,18 +52,18 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         </div>
         <div className="flex justify-between items-start">
           <span className="text-gray-500">Ghế ngồi</span>
-          <span className="font-semibold text-right w-1/2 break-words">{selectedSeats.map((s) => s.id).join(', ')}</span>
+          <span className="font-semibold text-right w-1/2 break-words">{selectedSeats.map((s) => s.id).join(", ")}</span>
         </div>
       </div>
 
       <div className="mt-6 border-t pt-4">
         <div className="flex justify-between text-xl font-bold">
           <span>TỔNG TIỀN</span>
-          <span className="text-red-600">{totalCost.toLocaleString('vi-VN')}đ</span>
+          <span className="text-red-600">{totalCost.toLocaleString("vi-VN")}đ</span>
         </div>
       </div>
 
-      <div className={`mt-6 w-full ${showBackButton ? 'flex items-center gap-3' : ''}`}>
+      <div className={`mt-6 w-full ${showBackButton ? "flex items-center gap-3" : ""}`}>
         {showBackButton ? (
           <>
             <button onClick={() => navigate(-1)} className="w-1/2 py-3 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300 transition">
