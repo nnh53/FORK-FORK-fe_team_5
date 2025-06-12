@@ -1,11 +1,11 @@
-import { Add as AddIcon } from '@mui/icons-material';
-import { Alert, CircularProgress, Dialog, Snackbar } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
-import SearchBar from '../../../components/shared/SearchBar';
-import type { Member, MemberFormData } from '../../../interfaces/member.interface';
-import MemberForm from './MemberForm';
-import MemberTable from './MemberTable';
-import { createMember, deleteMember, getMembers, updateMember } from './services/memberApi';
+import { Add as AddIcon } from "@mui/icons-material";
+import { Alert, CircularProgress, Dialog, Snackbar } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
+import SearchBar from "../../../components/shared/SearchBar";
+import type { Member, MemberFormData } from "../../../interfaces/member.interface";
+import MemberForm from "./MemberForm";
+import MemberTable from "./MemberTable";
+import { createMember, deleteMember, getMembers, updateMember } from "./services/memberApi";
 
 const MemberManagement = () => {
   const [members, setMembers] = useState<Member[]>([]);
@@ -13,25 +13,25 @@ const MemberManagement = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchType, setSearchType] = useState('name');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState("name");
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: 'success' | 'error';
+    severity: "success" | "error";
   }>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   const searchOptions = [
-    { label: 'Tên', value: 'name' },
-    { label: 'Số điện thoại', value: 'phone' },
-    { label: 'Email', value: 'email' },
-    { label: 'Ngày sinh', value: 'date_of_birth' },
-    { label: 'Địa chỉ', value: 'address' },
-    { label: 'Trạng thái', value: 'status' },
+    { label: "Tên", value: "name" },
+    { label: "Số điện thoại", value: "phone" },
+    { label: "Email", value: "email" },
+    { label: "Ngày sinh", value: "date_of_birth" },
+    { label: "Địa chỉ", value: "address" },
+    { label: "Trạng thái", value: "status" },
   ];
 
   const fetchMembers = async () => {
@@ -40,7 +40,7 @@ const MemberManagement = () => {
       const data = await getMembers();
       setMembers(data);
     } catch (err) {
-      setError('Lỗi khi tải danh sách thành viên');
+      setError("Lỗi khi tải danh sách thành viên");
       console.error(err);
     } finally {
       setLoading(false);
@@ -55,15 +55,15 @@ const MemberManagement = () => {
     if (!members) return [];
     return members.filter((member) => {
       switch (searchType) {
-        case 'phone':
+        case "phone":
           return member.phone?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-        case 'email':
+        case "email":
           return member.email.toLowerCase().includes(searchTerm.toLowerCase());
-        case 'date_of_birth':
+        case "date_of_birth":
           return member.date_of_birth?.includes(searchTerm) || false;
-        case 'address':
+        case "address":
           return member.address?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-        case 'status':
+        case "status":
           return member.status.toLowerCase().includes(searchTerm.toLowerCase());
         default:
           return member.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -86,7 +86,7 @@ const MemberManagement = () => {
     setSelectedMember(undefined);
   };
 
-  const showSnackbar = (message: string, severity: 'success' | 'error') => {
+  const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({
       open: true,
       message,
@@ -102,29 +102,29 @@ const MemberManagement = () => {
     try {
       if (selectedMember) {
         await updateMember({ ...selectedMember, ...values });
-        showSnackbar('Cập nhật thành viên thành công', 'success');
+        showSnackbar("Cập nhật thành viên thành công", "success");
       } else {
         await createMember(values);
-        showSnackbar('Tạo thành viên thành công', 'success');
+        showSnackbar("Tạo thành viên thành công", "success");
       }
       setIsModalOpen(false);
       setSelectedMember(undefined);
       fetchMembers();
     } catch (error) {
-      console.error('Lỗi khi lưu thành viên:', error);
-      showSnackbar('Lỗi khi lưu thành viên', 'error');
+      console.error("Lỗi khi lưu thành viên:", error);
+      showSnackbar("Lỗi khi lưu thành viên", "error");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa thành viên này?')) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
       try {
         await deleteMember(id);
-        showSnackbar('Xóa thành viên thành công', 'success');
+        showSnackbar("Xóa thành viên thành công", "success");
         fetchMembers();
       } catch (error) {
-        console.error('Lỗi khi xóa thành viên:', error);
-        showSnackbar('Lỗi khi xóa thành viên', 'error');
+        console.error("Lỗi khi xóa thành viên:", error);
+        showSnackbar("Lỗi khi xóa thành viên", "error");
       }
     }
   };
@@ -170,8 +170,8 @@ const MemberManagement = () => {
         <MemberForm member={selectedMember} onSubmit={handleSubmit} onCancel={handleCancel} />
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
           {snackbar.message}
         </Alert>
       </Snackbar>

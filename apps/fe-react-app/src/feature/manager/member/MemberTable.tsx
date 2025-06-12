@@ -1,6 +1,5 @@
-import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import type { Member } from '../../../interfaces/member.interface';
-import { MemberStatus } from '../../../interfaces/member.interface';
+import type { Member } from "@/feature/member/types";
+import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 
 interface MemberTableProps {
   members: Member[];
@@ -11,13 +10,13 @@ interface MemberTableProps {
 const getStatusDisplay = (status: MemberStatus | string) => {
   switch (status) {
     case MemberStatus.VERIFY:
-      return { label: 'Đã xác minh', className: 'bg-green-100 text-green-800' };
+      return { label: "Đã xác minh", className: "bg-green-100 text-green-800" };
     case MemberStatus.BAN:
-      return { label: 'Bị cấm', className: 'bg-red-100 text-red-800' };
+      return { label: "Bị cấm", className: "bg-red-100 text-red-800" };
     case MemberStatus.UNVERIFY:
-      return { label: 'Chưa xác minh', className: 'bg-gray-100 text-gray-800' };
+      return { label: "Chưa xác minh", className: "bg-gray-100 text-gray-800" };
     default:
-      return { label: 'Không xác định', className: 'bg-yellow-100 text-yellow-800' };
+      return { label: "Không xác định", className: "bg-yellow-100 text-yellow-800" };
   }
 };
 
@@ -43,13 +42,13 @@ const MemberTable = ({ members, onEdit, onDelete }: MemberTableProps) => {
               return (
                 <tr
                   key={member.member_id}
-                  className={`transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-red-100`}
+                  className={`transition-colors duration-200 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-red-100`}
                 >
                   <td className="p-4 text-sm text-gray-900">{member.name}</td>
                   <td className="p-4 text-sm text-gray-900">{member.email}</td>
-                  <td className="p-4 text-sm text-gray-900">{member.date_of_birth || 'Chưa cập nhật'}</td>
-                  <td className="p-4 text-sm text-gray-900">{member.phone || 'Chưa cập nhật'}</td>
-                  <td className="p-4 text-sm text-gray-900">{member.address || 'Chưa cập nhật'}</td>
+                  <td className="p-4 text-sm text-gray-900">{member.date_of_birth || "Chưa cập nhật"}</td>
+                  <td className="p-4 text-sm text-gray-900">{member.phone || "Chưa cập nhật"}</td>
+                  <td className="p-4 text-sm text-gray-900">{member.address || "Chưa cập nhật"}</td>
                   <td className="p-4 text-sm">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>
                   </td>
