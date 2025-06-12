@@ -1,10 +1,10 @@
-import { Box, List, ListItem, ListItemButton, ListItemText } from "@mui/material";
-import React from "react";
-import { Link } from "react-router-dom";
-import { ROUTING_PATH } from "../../constants/endpoints";
+import React from 'react'
+import { Box, List, ListItem, ListItemButton, ListItemText } from '@mui/material'
+import { Link } from 'react-router-dom'
+import { ROUTING_PATH } from '../../constants/endpoints'
 
 interface DashBoardLayoutProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 const DashBoardLayout: React.FC<DashBoardLayoutProps> = ({ children }) => {
@@ -13,8 +13,8 @@ const DashBoardLayout: React.FC<DashBoardLayoutProps> = ({ children }) => {
       <Box
         component="nav"
         sx={{
-          backgroundColor: "#686D76",
-          color: "white",
+          backgroundColor: '#686D76',
+          color: 'white',
         }}
       >
         <List>
@@ -60,6 +60,8 @@ const DashBoardLayout: React.FC<DashBoardLayoutProps> = ({ children }) => {
       </Box>
     </Box>
   );
-};
+}
 
-export default DashBoardLayout;
+
+
+export default DashBoardLayout
