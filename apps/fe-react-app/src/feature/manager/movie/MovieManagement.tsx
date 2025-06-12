@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { type Movie, type MovieFormData } from "../../../interfaces/movies.interface";
 import MovieDetail from "./MovieDetail";
 import MovieList from "./MovieList";
@@ -10,9 +12,12 @@ const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | undefined>();
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Fetch movies for the initial load
   const fetchMovies = async () => {
+    setLoading(true);
     try {
       const response = await fetch("http://localhost:3000/movies");
       if (!response.ok) {
@@ -22,6 +27,9 @@ const MovieManagement = () => {
       setMovies(data);
     } catch (error) {
       console.error("Error fetching movies:", error);
+      toast.error("Failed to fetch movies");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,8 +52,73 @@ const MovieManagement = () => {
     setSelectedMovie(undefined);
   };
 
+  const validateMovieData = (values: MovieFormData): { isValid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+
+    // Required fields validation
+    if (!values.title) errors.push("Movie Name is required");
+    if (!values.director) errors.push("Director is required");
+    if (!values.productionCompany) errors.push("Production Company is required");
+    if (!values.genre) errors.push("Primary Genre is required");
+    if (!values.description) errors.push("Description is required");
+
+    // Numeric validations
+    if (!values.duration || values.duration <= 0) errors.push("Running Time must be a positive number");
+    if (!values.releaseYear || values.releaseYear < 1900) errors.push("Release Year must be at least 1900");
+    if (values.rating < 1 || values.rating > 10) errors.push("Rating must be between 1 and 10");
+
+    // Date validations
+    if (values.startShowingDate && values.endShowingDate) {
+      const startDate = new Date(values.startShowingDate);
+      const endDate = new Date(values.endShowingDate);
+      if (endDate < startDate) {
+        errors.push("End showing date cannot be earlier than start showing date");
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  };
+
   const handleSubmit = async (values: MovieFormData) => {
+    // Validate the form data
+    const validation = validateMovieData(values);
+    if (!validation.isValid) {
+      toast.error("Please fix the following errors:", {
+        description: (
+          <ul className="list-disc pl-4">
+            {validation.errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        ),
+      });
+      return;
+    }
+
+    setLoading(true);
     try {
+      // Handle file upload if present
+      let posterUrl = values.poster;
+      if (values.posterFile) {
+        // In a real app, you would upload the file to a server
+        // For this mock, we'll just use a fake URL or the existing one
+        posterUrl = URL.createObjectURL(values.posterFile);
+        // Clean up the URL when no longer needed
+        URL.revokeObjectURL(posterUrl);
+      }
+
+      // Prepare data for API
+      const movieData = {
+        ...values,
+        poster: posterUrl || values.poster,
+      };
+
+      // Remove the file object as it can't be serialized
+      delete movieData.posterFile;
+
       if (selectedMovie) {
         // Update existing movie
         await fetch(`http://localhost:3000/movies/${selectedMovie.id}`, {
@@ -53,9 +126,9 @@ const MovieManagement = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify(movieData),
         });
-        window.alert("Movie updated successfully");
+        toast.success("Movie updated successfully");
       } else {
         // Create new movie
         await fetch("http://localhost:3000/movies", {
@@ -63,9 +136,9 @@ const MovieManagement = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify(movieData),
         });
-        window.alert("Movie created successfully");
+        toast.success("Movie created successfully");
       }
       setIsModalOpen(false);
       setSelectedMovie(undefined);
@@ -73,7 +146,9 @@ const MovieManagement = () => {
       fetchMovies();
     } catch (error) {
       console.error("Error saving movie:", error);
-      window.alert("Failed to save movie");
+      toast.error("Failed to save movie");
+    } finally {
+      setLoading(false);
     }
   };
 
