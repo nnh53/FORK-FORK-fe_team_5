@@ -1,4 +1,5 @@
-import type { Member } from "@/feature/member/types";
+import type { Member } from "@/interfaces/member.interface";
+import { MemberStatus } from "@/interfaces/member.interface";
 import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 
 interface MemberTableProps {

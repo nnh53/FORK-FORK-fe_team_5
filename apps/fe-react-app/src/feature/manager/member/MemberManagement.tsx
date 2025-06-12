@@ -1,8 +1,7 @@
+import type { Member, MemberFormData } from "@/interfaces/member.interface";
 import { Add as AddIcon } from "@mui/icons-material";
 import { Alert, CircularProgress, Dialog, Snackbar } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import SearchBar from "../../../components/shared/SearchBar";
-import type { Member, MemberFormData } from "../../../interfaces/member.interface";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 import { createMember, deleteMember, getMembers, updateMember } from "./services/memberApi";
@@ -150,13 +149,13 @@ const MemberManagement = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Danh sách thành viên</h2>
         <div className="flex items-center gap-4">
-          <SearchBar
+          {/* <SearchBar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             searchType={searchType}
             setSearchType={setSearchType}
             searchOptions={searchOptions}
-          />
+          /> */}
           <button onClick={handleCreate} className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
             <AddIcon className="mr-2" />
             Thêm thành viên

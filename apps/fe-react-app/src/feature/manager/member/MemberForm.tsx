@@ -2,8 +2,8 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import type { Member } from "@/interfaces/users.interface";
-import { MemberStatus } from "@/interfaces/users.interface";
+import type { Member, MemberFormData } from "@/interfaces/member.interface";
+import { MemberStatus } from "@/interfaces/member.interface";
 
 interface MemberFormProps {
   member?: Member;
