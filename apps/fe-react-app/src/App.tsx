@@ -339,7 +339,7 @@ function App() {
           <Route path="/myAccount" element={<UserLayout children={<MyUserManagement />} />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
-        <ThemeSwitch />
+        {/* <ThemeSwitch /> */}
       </div>
     </AuthProvider>
   );
