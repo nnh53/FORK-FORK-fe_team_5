@@ -97,7 +97,7 @@ app.post("/users/login", (req, res) => {
 });
 
 // Add register endpoint
-app.post("/users/register", (req, res) => {
+app.post("/users/register", (req: any, res: any) => {
   const { email, password, full_name, date_of_birth } = req.body;
 
   // Check if user already exists

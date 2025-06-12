@@ -6,7 +6,7 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-  - secret-detection
+  - secret-detection-and-lint-commit
   - lint-commit
   - ci
   - deploy
@@ -21,15 +21,15 @@ before_script:
   - echo $DOPPLER_TOKEN
 
 secret_detection:
-  stage: secret-detection
+  stage: secret-detection-and-lint-commit
 include:
   - template: Security/Secret-Detection.gitlab-ci.yml
 
 lint-commit:
+  stage: secret-detection-and-lint-commit
   image:
     name: registry.hub.docker.com/commitlint/commitlint:latest
     entrypoint: [""]
-  stage: lint-commit
   script:
     - commitlint --from ${CI_MERGE_REQUEST_DIFF_BASE_SHA} --to ${CI_COMMIT_SHA}
 
@@ -51,13 +51,11 @@ ci:
     - pnpm install --frozen-lockfile
     - NX_HEAD=$CI_COMMIT_SHA
     - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
-    - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx run-many -t lint test build -p fe-react-app --parallel=1 --verbose
-    - pwd
-    - ls -R
-  artifacts:
-    paths:
-      - apps/fe-react-app/dist/**/*.*
-    expire_in: 1 hour
+    - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx run-many -t lint test build -p fe-react-app --parallel=2 --verbose
+  # artifacts:
+  #   paths:
+  #     - apps/fe-react-app/dist/**/*.*
+  #   expire_in: 1 hour
   cache:
     key:
       files:
@@ -70,15 +68,15 @@ deploy_pages:
   image: node:20
   needs:
     - job: ci
-      artifacts: true
+      # artifacts: true
 
   # MODIFIED: Updated rule to trigger deployment for both 'main' and 'dev' branches
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "dev"'
   script:
     - echo "🚀 Verifying files..."
-    - pwd
-    - ls -R
+    # - pwd
+    # - ls -R
     - echo "🚀 Starting deployment for branch $CI_COMMIT_BRANCH"
     - npm install --global wrangler
     - wrangler pages deploy apps/fe-react-app/dist/ --project-name="fcinema" --branch="$CI_COMMIT_BRANCH"  --commit-dirty=true
