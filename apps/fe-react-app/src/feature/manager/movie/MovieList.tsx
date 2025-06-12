@@ -1,71 +1,20 @@
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
-import {
-  Button,
-  Chip,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
-} from "@mui/material";
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Edit, Trash } from "lucide-react";
+import { useState } from "react";
 import type { Movie } from "../../../interfaces/movies.interface";
 
 interface MovieListProps {
+  movies: Movie[];
   onEdit: (movie: Movie) => void;
+  onMoviesChange: () => void;
 }
 
-const MovieList = ({ onEdit }: MovieListProps) => {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [orderBy, setOrderBy] = useState<keyof Movie>("title");
-  const [order, setOrder] = useState<"asc" | "desc">("asc");
+const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
-
-  const fetchMovies = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("http://localhost:3000/movies");
-      const data = await response.json();
-      setMovies(data);
-    } catch (error) {
-      console.error("Error fetching movies:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMovies();
-  }, []);
-
-  const handleSort = (property: keyof Movie) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const [loading, setLoading] = useState(false);
 
   const handleDeleteClick = (movie: Movie) => {
     setMovieToDelete(movie);
@@ -74,117 +23,111 @@ const MovieList = ({ onEdit }: MovieListProps) => {
 
   const handleDeleteConfirm = async () => {
     if (movieToDelete) {
+      setLoading(true);
       try {
-        await fetch(`http://localhost:3000/movies/${movieToDelete.id}`, {
+        const response = await fetch(`http://localhost:3000/movies/${movieToDelete.id}`, {
           method: "DELETE",
         });
-        fetchMovies();
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Refresh the movie list
+        onMoviesChange();
+        window.alert("Movie deleted successfully");
       } catch (error) {
         console.error("Error deleting movie:", error);
+        window.alert("Failed to delete movie");
+      } finally {
+        setLoading(false);
       }
     }
     setDeleteDialogOpen(false);
     setMovieToDelete(null);
   };
 
-  const sortedMovies = [...movies].sort((a, b) => {
-    if (order === "asc") {
-      return a[orderBy] > b[orderBy] ? 1 : -1;
-    } else {
-      return b[orderBy] > a[orderBy] ? 1 : -1;
-    }
-  });
-
-  const paginatedMovies = sortedMovies.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <TableContainer>
-        <Table stickyHeader>
-          <TableHead>
+    <div className="w-full overflow-hidden rounded-md border">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell>
-                <TableSortLabel active={orderBy === "title"} direction={orderBy === "title" ? order : "asc"} onClick={() => handleSort("title")}>
-                  Title
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>Genre</TableCell>
-              <TableCell>Director</TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === "releaseYear"}
-                  direction={orderBy === "releaseYear" ? order : "asc"}
-                  onClick={() => handleSort("releaseYear")}
-                >
-                  Release Year
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>Duration</TableCell>
-              <TableCell>
-                <TableSortLabel active={orderBy === "rating"} direction={orderBy === "rating" ? order : "asc"} onClick={() => handleSort("rating")}>
-                  Rating
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableHead>Title</TableHead>
+              <TableHead>Release Year</TableHead>
+              <TableHead>Production Company</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead>Version</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          </TableHead>
+          </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
-                  <CircularProgress />
+                <TableCell colSpan={7} className="text-center py-4">
+                  <div className="flex justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : movies.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-4">
+                  No movies found
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedMovies.map((movie) => (
+              movies.map((movie) => (
                 <TableRow key={movie.id}>
                   <TableCell>{movie.title}</TableCell>
-                  <TableCell>{movie.genre}</TableCell>
-                  <TableCell>{movie.director}</TableCell>
                   <TableCell>{movie.releaseYear}</TableCell>
+                  <TableCell>{movie.productionCompany}</TableCell>
                   <TableCell>{movie.duration} min</TableCell>
+                  <TableCell>{movie.version}</TableCell>
                   <TableCell>
-                    <Chip label={movie.rating.toFixed(1)} color={movie.rating >= 8 ? "success" : movie.rating >= 6 ? "warning" : "error"} />
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        movie.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {movie.status.toUpperCase()}
+                    </span>
                   </TableCell>
                   <TableCell>
-                    <Chip label={movie.status.toUpperCase()} color={movie.status === "active" ? "success" : "error"} />
-                  </TableCell>
-                  <TableCell>
-                    <IconButton color="primary" onClick={() => onEdit(movie)} size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton color="error" onClick={() => handleDeleteClick(movie)} size="small">
-                      <DeleteIcon />
-                    </IconButton>
+                    <div className="flex space-x-2">
+                      <Button variant="ghost" size="icon" onClick={() => onEdit(movie)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(movie)}>
+                        <Trash className="h-4 w-4 text-red-600" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={movies.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      </div>
 
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Movie</DialogTitle>
-        <DialogContent>Are you sure you want to delete this movie? This action cannot be undone.</DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
-            Delete
-          </Button>
-        </DialogActions>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Movie</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete this movie? This action cannot be undone.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
-    </Paper>
+    </div>
   );
 };
 

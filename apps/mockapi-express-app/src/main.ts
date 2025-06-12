@@ -8,11 +8,12 @@ import express from "express";
 import * as path from "path";
 import { blogsMockData } from "./blogs.mockapi";
 import { healthMetricListMockData } from "./health-metric.mockapi";
+import { moviesAPI, moviesMockData } from "./movies.mockapi";
 import { User } from "./myInfo.mockapi";
 import { myMembership } from "./myMembership";
 import { myMovieHistory } from "./myMovieHistory";
 import { myPoint } from "./mypoint";
-import { loginMock, usersMockData } from "./users.mockapi";
+import { loginMock } from "./users.mockapi";
 import { mockVoucherHistory, mockVouchers } from "./voucher.mockapi";
 
 const app = express();
@@ -97,30 +98,67 @@ app.post("/users/login", (req, res) => {
 });
 
 // Add register endpoint
-app.post("/users/register", (req: any, res: any) => {
-  const { email, password, full_name, date_of_birth } = req.body;
+// app.post("/users/register", (req: any, res: any) => {
+//   const { email, password, full_name, date_of_birth } = req.body;
 
-  // Check if user already exists
-  if (usersMockData[email]) {
-    return res.status(400).json({ message: "Email already registered" });
-  }
+//   // Check if user already exists
+//   if (usersMockData[email]) {
+//     return res.status(400).json({ message: "Email already registered" });
+//   }
 
-  // In a real app, we would save the user to a database
-  // For this mock, we'll just return a success response
-  res.status(200).json({
-    message: "Registration successful",
-    user: {
-      email,
-      full_name,
-      date_of_birth,
-    },
-  });
-});
+//   // In a real app, we would save the user to a database
+//   // For this mock, we'll just return a success response
+//   res.status(200).json({
+//     message: "Registration successful",
+//     user: {
+//       email,
+//       full_name,
+//       date_of_birth,
+//     },
+//   });
+// });
 
 // Add logout endpoint
 app.post("/users/logout", (req, res) => {
   // In a real app, we would invalidate the token here
   res.status(200).json({ message: "Logged out successfully" });
+});
+
+// Add movies routes
+app.get("/movies", (req, res) => {
+  res.send(moviesMockData);
+});
+
+app.get("/movies/:id", (req, res) => {
+  const movie = moviesAPI.getById(req.params.id);
+  if (movie) {
+    res.send(movie);
+  } else {
+    res.status(404).send({ error: "Movie not found" });
+  }
+});
+
+app.post("/movies", (req, res) => {
+  const movie = moviesAPI.create(req.body);
+  res.status(201).send(movie);
+});
+
+app.put("/movies/:id", (req, res) => {
+  const movie = moviesAPI.update(req.params.id, req.body);
+  if (movie) {
+    res.send(movie);
+  } else {
+    res.status(404).send({ error: "Movie not found" });
+  }
+});
+
+app.delete("/movies/:id", (req, res) => {
+  const movie = moviesAPI.delete(req.params.id);
+  if (movie) {
+    res.send(movie);
+  } else {
+    res.status(404).send({ error: "Movie not found" });
+  }
 });
 
 const port = 3000;

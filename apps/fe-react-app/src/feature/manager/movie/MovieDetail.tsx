@@ -1,7 +1,11 @@
-import { Box, Button, MenuItem, Stack, TextField } from "@mui/material";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { MovieStatus, type Movie, type MovieFormData } from "../../../interfaces/movies.interface";
+import { useForm } from "react-hook-form";
+import { MovieStatus, MovieVersion, type Movie, type MovieFormData } from "../../../interfaces/movies.interface";
 
 interface MovieDetailProps {
   movie?: Movie;
@@ -10,143 +14,213 @@ interface MovieDetailProps {
 }
 
 const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
-  const { control, handleSubmit, reset } = useForm<MovieFormData>({
+  const form = useForm<MovieFormData>({
     defaultValues: {
       title: "",
       genre: "",
       director: "",
       releaseYear: new Date().getFullYear(),
+      productionCompany: "",
       duration: 90,
       rating: 5,
       description: "",
       poster: "",
       status: MovieStatus.ACTIVE,
+      version: MovieVersion.TWO_D,
     },
   });
 
   useEffect(() => {
     if (movie) {
-      reset(movie);
+      form.reset(movie);
     }
-  }, [movie, reset]);
+  }, [movie, form.reset]);
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ p: 2 }}>
-      <Stack spacing={2}>
-        <Controller
-          name="title"
-          control={control}
-          rules={{ required: "Title is required" }}
-          render={({ field, fieldState: { error } }) => <TextField {...field} label="Title" error={!!error} helperText={error?.message} fullWidth />}
-        />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Movie title" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Controller
-          name="genre"
-          control={control}
-          rules={{ required: "Genre is required" }}
-          render={({ field, fieldState: { error } }) => <TextField {...field} label="Genre" error={!!error} helperText={error?.message} fullWidth />}
-        />
+          <FormField
+            control={form.control}
+            name="genre"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Genre</FormLabel>
+                <FormControl>
+                  <Input placeholder="Genre" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Controller
-          name="director"
-          control={control}
-          rules={{ required: "Director is required" }}
-          render={({ field, fieldState: { error } }) => (
-            <TextField {...field} label="Director" error={!!error} helperText={error?.message} fullWidth />
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="director"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Director</FormLabel>
+                <FormControl>
+                  <Input placeholder="Director name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Controller
-          name="releaseYear"
-          control={control}
-          rules={{
-            required: "Release year is required",
-            min: {
-              value: 1900,
-              message: "Year must be 1900 or later",
-            },
-            max: {
-              value: 2100,
-              message: "Year must be 2100 or earlier",
-            },
-          }}
-          render={({ field, fieldState: { error } }) => (
-            <TextField {...field} type="number" label="Release Year" error={!!error} helperText={error?.message} fullWidth />
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="productionCompany"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Production Company</FormLabel>
+                <FormControl>
+                  <Input placeholder="Production company" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Controller
-          name="duration"
-          control={control}
-          rules={{
-            required: "Duration is required",
-            min: {
-              value: 1,
-              message: "Duration must be at least 1 minute",
-            },
-          }}
-          render={({ field, fieldState: { error } }) => (
-            <TextField {...field} type="number" label="Duration (minutes)" error={!!error} helperText={error?.message} fullWidth />
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="releaseYear"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Release Year</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Release year" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Controller
-          name="rating"
-          control={control}
-          rules={{
-            required: "Rating is required",
-            min: {
-              value: 1,
-              message: "Rating must be between 1 and 10",
-            },
-            max: {
-              value: 10,
-              message: "Rating must be between 1 and 10",
-            },
-          }}
-          render={({ field, fieldState: { error } }) => (
-            <TextField {...field} type="number" label="Rating" inputProps={{ step: 0.1 }} error={!!error} helperText={error?.message} fullWidth />
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="duration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Duration (minutes)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Duration in minutes" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Controller
+          <FormField
+            control={form.control}
+            name="rating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Rating</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Rating (1-10)" step="0.1" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="poster"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Poster URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="URL to movie poster" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="version"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Version</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select version" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value={MovieVersion.TWO_D}>2D</SelectItem>
+                    <SelectItem value={MovieVersion.THREE_D}>3D</SelectItem>
+                    <SelectItem value={MovieVersion.IMAX}>IMAX</SelectItem>
+                    <SelectItem value={MovieVersion.FOUR_DX}>4DX</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value={MovieStatus.ACTIVE}>Active</SelectItem>
+                    <SelectItem value={MovieStatus.INACTIVE}>Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
           name="description"
-          control={control}
-          rules={{ required: "Description is required" }}
-          render={({ field, fieldState: { error } }) => (
-            <TextField {...field} label="Description" multiline rows={4} error={!!error} helperText={error?.message} fullWidth />
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Movie description" {...field} rows={3} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
 
-        <Controller
-          name="poster"
-          control={control}
-          rules={{ required: "Poster URL is required" }}
-          render={({ field, fieldState: { error } }) => (
-            <TextField {...field} label="Poster URL" error={!!error} helperText={error?.message} fullWidth />
-          )}
-        />
-
-        <Controller
-          name="status"
-          control={control}
-          rules={{ required: "Status is required" }}
-          render={({ field, fieldState: { error } }) => (
-            <TextField {...field} select label="Status" error={!!error} helperText={error?.message} fullWidth>
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="inactive">Inactive</MenuItem>
-            </TextField>
-          )}
-        />
-
-        <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button onClick={onCancel}>Cancel</Button>
-          <Button type="submit" variant="contained" color="primary">
-            {movie ? "Update" : "Create"} Movie
+        <div className="flex justify-end space-x-2 pt-4">
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
           </Button>
-        </Stack>
-      </Stack>
-    </Box>
+          <Button type="submit">{movie ? "Update" : "Create"} Movie</Button>
+        </div>
+      </form>
+    </Form>
   );
 };
 

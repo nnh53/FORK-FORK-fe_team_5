@@ -1,22 +1,33 @@
-import { Add as AddIcon } from "@mui/icons-material";
-import { Alert, Box, Button, Dialog, Snackbar } from "@mui/material";
-import { useState } from "react";
-import type { Movie, MovieFormData } from "../../../interfaces/movies.interface";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { type Movie, type MovieFormData } from "../../../interfaces/movies.interface";
 import MovieDetail from "./MovieDetail";
 import MovieList from "./MovieList";
 
 const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | undefined>();
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const [movies, setMovies] = useState<Movie[]>([]);
+
+  // Fetch movies for the initial load
+  const fetchMovies = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/movies");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setMovies(data);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMovies();
+  }, []);
 
   const handleCreate = () => {
     setSelectedMovie(undefined);
@@ -33,18 +44,6 @@ const MovieManagement = () => {
     setSelectedMovie(undefined);
   };
 
-  const showSnackbar = (message: string, severity: "success" | "error") => {
-    setSnackbar({
-      open: true,
-      message,
-      severity,
-    });
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
   const handleSubmit = async (values: MovieFormData) => {
     try {
       if (selectedMovie) {
@@ -56,7 +55,7 @@ const MovieManagement = () => {
           },
           body: JSON.stringify(values),
         });
-        showSnackbar("Movie updated successfully", "success");
+        window.alert("Movie updated successfully");
       } else {
         // Create new movie
         await fetch("http://localhost:3000/movies", {
@@ -66,36 +65,43 @@ const MovieManagement = () => {
           },
           body: JSON.stringify(values),
         });
-        showSnackbar("Movie created successfully", "success");
+        window.alert("Movie created successfully");
       }
       setIsModalOpen(false);
       setSelectedMovie(undefined);
+      // Refresh the movie list
+      fetchMovies();
     } catch (error) {
       console.error("Error saving movie:", error);
-      showSnackbar("Failed to save movie", "error");
+      window.alert("Failed to save movie");
     }
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 2 }}>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate}>
+    <div className="p-6">
+      <div className="mb-4">
+        <Button onClick={handleCreate}>
+          <Plus className="mr-2 h-4 w-4" />
           Add Movie
         </Button>
-      </Box>
+      </div>
 
-      <MovieList onEdit={handleEdit} />
+      <MovieList onEdit={handleEdit} movies={movies} onMoviesChange={fetchMovies} />
 
-      <Dialog open={isModalOpen} onClose={handleCancel} maxWidth="md" fullWidth>
-        <MovieDetail movie={selectedMovie} onSubmit={handleSubmit} onCancel={handleCancel} />
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCancel();
+        }}
+      >
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedMovie ? "Edit Movie" : "Add New Movie"}</DialogTitle>
+          </DialogHeader>
+          <MovieDetail movie={selectedMovie} onSubmit={handleSubmit} onCancel={handleCancel} />
+        </DialogContent>
       </Dialog>
-
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+    </div>
   );
 };
 
