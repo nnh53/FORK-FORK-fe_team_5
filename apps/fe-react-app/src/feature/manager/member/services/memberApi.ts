@@ -1,4 +1,4 @@
-import type { Member } from "@/feature/member/types";
+import type { Member } from "@/interfaces/member.interface";
 
 const API_URL = "https://67b28b81bc0165def8cdc590.mockapi.io/member"; // Thay bằng URL API thực tế của bạn
 
