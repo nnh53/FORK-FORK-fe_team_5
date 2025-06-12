@@ -39,5 +39,5 @@
   "conventionalCommits.gitmoji": false,
   "conventionalCommits.promptBody": false,
   "conventionalCommits.promptFooter": false,
-  "cSpell.words": ["primeicons", "primereact", "shadcn", "supa"]
+  "cSpell.words": ["primeicons", "primereact", "shadcn"]
 }

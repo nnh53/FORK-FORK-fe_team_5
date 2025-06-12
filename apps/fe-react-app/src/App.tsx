@@ -18,6 +18,7 @@ import HomePage from "./feature/booking/home-page/HomePage.tsx";
 import MovieManagement from "./feature/manager/movie/MovieManagement";
 import Welcome from "./feature/theme/Welcome";
 import { MyUserManagement } from "./feature/user-management/MyUserManagement";
+import AdminLayout from "./layouts/adminLayout/AdminLayout.tsx";
 import UserLayout from "./layouts/userLayout/UserLayout";
 
 const TITLE = "FCinema";
@@ -299,12 +300,21 @@ function App() {
               </PageTransition>
             }
           />
-          //chưa auth
+          {/* //chưa auth */}
           <Route
             path="/movie-management"
             element={
               <PageTransition>
                 <MovieManagement />
+              </PageTransition>
+            }
+          />
+          {/* //chưa auth */}
+          <Route
+            path="/admin"
+            element={
+              <PageTransition>
+                <AdminLayout />
               </PageTransition>
             }
           />
