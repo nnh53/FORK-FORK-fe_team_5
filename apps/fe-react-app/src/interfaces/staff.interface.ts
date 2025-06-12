@@ -1,7 +1,7 @@
 export enum StaffStatus {
-  VERIFY = 'VERIFY',
-  BAN = 'BAN',
-  UNVERIFY = 'UNVERIFY',
+  VERIFY = "VERIFY",
+  BAN = "BAN",
+  UNVERIFY = "UNVERIFY",
 }
 
 export interface Staff {
@@ -16,4 +16,4 @@ export interface Staff {
   status: StaffStatus;
 }
 
-export interface StaffFormData extends Omit<Staff, 'staff_id'> {}
+export type StaffFormData = Omit<Staff, "staff_id">;
