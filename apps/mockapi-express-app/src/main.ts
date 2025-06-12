@@ -8,7 +8,7 @@ import express from "express";
 import * as path from "path";
 import { blogsMockData } from "./blogs.mockapi";
 import { healthMetricListMockData } from "./health-metric.mockapi";
-import { moviesAPI, moviesMockData } from "./movies.mockapi";
+import { cinemaRoomsAPI, genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi";
 import { User } from "./myInfo.mockapi";
 import { myMembership } from "./myMembership";
 import { myMovieHistory } from "./myMovieHistory";
@@ -158,6 +158,34 @@ app.delete("/movies/:id", (req, res) => {
     res.send(movie);
   } else {
     res.status(404).send({ error: "Movie not found" });
+  }
+});
+
+// Add genres routes
+app.get("/genres", (req, res) => {
+  res.send(genresAPI.getAll());
+});
+
+app.get("/genres/:id", (req, res) => {
+  const genre = genresAPI.getById(req.params.id);
+  if (genre) {
+    res.send(genre);
+  } else {
+    res.status(404).send({ error: "Genre not found" });
+  }
+});
+
+// Add cinema rooms routes
+app.get("/cinema-rooms", (req, res) => {
+  res.send(cinemaRoomsAPI.getAll());
+});
+
+app.get("/cinema-rooms/:id", (req, res) => {
+  const room = cinemaRoomsAPI.getById(req.params.id);
+  if (room) {
+    res.send(room);
+  } else {
+    res.status(404).send({ error: "Cinema room not found" });
   }
 });
 
