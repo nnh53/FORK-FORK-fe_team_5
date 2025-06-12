@@ -16,4 +16,4 @@ export interface Member {
   status: MemberStatus;
 }
 
-export type MemberFormData = Omit<Member, "">;
+export type MemberFormData = Omit<Member, "member_id">;

@@ -1,4 +1,4 @@
-import type { Member } from "@/interfaces/member.interface";
+import type { Member, MemberFormData } from "@/interfaces/member.interface";
 
 const API_URL = "https://67b28b81bc0165def8cdc590.mockapi.io/member"; // Thay bằng URL API thực tế của bạn
 
@@ -8,7 +8,7 @@ export const getMembers = async (): Promise<Member[]> => {
   return response.json();
 };
 
-export const createMember = async (memberData: Member): Promise<Member> => {
+export const createMember = async (memberData: MemberFormData): Promise<Member> => {
   const response = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

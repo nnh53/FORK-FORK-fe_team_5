@@ -2,7 +2,7 @@ import { Add as AddIcon } from "@mui/icons-material";
 import { Alert, CircularProgress, Dialog, Snackbar } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
-import type { Staff, StaffFormData } from "../../../interfaces/staff.interface";
+import type { Staff, StaffFormData } from "@/interfaces/staff.interface";
 import { createStaff, deleteStaff, getStaffs, updateStaff } from "./services/staffApi";
 import StaffForm from "./StaffForm";
 import StaffTable from "./StaffTable";
