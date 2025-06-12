@@ -8,7 +8,7 @@ interface SeatProps {
 
 const Seat: React.FC<SeatProps> = ({ seatData, onClick }) => {
   const getSeatClass = () => {
-    let baseClass = 'w-7 h-7 rounded-t-md text-xs font-bold flex items-center justify-center cursor-pointer transition-colors duration-200';
+    const baseClass = 'w-7 h-7 rounded-t-md text-xs font-bold flex items-center justify-center cursor-pointer transition-colors duration-200';
 
     if (seatData.status === 'taken') {
       return `${baseClass} bg-red-500 text-white cursor-not-allowed`;

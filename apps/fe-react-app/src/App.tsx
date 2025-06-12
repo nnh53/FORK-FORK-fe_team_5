@@ -5,7 +5,6 @@ import InternalServerError from './components/error/InternalServerError';
 import NotFoundError from './components/error/NotFoundError';
 import Loading from './components/shared/Loading';
 import PageTransition from './components/shared/PageTransition';
-import ThemeSwitch from './components/theme/ThemeSwitch';
 import Unauthorized from './components/unauth/Unauthor';
 import { AuthProvider } from './contexts/AuthContext';
 import ForgotPassword from './feature/auth/ForgotPassword';
@@ -18,6 +17,7 @@ import HomePage from './feature/booking/home-page/HomePage.tsx';
 import UserLayout from './layouts/userLayout/UserLayout';
 import BookingPage from './feature/booking/booking-page/BookingPage.tsx';
 import CheckoutPage from './feature/booking/checkout-page/CheckoutPage.tsx';
+import ThemeSwitch from './components/theme/ThemeSwitch.tsx';
 
 const TITLE = 'FCinema';
 
