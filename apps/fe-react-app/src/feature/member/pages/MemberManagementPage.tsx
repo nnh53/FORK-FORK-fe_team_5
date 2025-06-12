@@ -1,5 +1,4 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import Modal from "../../../components/ui/modal";
 import { useCreateMember, useDeleteMember, useGetMembers, useUpdateMember } from "../hooks/useMemberQueries";
 import type { Member } from "../types";
 
@@ -277,7 +276,7 @@ const MemberManagementPage: React.FC = () => {
             )}
           </tbody>
         </table>
-        <Modal
+        {/* <Modal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           title={editingMember ? "Sửa thông tin thành viên" : "Thêm thành viên mới"}
@@ -285,7 +284,7 @@ const MemberManagementPage: React.FC = () => {
           submitLabel={editingMember ? "Sửa" : "Thêm"}
         >
           <MemberForm ref={formRef} onSubmit={handleSubmitForm} initialData={editingMember || undefined} />
-        </Modal>
+        </Modal> */}
       </div>
 
       <div className="mt-8 text-center">

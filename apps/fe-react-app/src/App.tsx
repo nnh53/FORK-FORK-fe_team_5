@@ -34,7 +34,7 @@ function App() {
               <PageTransition>
                 <h1>test</h1>
                 <DataTableDemo />
-                <button className="btn" onClick={() => document.getElementById("my_modal_4")?.showModal()}>
+                <button className="btn" onClick={() => (document.getElementById("my_modal_4") as HTMLDialogElement)?.showModal()}>
                   open modal
                 </button>
                 <dialog id="my_modal_4" className="modal">
