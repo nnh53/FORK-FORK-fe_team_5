@@ -15,7 +15,9 @@ import Register from "./feature/auth/Register";
 import BookingPage from "./feature/booking/booking-page/BookingPage.tsx";
 import CheckoutPage from "./feature/booking/checkout-page/CheckoutPage.tsx";
 import HomePage from "./feature/booking/home-page/HomePage.tsx";
+import MemberManagement from "./feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "./feature/manager/movie/MovieManagement";
+import StaffManagement from "./feature/manager/staff/StaffManagement.tsx";
 import Welcome from "./feature/theme/Welcome";
 import { MyUserManagement } from "./feature/user-management/MyUserManagement";
 import AdminLayout from "./layouts/adminLayout/AdminLayout.tsx";
@@ -306,6 +308,22 @@ function App() {
             element={
               <PageTransition>
                 <MovieManagement />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/member-management"
+            element={
+              <PageTransition>
+                <MemberManagement />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/staff-management"
+            element={
+              <PageTransition>
+                <StaffManagement />
               </PageTransition>
             }
           />
