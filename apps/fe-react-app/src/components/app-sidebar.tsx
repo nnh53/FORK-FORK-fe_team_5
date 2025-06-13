@@ -2,19 +2,21 @@ import * as React from "react"
 import {
   IconCamera,
   IconChartBar,
-  IconDashboard,
-  IconDatabase,
   IconFileAi,
   IconFileDescription,
-  IconFileWord,
-  IconFolder,
   IconHelp,
   IconInnerShadowTop,
   IconListDetails,
-  IconReport,
   IconSearch,
   IconSettings,
   IconUsers,
+  IconUserHeart,
+  IconTicket,
+  IconBox,
+  IconMovie,
+  IconChairDirector,
+  IconSpeakerphone,
+  IconClock,
 } from "@tabler/icons-react"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -33,35 +35,50 @@ import {
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "admin",
+    email: "admin@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
       title: "Dashboard",
       url: "#",
-      icon: IconDashboard,
+      icon: IconChartBar,
     },
     {
-      title: "Lifecycle",
+      title: "Booking",
       url: "#",
       icon: IconListDetails,
     },
     {
-      title: "Analytics",
+      title: "Movie",
       url: "#",
-      icon: IconChartBar,
+      icon: IconMovie,
     },
     {
-      title: "Projects",
+      title: "Cinema Room",
       url: "#",
-      icon: IconFolder,
+      icon: IconBox,
     },
     {
-      title: "Team",
+      title: "Show Time",
       url: "#",
-      icon: IconUsers,
+      icon: IconClock,
+    },
+    {
+      title: "Seat",
+      url: "#",
+      icon: IconChairDirector,
+    },
+    {
+      title: "Ticket",
+      url: "#",
+      icon: IconTicket,
+    },
+    {
+      title: "Promotion",
+      url: "#",
+      icon: IconSpeakerphone,
     },
   ],
   navClouds: [
@@ -131,22 +148,17 @@ const data = {
   ],
   documents: [
     {
-      name: "Data Library",
+      name: "Members",
       url: "#",
-      icon: IconDatabase,
+      icon: IconUsers,
     },
     {
-      name: "Reports",
+      name: "Staffs",
       url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
+      icon: IconUserHeart,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
