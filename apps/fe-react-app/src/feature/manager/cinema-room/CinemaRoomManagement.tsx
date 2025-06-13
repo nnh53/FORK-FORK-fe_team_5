@@ -11,9 +11,9 @@ export default function CinemaRoomManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
+  // const handleGoBack = () => {
+  //   navigate(-1);
+  // };
 
   const handleAddCinemaRoom = () => {
     navigate("/admin/cinema-room/add");
@@ -34,9 +34,9 @@ export default function CinemaRoomManagement() {
       <Card className="w-full">
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={handleGoBack}>
+            {/* <Button variant="outline" size="icon" onClick={handleGoBack}>
               <ArrowLeft className="h-4 w-4" />
-            </Button>
+            </Button> */}
             <CardTitle>Cinema Room Management</CardTitle>
           </div>
           <Button onClick={handleAddCinemaRoom}>
