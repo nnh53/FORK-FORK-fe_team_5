@@ -6,7 +6,7 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-  - secret-detection-and-lint-commit
+  - secret-detection
   - lint-commit
   - ci
   - deploy
@@ -21,12 +21,12 @@ before_script:
   - echo $DOPPLER_TOKEN
 
 secret_detection:
-  stage: secret-detection-and-lint-commit
+  stage: secret-detection
 include:
   - template: Security/Secret-Detection.gitlab-ci.yml
 
 lint-commit:
-  stage: secret-detection-and-lint-commit
+  stage: lint-commit
   image:
     name: registry.hub.docker.com/commitlint/commitlint:latest
     entrypoint: [""]
