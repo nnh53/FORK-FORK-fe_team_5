@@ -7,9 +7,10 @@ import ShowtimesModal from "../components/ShowtimesModal/ShowtimesModal.tsx";
 import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmModal.tsx";
 
 import { useNavigate } from "react-router-dom";
+import nowShowing from "../../../assets/nowShowingText.png";
+import upcoming from "../../../assets/upComingText.png";
 import type { MovieCardProps } from "../../../components/movie/MovieCard/MovieCard.tsx";
 import type { SchedulePerDay } from "../components/ShowtimesModal/ShowtimesModal.tsx";
-
 // 1. MOCK DATA PHIM
 const mockMovies: MovieCardProps[] = [
   {
@@ -242,24 +243,27 @@ function HomePage() {
   return (
     <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
       <Carousel autoplayInterval={2000} images={movieBaner} height={"600px"} />
-      <div className="flex w-full items-center my-12" aria-hidden="true">
-        <div className="h-px flex-grow bg-amber-50"></div>
 
-        <h2 className="px-6 text-center text-4xl md:text-5xl font-bold tracking-wider">PHIM MỚI</h2>
-
-        <div className="h-px flex-grow bg-amber-50"></div>
+      <div
+        className="
+          flex items-center justify-center
+          p-2 h-48
+          bg-gradient-to-r from-black/40 via-transparent to-black/40
+        "
+      >
+        <img src={nowShowing} className="h-24" alt="Phim sắp chiếu" />
       </div>
       <MovieList horizontal={true} movies={mockMovies} cardsPerRow={4} onMovieBuyTicketClick={handleBuyTicketClick} />
-
-      <div className="flex w-full items-center my-12" aria-hidden="true">
-        <div className="h-px flex-grow bg-amber-50"></div>
-
-        <h2 className="px-6 text-center text-4xl md:text-5xl font-bold tracking-wider">PHIM SẮP CHIẾU</h2>
-
-        <div className="h-px flex-grow bg-amber-50"></div>
+      <div
+        className="
+          flex items-center justify-center
+          p-2 h-48
+          bg-gradient-to-r from-black/40 via-transparent to-black/40
+        "
+      >
+        <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
       </div>
       <MovieList horizontal={true} movies={mockMovies} cardsPerRow={4} onMovieBuyTicketClick={handleBuyTicketClick} />
-
       {selectedMovie && (
         <ShowtimesModal
           isOpen={isShowtimesModalOpen}
@@ -270,7 +274,6 @@ function HomePage() {
           onSelectShowtime={handleFinalShowtimeSelect}
         />
       )}
-
       {selectedMovie && finalSelection && (
         <TicketConfirmModal
           isOpen={isConfirmModalOpen}
