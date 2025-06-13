@@ -452,6 +452,49 @@ function App() {
               </PageTransition>
             }
           />
+          {/* Secondary navigation routes */}
+          <Route
+            path="/admin/settings"
+            element={
+              <PageTransition>
+                <AdminLayout
+                  children={
+                    <div className="p-6">
+                      <h1 className="text-2xl font-bold">Settings</h1>
+                    </div>
+                  }
+                />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/help"
+            element={
+              <PageTransition>
+                <AdminLayout
+                  children={
+                    <div className="p-6">
+                      <h1 className="text-2xl font-bold">Help Center</h1>
+                    </div>
+                  }
+                />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/search"
+            element={
+              <PageTransition>
+                <AdminLayout
+                  children={
+                    <div className="p-6">
+                      <h1 className="text-2xl font-bold">Search</h1>
+                    </div>
+                  }
+                />
+              </PageTransition>
+            }
+          />
           <Route path="/myAccount" element={<UserLayout children={<MyUserManagement />} />} />
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/" element={<Navigate to="/login" replace />} />

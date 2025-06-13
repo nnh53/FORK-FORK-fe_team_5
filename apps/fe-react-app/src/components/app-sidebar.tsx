@@ -78,45 +78,45 @@ const data = {
       title: "Capture",
       icon: IconCamera,
       isActive: true,
-      url: "#",
+      url: "/admin/capture",
       items: [
         {
           title: "Active Proposals",
-          url: "#",
+          url: "/admin/capture/active",
         },
         {
           title: "Archived",
-          url: "#",
+          url: "/admin/capture/archived",
         },
       ],
     },
     {
       title: "Proposal",
       icon: IconFileDescription,
-      url: "#",
+      url: "/admin/proposal",
       items: [
         {
           title: "Active Proposals",
-          url: "#",
+          url: "/admin/proposal/active",
         },
         {
           title: "Archived",
-          url: "#",
+          url: "/admin/proposal/archived",
         },
       ],
     },
     {
       title: "Prompts",
       icon: IconFileAi,
-      url: "#",
+      url: "/admin/prompts",
       items: [
         {
           title: "Active Proposals",
-          url: "#",
+          url: "/admin/prompts/active",
         },
         {
           title: "Archived",
-          url: "#",
+          url: "/admin/prompts/archived",
         },
       ],
     },
@@ -124,17 +124,17 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/admin/settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/admin/help",
       icon: IconHelp,
     },
     {
       title: "Search",
-      url: "#",
+      url: "/admin/search",
       icon: IconSearch,
     },
   ],

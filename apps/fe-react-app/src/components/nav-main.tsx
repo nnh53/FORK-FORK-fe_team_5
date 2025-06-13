@@ -18,13 +18,21 @@ export function NavMain({
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-2">
             <SidebarMenuButton
+              asChild
               tooltip="Quick Create"
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
             >
-              <IconCirclePlusFilled />
-              <span>Quick Create</span>
+              <a href="/admin/dashboard">
+                <IconCirclePlusFilled />
+                <span>Quick Create</span>
+              </a>
             </SidebarMenuButton>
-            <Button size="icon" className="size-8 group-data-[collapsible=icon]:opacity-0" variant="outline">
+            <Button
+              size="icon"
+              className="size-8 group-data-[collapsible=icon]:opacity-0"
+              variant="outline"
+              onClick={() => (window.location.href = "/admin/dashboard")}
+            >
               <IconMail />
               <span className="sr-only">Inbox</span>
             </Button>
@@ -33,9 +41,11 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <a href={item.url}>
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
