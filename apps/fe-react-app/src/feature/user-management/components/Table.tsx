@@ -1,3 +1,5 @@
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+
 export interface TableColumns {
   header: string;
   accessorKey: string;
@@ -12,36 +14,36 @@ export const CustomTable = <T extends object>({ tableColumns, tableData }: Custo
   return (
     <>
       <div className="overflow-x-auto">
-        <table className="table table-zebra table-fixed w-full">
+        <Table className="table table-zebra table-fixed w-full">
           {/* <!-- Table Head --> */}
-          <thead>
+          <TableHeader>
             <tr className="text-lg text-neutral-600 uppercase">
               {tableColumns &&
                 tableColumns.map((column) => (
                   <th className={`h-auto whitespace-normal border border-base-300 ${column.width ? column.width : ""}`}>{column.header}</th>
                 ))}
             </tr>
-          </thead>
+          </TableHeader>
           {/* <!-- Table Body --> */}
-          <tbody>
+          <TableBody>
             {tableData &&
               tableData.map((data, index) => {
                 return (
                   <>
-                    <tr key={`${index}`}>
+                    <TableRow key={`${index}`}>
                       {Object.entries(data).map(([key, value]) => {
                         return (
-                          <td key={`${key}_${index}`} className="font-medium text-base-content border border-base-300">
+                          <TableCell key={`${key}_${index}`} className="font-medium text-base-content border border-base-300">
                             {value}
-                          </td>
+                          </TableCell>
                         );
                       })}
-                    </tr>
+                    </TableRow>
                   </>
                 );
               })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </>
   );

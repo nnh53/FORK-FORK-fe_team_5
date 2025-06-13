@@ -4,6 +4,7 @@ import { MyInfo } from "./MyInfoManagement";
 import { MyMembership } from "./MyMembershipManagement";
 import { MyPointManagement } from "./MyPointManagement";
 import { MyVoucherManagement } from "./MyVoucherManagement";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface Tab {
   id: string;
@@ -41,7 +42,22 @@ export const MyUserManagement: React.FC = () => {
         ))}
       </nav>
 
-      <div className="bg-white p-6 md:p-8 rounded-b-lg rounded-r-lg shadow-md w-full">{activeComponent}</div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          className="bg-white p-6 md:p-8 rounded-b-lg rounded-r-lg shadow-md w-full"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{
+            type: "tween",
+            ease: "easeInOut",
+            duration: 0.3,
+          }}
+        >
+          {activeComponent}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };
