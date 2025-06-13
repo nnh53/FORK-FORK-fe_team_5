@@ -7,8 +7,9 @@ import cors from "cors";
 import express from "express";
 import * as path from "path";
 import { blogsMockData } from "./blogs.mockapi";
+import { cinemaRoomsAPI, seatsAPI } from "./cinema-room.mockapi";
 import { healthMetricListMockData } from "./health-metric.mockapi";
-import { cinemaRoomsAPI, genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi";
+import { genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi";
 import { User } from "./myInfo.mockapi";
 import { myMembership } from "./myMembership";
 import { myMovieHistory } from "./myMovieHistory";
@@ -162,7 +163,7 @@ app.delete("/movies/:id", (req, res) => {
   }
 });
 
-// Add genres routes
+// Add genres
 app.get("/genres", (req, res) => {
   res.send(genresAPI.getAll());
 });
@@ -176,7 +177,7 @@ app.get("/genres/:id", (req, res) => {
   }
 });
 
-// Add cinema rooms routes
+// Add cinema rooms
 app.get("/cinema-rooms", (req, res) => {
   res.send(cinemaRoomsAPI.getAll());
 });
@@ -187,6 +188,44 @@ app.get("/cinema-rooms/:id", (req, res) => {
     res.send(room);
   } else {
     res.status(404).send({ error: "Cinema room not found" });
+  }
+});
+
+app.post("/cinema-rooms", (req, res) => {
+  const room = cinemaRoomsAPI.create(req.body);
+  res.status(201).send(room);
+});
+
+app.put("/cinema-rooms/:id", (req, res) => {
+  const room = cinemaRoomsAPI.update(req.params.id, req.body);
+  if (room) {
+    res.send(room);
+  } else {
+    res.status(404).send({ error: "Cinema room not found" });
+  }
+});
+
+app.delete("/cinema-rooms/:id", (req, res) => {
+  const room = cinemaRoomsAPI.delete(req.params.id);
+  if (room) {
+    res.send(room);
+  } else {
+    res.status(404).send({ error: "Cinema room not found" });
+  }
+});
+
+// Add seats routes
+app.get("/cinema-rooms/:roomId/seats", (req, res) => {
+  const seats = seatsAPI.getByRoomId(req.params.roomId);
+  res.send(seats);
+});
+
+app.put("/seats/:seatId", (req, res) => {
+  const seat = seatsAPI.updateSeat(req.params.seatId, req.body);
+  if (seat) {
+    res.send(seat);
+  } else {
+    res.status(404).send({ error: "Seat not found" });
   }
 });
 
