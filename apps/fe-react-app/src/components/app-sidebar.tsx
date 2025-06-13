@@ -1,37 +1,29 @@
-import * as React from "react"
 import {
+  IconBox,
   IconCamera,
+  IconChairDirector,
   IconChartBar,
+  IconClock,
   IconFileAi,
   IconFileDescription,
   IconHelp,
   IconInnerShadowTop,
   IconListDetails,
+  IconMovie,
   IconSearch,
   IconSettings,
-  IconUsers,
-  IconUserHeart,
-  IconTicket,
-  IconBox,
-  IconMovie,
-  IconChairDirector,
   IconSpeakerphone,
-  IconClock,
-} from "@tabler/icons-react"
+  IconTicket,
+  IconUserHeart,
+  IconUsers,
+} from "@tabler/icons-react";
+import * as React from "react";
 
-import { NavDocuments } from "@/components/nav-documents"
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar"
+import { NavDocuments } from "@/components/nav-documents";
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
 const data = {
   user: {
@@ -42,42 +34,42 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/admin/dashboard",
       icon: IconChartBar,
     },
     {
       title: "Booking",
-      url: "#",
+      url: "/admin/booking",
       icon: IconListDetails,
     },
     {
       title: "Movie",
-      url: "#",
+      url: "/admin/movie",
       icon: IconMovie,
     },
     {
       title: "Cinema Room",
-      url: "#",
+      url: "/admin/cinema-room",
       icon: IconBox,
     },
     {
       title: "Show Time",
-      url: "#",
+      url: "/admin/showtime",
       icon: IconClock,
     },
     {
       title: "Seat",
-      url: "#",
+      url: "/admin/seat",
       icon: IconChairDirector,
     },
     {
       title: "Ticket",
-      url: "#",
+      url: "/admin/ticket",
       icon: IconTicket,
     },
     {
       title: "Promotion",
-      url: "#",
+      url: "/admin/promotion",
       icon: IconSpeakerphone,
     },
   ],
@@ -149,12 +141,12 @@ const data = {
   documents: [
     {
       name: "Members",
-      url: "#",
+      url: "/admin/members",
       icon: IconUsers,
     },
     {
       name: "Staffs",
-      url: "#",
+      url: "/admin/staffs",
       icon: IconUserHeart,
     },
   ],
@@ -166,11 +158,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="#">
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+              <a href="/admin/dashboard">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">FCinema Inc.</span>
               </a>
@@ -187,5 +176,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

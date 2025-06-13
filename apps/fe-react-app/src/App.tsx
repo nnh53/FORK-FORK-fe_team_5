@@ -341,10 +341,32 @@ function App() {
             }
           />
           <Route
-            path="/admin/promotion"
+            path="/admin/dashboard"
             element={
               <PageTransition>
-                <AdminLayout children={<PromotionManagement />} />
+                <AdminLayout />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/booking"
+            element={
+              <PageTransition>
+                <AdminLayout
+                  children={
+                    <div className="p-6">
+                      <h1 className="text-2xl font-bold">Booking Management</h1>
+                    </div>
+                  }
+                />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/movie"
+            element={
+              <PageTransition>
+                <AdminLayout children={<MovieManagement />} />
               </PageTransition>
             }
           />
@@ -364,7 +386,74 @@ function App() {
               </PageTransition>
             }
           />
+          <Route
+            path="/admin/showtime"
+            element={
+              <PageTransition>
+                <AdminLayout
+                  children={
+                    <div className="p-6">
+                      <h1 className="text-2xl font-bold">Show Time Management</h1>
+                    </div>
+                  }
+                />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/seat"
+            element={
+              <PageTransition>
+                <AdminLayout
+                  children={
+                    <div className="p-6">
+                      <h1 className="text-2xl font-bold">Seat Management</h1>
+                    </div>
+                  }
+                />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/ticket"
+            element={
+              <PageTransition>
+                <AdminLayout
+                  children={
+                    <div className="p-6">
+                      <h1 className="text-2xl font-bold">Ticket Management</h1>
+                    </div>
+                  }
+                />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/promotion"
+            element={
+              <PageTransition>
+                <AdminLayout children={<PromotionManagement />} />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/members"
+            element={
+              <PageTransition>
+                <AdminLayout children={<MemberManagement />} />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/staffs"
+            element={
+              <PageTransition>
+                <AdminLayout children={<StaffManagement />} />
+              </PageTransition>
+            }
+          />
           <Route path="/myAccount" element={<UserLayout children={<MyUserManagement />} />} />
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
         {/* <ThemeSwitch /> */}
