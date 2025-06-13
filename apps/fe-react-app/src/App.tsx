@@ -24,6 +24,7 @@ import Welcome from "./feature/theme/Welcome";
 import { MyUserManagement } from "./feature/user-management/MyUserManagement";
 import AdminLayout from "./layouts/adminLayout/AdminLayout.tsx";
 import UserLayout from "./layouts/userLayout/UserLayout";
+import { Toaster } from "@/components/ui/sonner";
 
 const TITLE = "FCinema";
 
@@ -32,6 +33,7 @@ function App() {
     <AuthProvider>
       <div data-theme="caramellatte">
         <title>{TITLE}</title>
+        <Toaster />
         <Routes>
           <Route
             path="/test"
