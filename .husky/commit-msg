@@ -1,1 +1,2 @@
 pnpm dlx commitlint --edit $1
+pnpm exec nx run-many -t lint test build -p fe-react-app --parallel=2 --verbose
