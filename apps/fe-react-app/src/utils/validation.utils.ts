@@ -52,16 +52,16 @@ export const MyInfoSchema: Yup.ObjectSchema<MyInfoFormData> = Yup.object().shape
   img: Yup.string().nullable().url("Ảnh phải là một URL hợp lệ").default(null),
 });
 
-export function formatMovieSlot(isoString: string) {
+export function formatDateTime(isoString: string): string[] {
   // Return a placeholder if the input string is empty or null
   if (!isoString) {
-    return "N/A";
+    return [];
   }
 
   const date = new Date(isoString);
 
   if (isNaN(date.getTime())) {
-    return "Invalid Date";
+    return [];
   }
 
   const formattedDate = new Intl.DateTimeFormat("en-GB", {
@@ -76,5 +76,5 @@ export function formatMovieSlot(isoString: string) {
     hour12: false,
   }).format(date);
 
-  return `${formattedDate} - ${formattedTime}`;
+  return [formattedDate.toString(), formattedTime.toString()];
 }

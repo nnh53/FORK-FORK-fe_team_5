@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { MovieHistory } from "../../interfaces/movies.interface";
-import { formatMovieSlot } from "../../utils/validation.utils";
-import { CustomTable, type TableColumns } from "./components/Table";
+import { CustomTable, type TableColumns } from "../../utils/Table";
+import { formatDateTime } from "../../utils/validation.utils";
 
 export const MyMovieHistory: React.FC = () => {
   const tableColumns: TableColumns[] = [
@@ -49,7 +49,7 @@ export const MyMovieHistory: React.FC = () => {
         const data: MovieHistory[] = await response.json();
         const formattedData: MovieHistory[] = data.map((movie) => ({
           ...movie,
-          movieSlot: formatMovieSlot(movie.movieSlot),
+          movieSlot: formatDateTime(movie.movieSlot).toString(),
         }));
 
         setTableData(formattedData);

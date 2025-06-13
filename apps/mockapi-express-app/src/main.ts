@@ -13,6 +13,7 @@ import { User } from "./myInfo.mockapi";
 import { myMembership } from "./myMembership";
 import { myMovieHistory } from "./myMovieHistory";
 import { myPoint } from "./mypoint";
+import { promotions, promotionsAPI } from "./promotions.mockapi";
 import { loginMock } from "./users.mockapi";
 import { mockVoucherHistory, mockVouchers } from "./voucher.mockapi";
 
@@ -186,6 +187,44 @@ app.get("/cinema-rooms/:id", (req, res) => {
     res.send(room);
   } else {
     res.status(404).send({ error: "Cinema room not found" });
+  }
+});
+
+// PROMOTION
+
+app.get("/promotions", (req, res) => {
+  res.send(promotions);
+});
+
+app.get("/promotions/:id", (req, res) => {
+  const promotion = promotionsAPI.getById(req.params.id);
+  if (promotion) {
+    res.send(promotion);
+  } else {
+    res.status(404).send({ error: "promotion not found" });
+  }
+});
+
+app.post("/promotions", (req, res) => {
+  const promotion = promotionsAPI.create(req.body);
+  res.status(201).send(promotion);
+});
+
+app.put("/promotions/:id", (req, res) => {
+  const promotion = promotionsAPI.update(req.params.id, req.body);
+  if (promotion) {
+    res.send(promotion);
+  } else {
+    res.status(404).send({ error: "promotion not found" });
+  }
+});
+
+app.delete("/promotions/:id", (req, res) => {
+  const promotion = promotionsAPI.delete(req.params.id);
+  if (promotion) {
+    res.send(promotion);
+  } else {
+    res.status(404).send({ error: "promotion not found" });
   }
 });
 

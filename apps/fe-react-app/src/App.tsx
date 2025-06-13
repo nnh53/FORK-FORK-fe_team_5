@@ -18,6 +18,7 @@ import HomePage from "./feature/booking/home-page/HomePage.tsx";
 import MemberManagement from "./feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "./feature/manager/movie/MovieManagement";
 import StaffManagement from "./feature/manager/staff/StaffManagement.tsx";
+import { PromotionManagement } from "./feature/promotion-management/PromotionManagement.tsx";
 import Welcome from "./feature/theme/Welcome";
 import { MyUserManagement } from "./feature/user-management/MyUserManagement";
 import AdminLayout from "./layouts/adminLayout/AdminLayout.tsx";
@@ -333,6 +334,14 @@ function App() {
             element={
               <PageTransition>
                 <AdminLayout />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/promotion"
+            element={
+              <PageTransition>
+                <AdminLayout children={<PromotionManagement />} />
               </PageTransition>
             }
           />

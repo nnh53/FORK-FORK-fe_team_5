@@ -1,18 +1,18 @@
+import { formatDateTime } from "@/utils/validation.utils";
 import { useEffect, useState } from "react";
 import type { MyPoint, MyPointHistory } from "../../interfaces/users.interface";
-import { formatMovieSlot } from "../../utils/validation.utils";
-import { CustomTable, type TableColumns } from "./components/Table";
+import { CustomTable, type TableColumns } from "../../utils/Table";
 
 export const MyPointManagement: React.FC = () => {
   const tableColumns: TableColumns[] = [
     {
       header: "Thời gian",
-      accessorKey: "receiptId",
+      accessorKey: "date",
       width: "w-[15%]",
     },
     {
       header: "Số điểm",
-      accessorKey: "movieName",
+      accessorKey: "points",
       width: "w-[20%]",
     },
     {
@@ -34,7 +34,7 @@ export const MyPointManagement: React.FC = () => {
 
         const formattedData: MyPointHistory[] = data.pointHistory.map((record) => ({
           ...record,
-          date: formatMovieSlot(record.date),
+          date: formatDateTime(record.date).toString(),
         }));
         setPointSummary(data);
         setTableData(formattedData);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { MyVoucher, MyVoucherHistory } from "../../interfaces/voucher.interface";
-import { formatMovieSlot } from "../../utils/validation.utils";
-import { CustomTable, type TableColumns } from "./components/Table";
+import { CustomTable, type TableColumns } from "../../utils/Table";
+import { formatDateTime } from "../../utils/validation.utils";
 
 export const MyVoucherManagement: React.FC = () => {
   const voucherColumns: TableColumns[] = [
@@ -58,7 +58,7 @@ export const MyVoucherManagement: React.FC = () => {
         const data: MyVoucher[] = await response.json();
         const formattedData: MyVoucher[] = data.map((record) => ({
           ...record,
-          expiredDate: formatMovieSlot(record.expiredDate),
+          expiredDate: formatDateTime(record.expiredDate).toString(),
         }));
         setMyVoucherData(formattedData);
       } catch (err) {
@@ -79,7 +79,7 @@ export const MyVoucherManagement: React.FC = () => {
         const data: MyVoucherHistory[] = await response.json();
         const formattedData: MyVoucherHistory[] = data.map((record) => ({
           ...record,
-          date: formatMovieSlot(record.date),
+          date: formatDateTime(record.date).toString(),
         }));
         setMyVoucherHistory(formattedData);
       } catch (err) {
