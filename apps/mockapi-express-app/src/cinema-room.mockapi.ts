@@ -92,6 +92,36 @@ export const seatsMockData: Seat[] = [
         status: "AVAILABLE" as const,
       };
     }),
+  // Generate seats for room 3
+  ...Array(64)
+    .fill(null)
+    .map((_, index) => {
+      const row = String.fromCharCode(65 + Math.floor(index / 8));
+      const number = (index % 8) + 1;
+      return {
+        seat_id: `3-${row}${number}`,
+        room_id: "3",
+        row,
+        number,
+        type: row < "C" ? "PREMIUM" : row < "F" ? "VIP" : "STANDARD",
+        status: "AVAILABLE" as const,
+      };
+    }),
+  // Generate seats for room 4
+  ...Array(100)
+    .fill(null)
+    .map((_, index) => {
+      const row = String.fromCharCode(65 + Math.floor(index / 10));
+      const number = (index % 10) + 1;
+      return {
+        seat_id: `4-${row}${number}`,
+        room_id: "4",
+        row,
+        number,
+        type: "STANDARD",
+        status: "AVAILABLE" as const,
+      };
+    }),
 ];
 
 export const cinemaRoomsAPI = {

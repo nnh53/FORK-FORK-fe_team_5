@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { CinemaRoom, Seat } from "@/interfaces/cinemarooms.interface";
 import axios from "axios";
 import { ArrowLeft, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function CinemaRoomDetail() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -14,14 +16,16 @@ export default function CinemaRoomDetail() {
   const [seats, setSeats] = useState<Seat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSeatType, setSelectedSeatType] = useState<string | null>(null);
+  const [selectedSeatType, setSelectedSeatType] = useState<string>("STANDARD");
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [modified, setModified] = useState(false);
 
   //fetching
   useEffect(() => {
     const fetchRoomData = async () => {
       if (!roomId) return;
+
       try {
         setLoading(true);
 
@@ -43,11 +47,18 @@ export default function CinemaRoomDetail() {
     fetchRoomData();
   }, [roomId]);
 
+  //AC:06
   const handleGoBack = () => {
-    navigate(-1);
+    if (modified) {
+      if (confirm("You have unsaved changes. Are you sure you want to go back without saving?")) {
+        navigate("/admin/cinema-room");
+      }
+    } else {
+      navigate("/admin/cinema-room");
+    }
   };
 
-  const handleSeatClick = (seatId: string) => {
+  const handleSeatSelection = (seatId: string) => {
     setSelectedSeats((prev) => {
       if (prev.includes(seatId)) {
         return prev.filter((id) => id !== seatId);
@@ -55,10 +66,15 @@ export default function CinemaRoomDetail() {
         return [...prev, seatId];
       }
     });
+    setModified(true);
   };
 
   const handleSaveSeatTypes = async () => {
-    if (!selectedSeatType || selectedSeats.length === 0) return;
+    if (selectedSeats.length === 0) {
+      toast.error("Please select at least one seat to update");
+      return;
+    }
+
     try {
       setSaving(true);
       for (const seatId of selectedSeats) {
@@ -66,13 +82,16 @@ export default function CinemaRoomDetail() {
           type: selectedSeatType,
         });
       }
-      const response = await axios.get(`http://localhost:3000/cinema-rooms/${roomId}/seats`);
-      setSeats(response.data);
-      setSelectedSeats([]);
-      setSelectedSeatType(null);
+
+      // Show success message (AC-04)
+      toast.success("Seat types updated successfully");
+
+      // Return to Cinema Room Management screen (AC-04)
+      navigate("/admin/cinema-room");
     } catch (error) {
       console.error("Error updating seats:", error);
       setError("Failed to update seats. Please try again.");
+      toast.error("Failed to update seats. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -98,6 +117,7 @@ export default function CinemaRoomDetail() {
             <Button variant="outline" size="icon" onClick={handleGoBack}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
+            {/* show list */}
             <CardTitle>
               Cinema Room {room.room_number} - {room.type}
             </CardTitle>
@@ -120,8 +140,8 @@ export default function CinemaRoomDetail() {
         <CardContent>
           <div className="mb-6">
             <div className="flex items-center gap-4 mb-4">
-              <h3 className="text-lg font-medium">Edit Seat Types:</h3>
-              <Select value={selectedSeatType || ""} onValueChange={setSelectedSeatType}>
+              <h3 className="text-lg font-medium">Select Seat Type:</h3>
+              <Select value={selectedSeatType} onValueChange={setSelectedSeatType}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select seat type" />
                 </SelectTrigger>
@@ -131,7 +151,7 @@ export default function CinemaRoomDetail() {
                   <SelectItem value="PREMIUM">Premium</SelectItem>
                 </SelectContent>
               </Select>
-              <Button onClick={handleSaveSeatTypes} disabled={!selectedSeatType || selectedSeats.length === 0 || saving}>
+              <Button onClick={handleSaveSeatTypes} disabled={selectedSeats.length === 0 || saving}>
                 {saving ? (
                   "Saving..."
                 ) : (
@@ -147,6 +167,7 @@ export default function CinemaRoomDetail() {
               <div className="w-3/4 h-4 bg-gray-300 rounded-t-lg"></div>
             </div>
 
+            {/*show seat với checkbox */}
             <div className="grid grid-cols-10 gap-2 justify-center">
               {Array.from({ length: rows * columns }).map((_, index) => {
                 const row = String.fromCharCode(65 + Math.floor(index / columns));
@@ -156,26 +177,36 @@ export default function CinemaRoomDetail() {
                 const seat = seats.find((s) => s.seat_id === seatId);
                 const isSelected = selectedSeats.includes(seatId);
 
+                if (!seat)
+                  return (
+                    <div key={`empty-${index}`} className="p-2 text-center rounded bg-gray-200 text-gray-400">
+                      {row}
+                      {number}
+                    </div>
+                  );
+
                 return (
                   <div
                     key={seatId}
-                    className={`p-2 text-center rounded cursor-pointer transition-colors ${
-                      !seat
-                        ? "bg-gray-200 text-gray-400"
-                        : seat.status !== "AVAILABLE"
-                          ? "bg-gray-400 text-white"
-                          : isSelected
-                            ? "bg-blue-500 text-white"
-                            : seat.type === "VIP"
-                              ? "bg-purple-100 text-purple-800 hover:bg-purple-200"
-                              : seat.type === "PREMIUM"
-                                ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
-                                : "bg-green-100 text-green-800 hover:bg-green-200"
+                    className={`p-2 text-center rounded flex flex-col items-center ${
+                      seat.status !== "AVAILABLE"
+                        ? "bg-gray-400 text-white"
+                        : isSelected
+                          ? "bg-green-500 text-white"
+                          : seat.type === "VIP"
+                            ? "bg-purple-100 text-purple-800"
+                            : seat.type === "PREMIUM"
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-blue-100 text-blue-800"
                     }`}
-                    onClick={() => seat && seat.status === "AVAILABLE" && handleSeatClick(seatId)}
                   >
-                    {row}
-                    {number}
+                    <span>
+                      {row}
+                      {number}
+                    </span>
+                    {seat.status === "AVAILABLE" && (
+                      <Checkbox checked={isSelected} onCheckedChange={() => handleSeatSelection(seatId)} className="mt-1" />
+                    )}
                   </div>
                 );
               })}
@@ -183,7 +214,7 @@ export default function CinemaRoomDetail() {
 
             <div className="mt-6 flex flex-wrap gap-4 justify-center">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-100 rounded"></div>
+                <div className="w-4 h-4 bg-blue-100 rounded"></div>
                 <span className="text-sm">Standard</span>
               </div>
               <div className="flex items-center gap-2">
@@ -199,7 +230,7 @@ export default function CinemaRoomDetail() {
                 <span className="text-sm">Unavailable</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                <div className="w-4 h-4 bg-green-500 rounded"></div>
                 <span className="text-sm">Selected</span>
               </div>
             </div>

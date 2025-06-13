@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ArrowLeft, Plus } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +9,7 @@ import CinemaRoomList from "./CinemaRoomList";
 export default function CinemaRoomManagement() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
 
   const handleGoBack = () => {
     navigate(-1);
@@ -15,6 +17,16 @@ export default function CinemaRoomManagement() {
 
   const handleAddCinemaRoom = () => {
     navigate("/admin/cinema-room/add");
+  };
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   return (
@@ -34,15 +46,16 @@ export default function CinemaRoomManagement() {
         </CardHeader>
         <CardContent>
           <div className="mb-6 flex w-full max-w-md">
-            <input
+            <Input
               type="text"
               placeholder="Search cinema rooms..."
-              className="input input-bordered w-full"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyPress={handleKeyPress}
               maxLength={28}
+              className="mr-2"
             />
-            <Button className="ml-2">Search</Button>
+            <Button onClick={handleSearch}>Search</Button>
           </div>
           <CinemaRoomList searchQuery={searchQuery} />
         </CardContent>
