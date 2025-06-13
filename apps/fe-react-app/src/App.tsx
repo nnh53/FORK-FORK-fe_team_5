@@ -6,7 +6,6 @@ import InternalServerError from "./components/error/InternalServerError";
 import NotFoundError from "./components/error/NotFoundError";
 import Loading from "./components/shared/Loading";
 import PageTransition from "./components/shared/PageTransition";
-import ThemeSwitch from "./components/theme/ThemeSwitch.tsx";
 import Unauthorized from "./components/unauth/Unauthor";
 import { AuthProvider } from "./contexts/AuthContext";
 import ForgotPassword from "./feature/auth/ForgotPassword";
@@ -15,6 +14,8 @@ import Register from "./feature/auth/Register";
 import BookingPage from "./feature/booking/booking-page/BookingPage.tsx";
 import CheckoutPage from "./feature/booking/checkout-page/CheckoutPage.tsx";
 import HomePage from "./feature/booking/home-page/HomePage.tsx";
+import CinemaRoomDetail from "./feature/manager/cinema-room/CinemaRoomDetail.tsx";
+import CinemaRoomManagement from "./feature/manager/cinema-room/CinemaRoomManagement.tsx";
 import MemberManagement from "./feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "./feature/manager/movie/MovieManagement";
 import StaffManagement from "./feature/manager/staff/StaffManagement.tsx";
@@ -342,6 +343,22 @@ function App() {
             element={
               <PageTransition>
                 <AdminLayout children={<PromotionManagement />} />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/cinema-room"
+            element={
+              <PageTransition>
+                <AdminLayout children={<CinemaRoomManagement />} />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/cinema-room/:roomId"
+            element={
+              <PageTransition>
+                <AdminLayout children={<CinemaRoomDetail />} />
               </PageTransition>
             }
           />
