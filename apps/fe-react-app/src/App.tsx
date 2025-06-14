@@ -17,6 +17,7 @@ import CheckoutPage from "./feature/booking/checkout-page/CheckoutPage.tsx";
 import HomePage from "./feature/booking/home-page/HomePage.tsx";
 import CinemaRoomAdd from "./feature/manager/cinema-room/CinemaRoomAdd.tsx";
 import CinemaRoomDetail from "./feature/manager/cinema-room/CinemaRoomDetail.tsx";
+import CinemaRoomEdit from "./feature/manager/cinema-room/CinemaRoomEdit.tsx";
 import CinemaRoomManagement from "./feature/manager/cinema-room/CinemaRoomManagement.tsx";
 import MemberManagement from "./feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "./feature/manager/movie/MovieManagement";
@@ -392,6 +393,14 @@ function App() {
             element={
               <PageTransition>
                 <AdminLayout children={<CinemaRoomAdd />} />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin/cinema-room/edit/:id"
+            element={
+              <PageTransition>
+                <AdminLayout children={<CinemaRoomEdit />} />
               </PageTransition>
             }
           />
