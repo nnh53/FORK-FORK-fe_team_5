@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
-import axios from "axios";
 import { Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+
 interface CinemaRoomListProps {
   searchQuery: string;
 }
@@ -20,12 +21,17 @@ export default function CinemaRoomList({ searchQuery }: CinemaRoomListProps) {
     const fetchCinemaRooms = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:3000/cinema-rooms");
-        setCinemaRooms(response.data);
+        const response = await fetch("http://localhost:3000/cinema-rooms");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setCinemaRooms(data);
         setError(null);
       } catch (error) {
         console.error("Error fetching cinema rooms:", error);
         setError("Failed to load cinema rooms. Please try again later.");
+        toast.error("Failed to load cinema rooms");
       } finally {
         setLoading(false);
       }

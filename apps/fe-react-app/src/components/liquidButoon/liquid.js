@@ -1,4 +1,4 @@
-$(function () {
+v$(function () {
   // Vars
   var pointsA = [],
     pointsB = [],
