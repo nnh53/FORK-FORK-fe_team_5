@@ -10,7 +10,7 @@ export interface TableColumns {
 interface CustomTableProps<T extends object> {
   tableColumns: TableColumns[];
   tableData: T[];
-  action?: (entry: any) => void;
+  action?: (entry: number) => void;
 }
 export const CustomTable = <T extends object>({ tableColumns, tableData, action }: CustomTableProps<T>) => {
   return (
@@ -43,13 +43,9 @@ export const CustomTable = <T extends object>({ tableColumns, tableData, action 
                         onClick={
                           action && (data as any).id
                             ? () => {
-                                console.log((data as any).id);
-                                action(data);
+                                action((data as any).id);
                               }
-                            : () => {
-                                console.log((data as any).id);
-                                console.log("click");
-                              }
+                            : undefined
                         }
                         className="font-medium text-base-content border border-base-300 whitespace-pre-wrap break-words"
                       >

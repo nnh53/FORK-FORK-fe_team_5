@@ -55,7 +55,6 @@ export const MyInfo: React.FC = () => {
   if (errors) {
     return <h1 className="text-red-500">Có lỗi xảy ra</h1>;
   }
-  // console.log('normalize', normalizeUserData(formData));
   return (
     <>
       <Formik

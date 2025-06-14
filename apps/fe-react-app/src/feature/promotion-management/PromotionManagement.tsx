@@ -2,39 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Promotion } from "@/interfaces/promotion.interface.";
 import { CustomTable, type TableColumns } from "@/utils/Table";
-import { formatDateTime } from "@/utils/validation.utils";
+import { formatDateTime, promotionValidationSchema } from "@/utils/validation.utils";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import type React from "react";
-import { useEffect, useState } from "react";
-import * as Yup from "yup";
+import { useEffect, useRef, useState } from "react";
 
-const promotionValidationSchema = Yup.object({
-  image: Yup.string().url("Must be a valid URL").required("Image URL is required"),
-  title: Yup.string().min(3, "Title must be at least 3 characters").max(100, "Title must be less than 100 characters").required("Title is required"),
-  type: Yup.string().oneOf(["percentage", "fixed", "buy_one_get_one", "free_shipping"], "Invalid promotion type").required("Type is required"),
-  minPurchase: Yup.number().min(0, "Minimum purchase must be at least 0").required("Minimum purchase is required"),
-  discountValue: Yup.number()
-    .min(0, "Discount value must be at least 0")
-    .when("type", {
-      is: "percentage",
-      then: (schema) => schema.max(100, "Percentage discount cannot exceed 100%"),
-      otherwise: (schema) => schema,
-    })
-    .required("Discount value is required"),
-  startTime: Yup.string().required("Start time is required"),
-  endTime: Yup.string()
-    .required("End time is required")
-    .test("end-after-start", "End time must be after start time", function (value) {
-      const { startTime } = this.parent;
-      if (!startTime || !value) return true;
-      return new Date(value) > new Date(startTime);
-    }),
-  description: Yup.string()
-    .min(10, "Description must be at least 10 characters")
-    .max(500, "Description must be less than 500 characters")
-    .required("Description is required"),
-  status: Yup.string().oneOf(["active", "inactive", "scheduled", "expired"], "Invalid status").required("Status is required"),
-});
 const initialValues: Omit<Promotion, "id"> = {
   image: "",
   title: "",
@@ -46,14 +18,13 @@ const initialValues: Omit<Promotion, "id"> = {
   description: "",
   status: "inactive",
 };
-interface PromotionFormProps {
-  onSubmit: (values: Omit<Promotion, "id">) => void;
-  initialData?: Partial<Promotion>;
-}
+
 export const PromotionManagement: React.FC = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion>();
   const [open, setOpen] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const promotionColumn: TableColumns[] = [
     {
       header: "#",
@@ -96,44 +67,72 @@ export const PromotionManagement: React.FC = () => {
       accessorKey: "endTime",
     },
   ];
+  const getPromotions = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/promotions");
+      if (res.ok) {
+        const promotionData: Promotion[] = await res.json();
+        setPromotions(promotionData);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
-    const getPromotions = async () => {
-      try {
-        const res = await fetch("http://localhost:3000/promotions");
-        if (res.ok) {
-          const promotionData: Promotion[] = await res.json();
-          const formattedData: Promotion[] = promotionData.map((pro) => ({
-            ...pro,
-            startTime: formatDateTime(pro.startTime).join(" "),
-            endTime: formatDateTime(pro.endTime).join(" "),
-          }));
-          setPromotions(formattedData);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
     getPromotions();
   }, []);
 
-  const handleOpenDialog = (pro: Promotion) => {
-    setSelectedPromotion(pro);
-    if (pro) setOpen(true);
+  const handleOpenDialog = (id: number) => {
+    const promotion: Promotion | undefined = promotions.find((pro) => pro.id == id);
+    console.log("promo", promotion);
+    if (promotion != undefined) {
+      setSelectedPromotion(promotion);
+      setOpen(true);
+    }
   };
-  const formInitialValues = selectedPromotion ? { ...initialValues, ...selectedPromotion } : initialValues;
 
-  console.log("data", selectedPromotion);
+  const toFormattedTableData = (pros: Promotion[]) => {
+    return pros.map((pro) => ({
+      ...pro,
+      startTime: formatDateTime(pro.startTime).join(" "),
+      endTime: formatDateTime(pro.endTime).join(" "),
+    }));
+  };
+
+  const toFormattedFormData = (pro: Promotion) => {
+    return {
+      ...pro,
+      startTime: new Date(pro.startTime).toISOString().slice(0, 16),
+      endTime: new Date(pro.endTime).toISOString().slice(0, 16),
+    };
+  };
+  const formInitialValues = selectedPromotion ? toFormattedFormData(selectedPromotion) : initialValues;
+  const formattedTableData = toFormattedTableData(promotions);
+
+  const onOpen = () => {
+    setSelectedPromotion(undefined);
+    if (open) setImagePreview(null);
+    setOpen(!open);
+  };
   return (
     <>
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">{selectedPromotion ? "Edit Promotion" : "Create New Promotion"}</h2>
-      <CustomTable tableColumns={promotionColumn} tableData={promotions} action={handleOpenDialog}></CustomTable>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2x1 bg-red-500 !container-7xl">
+      <div className="flex gap-4 mt-3">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">{selectedPromotion ? "Cập nhật khuyến mãi" : "Tạo khuyến mãi mới"}</h2>
+        <Button onClick={onOpen}>+</Button>
+      </div>
+      <CustomTable tableColumns={promotionColumn} tableData={formattedTableData} action={handleOpenDialog}></CustomTable>
+      <Dialog open={open} onOpenChange={onOpen}>
+        <DialogContent
+          className="max-h-[90vh] overflow-y-auto sm:max-w-2x1  min-w-[50%]"
+          onCloseAutoFocus={() => {
+            setSelectedPromotion(undefined);
+          }}
+        >
           <DialogHeader>
             <DialogTitle>Promo Details</DialogTitle>
           </DialogHeader>
-          {selectedPromotion && (
+          {formInitialValues && (
             <Formik
               initialValues={formInitialValues}
               validationSchema={promotionValidationSchema}
@@ -142,33 +141,57 @@ export const PromotionManagement: React.FC = () => {
                 setSubmitting(false);
               }}
             >
-              {({ isSubmitting, values }) => (
+              {({ setFieldValue, isSubmitting, values }) => (
                 <Form className="space-y-6 ">
                   {/* Image URL */}
                   <div>
                     <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
-                      Image URL
+                      Image
                     </label>
-                    <Field
-                      type="url"
-                      id="image"
-                      name="image"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="https://example.com/image.jpg"
-                    />
+                    <div className="flex flex-wrap gap-3">
+                      {imagePreview ? (
+                        <img src={imagePreview} className="w-40 h-40" />
+                      ) : (
+                        formInitialValues.image && <img src={formInitialValues.image} className="w-100" />
+                      )}
+                      <input
+                        ref={fileInputRef}
+                        id="image"
+                        type="file"
+                        className="input input-bordered w-full pr-2 border-gray-300 rounded-md mt-3"
+                        placeholder=""
+                        hidden
+                        onChange={(event) => {
+                          const file = event.currentTarget.files?.[0];
+                          if (file) {
+                            setFieldValue("image", file);
+                            const reader = new FileReader();
+                            reader.onloadend = () => setImagePreview(reader.result as string);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        type="button"
+                        className="btn bg-[#44b6ae] hover:bg-[#50918c] text-black border-gray-300 font-semibold text-white"
+                      >
+                        TẢI ẢNH LÊN
+                      </button>
+                    </div>
                     <ErrorMessage name="image" component="div" className="text-red-500 text-sm mt-1" />
                   </div>
 
                   {/* Title */}
                   <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                      Title
+                      Tiêu đề
                     </label>
                     <Field
                       type="text"
                       id="title"
                       name="title"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
                       placeholder="Enter promotion title"
                     />
                     <ErrorMessage name="title" component="div" className="text-red-500 text-sm mt-1" />
@@ -177,19 +200,18 @@ export const PromotionManagement: React.FC = () => {
                   {/* Type */}
                   <div>
                     <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
-                      Promotion Type
+                      Loại khuyến mãi
                     </label>
                     <Field
                       as="select"
                       id="type"
                       name="type"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
                     >
-                      <option value="">Select promotion type</option>
-                      <option value="percentage">Percentage Discount</option>
-                      <option value="fixed">Fixed Amount Discount</option>
-                      <option value="buy_one_get_one">Buy One Get One</option>
-                      <option value="free_shipping">Free Shipping</option>
+                      <option value="">Chọn loại khuyến mãi</option>
+                      <option value="percentage">Giảm giá phần trăm</option>
+                      <option value="fixed">Giảm giá khoảng cụ thể</option>
+                      <option value="buy_one_get_one">Mua 1 tặng 1</option>
                     </Field>
                     <ErrorMessage name="type" component="div" className="text-red-500 text-sm mt-1" />
                   </div>
@@ -198,7 +220,7 @@ export const PromotionManagement: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="minPurchase" className="block text-sm font-medium text-gray-700 mb-2">
-                        Minimum Purchase ($)
+                        Đơn tối thiểu
                       </label>
                       <Field
                         type="number"
@@ -206,14 +228,14 @@ export const PromotionManagement: React.FC = () => {
                         name="minPurchase"
                         min="0"
                         step="0.01"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
                       />
                       <ErrorMessage name="minPurchase" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
 
                     <div>
                       <label htmlFor="discountValue" className="block text-sm font-medium text-gray-700 mb-2">
-                        Discount Value {values.type === "percentage" ? "(%)" : "($)"}
+                        Giá trị giảm giá {values.type === "percentage" ? "(%)" : "($)"}
                       </label>
                       <Field
                         type="number"
@@ -222,7 +244,7 @@ export const PromotionManagement: React.FC = () => {
                         min="0"
                         step={values.type === "percentage" ? "1" : "0.01"}
                         max={values.type === "percentage" ? "100" : undefined}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
                       />
                       <ErrorMessage name="discountValue" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
@@ -232,26 +254,26 @@ export const PromotionManagement: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-2">
-                        Start Time
+                        Thời gian bắt đầu
                       </label>
                       <Field
-                        type="datetime-local"
+                        type="dateTime-local"
                         id="startTime"
                         name="startTime"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
                       />
                       <ErrorMessage name="startTime" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
 
                     <div>
                       <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 mb-2">
-                        End Time
+                        Thời gian kết thúc
                       </label>
                       <Field
                         type="datetime-local"
                         id="endTime"
                         name="endTime"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
                       />
                       <ErrorMessage name="endTime" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
@@ -260,14 +282,14 @@ export const PromotionManagement: React.FC = () => {
                   {/* Description */}
                   <div>
                     <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                      Description
+                      Mô tả
                     </label>
                     <Field
                       as="textarea"
                       id="description"
                       name="description"
                       rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
                       placeholder="Enter promotion description"
                     />
                     <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1" />
@@ -276,13 +298,13 @@ export const PromotionManagement: React.FC = () => {
                   {/* Status */}
                   <div>
                     <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-                      Status
+                      Trạng thái
                     </label>
                     <Field
                       as="select"
                       id="status"
                       name="status"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
                     >
                       <option value="inactive">Inactive</option>
                       <option value="active">Active</option>
@@ -293,21 +315,37 @@ export const PromotionManagement: React.FC = () => {
                   </div>
 
                   {/* Submit Button */}
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-4">
                     <Button
                       type="submit"
                       disabled={isSubmitting}
                       className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isSubmitting ? "Saving..." : selectedPromotion ? "Update Promotion" : "Create Promotion"}
+                      {isSubmitting ? "Đang lưu..." : selectedPromotion ? "Cập nhật khuyến mãi" : "Tạo khuyến mãi"}
                     </Button>
+                    {selectedPromotion && (
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="px-6 py-3 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Xóa
+                      </Button>
+                    )}
                   </div>
                 </Form>
               )}
             </Formik>
           )}
           <DialogFooter className="mt-4">
-            <Button onClick={() => setOpen(false)}>Close</Button>
+            <Button
+              onClick={() => {
+                setSelectedPromotion(undefined);
+                setOpen(false);
+              }}
+            >
+              Đóng
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
