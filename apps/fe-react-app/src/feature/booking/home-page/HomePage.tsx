@@ -7,7 +7,7 @@ import ShowtimesModal from "../components/ShowtimesModal/ShowtimesModal.tsx";
 import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmModal.tsx";
 
 import nowShowing from "@/assets/nowShowingText.png";
-import pTagImage from "@/assets/ptag.png";
+import pTagImage from "@/assets/pTag.png";
 import upcoming from "@/assets/upComingText.png";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import { useNavigate } from "react-router-dom";

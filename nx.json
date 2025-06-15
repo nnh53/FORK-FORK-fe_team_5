@@ -30,15 +30,7 @@
       "cache": true
     },
     "build": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "outputs": [
-        "{workspaceRoot}/apps/**/dist",
-        "{workspaceRoot}/apps/**/build",
-        "{projectRoot}/dist",
-        "{projectRoot}/build",
-        "{projectRoot}/public/build"
-      ]
+      "cache": true
     }
   },
   "s3": {
