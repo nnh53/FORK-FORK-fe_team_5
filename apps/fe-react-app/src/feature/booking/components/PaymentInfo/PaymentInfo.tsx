@@ -1,4 +1,5 @@
 import React from "react";
+// ++ XÓA BỎ: import { useLocation } from "react-router-dom";
 import type { SeatType } from "../../booking-page/BookingPage.tsx";
 
 interface PaymentInfoProps {
@@ -10,7 +11,7 @@ interface PaymentInfoProps {
   selectedSeats: SeatType[];
 }
 
-const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats }) => {
+const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats = [] }) => {
   const groupedSeats = selectedSeats.reduce(
     (acc, seat) => {
       const key = seat.type;
@@ -31,10 +32,8 @@ const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats }) => {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-bold border-l-4 border-red-600 pl-3">THÔNG TIN THANH TOÁN</h3>
-
-      {/* Thông tin cá nhân */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+      <h3 className="border-l-4 border-red-600 pl-3 text-lg font-bold">THÔNG TIN THANH TOÁN</h3>
+      <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
         <div>
           <span className="font-semibold">Họ tên:</span> {user.name}
         </div>
@@ -45,11 +44,9 @@ const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats }) => {
           <span className="font-semibold">Email:</span> {user.email}
         </div>
       </div>
-
-      {/* Chi tiết ghế */}
       <div className="space-y-2 text-sm">
         {Object.entries(groupedSeats).map(([type, seats]) => (
-          <div key={type} className="flex justify-between items-center border-t pt-2">
+          <div key={type} className="flex items-center justify-between border-t pt-2">
             <div>
               <p className="font-semibold capitalize">{`Ghế ${type === "standard" ? "thường" : type}`}</p>
               <p className="text-xs text-gray-500">{seats.join(", ")}</p>

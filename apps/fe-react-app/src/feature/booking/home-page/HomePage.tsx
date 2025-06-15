@@ -206,8 +206,8 @@ function HomePage() {
   ];
 
   const [isShowtimesModalOpen, setIsShowtimesModalOpen] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<MovieCardProps | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<MovieCardProps | null>(null);
   const [finalSelection, setFinalSelection] = useState<FinalSelection | null>(null);
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [selectedTrailerUrl, setSelectedTrailerUrl] = useState("");

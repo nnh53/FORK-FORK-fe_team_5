@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import UserLayout from "../../../layouts/userLayout/UserLayout";
 import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
@@ -10,10 +10,19 @@ import PaymentSummary from "../components/PaymentSummary/PaymentSummary.tsx";
 
 const CheckoutPage: React.FC = () => {
   const location = useLocation();
-  const { movie, selection, cinemaName, selectedSeats, totalCost: ticketCost } = location.state || {};
+  //const { movie, selection, cinemaName, selectedSeats, totalCost: ticketCost } = location.state || {};
+  //const bookingState = location.state || JSON.parse(sessionStorage.getItem("bookingState") || "{}");
+  useEffect(() => {
+    if (location.state) {
+      localStorage.setItem("bookingState", JSON.stringify(location.state));
+    }
+  }, [location.state]);
 
-  // State quản lý số lượng combo đã chọn
+  const bookingState = JSON.parse(localStorage.getItem("bookingState") || "{}");
+
   const [selectedCombos, setSelectedCombos] = useState<Record<string, number>>({});
+  const { movie, selection, cinemaName, selectedSeats, totalCost: ticketCost } = bookingState;
+  // State quản lý số lượng combo đã chọn
 
   const handleQuantityChange = (comboId: string, quantity: number) => {
     setSelectedCombos((prev) => {
@@ -38,7 +47,7 @@ const CheckoutPage: React.FC = () => {
     alert("thành công");
   };
 
-  if (!location.state) {
+  if (!movie) {
     // Xử lý khi không có dữ liệu
     return (
       <UserLayout>

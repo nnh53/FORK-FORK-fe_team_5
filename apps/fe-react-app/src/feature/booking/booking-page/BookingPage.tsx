@@ -22,42 +22,10 @@ interface SeatMapData {
 const SeatSelectionPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { movie, selection, cinemaName } = location.state || {};
+  const initialBookingState = location.state || JSON.parse(localStorage.getItem("bookingState") || "{}");
+  const { movie, selection, cinemaName } = initialBookingState;
+  const [selectedSeats, setSelectedSeats] = useState<SeatType[]>(initialBookingState.selectedSeats || []);
 
-  const [selectedSeats, setSelectedSeats] = useState<SeatType[]>([]);
-
-  // ++ SỬA LỖI: KHAI BÁO KIỂU DỮ LIỆU TƯỜNG MINH CHO MOCK DATA
-  // const mockSeatMap: { [key: string]: SeatMapData } = {
-  //   P1: {
-  //     rows: ['J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'],
-  //     seats: [
-  //       { id: 'J1', row: 'J', number: 1, type: 'standard', status: 'available' },
-  //       { id: 'J2', row: 'J', number: 2, type: 'standard', status: 'available' },
-  //       { id: 'J3', row: 'J', number: 3, type: 'standard', status: 'taken' },
-  //       { id: 'J4', row: 'J', number: 4, type: 'standard', status: 'available' },
-  //       { id: 'J5', row: 'J', number: 5, type: 'standard', status: 'available' },
-  //       { id: 'J6', row: 'J', number: 6, type: 'standard', status: 'available' },
-  //       { id: 'J7', row: 'J', number: 7, type: 'vip', status: 'available' },
-  //       { id: 'J8', row: 'J', number: 8, type: 'vip', status: 'available' },
-  //       { id: 'J9', row: 'J', number: 9, type: 'vip', status: 'taken' },
-  //       { id: 'J10', row: 'J', number: 10, type: 'vip', status: 'available' },
-  //       { id: 'J11', row: 'J', number: 11, type: 'standard', status: 'available' },
-  //       { id: 'J12', row: 'J', number: 12, type: 'standard', status: 'available' },
-  //       { id: 'J13', row: 'J', number: 13, type: 'standard', status: 'taken' },
-  //       { id: 'J14', row: 'J', number: 14, type: 'standard', status: 'available' },
-  //       { id: 'J15', row: 'J', number: 15, type: 'standard', status: 'available' },
-  //       { id: 'J16', row: 'J', number: 16, type: 'standard', status: 'available' },
-  //       { id: 'J17', row: 'J', number: 17, type: 'standard', status: 'available' },
-  //       { id: 'J18', row: 'J', number: 18, type: 'standard', status: 'available' },
-  //       { id: 'A1', row: 'A', number: 1, type: 'double', status: 'available' },
-  //       { id: 'A2', row: 'A', number: 2, type: 'double', status: 'available' },
-  //       { id: 'A3', row: 'A', number: 3, type: 'double', status: 'taken' },
-  //       { id: 'A4', row: 'A', number: 4, type: 'double', status: 'available' },
-  //       { id: 'A5', row: 'A', number: 5, type: 'double', status: 'available' },
-  //       { id: 'A6', row: 'A', number: 6, type: 'double', status: 'available' },
-  //     ],
-  //   },
-  // };
   const createSeatsForRow = (row: string, count: number, type: SeatType["type"], taken: number[] = []): SeatType[] => {
     const seats: SeatType[] = [];
     for (let i = 1; i <= count; i++) {
@@ -92,7 +60,7 @@ const SeatSelectionPage: React.FC = () => {
 
   const seatMapData = mockSeatMap.P1;
 
-  if (!location.state) {
+  if (!movie) {
     return (
       <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
         <div className="text-center py-20">
@@ -117,15 +85,14 @@ const SeatSelectionPage: React.FC = () => {
   };
 
   const handleContinue = () => {
-    navigate("/checkout", {
-      state: {
-        movie,
-        selection,
-        cinemaName,
-        selectedSeats,
-        totalCost,
-      },
-    });
+    const updatedBookingState = {
+      ...initialBookingState, // Giữ lại thông tin cũ
+      selectedSeats,
+      totalCost,
+    };
+    localStorage.setItem("bookingState", JSON.stringify(updatedBookingState));
+
+    navigate("/checkout", { state: updatedBookingState });
   };
 
   const totalCost = selectedSeats.reduce((total, seat) => {
