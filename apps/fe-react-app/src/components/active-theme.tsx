@@ -24,16 +24,40 @@ export function ActiveThemeProvider({ children, initialTheme }: { children: Reac
   useEffect(() => {
     setThemeCookie(activeTheme);
 
+    // Remove old theme classes
     Array.from(document.body.classList)
       .filter((className) => className.startsWith("theme-"))
       .forEach((className) => {
         document.body.classList.remove(className);
       });
+
+    // Add new theme class to body
     document.body.classList.add(`theme-${activeTheme}`);
     if (activeTheme.endsWith("-scaled")) {
       document.body.classList.add("theme-scaled");
     }
+
+    // Set DaisyUI theme
+    const daisyTheme = mapToDaisyTheme(activeTheme);
+    document.documentElement.setAttribute("data-theme", daisyTheme);
   }, [activeTheme]);
+
+  // Map internal theme names to DaisyUI theme names
+  function mapToDaisyTheme(theme: string): string {
+    switch (theme) {
+      case "default":
+        return "caramellatte";
+      case "valentine":
+        return "valentine";
+      case "retro":
+        return "retro";
+      case "lemonade":
+        return "lemonade";
+      // Add mappings for other themes as needed
+      default:
+        return "caramellatte";
+    }
+  }
 
   return <ThemeContext.Provider value={{ activeTheme, setActiveTheme }}>{children}</ThemeContext.Provider>;
 }

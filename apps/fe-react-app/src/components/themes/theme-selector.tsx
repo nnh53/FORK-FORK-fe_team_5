@@ -1,25 +1,25 @@
 "use client";
 
+import { useThemeConfig } from "@/components/active-theme";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useThemeConfig } from "@/components/active-theme";
 
 const DEFAULT_THEMES = [
   {
-    name: "Default",
+    name: "Caramel (default)",
     value: "default",
   },
   {
-    name: "Blue",
-    value: "blue",
+    name: "Valentine",
+    value: "valentine",
   },
   {
-    name: "Green",
-    value: "green",
+    name: "Retro",
+    value: "retro",
   },
   {
-    name: "Amber",
-    value: "amber",
+    name: "Lemonade",
+    value: "lemonade",
   },
 ];
 
