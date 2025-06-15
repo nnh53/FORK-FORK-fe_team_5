@@ -1,20 +1,11 @@
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import $ from "jquery";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, Draggable);
-
-// Declare types for jQuery
-declare global {
-  interface Window {
-    $: typeof $;
-    jQuery: typeof $;
-  }
-}
 
 const IntroViaLogin: React.FC = () => {
   const navigate = useNavigate();

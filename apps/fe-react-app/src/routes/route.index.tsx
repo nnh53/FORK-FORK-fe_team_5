@@ -60,7 +60,7 @@ export const AppRoutes = () => (
     <Route path={ROUTES.ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
 
     {/* Admin Routes */}
-    <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
+    <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.PROMOTION} replace />} />
     <Route path={ROUTES.ADMIN.ROOT + "/*"} element={<AdminLayout />} />
 
     {/* Legacy Management Routes (should eventually be moved to admin) */}
