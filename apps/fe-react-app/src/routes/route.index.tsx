@@ -42,10 +42,10 @@ export const AppRoutes = () => (
     </Route>
 
     {/* Legacy auth routes for backward compatibility */}
-    <Route path={ROUTES.AUTH.LOGIN} element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
-    <Route path={ROUTES.AUTH.REGISTER} element={<Navigate to={ROUTES.AUTH.REGISTER} replace />} />
-    <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<Navigate to={ROUTES.AUTH.FORGOT_PASSWORD} replace />} />
-    <Route path={ROUTES.AUTH.LOG_VIA_REG} element={<Navigate to={ROUTES.AUTH.LOG_VIA_REG} replace />} />
+    <Route path={ROUTES.LEGACY_AUTH.LOGIN} element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
+    <Route path={ROUTES.LEGACY_AUTH.REGISTER} element={<Navigate to={ROUTES.AUTH.REGISTER} replace />} />
+    <Route path={ROUTES.LEGACY_AUTH.FORGOT_PASSWORD} element={<Navigate to={ROUTES.AUTH.FORGOT_PASSWORD} replace />} />
+    <Route path={ROUTES.LEGACY_AUTH.LOG_VIA_REG} element={<Navigate to={ROUTES.AUTH.LOG_VIA_REG} replace />} />
 
     {/* User Account Routes with layout */}
     <Route
@@ -57,16 +57,16 @@ export const AppRoutes = () => (
       }
     />
     {/* Legacy route for backward compatibility */}
-    <Route path={ROUTES.ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
+    <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
 
     {/* Admin Routes */}
     <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.PROMOTION} replace />} />
     <Route path={ROUTES.ADMIN.ROOT + "/*"} element={<AdminLayout />} />
 
     {/* Legacy Management Routes (should eventually be moved to admin) */}
-    <Route path={ROUTES.ADMIN.MOVIE} element={<MovieManagement />} />
-    <Route path={ROUTES.ADMIN.MEMBERS} element={<MemberManagement />} />
-    <Route path={ROUTES.ADMIN.STAFFS} element={<StaffManagement />} />
+    <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
+    <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
+    <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} />
 
     {/* Utility Routes */}
     <Route path={ROUTES.WELCOME} element={<Welcome />} />

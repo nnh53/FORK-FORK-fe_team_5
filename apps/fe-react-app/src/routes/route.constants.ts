@@ -17,9 +17,18 @@ export const ROUTES = {
     FORGOT_PASSWORD: "/auth/forgot-password",
     LOG_VIA_REG: "/auth/logviareg",
   },
+  // Legacy Auth Routes (for redirects)
+  LEGACY_AUTH: {
+    LOGIN: "/login",
+    REGISTER: "/register",
+    FORGOT_PASSWORD: "/forgot-password",
+    LOG_VIA_REG: "/logviareg",
+  },
 
   // User Account Routes
   ACCOUNT: "/account",
+  // Legacy Account Routes (for redirects)
+  LEGACY_ACCOUNT: "/myAccount",
 
   // Admin Routes
   ADMIN: {
@@ -40,7 +49,6 @@ export const ROUTES = {
     HELP: "/admin/help",
     SEARCH: "/admin/search",
   },
-
   // Legacy Management Routes (to be deprecated)
   LEGACY: {
     MOVIE_MANAGEMENT: "/movie-management",
@@ -55,16 +63,6 @@ export const ROUTES = {
   ERROR: "/error",
   INTERNAL_SERVER_ERROR: "/internal-server-error",
   TEST: "/test",
-
-  // Legacy Routes (for redirects)
-  LEGACY_AUTH: {
-    LOGIN: "/login",
-    REGISTER: "/register",
-    FORGOT_PASSWORD: "/forgot-password",
-    LOG_VIA_REG: "/logviareg",
-  },
-
-  LEGACY_ACCOUNT: "/myAccount",
 } as const;
 
 // Helper functions for dynamic routes
