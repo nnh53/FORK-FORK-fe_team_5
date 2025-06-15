@@ -15,6 +15,7 @@ shutdown_timeout = 0
   token_obtained_at = 2025-06-13T13:11:37Z
   token_expires_at = 0001-01-01T00:00:00Z
   executor = "docker"
+  cache_dir = "/cache"
   [runners.cache]
     MaxUploadedArchiveSize = 0
     [runners.cache.s3]
@@ -25,6 +26,7 @@ shutdown_timeout = 0
     image = "node:20"
     privileged = true
     disable_cache = false
+    cache_dir = ""
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache", "/certs/client"]
