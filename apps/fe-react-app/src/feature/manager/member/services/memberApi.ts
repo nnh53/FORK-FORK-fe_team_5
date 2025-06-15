@@ -14,7 +14,7 @@ export const createMember = async (memberData: MemberFormData): Promise<Member> 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(memberData),
   });
-  if (!response.ok) throw new Error("Lỗi khi tạo thành viên");
+  if (!response.ok) throw new Error("Lỗi khi Thêm thành viên");
   return response.json();
 };
 

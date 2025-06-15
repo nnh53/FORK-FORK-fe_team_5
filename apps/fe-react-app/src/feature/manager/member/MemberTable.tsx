@@ -1,14 +1,16 @@
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Member } from "@/interfaces/member.interface";
 import { MemberStatus } from "@/interfaces/member.interface";
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
+import { Edit, Trash } from "lucide-react";
 
 interface MemberTableProps {
   members: Member[];
   onEdit: (member: Member) => void;
-  onDelete: (id: string) => void;
+  onDelete: (member: Member) => void;
 }
 
-const getStatusDisplay = (status: MemberStatus | string) => {
+const getStatusDisplay = (status: MemberStatus) => {
   switch (status) {
     case MemberStatus.VERIFY:
       return { label: "Đã xác minh", className: "bg-green-100 text-green-800" };
@@ -23,56 +25,57 @@ const getStatusDisplay = (status: MemberStatus | string) => {
 
 const MemberTable = ({ members, onEdit, onDelete }: MemberTableProps) => {
   return (
-    <div className="overflow-x-auto rounded-lg shadow-lg">
-      <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-        <thead className="bg-red-50">
-          <tr>
-            <th className="p-4 text-left text-sm font-semibold text-gray-800 uppercase tracking-wider">Tên</th>
-            <th className="p-4 text-left text-sm font-semibold text-gray-800 uppercase tracking-wider">Email</th>
-            <th className="p-4 text-left text-sm font-semibold text-gray-800 uppercase tracking-wider">Ngày sinh</th>
-            <th className="p-4 text-left text-sm font-semibold text-gray-800 uppercase tracking-wider">Số điện thoại</th>
-            <th className="p-4 text-left text-sm font-semibold text-gray-800 uppercase tracking-wider">Địa chỉ</th>
-            <th className="p-4 text-left text-sm font-semibold text-gray-800 uppercase tracking-wider">Trạng thái</th>
-            <th className="p-4 text-center text-sm font-semibold text-gray-800 uppercase tracking-wider">Hành động</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {members.length > 0 ? (
-            members.map((member, index) => {
-              const { label, className } = getStatusDisplay(member.status);
-              return (
-                <tr
-                  key={member.member_id}
-                  className={`transition-colors duration-200 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-red-100`}
-                >
-                  <td className="p-4 text-sm text-gray-900">{member.name}</td>
-                  <td className="p-4 text-sm text-gray-900">{member.email}</td>
-                  <td className="p-4 text-sm text-gray-900">{member.date_of_birth || "Chưa cập nhật"}</td>
-                  <td className="p-4 text-sm text-gray-900">{member.phone || "Chưa cập nhật"}</td>
-                  <td className="p-4 text-sm text-gray-900">{member.address || "Chưa cập nhật"}</td>
-                  <td className="p-4 text-sm">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>
-                  </td>
-                  <td className="p-4 text-center">
-                    <button onClick={() => onEdit(member)} className="text-blue-600 hover:text-blue-800 mr-4 transition-colors" title="Chỉnh sửa">
-                      <EditIcon />
-                    </button>
-                    <button onClick={() => onDelete(member.member_id)} className="text-red-500 hover:text-red-600 transition-colors" title="Xóa">
-                      <DeleteIcon />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })
-          ) : (
-            <tr>
-              <td colSpan={7} className="p-6 text-center text-gray-500 text-sm">
-                Không tìm thấy thành viên
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+    <div className="w-full overflow-hidden rounded-md border">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-red-50 hover:bg-red-100">
+              <TableHead>Tên</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Ngày sinh</TableHead>
+              <TableHead>Số điện thoại</TableHead>
+              <TableHead>Địa chỉ</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead className="text-center">Hành động</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {members.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-4 text-gray-500">
+                  Không tìm thấy thành viên
+                </TableCell>
+              </TableRow>
+            ) : (
+              members.map((member, index) => {
+                const { label, className } = getStatusDisplay(member.status);
+                return (
+                  <TableRow key={member.member_id}>
+                    <TableCell>{member.name}</TableCell>
+                    <TableCell>{member.email}</TableCell>
+                    <TableCell>{member.date_of_birth || "Chưa cập nhật"}</TableCell>
+                    <TableCell>{member.phone || "Chưa cập nhật"}</TableCell>
+                    <TableCell>{member.address || "Chưa cập nhật"}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center space-x-2">
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(member)}>
+                          <Edit className="h-4 w-4 text-blue-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => onDelete(member)}>
+                          <Trash className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

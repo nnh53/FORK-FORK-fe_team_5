@@ -1,7 +1,10 @@
+import { SearchBar } from "@/components/shared/SearchBar";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Member, MemberFormData } from "@/interfaces/member.interface";
-import { Add as AddIcon } from "@mui/icons-material";
-import { Alert, CircularProgress, Dialog, Snackbar } from "@mui/material";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 import { createMember, deleteMember, getMembers, updateMember } from "./services/memberApi";
@@ -9,20 +12,12 @@ import { createMember, deleteMember, getMembers, updateMember } from "./services
 const MemberManagement = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState("name");
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
 
   const searchOptions = [
     { label: "Tên", value: "name" },
@@ -39,7 +34,7 @@ const MemberManagement = () => {
       const data = await getMembers();
       setMembers(data);
     } catch (err) {
-      setError("Lỗi khi tải danh sách thành viên");
+      toast.error("Lỗi khi tải danh sách thành viên");
       console.error(err);
     } finally {
       setLoading(false);
@@ -85,95 +80,99 @@ const MemberManagement = () => {
     setSelectedMember(undefined);
   };
 
-  const showSnackbar = (message: string, severity: "success" | "error") => {
-    setSnackbar({
-      open: true,
-      message,
-      severity,
-    });
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
   const handleSubmit = async (values: MemberFormData) => {
     try {
       if (selectedMember) {
         await updateMember({ ...selectedMember, ...values });
-        showSnackbar("Cập nhật thành viên thành công", "success");
+        toast.success("Cập nhật thành viên thành công");
       } else {
         await createMember(values);
-        showSnackbar("Tạo thành viên thành công", "success");
+        toast.success("Thêm thành viên thành công");
       }
       setIsModalOpen(false);
       setSelectedMember(undefined);
       fetchMembers();
     } catch (error) {
       console.error("Lỗi khi lưu thành viên:", error);
-      showSnackbar("Lỗi khi lưu thành viên", "error");
+      toast.error("Lỗi khi lưu thành viên");
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
+  const handleDeleteClick = (member: Member) => {
+    setMemberToDelete(member);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (memberToDelete) {
       try {
-        await deleteMember(id);
-        showSnackbar("Xóa thành viên thành công", "success");
+        await deleteMember(memberToDelete.member_id);
+        toast.success("Xóa thành viên thành công");
         fetchMembers();
       } catch (error) {
         console.error("Lỗi khi xóa thành viên:", error);
-        showSnackbar("Lỗi khi xóa thành viên", "error");
+        toast.error("Lỗi khi xóa thành viên");
       }
     }
+    setDeleteDialogOpen(false);
+    setMemberToDelete(null);
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <CircularProgress />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <Alert severity="error">{error}</Alert>
-      </div>
-    );
+    return <div className="flex justify-center items-center h-screen">Đang tải...</div>;
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Danh sách thành viên</h2>
         <div className="flex items-center gap-4">
-          {/* <SearchBar
+          <SearchBar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             searchType={searchType}
             setSearchType={setSearchType}
             searchOptions={searchOptions}
-          /> */}
-          <button onClick={handleCreate} className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-            <AddIcon className="mr-2" />
+          />
+          <Button onClick={handleCreate} className="bg-red-500 hover:bg-red-600">
+            <Plus className="mr-2 h-4 w-4" />
             Thêm thành viên
-          </button>
+          </Button>
         </div>
       </div>
 
-      <MemberTable members={filteredMembers} onEdit={handleEdit} onDelete={handleDelete} />
+      <MemberTable members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} />
 
-      <Dialog open={isModalOpen} onClose={handleCancel} maxWidth="md" fullWidth>
-        <MemberForm member={selectedMember} onSubmit={handleSubmit} onCancel={handleCancel} />
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCancel();
+        }}
+      >
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedMember ? "Chỉnh sửa thành viên" : "Thêm thành viên mới"}</DialogTitle>
+          </DialogHeader>
+          <MemberForm member={selectedMember} onSubmit={handleSubmit} onCancel={handleCancel} />
+        </DialogContent>
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Xóa thành viên</DialogTitle>
+          </DialogHeader>
+          <p>Bạn có chắc chắn muốn xóa thành viên này? Hành động này không thể hoàn tác.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Hủy
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Xóa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
