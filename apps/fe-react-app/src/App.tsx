@@ -16,14 +16,9 @@ import Register from "./feature/auth/Register";
 import BookingPage from "./feature/booking/booking-page/BookingPage.tsx";
 import CheckoutPage from "./feature/booking/checkout-page/CheckoutPage.tsx";
 import HomePage from "./feature/booking/home-page/HomePage.tsx";
-import CinemaRoomAdd from "./feature/manager/cinema-room/CinemaRoomAdd.tsx";
-import CinemaRoomDetail from "./feature/manager/cinema-room/CinemaRoomDetail.tsx";
-import CinemaRoomEdit from "./feature/manager/cinema-room/CinemaRoomEdit.tsx";
-import CinemaRoomManagement from "./feature/manager/cinema-room/CinemaRoomManagement.tsx";
 import MemberManagement from "./feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "./feature/manager/movie/MovieManagement";
 import StaffManagement from "./feature/manager/staff/StaffManagement.tsx";
-import { PromotionManagement } from "./feature/promotion-management/PromotionManagement.tsx";
 import Welcome from "./feature/theme/Welcome";
 import { MyUserManagement } from "./feature/user-management/MyUserManagement";
 import AdminLayout from "./layouts/adminLayout/AdminLayout.tsx";
@@ -342,188 +337,12 @@ function App() {
               </PageTransition>
             }
           />
-          {/* //chưa auth */}
-          <Route
-            path="/admin"
-            element={
-              <PageTransition>
-                <AdminLayout />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/dashboard"
-            element={
-              <PageTransition>
-                <AdminLayout />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/booking"
-            element={
-              <PageTransition>
-                <AdminLayout
-                  children={
-                    <div className="p-6">
-                      <h1 className="text-2xl font-bold">Booking Management</h1>
-                    </div>
-                  }
-                />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/movie"
-            element={
-              <PageTransition>
-                <AdminLayout children={<MovieManagement />} />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/cinema-room"
-            element={
-              <PageTransition>
-                <AdminLayout children={<CinemaRoomManagement />} />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/cinema-room/:roomId"
-            element={
-              <PageTransition>
-                <AdminLayout children={<CinemaRoomDetail />} />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/cinema-room/add"
-            element={
-              <PageTransition>
-                <AdminLayout children={<CinemaRoomAdd />} />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/cinema-room/edit/:id"
-            element={
-              <PageTransition>
-                <AdminLayout children={<CinemaRoomEdit />} />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/showtime"
-            element={
-              <PageTransition>
-                <AdminLayout
-                  children={
-                    <div className="p-6">
-                      <h1 className="text-2xl font-bold">Show Time Management</h1>
-                    </div>
-                  }
-                />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/seat"
-            element={
-              <PageTransition>
-                <AdminLayout
-                  children={
-                    <div className="p-6">
-                      <h1 className="text-2xl font-bold">Seat Management</h1>
-                    </div>
-                  }
-                />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/ticket"
-            element={
-              <PageTransition>
-                <AdminLayout
-                  children={
-                    <div className="p-6">
-                      <h1 className="text-2xl font-bold">Ticket Management</h1>
-                    </div>
-                  }
-                />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/promotion"
-            element={
-              <PageTransition>
-                <AdminLayout children={<PromotionManagement />} />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/members"
-            element={
-              <PageTransition>
-                <AdminLayout children={<MemberManagement />} />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/staffs"
-            element={
-              <PageTransition>
-                <AdminLayout children={<StaffManagement />} />
-              </PageTransition>
-            }
-          />
-          {/* Secondary navigation routes */}
-          <Route
-            path="/admin/settings"
-            element={
-              <PageTransition>
-                <AdminLayout
-                  children={
-                    <div className="p-6">
-                      <h1 className="text-2xl font-bold">Settings</h1>
-                    </div>
-                  }
-                />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/help"
-            element={
-              <PageTransition>
-                <AdminLayout
-                  children={
-                    <div className="p-6">
-                      <h1 className="text-2xl font-bold">Help Center</h1>
-                    </div>
-                  }
-                />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/admin/search"
-            element={
-              <PageTransition>
-                <AdminLayout
-                  children={
-                    <div className="p-6">
-                      <h1 className="text-2xl font-bold">Search</h1>
-                    </div>
-                  }
-                />
-              </PageTransition>
-            }
-          />
-          <Route path="/myAccount" element={<UserLayout children={<MyUserManagement />} />} />
+
+          {/* Admin Routes - All handled by AdminLayout */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/admin/*" element={<AdminLayout />} />
+
+          <Route path="/myAccount" element={<UserLayout children={<MyUserManagement />} />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
         {/* <ThemeSwitch /> */}

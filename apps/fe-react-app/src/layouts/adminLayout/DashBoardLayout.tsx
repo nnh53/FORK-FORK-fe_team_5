@@ -19,37 +19,37 @@ const DashBoardLayout: React.FC<DashBoardLayoutProps> = ({ children }) => {
       >
         <List>
           <ListItem>
-            <ListItemButton component={Link} to={ROUTING_PATH.MANAGERS_HOME}>
+            <ListItemButton component={Link} to={ROUTING_PATH.ADMIN_HOME}>
               <ListItemText primary="Home" />
             </ListItemButton>
           </ListItem>
           <ListItem>
-            <ListItemButton component={Link} to={ROUTING_PATH.MANAGERS_MOVIE}>
+            <ListItemButton component={Link} to={ROUTING_PATH.ADMIN_MOVIE}>
               <ListItemText primary="Movie" />
             </ListItemButton>
           </ListItem>
           <ListItem>
-            <ListItemButton component={Link} to={ROUTING_PATH.MANAGERS_SHOW}>
+            <ListItemButton component={Link} to={ROUTING_PATH.ADMIN_SHOW}>
               <ListItemText primary="Show" />
             </ListItemButton>
           </ListItem>
           <ListItem>
-            <ListItemButton component={Link} to={ROUTING_PATH.MANAGERS_SEAT}>
+            <ListItemButton component={Link} to={ROUTING_PATH.ADMIN_SEAT}>
               <ListItemText primary="Seat" />
             </ListItemButton>
           </ListItem>
           <ListItem>
-            <ListItemButton component={Link} to={ROUTING_PATH.MANAGERS_TICKET}>
+            <ListItemButton component={Link} to={ROUTING_PATH.ADMIN_TICKET}>
               <ListItemText primary="Ticket" />
             </ListItemButton>
           </ListItem>
           <ListItem>
-            <ListItemButton component={Link} to={ROUTING_PATH.MANAGERS_STAFF}>
+            <ListItemButton component={Link} to={ROUTING_PATH.ADMIN_STAFF}>
               <ListItemText primary="Staff" />
             </ListItemButton>
           </ListItem>
           <ListItem>
-            <ListItemButton component={Link} to={ROUTING_PATH.MANAGERS_MEMBER}>
+            <ListItemButton component={Link} to={ROUTING_PATH.ADMIN_MEMBER}>
               <ListItemText primary="Member" />
             </ListItemButton>
           </ListItem>
