@@ -7,10 +7,12 @@ export interface MovieListProps {
   movies: MovieCardProps[];
   cardsPerRow?: 2 | 3 | 4 | 5 | 6;
   onMovieBuyTicketClick?: (movie: MovieCardProps) => void;
+  onTitleClick?: (movie: MovieCardProps) => void;
+  onPosterClick?: (movie: MovieCardProps) => void;
   horizontal?: boolean;
 }
 
-const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieBuyTicketClick, horizontal = true }) => {
+const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieBuyTicketClick, onPosterClick, onTitleClick, horizontal = true }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const gridLayoutConfig = {
@@ -68,7 +70,12 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
         <div ref={scrollRef} className="flex overflow-x-auto space-x-4 px-12 py-6 gap-6 scrollbar-hide scroll-smooth snap-x snap-mandatory">
           {movies.map((movie) => (
             <div key={movie.id} className="inline-flex flex-none snap-start">
-              <MovieCard {...movie} onBuyTicketClick={() => onMovieBuyTicketClick?.(movie)} />
+              <MovieCard
+                {...movie}
+                onBuyTicketClick={() => onMovieBuyTicketClick?.(movie)}
+                onPosterClick={() => onPosterClick?.(movie)}
+                onTitleClick={() => onTitleClick?.(movie)}
+              />
             </div>
           ))}
         </div>
@@ -88,7 +95,13 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
   return (
     <div className={`grid ${responsiveClasses} gap-8 justify-items-center p-4 max-w-7xl mx-auto`}>
       {movies.map((movie) => (
-        <MovieCard key={movie.id} {...movie} onBuyTicketClick={() => onMovieBuyTicketClick?.(movie)} />
+        <MovieCard
+          key={movie.id}
+          {...movie}
+          onBuyTicketClick={() => onMovieBuyTicketClick?.(movie)}
+          onPosterClick={() => onPosterClick?.(movie)}
+          onTitleClick={() => onTitleClick?.(movie)}
+        />
       ))}
     </div>
   );

@@ -1,5 +1,6 @@
 import { DataTableDemo } from "@/components/shared/Test.tsx";
 import { Toaster } from "@/components/ui/sonner";
+import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import LogVIAReg from "./components/auth/LogVIAReg";
@@ -233,6 +234,14 @@ function App() {
             element={
               <PageTransition>
                 <CheckoutPage />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/movie/:movieId" // Example dynamic route
+            element={
+              <PageTransition>
+                <MovieDetailPage />
               </PageTransition>
             }
           />

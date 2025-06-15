@@ -31,8 +31,6 @@ const MovieCard: React.FC<MovieCardProps> = ({
   onBuyTicketClick,
 }) => {
   return (
-    // THAY ĐỔI: Bỏ min/max width, dùng w-full để card linh hoạt theo grid cha.
-    // h-full và flex-col vẫn rất quan trọng.
     <div className="flex flex-col h-full w-full bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
       {/* --- Phần Poster --- */}
       <div className="relative group " onClick={onPosterClick}>
@@ -68,7 +66,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
               e.stopPropagation();
               onTitleClick?.();
             }}
-            className="text-lg sm:text-xl font-bold text-red-600 overflow-hidden hover:text-red-700 hover:underline"
+            className="text-lg sm:text-xl font-bold text-red-600 overflow-hidden hover:text-red-700 hover:underline cursor-pointer"
             style={{
               display: "-webkit-box",
               WebkitLineClamp: 1,

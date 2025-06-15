@@ -6,6 +6,7 @@ import UserLayout from "../../../layouts/userLayout/UserLayout.tsx";
 import ShowtimesModal from "../components/ShowtimesModal/ShowtimesModal.tsx";
 import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmModal.tsx";
 
+import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import { useNavigate } from "react-router-dom";
 import nowShowing from "../../../assets/nowShowingText.png";
 import upcoming from "../../../assets/upComingText.png";
@@ -206,10 +207,23 @@ function HomePage() {
   const [selectedMovie, setSelectedMovie] = useState<MovieCardProps | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [finalSelection, setFinalSelection] = useState<FinalSelection | null>(null);
+  const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
+  const [selectedTrailerUrl, setSelectedTrailerUrl] = useState("");
 
   const handleBuyTicketClick = (movie: MovieCardProps) => {
     setSelectedMovie(movie);
     setIsShowtimesModalOpen(true);
+  };
+
+  const handlePosterClick = (movie: MovieCardProps) => {
+    setSelectedMovie(movie);
+    setSelectedTrailerUrl(movie.trailerUrl);
+    setIsTrailerModalOpen(true);
+    console.log(movie.trailerUrl);
+  };
+
+  const handleTitleClick = (movie: MovieCardProps) => {
+    navigate(`/movie/${movie.id}`);
   };
 
   const handleCloseShowtimesModal = () => {
@@ -224,18 +238,14 @@ function HomePage() {
   };
 
   const handleConfirmBooking = () => {
-    setIsConfirmModalOpen(false); // Đóng modal xác nhận
-
-    // Điều hướng đến trang chọn ghế và truyền dữ liệu qua state
+    setIsConfirmModalOpen(false);
     navigate("/booking", {
       state: {
         movie: selectedMovie,
         selection: finalSelection,
-        cinemaName: "F-CINEMA", // Có thể truyền thêm các thông tin khác
+        cinemaName: "F-CINEMA",
       },
     });
-
-    // Reset state sau khi điều hướng để chuẩn bị cho lần đặt vé tiếp theo
     setSelectedMovie(null);
     setFinalSelection(null);
   };
@@ -253,17 +263,33 @@ function HomePage() {
       >
         <img src={nowShowing} className="h-24" alt="Phim sắp chiếu" />
       </div>
-      <MovieList horizontal={true} movies={mockMovies} cardsPerRow={4} onMovieBuyTicketClick={handleBuyTicketClick} />
-      <div
-        className="
+      <MovieList
+        horizontal={true}
+        movies={mockMovies}
+        cardsPerRow={4}
+        onPosterClick={handlePosterClick}
+        onTitleClick={handleTitleClick}
+        onMovieBuyTicketClick={handleBuyTicketClick}
+      />
+
+        <div
+          className="
           flex items-center justify-center
           p-2 h-48
           bg-gradient-to-r from-black/40 via-transparent to-black/40
         "
-      >
-        <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
-      </div>
-      <MovieList horizontal={true} movies={mockMovies} cardsPerRow={4} onMovieBuyTicketClick={handleBuyTicketClick} />
+        >
+          <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
+        </div>
+      <MovieList
+        horizontal={true}
+        movies={mockMovies}
+        cardsPerRow={4}
+        onPosterClick={handlePosterClick}
+        onTitleClick={handleTitleClick}
+        onMovieBuyTicketClick={handleBuyTicketClick}
+      />
+
       {selectedMovie && (
         <ShowtimesModal
           isOpen={isShowtimesModalOpen}
@@ -274,6 +300,7 @@ function HomePage() {
           onSelectShowtime={handleFinalShowtimeSelect}
         />
       )}
+
       {selectedMovie && finalSelection && (
         <TicketConfirmModal
           isOpen={isConfirmModalOpen}
@@ -283,6 +310,14 @@ function HomePage() {
           cinemaName="F-CINEMA"
           selectedDate={finalSelection.date}
           selectedTime={finalSelection.time}
+        />
+      )}
+      {selectedTrailerUrl && (
+        <TrailerModal
+          isOpen={isTrailerModalOpen}
+          onClose={() => setIsTrailerModalOpen(false)}
+          movieTitle={selectedMovie?.title || ""}
+          trailerUrl={selectedTrailerUrl}
         />
       )}
     </UserLayout>
