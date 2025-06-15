@@ -12,6 +12,9 @@
     "prettier:write": "prettier --write .",
     "setup-nx-powerpack": "doppler secrets download --project fcinema --config prd --no-file --format env > .env"
   },
+  "lint-staged": {
+    "*": "prettier --write"
+  },
   "devDependencies": {
     "@commitlint/config-conventional": "^19.8.1",
     "@nx/js": "21.1.2",
@@ -20,6 +23,7 @@
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
     "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "nx": "21.1.2",
     "prettier": "^3.5.3",
     "prettier-plugin-css-order": "^2.1.2",

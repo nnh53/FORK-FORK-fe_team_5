@@ -1,8 +1,8 @@
 // File: MovieCard.tsx
 
+import hotBadgeImage from "@/assets/hotBadge.png";
 import { Icon } from "@iconify/react";
 import React from "react";
-import hotBadgeImage from "../../../assets/hotBadge.png";
 export interface MovieCardProps {
   id: string | number;
   posterUrl: string;

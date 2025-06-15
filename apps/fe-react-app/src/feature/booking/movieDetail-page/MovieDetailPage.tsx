@@ -1,12 +1,12 @@
 // ✅ File: src/feature/movie/MovieDetailPage.tsx
 
+import pTagImage from "@/assets/pTag.png";
 import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/ShowDateSelector";
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
 import UserLayout from "@/layouts/userLayout/UserLayout";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import pTagImage from "../../../assets/ptag.png";
 
 const movieData = {
   id: "doraemon-2025",

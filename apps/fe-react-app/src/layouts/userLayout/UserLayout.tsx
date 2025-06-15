@@ -1,6 +1,6 @@
+import bgTop from "@/assets/bg-top.png";
+import FCinema_Logo from "@/assets/FCinema_Logo.png";
 import React, { useState } from "react";
-import bgTop from "../../assets/bg-top.png";
-import FCinema_Logo from "../../assets/FCinema_Logo.png";
 import type { FooterColumnData } from "./components/footer/components/FooterColumns.tsx";
 import Footer from "./components/footer/Footer";
 import type { NavItemData } from "./components/header/components/NavigationBar";
