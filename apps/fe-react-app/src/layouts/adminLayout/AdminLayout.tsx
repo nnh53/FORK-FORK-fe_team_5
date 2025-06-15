@@ -13,7 +13,7 @@ import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import { PromotionManagement } from "@/feature/promotion-management/PromotionManagement";
 import type { ReactNode } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import data from "./data.json";
 
 type AdminLayoutProps = {
@@ -34,9 +34,8 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
       <SidebarInset>
         <SiteHeader />
         <Routes>
-          <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
           <Route
-            path="/dashboard"
+            path="/admin/dashboard"
             element={
               <div className="flex flex-1 flex-col">
                 <div className="@container/main flex flex-1 flex-col gap-2">

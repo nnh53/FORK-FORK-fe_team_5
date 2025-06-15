@@ -1,6 +1,6 @@
 //API quăng hết vào đây
 import axios from "axios";
-import { API_URL } from "../constants/endpoints";
+import { API_URL } from "../config/environments/endpoints";
 
 import type { LoginDTO, UserLoginResponse } from "../interfaces/users.interface";
 

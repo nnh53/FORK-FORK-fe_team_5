@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import FormField from "../../components/forms/FormFields";
 import { Logo } from "../../components/logo/Logo";
 import BannerTransition from "../../components/shared/BannerTransition";
-import { API_URL } from "../../constants/endpoints";
+import { API_URL } from "../../config/environments/endpoints";
 import { registerValidationSchema } from "../../utils/validation.utils";
 
 interface RegisterFormData {

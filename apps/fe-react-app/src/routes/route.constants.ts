@@ -100,3 +100,13 @@ export const ADMIN_ROUTES = [
 ] as const;
 
 export const UTILITY_ROUTES = [ROUTES.WELCOME, ROUTES.LOADING, ROUTES.UNAUTHORIZED, ROUTES.ERROR, ROUTES.INTERNAL_SERVER_ERROR, ROUTES.TEST] as const;
+
+export const ROUTING_PATH = {
+  ADMIN_HOME: "/admin/",
+  ADMIN_MOVIE: "/admin/movie",
+  ADMIN_SEAT: "/admin/seat",
+  ADMIN_SHOW: "/admin/show",
+  ADMIN_TICKET: "/admin/ticket",
+  ADMIN_STAFF: "/admin/staff",
+  ADMIN_MEMBER: "/admin/member",
+} as const;

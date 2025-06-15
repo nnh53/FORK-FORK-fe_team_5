@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import "./App.css";
 import PageTransition from "./components/shared/PageTransition";
 import { AuthProvider } from "./contexts/AuthContext";
-import { AppRoutes } from "./routes";
+import { AppRoutes } from "./routes/route.index";
 
 const TITLE = "FCinema";
 

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ROUTES, createCinemaRoomDetailRoute, createCinemaRoomEditRoute, createMovieDetailRoute } from "../routes/constants";
+import { ROUTES, createCinemaRoomDetailRoute, createCinemaRoomEditRoute, createMovieDetailRoute } from "../routes/route.constants";
 
 /**
  * Custom hook for type-safe navigation throughout the application

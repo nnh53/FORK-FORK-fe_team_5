@@ -1,11 +1,11 @@
-import LogVIAReg from "@/components/auth/LogVIAReg";
 import InternalServerError from "@/components/error/InternalServerError";
 import NotFoundError from "@/components/error/NotFoundError";
 import Loading from "@/components/shared/Loading";
-import Unauthorized from "@/components/unauth/Unauthor";
 import ForgotPassword from "@/feature/auth/ForgotPassword";
 import Login from "@/feature/auth/Login";
+import LogVIAReg from "@/feature/auth/LogVIAReg";
 import Register from "@/feature/auth/Register";
+import Unauthorized from "@/feature/auth/unauth/Unauthor";
 import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
 import HomePage from "@/feature/booking/home-page/HomePage.tsx";
@@ -18,7 +18,7 @@ import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import AdminLayout from "@/layouts/adminLayout/AdminLayout.tsx";
 import UserLayout from "@/layouts/userLayout/UserLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { ROUTES } from "./constants";
+import { ROUTES } from "./route.constants";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
