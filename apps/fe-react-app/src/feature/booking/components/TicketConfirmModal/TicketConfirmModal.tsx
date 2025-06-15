@@ -1,4 +1,4 @@
-import LocalActivityRoundedIcon from "@mui/icons-material/LocalActivityRounded";
+import { Icon } from "@iconify/react";
 import React from "react";
 import Modal from "../../../../components/shared/Modal/Modal.tsx";
 
@@ -63,7 +63,7 @@ const TicketConfirmModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose,
                      transition duration-200 flex items-center justify-center text-base relative mt-4
                      cursor-pointer"
           >
-            <LocalActivityRoundedIcon fontSize={"inherit"}></LocalActivityRoundedIcon>
+            <Icon icon="material-symbols-light:local-activity-rounded" width="60" height="60" />
             <span>ĐỒNG Ý</span>
           </button>
         </div>

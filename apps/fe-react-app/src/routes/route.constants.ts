@@ -101,6 +101,7 @@ export const ADMIN_ROUTES = [
 
 export const UTILITY_ROUTES = [ROUTES.WELCOME, ROUTES.LOADING, ROUTES.UNAUTHORIZED, ROUTES.ERROR, ROUTES.INTERNAL_SERVER_ERROR, ROUTES.TEST] as const;
 
+// cái này cái cũ của bảo
 export const ROUTING_PATH = {
   ADMIN_HOME: "/admin/",
   ADMIN_MOVIE: "/admin/movie",

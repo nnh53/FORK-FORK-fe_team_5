@@ -6,6 +6,7 @@ import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal
 import UserLayout from "@/layouts/userLayout/UserLayout";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import pTagImage from "../../../assets/ptag.png";
 
 const movieData = {
   id: "doraemon-2025",
@@ -70,7 +71,7 @@ const MovieDetailPage: React.FC = () => {
             title: movieData.title,
             genres: movieData.genres,
             duration: movieData.duration,
-            ageBadgeUrl: "/src/assets/p.png",
+            ageBadgeUrl: pTagImage,
             trailerUrl: movieData.trailerUrl,
           },
           selection: {

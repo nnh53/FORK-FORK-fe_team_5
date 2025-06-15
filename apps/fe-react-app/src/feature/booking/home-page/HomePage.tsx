@@ -9,9 +9,11 @@ import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmMo
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import { useNavigate } from "react-router-dom";
 import nowShowing from "../../../assets/nowShowingText.png";
+import pTagImage from "../../../assets/ptag.png";
 import upcoming from "../../../assets/upComingText.png";
 import type { MovieCardProps } from "../../../components/movie/MovieCard/MovieCard.tsx";
 import type { SchedulePerDay } from "../components/ShowtimesModal/ShowtimesModal.tsx";
+
 // 1. MOCK DATA PHIM
 const mockMovies: MovieCardProps[] = [
   {
@@ -21,7 +23,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Hành động", "Khoa học viễn tưởng"],
     duration: "165 phút",
     isHot: true,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w",
   },
   {
@@ -31,7 +33,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Tình cảm", "Hài hước"],
     duration: "103 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=EkqY-Z0TyHM",
   },
   {
@@ -41,7 +43,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Hành động", "Khoa học viễn tưởng"],
     duration: "105 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=wS_qbDztgVY",
   },
   {
@@ -51,7 +53,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Tình cảm", "Hài hước"],
     duration: "104 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=2QL7mNGt3CA",
   },
   {
@@ -61,7 +63,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Hành động", "Khoa học viễn tưởng"],
     duration: "127 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=itnqEauWQZM",
   },
   {
@@ -71,7 +73,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Tình cảm", "Hài hước"],
     duration: "103 phút",
     isHot: true,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=P15S6ND8kbQ",
   },
   {
@@ -81,7 +83,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Hành động", "Khoa học viễn tưởng"],
     duration: "192 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=d9MyW72ELq0",
   },
   {
@@ -91,7 +93,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Tình cảm", "Hài hước"],
     duration: "109 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=Y8DAi0H-V1I",
   },
   {
@@ -101,7 +103,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Hành động", "Khoa học viễn tưởng"],
     duration: "133 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=ex3C1-5Dhb8",
   },
   {
@@ -111,7 +113,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Tình cảm", "Hài hước"],
     duration: "99 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=DRNRNks2CE0",
   },
   {
@@ -121,7 +123,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Hành động", "Khoa học viễn tưởng"],
     duration: "148 phút",
     isHot: true,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=9ix7TUGVYIo",
   },
   {
@@ -131,7 +133,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Tình cảm", "Hài hước"],
     duration: "104 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=hkP4tVTdsz8",
   },
   {
@@ -141,7 +143,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Hành động", "Khoa học viễn tưởng"],
     duration: "140 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=cSp1dM2Vj48",
   },
   {
@@ -151,7 +153,7 @@ const mockMovies: MovieCardProps[] = [
     genres: ["Tình cảm", "Hài hước"],
     duration: "112 phút",
     isHot: false,
-    ageBadgeUrl: "/src/assets/p.png",
+    ageBadgeUrl: pTagImage,
     trailerUrl: "https://www.youtube.com/watch?v=Ebv9_rNb5Ig",
   },
 ];
@@ -272,15 +274,15 @@ function HomePage() {
         onMovieBuyTicketClick={handleBuyTicketClick}
       />
 
-        <div
-          className="
+      <div
+        className="
           flex items-center justify-center
           p-2 h-48
           bg-gradient-to-r from-black/40 via-transparent to-black/40
         "
-        >
-          <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
-        </div>
+      >
+        <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
+      </div>
       <MovieList
         horizontal={true}
         movies={mockMovies}

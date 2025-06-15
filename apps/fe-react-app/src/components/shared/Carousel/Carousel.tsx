@@ -1,5 +1,4 @@
-import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
-import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
+import { Icon } from "@iconify/react";
 import React, { useEffect, useRef, useState } from "react";
 
 const DEFAULT_IMAGES: string[] = [
@@ -108,7 +107,7 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
                   className="btn btn-circle opacity-50 hover:opacity-100"
                   aria-label="Previous slide"
                 >
-                  <ArrowBackIosNewRoundedIcon fontSize={"medium"}></ArrowBackIosNewRoundedIcon>
+                  <Icon icon="material-symbols-light:arrow-back-ios-new-rounded" width="60" height="60" />
                 </a>
                 <a
                   href={`#${slideId}`} // Tương tự
@@ -116,7 +115,7 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
                   className="btn btn-circle opacity-50 hover:opacity-100"
                   aria-label="Next slide"
                 >
-                  <ArrowForwardIosRoundedIcon fontSize={"medium"}></ArrowForwardIosRoundedIcon>
+                  <Icon icon="material-symbols-light:arrow-forward-ios-rounded" width="60" height="60" />
                 </a>
               </div>
             </div>

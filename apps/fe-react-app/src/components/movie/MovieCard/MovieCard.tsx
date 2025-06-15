@@ -1,10 +1,8 @@
 // File: MovieCard.tsx
 
-import LocalActivityRoundedIcon from "@mui/icons-material/LocalActivityRounded";
-import PlayCircleRoundedIcon from "@mui/icons-material/PlayCircleRounded";
+import { Icon } from "@iconify/react";
 import React from "react";
-import hotBadgeAsset from "../../../assets/hotBadge.png";
-
+import hotBadgeImage from "../../../assets/hotBadge.png";
 export interface MovieCardProps {
   id: string | number;
   posterUrl: string;
@@ -33,7 +31,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   return (
     <div className="flex flex-col h-full w-full bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
       {/* --- Phần Poster --- */}
-      <div className="relative group " onClick={onPosterClick}>
+      <button className="relative group w-full" onClick={onPosterClick} type="button">
         <img
           src={posterUrl}
           alt={`Poster phim ${title}`}
@@ -41,7 +39,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         />
         <div className="absolute inset-0 flex items-center justify-center cursor-pointer">
           <div className="fa fa-play-circle text-6xl text-white opacity-0 group-hover:opacity-90 transition-opacity duration-300" aria-hidden="true">
-            <PlayCircleRoundedIcon fontSize={"inherit"}></PlayCircleRoundedIcon>
+            <Icon icon="mdi:play-circle" width="60" height="60" />
           </div>
         </div>
         {ageBadgeUrl && (
@@ -51,10 +49,10 @@ const MovieCard: React.FC<MovieCardProps> = ({
         )}
         {isHot && (
           <div className="absolute top-0 right-0 z-10">
-            <img src={hotBadgeAsset} alt="Hot" className="h-20 w-20" />
+            <img src={hotBadgeImage} alt="Hot" className="h-20 w-20" />
           </div>
         )}
-      </div>
+      </button>
 
       {/* --- Phần Nội dung --- */}
       <div className="flex flex-col flex-1 pe-4 px-4 pb-4 min-w-3xs max-w-3xs">
@@ -91,12 +89,20 @@ const MovieCard: React.FC<MovieCardProps> = ({
                      cursor-pointer"
         >
           <span className={"text-7xl"}>
-            <LocalActivityRoundedIcon
+            <Icon
+              icon="mdi:local-activity"
+              width="60"
+              height="60"
+              className="absolute -left-1 -top-2 text-9xl opacity-60"
+              style={{ transform: "rotate(45deg)" }}
+            />
+
+            {/* <LocalActivityRoundedIcon
               className="absolute -left-1 -top-2 text-9xl opacity-60"
               fontSize="inherit"
               style={{ transform: "rotate(45deg)" }}
               aria-hidden="true"
-            />
+            /> */}
           </span>
           <span> MUA VÉ</span>
         </button>

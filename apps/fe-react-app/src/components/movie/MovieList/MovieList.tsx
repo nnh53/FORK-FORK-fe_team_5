@@ -1,5 +1,4 @@
-import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
-import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
+import { Icon } from "@iconify/react";
 import React, { useRef } from "react";
 import MovieCard, { type MovieCardProps } from "../MovieCard/MovieCard.tsx";
 
@@ -63,7 +62,7 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
           onClick={() => handleScroll("left")}
           className="btn btn-circle absolute z-10 -left-12 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-3 transition-all duration-300 hover:scale-110"
         >
-          <ArrowBackIosNewRoundedIcon fontSize={"medium"}></ArrowBackIosNewRoundedIcon>
+          <Icon icon="material-symbols-light:arrow-back-ios-new-rounded" width="60" height="60" />
         </button>
 
         {/* Vùng cuộn phim */}
@@ -85,7 +84,7 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
           onClick={() => handleScroll("right")}
           className="btn btn-circle absolute z-10 -right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg p-3 transition-all duration-300 hover:scale-110"
         >
-          <ArrowForwardIosRoundedIcon fontSize={"medium"}></ArrowForwardIosRoundedIcon>
+          <Icon icon="material-symbols-light:arrow-forward-ios-rounded" width="60" height="60" />
         </button>
       </div>
     );

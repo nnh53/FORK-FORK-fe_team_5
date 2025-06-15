@@ -39,5 +39,5 @@
   "conventionalCommits.gitmoji": false,
   "conventionalCommits.promptBody": false,
   "conventionalCommits.promptFooter": false,
-  "cSpell.words": ["caramellatte", "commitlint", "primeicons", "primereact", "shadcn", "sonner"]
+  "cSpell.words": ["caramellatte", "commitlint", "iconify", "primeicons", "primereact", "shadcn", "sonner"]
 }
