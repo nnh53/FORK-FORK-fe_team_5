@@ -1,0 +1,13 @@
+# Ignore specific file `config.json`
+# config.json
+
+# Ignore all files in the `apps/reactQuery-demo` directory
+apps/reactQuery-demo/*
+
+
+# Ignore `dist` and `node_modules` directory and all files inside
+**/node_modules/*
+**/dist/*
+
+# Ignore all files with a `.log` extension
+*.log
