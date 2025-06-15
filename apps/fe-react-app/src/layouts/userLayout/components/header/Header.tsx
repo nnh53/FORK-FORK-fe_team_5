@@ -1,4 +1,6 @@
+import { ROUTES } from "@/routes/route.constants";
 import React from "react";
+import { Link } from "react-router-dom";
 import type { User } from "../../type/userLayout.ts";
 import "./Header.scss"; // File SCSS vẫn giữ nguyên cho các style tùy chỉnh
 import AuthSection from "./components/AuthSection";
@@ -21,9 +23,9 @@ const Header: React.FC<HeaderProps> = ({ logoSrc, navItems, user, onLogin, onReg
       <div className="container mx-auto flex items-center justify-between px-4 py-4 text-white">
         {/* Logo */}
         <div className="text-2xl font-bold text-red-500">
-          <a href="/">
-            <img className="w-22" src={logoSrc} alt="FCinema Logo" />
-          </a>
+          <Link to={ROUTES.HOME}>
+            <img className="w-22 hover:opacity-80 transition-opacity duration-200" src={logoSrc} alt="FCinema Logo" />
+          </Link>
         </div>
 
         {/* Navigation */}

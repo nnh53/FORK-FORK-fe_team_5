@@ -1,28 +1,38 @@
 import bgTop from "@/assets/bg-top.png";
 import FCinema_Logo from "@/assets/FCinema_Logo.png";
-import React, { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { ROUTES } from "@/routes/route.constants";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import type { FooterColumnData } from "./components/footer/components/FooterColumns.tsx";
 import Footer from "./components/footer/Footer";
 import type { NavItemData } from "./components/header/components/NavigationBar";
 import Header from "./components/header/Header";
 import type { SocialLink, User } from "./type/userLayout.ts";
 
-const sampleNavItems: NavItemData[] = [
+// Navigation items using ROUTES constants
+const navItems: NavItemData[] = [
   {
-    label: "Phim",
-    path: "/phim",
+    label: "Home",
+    path: ROUTES.HOME,
+  },
+  {
+    label: "Movies",
+    path: ROUTES.HOME, // For now, pointing to home as movies are displayed there
     children: [
-      { label: "Hành động", path: "/phim-le/hanh-dong" },
-      { label: "Kinh dị", path: "/phim-le/kinh-di" },
+      { label: "Now Showing", path: ROUTES.HOME + "#now-showing" },
+      { label: "Coming Soon", path: ROUTES.HOME + "#coming-soon" },
     ],
   },
-  { label: "Lịch chiếu", path: "/lich-chieu" },
+  {
+    label: "Booking",
+    path: ROUTES.BOOKING,
+  },
+  {
+    label: "Account",
+    path: ROUTES.ACCOUNT,
+  },
 ];
-
-const sampleUser: User = {
-  name: "Sơn Tùng",
-  avatarUrl: "https://i.pravatar.cc/150?u=sontung",
-};
 
 // Dữ liệu cho Footer
 const sampleSocialLinks: SocialLink[] = [
@@ -81,18 +91,35 @@ interface UserLayoutProps {
 }
 
 const UserLayout = ({ children, background }: UserLayoutProps) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { isLoggedIn, user: authUser, authLogout } = useAuth();
+  const navigate = useNavigate();
 
-  const handleLogin = () => setCurrentUser(sampleUser);
-  const handleLogout = () => setCurrentUser(null);
-  const handleRegister = () => alert("Chuyển đến trang đăng ký!");
+  // Convert auth user to header user format
+  const currentUser: User | null = authUser
+    ? {
+        name: authUser.username,
+        avatarUrl: `https://i.pravatar.cc/150?u=${authUser.username}`,
+      }
+    : null;
+
+  const handleLogin = () => {
+    navigate(ROUTES.AUTH.LOGIN);
+  };
+
+  const handleLogout = () => {
+    authLogout();
+  };
+
+  const handleRegister = () => {
+    navigate(ROUTES.AUTH.REGISTER);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-amber-50">
       <Header
         logoSrc={FCinema_Logo}
-        navItems={sampleNavItems}
-        user={currentUser}
+        navItems={navItems}
+        user={isLoggedIn ? currentUser : null}
         onLogin={handleLogin}
         onRegister={handleRegister}
         onLogout={handleLogout}

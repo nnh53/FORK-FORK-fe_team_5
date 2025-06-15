@@ -262,6 +262,7 @@ function HomePage() {
           p-2 h-48
           bg-gradient-to-r from-black/40 via-transparent to-black/40
         "
+        id="now-showing"
       >
         <img src={nowShowing} className="h-24" alt="Phim sắp chiếu" />
       </div>
@@ -280,6 +281,7 @@ function HomePage() {
           p-2 h-48
           bg-gradient-to-r from-black/40 via-transparent to-black/40
         "
+        id="coming-soon"
       >
         <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
       </div>
