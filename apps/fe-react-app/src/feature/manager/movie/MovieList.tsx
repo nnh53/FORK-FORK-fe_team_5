@@ -60,8 +60,73 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
     return new Date(dateString).toLocaleDateString();
   };
 
+  const renderTableContent = () => {
+    if (loading) {
+      return (
+        <TableRow>
+          <TableCell colSpan={8} className="text-center py-4">
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    if (movies.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={8} className="text-center py-4">
+            No movies found
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return movies.map((movie) => (
+      <TableRow key={movie.id}>
+        <TableCell>{movie.title}</TableCell>
+        <TableCell>{movie.releaseYear}</TableCell>
+        <TableCell>{movie.productionCompany}</TableCell>
+        <TableCell>{movie.duration} min</TableCell>
+        <TableCell>{movie.version}</TableCell>
+        <TableCell>
+          {movie.startShowingDate ? (
+            <>
+              {formatDate(movie.startShowingDate)} - {formatDate(movie.endShowingDate)}
+            </>
+          ) : (
+            "N/A"
+          )}
+        </TableCell>
+        <TableCell>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              movie.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            }`}
+          >
+            {movie.status.toUpperCase()}
+          </span>
+        </TableCell>
+        <TableCell>
+          <div className="flex space-x-2">
+            <Button variant="ghost" size="icon" onClick={() => handleViewClick(movie)}>
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => onEdit(movie)}>
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(movie)}>
+              <Trash className="h-4 w-4 text-red-600" />
+            </Button>
+          </div>
+        </TableCell>
+      </TableRow>
+    ));
+  };
+
   return (
-    <>
+    <div className="w-full overflow-hidden rounded-md border">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -76,64 +141,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-4">
-                  <div className="flex justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : movies.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-4">
-                  No movies found
-                </TableCell>
-              </TableRow>
-            ) : (
-              movies.map((movie) => (
-                <TableRow key={movie.id}>
-                  <TableCell>{movie.title}</TableCell>
-                  <TableCell>{movie.releaseYear}</TableCell>
-                  <TableCell>{movie.productionCompany}</TableCell>
-                  <TableCell>{movie.duration} min</TableCell>
-                  <TableCell>{movie.version}</TableCell>
-                  <TableCell>
-                    {movie.startShowingDate ? (
-                      <>
-                        {formatDate(movie.startShowingDate)} - {formatDate(movie.endShowingDate)}
-                      </>
-                    ) : (
-                      "N/A"
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        movie.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {movie.status.toUpperCase()}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                      <Button variant="outline" size="icon" onClick={() => handleViewClick(movie)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" onClick={() => onEdit(movie)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" onClick={() => handleDeleteClick(movie)}>
-                        <Trash className="h-4 w-4 text-red-600" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
+          <TableBody>{renderTableContent()}</TableBody>
         </Table>
       </div>
 
@@ -157,7 +165,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
 
       {/* View Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className=" max-h-[80%] min-w-[50%] overflow-auto">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Movie Details</DialogTitle>
           </DialogHeader>
@@ -255,7 +263,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 

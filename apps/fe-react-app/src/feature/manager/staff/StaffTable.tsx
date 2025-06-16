@@ -47,7 +47,7 @@ const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
                 </TableCell>
               </TableRow>
             ) : (
-              staffs.map((staff, index) => {
+              staffs.map((staff) => {
                 const { label, className } = getStatusDisplay(staff.status);
                 return (
                   <TableRow key={staff.staff_id}>

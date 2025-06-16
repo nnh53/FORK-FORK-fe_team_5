@@ -38,7 +38,7 @@ type MyInfoFormData = Omit<MyInfoData, "id">;
 export const MyInfoSchema: Yup.ObjectSchema<MyInfoFormData> = Yup.object().shape({
   name: Yup.string().required("Họ tên bắt buộc"),
   phone: Yup.string()
-    .matches(/^[0-9]{9,11}$/, "Số điện thoại không hợp lệ")
+    .matches(/^\d{9,11}$/, "Số điện thoại không hợp lệ")
     .required("Số điện thoại bắt buộc"),
   dob: Yup.string()
     .nullable()

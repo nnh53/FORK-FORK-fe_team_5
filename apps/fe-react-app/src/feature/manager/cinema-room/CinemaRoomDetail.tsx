@@ -105,6 +105,22 @@ export default function CinemaRoomDetail() {
   if (!room) {
     return <div className="text-center p-4">Room not found.</div>;
   }
+
+  // Helper functions for CSS classes
+  const getStatusClassName = (status: string) => {
+    if (status === "ACTIVE") return "bg-green-100 text-green-800";
+    if (status === "MAINTENANCE") return "bg-yellow-100 text-yellow-800";
+    return "bg-red-100 text-red-800";
+  };
+
+  const getSeatClassName = (seat: Seat, isSelected: boolean) => {
+    if (seat.status !== "AVAILABLE") return "bg-gray-400 text-white";
+    if (isSelected) return "bg-green-500 text-white";
+    if (seat.type === "VIP") return "bg-purple-100 text-purple-800";
+    if (seat.type === "PREMIUM") return "bg-amber-100 text-amber-800";
+    return "bg-blue-100 text-blue-800";
+  };
+
   // calculate width&length
   const rows = room.length;
   const columns = room.width;
@@ -123,17 +139,7 @@ export default function CinemaRoomDetail() {
             </CardTitle>
           </div>
           <div className="flex items-center gap-2">
-            <span
-              className={`px-2 py-1 rounded text-xs font-medium ${
-                room.status === "ACTIVE"
-                  ? "bg-green-100 text-green-800"
-                  : room.status === "MAINTENANCE"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-red-100 text-red-800"
-              }`}
-            >
-              {room.status}
-            </span>
+            <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusClassName(room.status)}`}>{room.status}</span>
             <span className="text-sm">Capacity: {room.capacity}</span>
           </div>
         </CardHeader>
@@ -186,20 +192,7 @@ export default function CinemaRoomDetail() {
                   );
 
                 return (
-                  <div
-                    key={seatId}
-                    className={`p-2 text-center rounded flex flex-col items-center ${
-                      seat.status !== "AVAILABLE"
-                        ? "bg-gray-400 text-white"
-                        : isSelected
-                          ? "bg-green-500 text-white"
-                          : seat.type === "VIP"
-                            ? "bg-purple-100 text-purple-800"
-                            : seat.type === "PREMIUM"
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-blue-100 text-blue-800"
-                    }`}
-                  >
+                  <div key={seatId} className={`p-2 text-center rounded flex flex-col items-center ${getSeatClassName(seat, isSelected)}`}>
                     <span>
                       {row}
                       {number}

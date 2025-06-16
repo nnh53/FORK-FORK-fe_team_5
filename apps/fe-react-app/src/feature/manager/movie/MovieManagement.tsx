@@ -1,26 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { type Movie, type MovieFormData } from "../../../interfaces/movies.interface";
 import MovieDetail from "./MovieDetail";
 import MovieList from "./MovieList";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | undefined>();
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchInput, setSearchInput] = useState("");
+
   // Fetch movies for the initial load
   const fetchMovies = async () => {
-    setLoading(true);
     try {
       const response = await fetch("http://localhost:3000/movies");
       if (!response.ok) {
@@ -31,20 +25,9 @@ const MovieManagement = () => {
     } catch (error) {
       console.error("Error fetching movies:", error);
       toast.error("Failed to fetch movies");
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleSearch = () => {
-    setSearchQuery(searchInput);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
   useEffect(() => {
     fetchMovies();
   }, []);
@@ -110,7 +93,6 @@ const MovieManagement = () => {
       return;
     }
 
-    setLoading(true);
     try {
       // Handle file upload if present
       let posterUrl = values.poster;
@@ -159,8 +141,6 @@ const MovieManagement = () => {
     } catch (error) {
       console.error("Error saving movie:", error);
       toast.error("Failed to save movie");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -179,16 +159,16 @@ const MovieManagement = () => {
           </CardHeader>
           <CardContent>
             <div className="mb-6 flex w-full max-w-md">
-              <Input
-                type="text"
-                placeholder="Search cinema rooms..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                maxLength={28}
-                className="mr-2"
-              />
-              <Button onClick={handleSearch}>Search</Button>
+              {/*<Input*/}
+              {/*  type="text"*/}
+              {/*  placeholder="Search cinema rooms..."*/}
+              {/*  value={searchInput}*/}
+              {/*  onChange={(e) => setSearchInput(e.target.value)}*/}
+              {/*  onKeyPress={handleKeyPress}*/}
+              {/*  maxLength={28}*/}
+              {/*  className="mr-2"*/}
+              {/*/>*/}
+              {/*<Button onClick={handleSearch}>Search</Button>*/}
             </div>
             <MovieList onEdit={handleEdit} movies={movies} onMoviesChange={fetchMovies} />
           </CardContent>
@@ -214,5 +194,4 @@ const MovieManagement = () => {
     </>
   );
 };
-
 export default MovieManagement;

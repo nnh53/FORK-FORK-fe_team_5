@@ -8,7 +8,7 @@ import CheckboxForm from "../../components/forms/CheckboxForm";
 import FormField from "../../components/forms/FormFields";
 import { Logo } from "../../components/logo/Logo";
 import BannerTransition from "../../components/shared/BannerTransition";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 import type { Role } from "../../interfaces/roles.interface";
 import type { LoginDTO } from "../../interfaces/users.interface";
 import { loginValidationSchema } from "../../utils/validation.utils";

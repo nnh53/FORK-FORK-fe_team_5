@@ -39,7 +39,20 @@
   "conventionalCommits.gitmoji": false,
   "conventionalCommits.promptBody": false,
   "conventionalCommits.promptFooter": false,
-  "cSpell.words": ["caramellatte", "commitlint", "gsap", "iconify", "primeicons", "primereact", "ptag", "shadcn", "Showtimes", "sonner"],
+  "cSpell.words": [
+    "caramellatte",
+    "commitlint",
+    "gsap",
+    "iconify",
+    "primeicons",
+    "primereact",
+    "ptag",
+    "shadcn",
+    "Showtimes",
+    "sonner",
+    "sonarjs",
+    "sonar"
+  ],
   "chat.mcp.serverSampling": {
     "fe_team_5/.cursor/mcp.json: nx-mcp": {
       "allowedModels": [

@@ -1,6 +1,6 @@
 import bgTop from "@/assets/bg-top.png";
 import FCinema_Logo from "@/assets/FCinema_Logo.png";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth.ts";
 import { ROUTES } from "@/routes/route.constants";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +18,7 @@ const navItems: NavItemData[] = [
   },
   {
     label: "Movies",
-    path: ROUTES.HOME, // For now, pointing to home as movies are displayed there
+    path: ROUTES.HOME, // Nhớ fix cái này lại ko nó báo lỗi bên console
     children: [
       { label: "Now Showing", path: ROUTES.HOME + "#now-showing" },
       { label: "Coming Soon", path: ROUTES.HOME + "#coming-soon" },

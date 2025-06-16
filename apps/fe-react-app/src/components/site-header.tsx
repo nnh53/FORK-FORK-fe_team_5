@@ -1,5 +1,3 @@
-import { ModeToggle } from "@/components/mode-toggle";
-import { ThemeSelector } from "@/components/themes/theme-selector";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -16,8 +14,6 @@ export function SiteHeader() {
           </a>
         </h1>
         <div className="ml-auto flex items-center gap-2">
-          <ThemeSelector />
-          <ModeToggle />
           <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
             <a href="https://git.fa.edu.vn/hcm25_cpl_react_05/fe_team_5" rel="noopener noreferrer" target="_blank" className="dark:text-foreground">
               Gitlab

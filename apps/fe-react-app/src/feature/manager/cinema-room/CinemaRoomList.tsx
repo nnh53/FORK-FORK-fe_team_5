@@ -92,6 +92,12 @@ export default function CinemaRoomList({ searchQuery, onRefresh }: CinemaRoomLis
     }
   };
 
+  const getStatusClassName = (status: string) => {
+    if (status === "ACTIVE") return "bg-green-100 text-green-800";
+    if (status === "MAINTENANCE") return "bg-yellow-100 text-yellow-800";
+    return "bg-red-100 text-red-800";
+  };
+
   if (loading) {
     return <div className="text-center p-4">Loading cinema rooms...</div>;
   }
@@ -123,17 +129,7 @@ export default function CinemaRoomList({ searchQuery, onRefresh }: CinemaRoomLis
                 <TableCell>{room.type}</TableCell>
                 <TableCell>{room.capacity}</TableCell>
                 <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      room.status === "ACTIVE"
-                        ? "bg-green-100 text-green-800"
-                        : room.status === "MAINTENANCE"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {room.status}
-                  </span>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusClassName(room.status)}`}>{room.status}</span>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">

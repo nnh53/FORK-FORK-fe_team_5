@@ -47,7 +47,7 @@ const MemberTable = ({ members, onEdit, onDelete }: MemberTableProps) => {
                 </TableCell>
               </TableRow>
             ) : (
-              members.map((member, index) => {
+              members.map((member) => {
                 const { label, className } = getStatusDisplay(member.status);
                 return (
                   <TableRow key={member.member_id}>

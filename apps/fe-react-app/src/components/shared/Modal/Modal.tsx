@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -23,16 +23,19 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, containerClass
     }
   };
 
-  const handleDragMove = (clientY: number) => {
-    if (!isDragging || startYRef.current === null) return;
+  const handleDragMove = useCallback(
+    (clientY: number) => {
+      if (!isDragging || startYRef.current === null) return;
 
-    const deltaY = clientY - startYRef.current;
-    if (deltaY > 0) {
-      setOffsetY(deltaY);
-    }
-  };
+      const deltaY = clientY - startYRef.current;
+      if (deltaY > 0) {
+        setOffsetY(deltaY);
+      }
+    },
+    [isDragging],
+  );
 
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     if (!isDragging) return;
 
     if (modalRef.current) {
@@ -47,7 +50,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, containerClass
 
     setIsDragging(false);
     startYRef.current = null;
-  };
+  }, [isDragging, offsetY, onClose]);
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => handleDragStart(e.clientY);
   const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => handleDragStart(e.touches[0].clientY);
@@ -71,7 +74,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, containerClass
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [isDragging, offsetY]); // cần đưa offsetY vào để đảm bảo cập nhật đúng
+  }, [isDragging, handleDragMove, handleDragEnd]);
 
   useEffect(() => {
     if (isOpen) {

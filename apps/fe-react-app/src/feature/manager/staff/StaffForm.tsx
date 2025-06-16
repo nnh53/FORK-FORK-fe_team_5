@@ -57,7 +57,10 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
         <Controller
           name="email"
           control={control}
-          rules={{ required: "Email là bắt buộc", pattern: { value: /^\S+@\S+\.\S+$/, message: "Email không hợp lệ" } }}
+          rules={{
+            required: "Email là bắt buộc",
+            pattern: { value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]{1,63}\.[a-zA-Z]{2,}$/, message: "Email không hợp lệ" },
+          }}
           render={({ field, fieldState: { error } }) => (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email*</label>

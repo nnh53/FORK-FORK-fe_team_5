@@ -30,8 +30,8 @@ const ShowDateSelector: React.FC<ShowDateSelectorProps> = ({ dates, selectedDate
             ${isActive ? "border-red-600 text-red-600" : "border-transparent text-gray-900 hover:text-gray-900"}`}
             >
               <div className=" items-center">
-                <a className={`text-4xl leading-none ${isActive ? "font-semibold" : "font-semibold"}`}>{day}</a>
-                <a className={`text-lg leading-none mt-1 ${isActive ? "font-bold" : "font-bold"}`}>
+                <a className={`text-4xl leading-none ${isActive ? "font-semibold" : "font-normal"}`}>{day}</a>
+                <a className={`text-lg leading-none mt-1 ${isActive ? "font-bold" : "font-medium"}`}>
                   /{month} - {dayOfWeek}
                 </a>
               </div>

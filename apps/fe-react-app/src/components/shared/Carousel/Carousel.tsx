@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 const DEFAULT_IMAGES: string[] = [
   "https://img.daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.webp",
@@ -23,29 +23,32 @@ const Carousel: React.FC<CarouselProps> = ({ images = DEFAULT_IMAGES, height, im
   const carouselRef = useRef<HTMLDivElement>(null);
 
   // Hàm để cuộn tới một slide cụ thể
-  const navigateToSlide = (slideIndex: number, behavior: ScrollBehavior = "smooth") => {
-    if (!carouselRef.current || numImages === 0) return;
+  const navigateToSlide = useCallback(
+    (slideIndex: number, behavior: ScrollBehavior = "smooth") => {
+      if (!carouselRef.current || numImages === 0) return;
 
-    const targetSlideId = `slide${slideIndex + 1}`;
-    // Tìm slide con dựa trên ID bên trong phần tử carouselRef
-    const targetElement = carouselRef.current.querySelector<HTMLDivElement>(`#${targetSlideId}`);
+      const targetSlideId = `slide${slideIndex + 1}`;
+      // Tìm slide con dựa trên ID bên trong phần tử carouselRef
+      const targetElement = carouselRef.current.querySelector<HTMLDivElement>(`#${targetSlideId}`);
 
-    if (targetElement) {
-      const targetOffsetLeft = targetElement.offsetLeft; // Vị trí left của slide con so với carousel cha
+      if (targetElement) {
+        const targetOffsetLeft = targetElement.offsetLeft; // Vị trí left của slide con so với carousel cha
 
-      // Chỉ cuộn nếu vị trí hiện tại khác vị trí đích
-      if (carouselRef.current.scrollLeft !== targetOffsetLeft) {
-        carouselRef.current.scrollTo({
-          left: targetOffsetLeft,
-          behavior: behavior, // 'smooth' để cuộn mượt, 'auto' để cuộn ngay lập tức
-        });
+        // Chỉ cuộn nếu vị trí hiện tại khác vị trí đích
+        if (carouselRef.current.scrollLeft !== targetOffsetLeft) {
+          carouselRef.current.scrollTo({
+            left: targetOffsetLeft,
+            behavior: behavior, // 'smooth' để cuộn mượt, 'auto' để cuộn ngay lập tức
+          });
+        }
       }
-    }
-  };
+    },
+    [numImages],
+  );
 
   useEffect(() => {
     navigateToSlide(currentSlide, "smooth");
-  }, [currentSlide, numImages]);
+  }, [currentSlide, numImages, navigateToSlide]);
 
   // Effect 2: Logic Autoplay
   useEffect(() => {

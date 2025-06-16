@@ -2,11 +2,43 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import UserLayout from "../../../layouts/userLayout/UserLayout";
 import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
-import { mockCombos } from "../components/ComboItem/ComboItem.tsx";
+
+import type { Combo } from "../components/ComboItem/ComboItem.tsx";
 import ComboList from "../components/ComboList/ComboList.tsx";
 import PaymentInfo from "../components/PaymentInfo/PaymentInfo.tsx";
 import PaymentMethodSelector from "../components/PaymentMethodSelector/PaymentMethodSelector.tsx";
 import PaymentSummary from "../components/PaymentSummary/PaymentSummary.tsx";
+
+const mockCombos: Combo[] = [
+  {
+    id: "combo1",
+    name: "Family Combo Bắp",
+    description: "02 bắp ngọt lớn + 02 nước siêu lớn",
+    price: 129000,
+    imageUrl: "https://www.betacinemas.vn/images/common/combo-1.png",
+  },
+  {
+    id: "combo2",
+    name: "Combo lon Milo",
+    description: "01 lon Milo + 01 bắp ngọt lớn",
+    price: 89000,
+    imageUrl: "https://www.betacinemas.vn/images/common/combo-milo.png",
+  },
+  {
+    id: "combo3",
+    name: "Beta Combo Bắp",
+    description: "01 bắp ngọt lớn + 01 nước siêu lớn",
+    price: 79000,
+    imageUrl: "https://www.betacinemas.vn/images/common/combo-2.png",
+  },
+  {
+    id: "combo4",
+    name: "Sweet Combo Bắp",
+    description: "01 bắp ngọt lớn + 01 KitKat + 01 nước ngọt",
+    price: 95000,
+    imageUrl: "https://www.betacinemas.vn/images/common/sweet-combo.png",
+  },
+];
 
 const CheckoutPage: React.FC = () => {
   const location = useLocation();

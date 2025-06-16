@@ -49,6 +49,27 @@ const formSchema = z.object({
   posterFile: z.any().optional(),
 });
 
+const GenreCheckbox = ({ genre, field }: { genre: MovieGenre; field: { value?: MovieGenre[]; onChange: (value: MovieGenre[]) => void } }) => {
+  const isSelected = field.value?.some((g: MovieGenre) => g.id === genre.id) || false;
+  const handleGenreChange = (checked: boolean) => {
+    const currentGenres = field.value || [];
+    if (checked) {
+      field.onChange([...currentGenres, genre]);
+    } else {
+      field.onChange(currentGenres.filter((g: MovieGenre) => g.id !== genre.id));
+    }
+  };
+
+  return (
+    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox checked={isSelected} onCheckedChange={handleGenreChange} />
+      </FormControl>
+      <FormLabel className="font-normal">{genre.name}</FormLabel>
+    </FormItem>
+  );
+};
+
 const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
   const [genres, setGenres] = useState<MovieGenre[]>([]);
   const [cinemaRooms, setCinemaRooms] = useState<CinemaRoom[]>([]);
@@ -377,12 +398,12 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
             <FormField
               control={form.control}
               name="posterFile"
-              render={({ field: { value, onChange, ...field } }) => (
+              render={({ field: { ...field } }) => (
                 <FormItem>
                   <FormLabel>Movie Poster</FormLabel>
                   <FormControl>
                     <div className="flex flex-col space-y-2">
-                      <Input type="file" accept="image/*" onChange={handleFileChange} {...field} />
+                      <Input type="file" accept="image/*" {...field} onChange={handleFileChange} />
                       {form.getValues("poster") && (
                         <div className="mt-2">
                           <img src={form.getValues("poster")} alt="Movie poster preview" className="h-20 w-auto object-contain" />
@@ -428,34 +449,17 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                 <div className="mb-4">
                   <FormLabel>Movie Types/Genres (Select all that apply)</FormLabel>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    {genres.map((genre) => (
-                      <FormField
-                        key={genre.id}
-                        control={form.control}
-                        name="genres"
-                        render={({ field }) => {
-                          const isSelected = field.value?.some((g) => g.id === genre.id) || false;
-                          return (
-                            <FormItem key={genre.id} className="flex flex-row items-start space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={isSelected}
-                                  onCheckedChange={(checked) => {
-                                    const currentGenres = field.value || [];
-                                    if (checked) {
-                                      field.onChange([...currentGenres, genre]);
-                                    } else {
-                                      field.onChange(currentGenres.filter((g) => g.id !== genre.id));
-                                    }
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">{genre.name}</FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
+                    <FormField
+                      control={form.control}
+                      name="genres"
+                      render={({ field }) => (
+                        <>
+                          {genres.map((genre) => (
+                            <GenreCheckbox key={genre.id} genre={genre} field={field} />
+                          ))}
+                        </>
+                      )}
+                    />
                   </div>
                 </div>
               </FormItem>

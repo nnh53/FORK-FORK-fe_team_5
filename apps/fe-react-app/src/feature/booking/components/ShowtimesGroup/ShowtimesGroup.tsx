@@ -14,7 +14,8 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
 
     return scheduleForDay.showtimes.reduce(
       (acc, showtime) => {
-        (acc[showtime.format] = acc[showtime.format] || []).push(showtime);
+        acc[showtime.format] = acc[showtime.format] || [];
+        acc[showtime.format].push(showtime);
         return acc;
       },
       {} as Record<string, Showtime[]>,
