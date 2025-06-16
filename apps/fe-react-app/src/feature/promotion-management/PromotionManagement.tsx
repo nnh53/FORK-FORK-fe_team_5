@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import type { Promotion } from "@/interfaces/promotion.interface.";
 import { type TableColumns } from "@/utils/Table";
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import { PromotionDialog } from "./PromotionDialog";
 import { PromotionTable } from "./PromotionTable";
 
@@ -13,10 +11,6 @@ export const PromotionManagement: React.FC = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion>();
   const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchInput, setSearchInput] = useState("");
   const promotionColumn: TableColumns[] = [
     {
       header: "#",
@@ -85,15 +79,15 @@ export const PromotionManagement: React.FC = () => {
     } else setOpen(true);
   };
 
-  const handleSearch = () => {
-    setSearchQuery(searchInput);
-  };
+  // const handleSearch = () => {
+  //   setSearchQuery(searchInput);
+  // };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
+  // const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === "Enter") {
+  //     handleSearch();
+  //   }
+  // };
 
   return (
     <>
@@ -110,16 +104,16 @@ export const PromotionManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="mb-6 flex w-full max-w-md">
-              <Input
-                type="text"
-                placeholder="Search cinema rooms..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                maxLength={28}
-                className="mr-2"
-              />
-              <Button onClick={handleSearch}>Search</Button>
+              {/*<Input*/}
+              {/*  type="text"*/}
+              {/*  placeholder="Search cinema rooms..."*/}
+              {/*  value={searchInput}*/}
+              {/*  onChange={(e) => setSearchInput(e.target.value)}*/}
+              {/*  onKeyPress={handleKeyPress}*/}
+              {/*  maxLength={28}*/}
+              {/*  className="mr-2"*/}
+              {/*/>*/}
+              {/*<Button onClick={handleSearch}>Search</Button>*/}
             </div>
             <PromotionTable promotions={promotions} columns={promotionColumn} onView={handleOpenDialog} />
           </CardContent>
