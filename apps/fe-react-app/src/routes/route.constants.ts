@@ -5,6 +5,7 @@ export const ROUTES = {
 
   // Public Routes
   HOME: "/home",
+  HOME_TEST: "/home-test",
   BOOKING: "/booking",
   CHECKOUT: "/checkout",
   MOVIE_DETAIL: "/movie/:movieId",
