@@ -8,7 +8,7 @@ export interface Promotion {
   startTime: string;
   endTime: string;
   description: string;
-  status: string;
+  status: "active" | "inactive";
 }
 
 export let promotions = [

@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +16,8 @@ const MovieManagement = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   // Fetch movies for the initial load
   const fetchMovies = async () => {
     setLoading(true);
@@ -33,6 +36,15 @@ const MovieManagement = () => {
     }
   };
 
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
   useEffect(() => {
     fetchMovies();
   }, []);
@@ -153,30 +165,53 @@ const MovieManagement = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-4">
-        <Button onClick={handleCreate}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Movie
-        </Button>
+    <>
+      <div className="container mx-auto p-4">
+        <Card className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-4">
+              <CardTitle>Movie Management</CardTitle>
+            </div>
+            <Button onClick={handleCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Movie
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-6 flex w-full max-w-md">
+              <Input
+                type="text"
+                placeholder="Search cinema rooms..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                maxLength={28}
+                className="mr-2"
+              />
+              <Button onClick={handleSearch}>Search</Button>
+            </div>
+            <MovieList onEdit={handleEdit} movies={movies} onMoviesChange={fetchMovies} />
+          </CardContent>
+        </Card>
       </div>
 
-      <MovieList onEdit={handleEdit} movies={movies} onMoviesChange={fetchMovies} />
-
-      <Dialog
-        open={isModalOpen}
-        onOpenChange={(open) => {
-          if (!open) handleCancel();
-        }}
-      >
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{selectedMovie ? "Edit Movie" : "Add New Movie"}</DialogTitle>
-          </DialogHeader>
-          <MovieDetail movie={selectedMovie} onSubmit={handleSubmit} onCancel={handleCancel} />
-        </DialogContent>
-      </Dialog>
-    </div>
+      <div className="p-6">
+        <div className="mb-4"></div>
+        <Dialog
+          open={isModalOpen}
+          onOpenChange={(open) => {
+            if (!open) handleCancel();
+          }}
+        >
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{selectedMovie ? "Edit Movie" : "Add New Movie"}</DialogTitle>
+            </DialogHeader>
+            <MovieDetail movie={selectedMovie} onSubmit={handleSubmit} onCancel={handleCancel} />
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   );
 };
 

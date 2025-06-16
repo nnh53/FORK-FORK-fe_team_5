@@ -61,7 +61,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-md border">
+    <>
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -117,15 +117,15 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
                       {movie.status.toUpperCase()}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleViewClick(movie)}>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end space-x-2">
+                      <Button variant="outline" size="icon" onClick={() => handleViewClick(movie)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => onEdit(movie)}>
+                      <Button variant="outline" size="icon" onClick={() => onEdit(movie)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(movie)}>
+                      <Button variant="outline" size="icon" onClick={() => handleDeleteClick(movie)}>
                         <Trash className="h-4 w-4 text-red-600" />
                       </Button>
                     </div>
@@ -157,7 +157,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
 
       {/* View Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className=" max-h-[80%] min-w-[50%] overflow-auto">
           <DialogHeader>
             <DialogTitle>Movie Details</DialogTitle>
           </DialogHeader>
@@ -255,7 +255,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 

@@ -19,7 +19,7 @@ export const CustomTable = <T extends object>({ tableColumns, tableData, action 
         <Table className="table table-zebra table-fixed w-full">
           {/* <!-- Table Head --> */}
           <TableHeader>
-            <TableRow key="header" className="text-lg text-neutral-600 uppercase">
+            <TableRow className="text-lg text-neutral-600 uppercase">
               {tableColumns &&
                 tableColumns.map((column) => (
                   <TableHead

@@ -1,11 +1,16 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import type { Promotion } from "@/interfaces/promotion.interface.";
-import { CustomTable, type TableColumns } from "@/utils/Table";
+import { AdminTable } from "@/utils/AdminTable";
+import { type TableColumns } from "@/utils/Table";
 import { formatDateTime, promotionValidationSchema } from "@/utils/validation.utils";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Plus } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const initialValues: Omit<Promotion, "id"> = {
   image: "",
@@ -25,6 +30,10 @@ export const PromotionManagement: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const promotionColumn: TableColumns[] = [
     {
       header: "#",
@@ -39,16 +48,16 @@ export const PromotionManagement: React.FC = () => {
     {
       header: "Nội dung",
       accessorKey: "description",
-      width: "w-[30%]",
+      width: "w-[20%]",
     },
     {
       header: "Mức giảm giá",
       accessorKey: "discountValue",
-      width: "w-[10%]",
     },
     {
       header: "Mức áp dụng",
       accessorKey: "minPurchase",
+      width: "w-[10%]",
     },
     {
       header: "Trạng thái",
@@ -110,6 +119,15 @@ export const PromotionManagement: React.FC = () => {
   const formInitialValues = selectedPromotion ? toFormattedFormData(selectedPromotion) : initialValues;
   const formattedTableData = toFormattedTableData(promotions);
 
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
   const onOpen = () => {
     setSelectedPromotion(undefined);
     if (open) setImagePreview(null);
@@ -117,11 +135,36 @@ export const PromotionManagement: React.FC = () => {
   };
   return (
     <>
-      <div className="flex gap-4 mt-3">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">{selectedPromotion ? "Cập nhật khuyến mãi" : "Tạo khuyến mãi mới"}</h2>
-        <Button onClick={onOpen}>+</Button>
+      <div className="container mx-auto p-4">
+        <Card className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-4">
+              <CardTitle>Promotion Management</CardTitle>
+            </div>
+            <Button onClick={onOpen}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Promotion
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-6 flex w-full max-w-md">
+              <Input
+                type="text"
+                placeholder="Search cinema rooms..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                maxLength={28}
+                className="mr-2"
+              />
+              <Button onClick={handleSearch}>Search</Button>
+            </div>
+            <AdminTable tableColumn={promotionColumn} tableData={formattedTableData} />
+          </CardContent>
+        </Card>
       </div>
-      <CustomTable tableColumns={promotionColumn} tableData={formattedTableData} action={handleOpenDialog}></CustomTable>
+
+      {/*  */}
       <Dialog open={open} onOpenChange={onOpen}>
         <DialogContent
           className="max-h-[90vh] overflow-y-auto sm:max-w-2x1  min-w-[50%]"
