@@ -1,5 +1,6 @@
-import { SearchBar } from "@/components/shared/SearchBar";
+import { SearchBar, type SearchCriteria } from "@/components/shared/SearchBar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Staff, StaffFormData } from "@/interfaces/staff.interface";
 import { Plus } from "lucide-react";
@@ -15,16 +16,31 @@ const StaffManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchType, setSearchType] = useState("name");
+  const [selectedSearchTypes, setSelectedSearchTypes] = useState<string[]>(["name"]); // Thay đổi từ searchType thành selectedSearchTypes
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
+  const [searchCriteria, setSearchCriteria] = useState<SearchCriteria[]>([]);
 
   const searchOptions = [
-    { label: "Tên", value: "name" },
-    { label: "Số điện thoại", value: "phone" },
-    { label: "Email", value: "email" },
-    { label: "Ngày sinh", value: "date_of_birth" },
-    { label: "Địa chỉ", value: "address" },
+    { label: "Tên", value: "name", type: "text" as const },
+    { label: "Số điện thoại", value: "phone", type: "text" as const },
+    { label: "Email", value: "email", type: "text" as const },
+    {
+      label: "Ngày sinh",
+      value: "date_of_birth",
+      type: "date" as const,
+    },
+    { label: "Địa chỉ", value: "address", type: "text" as const },
+    {
+      label: "Trạng thái",
+      value: "status",
+      type: "select" as const,
+      selectOptions: [
+        { value: "VERIFY", label: "Đã xác minh" },
+        { value: "BAN", label: "Bị cấm" },
+        { value: "UNVERIFY", label: "Chưa xác minh" },
+      ],
+    },
   ];
 
   const fetchStaffs = async () => {
@@ -44,25 +60,36 @@ const StaffManagement = () => {
     fetchStaffs();
   }, []);
 
+  // Updated filtering logic
   const filteredStaffs = useMemo(() => {
-    if (!staffs) return [];
+    if (!staffs || searchCriteria.length === 0) return staffs;
+
     return staffs.filter((staff) => {
-      switch (searchType) {
-        case "phone":
-          return staff.phone?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-        case "email":
-          return staff.email.toLowerCase().includes(searchTerm.toLowerCase());
-        case "date_of_birth":
-          return staff.date_of_birth?.includes(searchTerm) || false;
-        case "address":
-          return staff.address?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-        case "status":
-          return staff.status?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-        default:
-          return staff.name.toLowerCase().includes(searchTerm.toLowerCase());
-      }
+      return searchCriteria.every((criteria) => {
+        if (!criteria.value) return true; // Bỏ qua criteria không có giá trị
+
+        switch (criteria.field) {
+          case "name":
+            return staff.name.toLowerCase().includes((criteria.value as string).toLowerCase());
+          case "phone":
+            return staff.phone?.toLowerCase().includes((criteria.value as string).toLowerCase()) || false;
+          case "email":
+            return staff.email.toLowerCase().includes((criteria.value as string).toLowerCase());
+          case "date_of_birth":
+            if (criteria.value instanceof Date) {
+              return staff.date_of_birth?.includes(criteria.value.toISOString().split("T")[0]) || false;
+            }
+            return staff.date_of_birth?.includes(criteria.value as string) || false;
+          case "address":
+            return staff.address?.toLowerCase().includes((criteria.value as string).toLowerCase()) || false;
+          case "status":
+            return staff.status?.toLowerCase() === (criteria.value as string).toLowerCase();
+          default:
+            return true;
+        }
+      });
     });
-  }, [staffs, searchTerm, searchType]);
+  }, [staffs, searchCriteria]);
 
   const handleCreate = () => {
     setSelectedStaff(undefined);
@@ -122,26 +149,24 @@ const StaffManagement = () => {
   }
 
   return (
-    <div className="p-6  min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Danh sách nhân viên</h2>
-        <div className="flex items-center gap-4">
-          <SearchBar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            searchType={searchType}
-            setSearchType={setSearchType}
-            searchOptions={searchOptions}
-          />
-          <Button onClick={handleCreate} className="bg-red-500 hover:bg-red-600">
-            <Plus className="mr-2 h-4 w-4" />
-            Thêm nhân viên
-          </Button>
-        </div>
+    <>
+      <div className="container mx-auto p-4">
+        <Card className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-2xl font-bold ">Danh sách nhân viên</CardTitle>
+            <div className="flex items-center gap-4">
+              <SearchBar searchOptions={searchOptions} onSearchChange={setSearchCriteria} maxSelections={6} />
+              <Button onClick={handleCreate}>
+                <Plus className="mr-2 h-4 w-4" />
+                Thêm nhân viên
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <StaffTable staffs={filteredStaffs} onEdit={handleEdit} onDelete={handleDeleteClick} />
+          </CardContent>
+        </Card>
       </div>
-
-      <StaffTable staffs={filteredStaffs} onEdit={handleEdit} onDelete={handleDeleteClick} />
-
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => {
@@ -172,7 +197,7 @@ const StaffManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 

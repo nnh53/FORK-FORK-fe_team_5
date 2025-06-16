@@ -168,7 +168,7 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
         <Button variant="outline" onClick={onCancel}>
           Hủy
         </Button>
-        <Button type="submit" onClick={handleSubmit(onSubmit)} className="bg-red-500 hover:bg-red-600">
+        <Button type="submit" onClick={handleSubmit(onSubmit)}>
           {staff ? "Cập nhật" : "Thêm"} Nhân viên
         </Button>
       </DialogFooter>

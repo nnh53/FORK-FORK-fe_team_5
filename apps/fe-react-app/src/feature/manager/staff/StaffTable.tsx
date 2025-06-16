@@ -25,7 +25,7 @@ const getStatusDisplay = (status: StaffStatus) => {
 
 const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
   return (
-    <div className="w-full overflow-hidden rounded-md border">
+    <div className="w-full overflow-hidden rounded-lg">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
