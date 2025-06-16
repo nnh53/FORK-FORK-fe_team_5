@@ -49,7 +49,7 @@ export const MyMovieHistory: React.FC = () => {
         const data: MovieHistory[] = await response.json();
         const formattedData: MovieHistory[] = data.map((movie) => ({
           ...movie,
-          movieSlot: formatDateTime(movie.movieSlot).toString(),
+          movieSlot: formatDateTime(movie.movieSlot).join(" "),
         }));
 
         setTableData(formattedData);

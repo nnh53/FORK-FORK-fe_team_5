@@ -7,18 +7,18 @@ import type { TableColumns } from "./Table";
 interface AdminTableProps<T extends object> {
   tableColumn: TableColumns[];
   tableData: T[];
-  handleViewClick?: (data: T) => void;
-  handleEdit?: (data: T) => void;
-  handleDeleteClick?: (data: T) => void;
+  handleViewClick?: (id: number) => void;
+  handleEdit?: (id: number) => void;
+  handleDeleteClick?: (id: number) => void;
 }
 
 export const AdminTable = <T extends object>({ tableColumn, tableData, handleViewClick, handleEdit, handleDeleteClick }: AdminTableProps<T>) => {
   const colorPicker = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 uppercase";
       case "inactive":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 uppercase";
     }
   };
   return (
@@ -59,13 +59,13 @@ export const AdminTable = <T extends object>({ tableColumn, tableData, handleVie
                     )}
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button variant="outline" size="icon" onClick={() => (handleViewClick ? handleViewClick(data) : undefined)}>
+                        <Button variant="outline" size="icon" onClick={() => (handleViewClick ? handleViewClick((data as any).id) : undefined)}>
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => (handleEdit ? handleEdit(data) : undefined)}>
+                        <Button variant="outline" size="icon" onClick={() => (handleEdit ? handleEdit((data as any).id) : undefined)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => (handleDeleteClick ? handleDeleteClick(data) : undefined)}>
+                        <Button variant="outline" size="icon" onClick={() => (handleDeleteClick ? handleDeleteClick((data as any).id) : undefined)}>
                           <Trash className="h-4 w-4 text-red-600" />
                         </Button>
                       </div>

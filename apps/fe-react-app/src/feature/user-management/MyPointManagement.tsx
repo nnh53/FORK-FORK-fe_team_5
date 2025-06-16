@@ -34,7 +34,7 @@ export const MyPointManagement: React.FC = () => {
 
         const formattedData: MyPointHistory[] = data.pointHistory.map((record) => ({
           ...record,
-          date: formatDateTime(record.date).toString(),
+          date: formatDateTime(record.date).join(" "),
         }));
         setPointSummary(data);
         setTableData(formattedData);

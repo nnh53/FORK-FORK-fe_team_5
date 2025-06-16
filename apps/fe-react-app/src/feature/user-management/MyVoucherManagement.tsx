@@ -58,7 +58,7 @@ export const MyVoucherManagement: React.FC = () => {
         const data: MyVoucher[] = await response.json();
         const formattedData: MyVoucher[] = data.map((record) => ({
           ...record,
-          expiredDate: formatDateTime(record.expiredDate).toString(),
+          expiredDate: formatDateTime(record.expiredDate).join(" "),
         }));
         setMyVoucherData(formattedData);
       } catch (err) {
@@ -79,7 +79,7 @@ export const MyVoucherManagement: React.FC = () => {
         const data: MyVoucherHistory[] = await response.json();
         const formattedData: MyVoucherHistory[] = data.map((record) => ({
           ...record,
-          date: formatDateTime(record.date).toString(),
+          date: formatDateTime(record.date).join(" "),
         }));
         setMyVoucherHistory(formattedData);
       } catch (err) {
