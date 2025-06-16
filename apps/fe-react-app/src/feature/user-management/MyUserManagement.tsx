@@ -11,9 +11,7 @@ interface Tab {
   component: React.ReactNode;
 }
 
-const TabTransition= ()=>{
-  
-}
+const TabTransition = () => {};
 const tabsData: Tab[] = [
   { id: "account", label: "THÔNG TIN TÀI KHOẢN", component: <MyInfo /> },
   { id: "membership", label: "THẺ THÀNH VIÊN", component: <MyMembership /> },

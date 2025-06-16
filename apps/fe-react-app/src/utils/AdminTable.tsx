@@ -52,10 +52,7 @@ export const AdminTable = <T extends object>({ tableColumn, tableData, handleVie
                           </span>
                         </TableCell>
                       ) : (
-                        <TableCell
-                          key={`${column.accessorKey}_${(data as any).id ?? index}`}
-                          className=" whitespace-pre-wrap break-words"
-                        >
+                        <TableCell key={`${column.accessorKey}_${(data as any).id ?? index}`} className=" whitespace-pre-wrap break-words">
                           {(data as any)[column.accessorKey]}
                         </TableCell>
                       ),
