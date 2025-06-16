@@ -1,5 +1,6 @@
-import { SearchBar } from "@/components/shared/SearchBar";
+import { SearchBar, type SearchCriteria } from "@/components/shared/SearchBar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Member, MemberFormData } from "@/interfaces/member.interface";
 import { Plus } from "lucide-react";
@@ -14,18 +15,30 @@ const MemberManagement = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchType, setSearchType] = useState("name");
+  const [searchCriteria, setSearchCriteria] = useState<SearchCriteria[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
 
   const searchOptions = [
-    { label: "Tên", value: "name" },
-    { label: "Số điện thoại", value: "phone" },
-    { label: "Email", value: "email" },
-    { label: "Ngày sinh", value: "date_of_birth" },
-    { label: "Địa chỉ", value: "address" },
-    { label: "Trạng thái", value: "status" },
+    { label: "Tên", value: "name", type: "text" as const },
+    { label: "Số điện thoại", value: "phone", type: "text" as const },
+    { label: "Email", value: "email", type: "text" as const },
+    {
+      label: "Ngày sinh",
+      value: "date_of_birth",
+      type: "date" as const,
+    },
+    { label: "Địa chỉ", value: "address", type: "text" as const },
+    {
+      label: "Trạng thái",
+      value: "status",
+      type: "select" as const,
+      selectOptions: [
+        { value: "VERIFY", label: "Đã xác minh" },
+        { value: "BAN", label: "Bị cấm" },
+        { value: "UNVERIFY", label: "Chưa xác minh" },
+      ],
+    },
   ];
 
   const fetchMembers = async () => {
@@ -46,24 +59,34 @@ const MemberManagement = () => {
   }, []);
 
   const filteredMembers = useMemo(() => {
-    if (!members) return [];
+    if (!members || searchCriteria.length === 0) return members;
+
     return members.filter((member) => {
-      switch (searchType) {
-        case "phone":
-          return member.phone?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-        case "email":
-          return member.email.toLowerCase().includes(searchTerm.toLowerCase());
-        case "date_of_birth":
-          return member.date_of_birth?.includes(searchTerm) || false;
-        case "address":
-          return member.address?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-        case "status":
-          return member.status.toLowerCase().includes(searchTerm.toLowerCase());
-        default:
-          return member.name.toLowerCase().includes(searchTerm.toLowerCase());
-      }
+      return searchCriteria.every((criteria) => {
+        if (!criteria.value) return true; // Bỏ qua criteria không có giá trị
+
+        switch (criteria.field) {
+          case "name":
+            return member.name.toLowerCase().includes((criteria.value as string).toLowerCase());
+          case "phone":
+            return member.phone?.toLowerCase().includes((criteria.value as string).toLowerCase()) || false;
+          case "email":
+            return member.email.toLowerCase().includes((criteria.value as string).toLowerCase());
+          case "date_of_birth":
+            if (criteria.value instanceof Date) {
+              return member.date_of_birth?.includes(criteria.value.toISOString().split("T")[0]) || false;
+            }
+            return member.date_of_birth?.includes(criteria.value as string) || false;
+          case "address":
+            return member.address?.toLowerCase().includes((criteria.value as string).toLowerCase()) || false;
+          case "status":
+            return member.status.toLowerCase() === (criteria.value as string).toLowerCase();
+          default:
+            return true;
+        }
+      });
     });
-  }, [members, searchTerm, searchType]);
+  }, [members, searchCriteria]);
 
   const handleCreate = () => {
     setSelectedMember(undefined);
@@ -123,26 +146,24 @@ const MemberManagement = () => {
   }
 
   return (
-    <div className="p-6 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Danh sách thành viên</h2>
-        <div className="flex items-center gap-4">
-          <SearchBar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            searchType={searchType}
-            setSearchType={setSearchType}
-            searchOptions={searchOptions}
-          />
-          <Button onClick={handleCreate} className="bg-red-500 hover:bg-red-600">
-            <Plus className="mr-2 h-4 w-4" />
-            Thêm thành viên
-          </Button>
-        </div>
-      </div>
-
-      <MemberTable members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} />
-
+    <>
+      <div className="container mx-auto p-4">
+        <Card className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-2xl font-bold">Danh sách thành viên</CardTitle>
+            <div className="flex items-center gap-4">
+              <SearchBar searchOptions={searchOptions} onSearchChange={setSearchCriteria} maxSelections={6} />
+              <Button onClick={handleCreate}>
+                <Plus className="mr-2 h-4 w-4" />
+                Thêm thành viên
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <MemberTable members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} />
+          </CardContent>
+        </Card>
+      </div>{" "}
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => {
@@ -156,7 +177,6 @@ const MemberManagement = () => {
           <MemberForm member={selectedMember} onSubmit={handleSubmit} onCancel={handleCancel} />
         </DialogContent>
       </Dialog>
-
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -173,7 +193,7 @@ const MemberManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 

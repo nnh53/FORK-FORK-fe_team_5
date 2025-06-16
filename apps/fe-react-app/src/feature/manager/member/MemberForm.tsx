@@ -166,7 +166,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
         <Button variant="outline" onClick={onCancel}>
           Hủy
         </Button>
-        <Button type="submit" onClick={handleSubmit(onSubmit)} className="bg-red-500 hover:bg-red-600">
+        <Button type="submit" onClick={handleSubmit(onSubmit)}>
           {member ? "Cập nhật" : "Thêm"} Thành viên
         </Button>
       </DialogFooter>

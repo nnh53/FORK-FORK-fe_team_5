@@ -25,7 +25,7 @@ const getStatusDisplay = (status: MemberStatus) => {
 
 const MemberTable = ({ members, onEdit, onDelete }: MemberTableProps) => {
   return (
-    <div className="w-full overflow-hidden rounded-md border">
+    <div className="w-full overflow-hidden rounded-lg">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -36,7 +36,7 @@ const MemberTable = ({ members, onEdit, onDelete }: MemberTableProps) => {
               <TableHead>Số điện thoại</TableHead>
               <TableHead>Địa chỉ</TableHead>
               <TableHead>Trạng thái</TableHead>
-              <TableHead className="text-center">Hành động</TableHead>
+              <TableHead className="text-right">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -59,12 +59,12 @@ const MemberTable = ({ members, onEdit, onDelete }: MemberTableProps) => {
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>
                     </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex justify-center space-x-2">
-                        <Button variant="ghost" size="icon" onClick={() => onEdit(member)}>
-                          <Edit className="h-4 w-4 text-blue-600" />
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-2">
+                        <Button variant="outline" size="icon" onClick={() => onEdit(member)}>
+                          <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => onDelete(member)}>
+                        <Button variant="outline" size="icon" onClick={() => onDelete(member)}>
                           <Trash className="h-4 w-4 text-red-600" />
                         </Button>
                       </div>
