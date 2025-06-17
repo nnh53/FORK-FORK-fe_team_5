@@ -72,5 +72,6 @@
   },
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
-  }
+  },
+  "json.schemaDownload.enable": true
 }

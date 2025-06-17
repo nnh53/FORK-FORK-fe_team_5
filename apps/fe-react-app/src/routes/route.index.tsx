@@ -1,6 +1,7 @@
 import InternalServerError from "@/components/error/InternalServerError";
 import NotFoundError from "@/components/error/NotFoundError";
 import Loading from "@/components/shared/Loading";
+import { Test } from "@/components/shared/Test";
 import ForgotPassword from "@/feature/auth/ForgotPassword";
 import Login from "@/feature/auth/Login";
 import LogVIAReg from "@/feature/auth/LogVIAReg";
@@ -84,6 +85,8 @@ export const AppRoutes = () => (
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
     <Route path={ROUTES.ERROR} element={<NotFoundError />} />
     <Route path={ROUTES.INTERNAL_SERVER_ERROR} element={<InternalServerError />} />
+
+    <Route path={ROUTES.TEST} element={<Test />} />
 
     <Route path="*" element={<NotFoundError />} />
   </Routes>

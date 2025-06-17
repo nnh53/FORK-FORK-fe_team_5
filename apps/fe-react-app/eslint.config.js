@@ -24,6 +24,6 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "warn",
       "sonarjs/no-commented-code": "warn",
     },
-    ignores: ["src/components/ui/*"],
+    ignores: ["src/components/ui/*", "*.d.ts"],
   },
 );
