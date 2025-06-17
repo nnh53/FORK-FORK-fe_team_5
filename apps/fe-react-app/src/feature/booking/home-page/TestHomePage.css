@@ -485,3 +485,127 @@ body {
     letter-spacing: 3px;
   }
 }
+
+/* Carousel Section */
+.carousel-section {
+  position: relative;
+  background-color: #080c14;
+  padding: 60px 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.carousel-section .section-title {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.carousel-section .section-title h2 {
+  margin-bottom: 15px;
+  color: #fff;
+  font-size: 2.5rem;
+}
+
+.carousel-section .section-line {
+  margin: 0 auto;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #ff4d4d, #ff9d4d);
+  width: 80px;
+  height: 4px;
+}
+
+.carousel-wrapper {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  padding: 20px 0;
+  width: 100%;
+}
+
+/* Override default carousel styles for the movie theme */
+.carousel-section .carousel-container {
+  margin: 0 auto;
+  max-width: 1600px;
+}
+
+.carousel-section .carousel-item {
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(25, 30, 46, 0.8);
+  height: 350px;
+}
+
+.carousel-section .carousel-item:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 77, 77, 0.5);
+}
+
+.carousel-section .carousel-item-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top-right-radius: 12px;
+  border-top-left-radius: 12px;
+  background: linear-gradient(135deg, #2a3a5a, #1a2436);
+  padding: 20px;
+}
+
+.carousel-section .carousel-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  width: 60px;
+  height: 60px;
+  color: #ff4d4d;
+  font-size: 28px;
+}
+
+.carousel-section .carousel-item-content {
+  padding: 20px;
+}
+
+.carousel-section .carousel-item-title {
+  margin-bottom: 10px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.carousel-section .carousel-item-description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.carousel-section .carousel-indicators-container {
+  margin-top: 20px;
+}
+
+.carousel-section .carousel-indicator.active {
+  background-color: #ff4d4d;
+}
+
+.carousel-section .carousel-indicator.inactive {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .carousel-section .section-title h2 {
+    font-size: 2rem;
+  }
+
+  .carousel-section .carousel-item {
+    height: 300px;
+  }
+
+  .carousel-section .carousel-item-title {
+    font-size: 1.2rem;
+  }
+}

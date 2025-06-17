@@ -1,9 +1,10 @@
 import { ROUTES } from "@/routes/route.constants";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import CardSwap, { Card } from "../../../../Reactbits/CardSwap/CardSwap";
+import Carousel from "../../../../Reactbits/Carousel/Carousel";
 import hotBadge from "../../../assets/hotBadge.png";
 import nowShowingText from "../../../assets/nowShowingText.png";
 import upComingText from "../../../assets/upComingText.png";
@@ -15,11 +16,66 @@ gsap.registerPlugin(ScrollTrigger);
 
 const TestHomePage = () => {
   const heroRef = useRef<HTMLElement | null>(null);
+  const carouselRef = useRef<HTMLElement | null>(null);
   const cardSwapRef = useRef<HTMLElement | null>(null);
   const featuredMoviesRef = useRef<HTMLElement | null>(null);
   const experienceRef = useRef<HTMLElement | null>(null);
   const comingSoonRef = useRef<HTMLElement | null>(null);
   const parallaxRef = useRef<HTMLElement | null>(null);
+
+  // State for carousel width
+  const [carouselWidth, setCarouselWidth] = useState(1000);
+
+  // Handle window resize for responsive carousel
+  useEffect(() => {
+    const updateCarouselWidth = () => {
+      const width = window.innerWidth;
+      setCarouselWidth(width > 768 ? width * 0.85 : width * 0.95);
+    };
+
+    // Set initial width
+    updateCarouselWidth();
+
+    // Add resize listener
+    window.addEventListener("resize", updateCarouselWidth);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", updateCarouselWidth);
+  }, []);
+
+  // Movie data for carousel
+  const recentMovies = [
+    {
+      title: "The Marvels",
+      description: "Carol Danvers teams up with Monica Rambeau and Kamala Khan in this cosmic adventure.",
+      id: 1,
+      icon: "tabler:movie",
+    },
+    {
+      title: "Dune: Part Two",
+      description: "Paul Atreides unites with Chani and the Fremen while seeking revenge against those who destroyed his family.",
+      id: 2,
+      icon: "tabler:wind",
+    },
+    {
+      title: "Oppenheimer",
+      description: "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.",
+      id: 3,
+      icon: "tabler:atom",
+    },
+    {
+      title: "Mission: Impossible - Dead Reckoning",
+      description: "Ethan Hunt and his IMF team embark on their most dangerous mission yet.",
+      id: 4,
+      icon: "tabler:run",
+    },
+    {
+      title: "Poor Things",
+      description: "A young woman brought back to life by an unorthodox scientist embarks on a journey of self-discovery.",
+      id: 5,
+      icon: "tabler:heart",
+    },
+  ];
 
   useEffect(() => {
     // Create smooth scroll effect
@@ -44,6 +100,26 @@ const TestHomePage = () => {
       .to(".hero-bg", { yPercent: 50, ease: "none" })
       .to(".hero-content h1", { yPercent: -50, opacity: 0.5 }, 0)
       .to(".hero-content p", { yPercent: -30, opacity: 0.5 }, 0);
+
+    // Carousel section animation
+    gsap.fromTo(
+      ".carousel-section",
+      {
+        opacity: 0,
+        y: 50,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: carouselRef.current,
+          start: "top 80%",
+          toggleActions: "play none none none",
+        },
+      },
+    );
 
     // Card Swap section animation
     gsap.fromTo(
@@ -223,6 +299,35 @@ const TestHomePage = () => {
           <button className="cta-button">
             <Link to={ROUTES.BOOKING}>Book Now</Link>
           </button>
+        </div>
+      </section>
+
+      {/* New Releases Carousel Section */}
+      <section className="carousel-section" ref={carouselRef} id="new-releases">
+        <div className="section-title">
+          <h2>New Releases</h2>
+          <div className="section-line"></div>
+        </div>
+        <div className="carousel-wrapper">
+          <div
+            style={{
+              height: "400px",
+              position: "relative",
+              width: "100%",
+              padding: "0 20px",
+              maxWidth: "1800px",
+            }}
+          >
+            <Carousel
+              items={recentMovies}
+              baseWidth={carouselWidth}
+              autoplay={true}
+              autoplayDelay={4000}
+              pauseOnHover={true}
+              loop={true}
+              round={false}
+            />
+          </div>
         </div>
       </section>
 
