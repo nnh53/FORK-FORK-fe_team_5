@@ -7,6 +7,8 @@ import upComingText from "../../../assets/upComingText.png";
 import FooterTest from "../components/FooterTest/FooterTest";
 import HeaderTest from "../components/HeaderTest/HeaderTest";
 import "./TestHomePage.css";
+import { Link } from "react-router-dom";
+import { ROUTES } from "@/routes/route.constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -198,7 +200,9 @@ const TestHomePage = () => {
         <div className="hero-content">
           <h1>Experience Cinema Like Never Before</h1>
           <p>Immerse yourself in stunning visuals and captivating stories</p>
-          <button className="cta-button">Book Now</button>
+          <button className="cta-button">
+            <Link to={ROUTES.BOOKING}>Book Now</Link>
+          </button>
         </div>
       </section>
 

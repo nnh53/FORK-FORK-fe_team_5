@@ -5,14 +5,14 @@
   z-index: 1000;
   backdrop-filter: blur(10px);
   transition: all 0.4s ease-in-out;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(252, 250, 245, 0.8); /* Lighter version of base-100 */
   width: 100%;
   height: 90px;
 }
 
 .header-test.scrolled {
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-  background-color: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  background-color: rgba(252, 250, 245, 0.95); /* Nearly opaque base-100 */
   height: 70px;
 }
 
@@ -29,7 +29,7 @@
 .logo {
   display: flex;
   align-items: center;
-  color: #fff;
+  color: oklch(40% 0.123 38.172); /* base-content */
   font-weight: 700;
   font-size: 1.8rem;
 }
@@ -40,7 +40,7 @@
 }
 
 .logo span {
-  background: linear-gradient(to right, #ff8a00, #ff2070);
+  background: linear-gradient(to right, oklch(46.44% 0.111 37.85), oklch(22.45% 0.075 37.85)); /* accent to secondary */
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -66,7 +66,7 @@
   position: relative;
   transition: color 0.3s;
   padding: 5px 0;
-  color: #fff;
+  color: oklch(40% 0.123 38.172); /* base-content */
   font-weight: 500;
   font-size: 1rem;
   text-decoration: none;
@@ -77,14 +77,14 @@
   bottom: 0;
   left: 0;
   transition: width 0.3s;
-  background: linear-gradient(to right, #ff8a00, #ff2070);
+  background: linear-gradient(to right, oklch(46.44% 0.111 37.85), oklch(22.45% 0.075 37.85)); /* accent to secondary */
   width: 0;
   height: 2px;
   content: "";
 }
 
 .nav-link:hover {
-  color: #ff8a00;
+  color: oklch(46.44% 0.111 37.85); /* accent */
 }
 
 .nav-link:hover::after {
@@ -102,17 +102,22 @@
     color 0.3s;
   cursor: pointer;
   margin-right: 15px;
-  border: 2px solid #ff8a00;
+  border: 2px solid oklch(46.44% 0.111 37.85); /* accent */
   border-radius: 20px;
   background-color: transparent;
   padding: 8px 20px;
-  color: #ff8a00;
+  color: oklch(46.44% 0.111 37.85); /* accent */
   font-weight: 600;
 }
 
 .login-button:hover {
-  background-color: #ff8a00;
-  color: white;
+  background-color: oklch(46.44% 0.111 37.85); /* accent */
+  color: oklch(90% 0.076 70.697); /* accent-content */
+}
+
+.login-button a {
+  color: inherit;
+  text-decoration: none;
 }
 
 .book-button {
@@ -122,15 +127,15 @@
   cursor: pointer;
   border: none;
   border-radius: 20px;
-  background: linear-gradient(to right, #ff8a00, #ff2070);
+  background: linear-gradient(to right, oklch(46.44% 0.111 37.85), oklch(22.45% 0.075 37.85)); /* accent to secondary */
   padding: 10px 25px;
-  color: white;
+  color: oklch(90% 0.076 70.697); /* accent-content */
   font-weight: 600;
 }
 
 .book-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(255, 32, 112, 0.3);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .hamburger {
@@ -142,7 +147,7 @@
   display: block;
   transition: all 0.3s ease-in-out;
   margin: 5px auto;
-  background: linear-gradient(to right, #ff8a00, #ff2070);
+  background: linear-gradient(to right, oklch(46.44% 0.111 37.85), oklch(22.45% 0.075 37.85)); /* accent to secondary */
   width: 25px;
   height: 3px;
 }
@@ -173,7 +178,7 @@
     backdrop-filter: blur(10px);
     transition: 0.3s;
     box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
-    background-color: rgba(0, 0, 0, 0.95);
+    background-color: rgba(252, 250, 245, 0.95); /* Nearly opaque base-100 */
     padding: 20px 0;
     width: 100%;
     text-align: center;
