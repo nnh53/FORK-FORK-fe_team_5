@@ -1,13 +1,13 @@
-import React, { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import './FooterTest.css'
-import FCinemaLogo from '../../../../assets/FCinema_Logo.png'
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from "react";
+import FCinemaLogo from "../../../../assets/FCinema_Logo.png";
+import "./FooterTest.css";
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 const FooterTest = () => {
-  const footerRef = useRef<HTMLElement | null>(null)
+  const footerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     // Reveal footer animation
@@ -15,7 +15,7 @@ const FooterTest = () => {
       footerRef.current,
       {
         opacity: 0,
-        y: 50
+        y: 50,
       },
       {
         opacity: 1,
@@ -23,18 +23,18 @@ const FooterTest = () => {
         duration: 1,
         scrollTrigger: {
           trigger: footerRef.current,
-          start: 'top bottom',
-          toggleActions: 'play none none none'
-        }
-      }
-    )
+          start: "top bottom",
+          toggleActions: "play none none none",
+        },
+      },
+    );
 
     // Animate footer columns
     gsap.fromTo(
-      '.footer-column',
+      ".footer-column",
       {
         opacity: 0,
-        y: 30
+        y: 30,
       },
       {
         opacity: 1,
@@ -43,18 +43,18 @@ const FooterTest = () => {
         stagger: 0.2,
         scrollTrigger: {
           trigger: footerRef.current,
-          start: 'top bottom-=100',
-          toggleActions: 'play none none none'
-        }
-      }
-    )
+          start: "top bottom-=100",
+          toggleActions: "play none none none",
+        },
+      },
+    );
 
     // Animate social links
     gsap.fromTo(
-      '.social-icon',
+      ".social-icon",
       {
         scale: 0,
-        opacity: 0
+        opacity: 0,
       },
       {
         scale: 1,
@@ -62,19 +62,19 @@ const FooterTest = () => {
         duration: 0.5,
         stagger: 0.1,
         delay: 1,
-        ease: 'back.out(1.7)',
+        ease: "back.out(1.7)",
         scrollTrigger: {
           trigger: footerRef.current,
-          start: 'top bottom-=50',
-          toggleActions: 'play none none none'
-        }
-      }
-    )
+          start: "top bottom-=50",
+          toggleActions: "play none none none",
+        },
+      },
+    );
 
     return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
-    }
-  }, [])
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
+  }, []);
 
   return (
     <footer className="footer-test" ref={footerRef}>
@@ -105,22 +105,42 @@ const FooterTest = () => {
           <div className="footer-column">
             <h4>Quick Links</h4>
             <ul>
-              <li><a href="#">Home</a></li>
-              <li><a href="#">Movies</a></li>
-              <li><a href="#">Theaters</a></li>
-              <li><a href="#">Offers</a></li>
-              <li><a href="#">Gift Cards</a></li>
+              <li>
+                <a href="#">Home</a>
+              </li>
+              <li>
+                <a href="#">Movies</a>
+              </li>
+              <li>
+                <a href="#">Theaters</a>
+              </li>
+              <li>
+                <a href="#">Offers</a>
+              </li>
+              <li>
+                <a href="#">Gift Cards</a>
+              </li>
             </ul>
           </div>
 
           <div className="footer-column">
             <h4>Support</h4>
             <ul>
-              <li><a href="#">FAQs</a></li>
-              <li><a href="#">Terms of Service</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-              <li><a href="#">Contact Us</a></li>
-              <li><a href="#">Careers</a></li>
+              <li>
+                <a href="#">FAQs</a>
+              </li>
+              <li>
+                <a href="#">Terms of Service</a>
+              </li>
+              <li>
+                <a href="#">Privacy Policy</a>
+              </li>
+              <li>
+                <a href="#">Contact Us</a>
+              </li>
+              <li>
+                <a href="#">Careers</a>
+              </li>
             </ul>
           </div>
 
@@ -139,7 +159,7 @@ const FooterTest = () => {
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default FooterTest
+export default FooterTest;

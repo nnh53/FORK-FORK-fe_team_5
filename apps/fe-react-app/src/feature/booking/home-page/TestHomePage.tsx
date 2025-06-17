@@ -1,331 +1,272 @@
-import { useState } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from "react";
+import hotBadge from "../../../assets/hotBadge.png";
+import nowShowingText from "../../../assets/nowShowingText.png";
+import upComingText from "../../../assets/upComingText.png";
+import FooterTest from "../components/FooterTest/FooterTest";
+import HeaderTest from "../components/HeaderTest/HeaderTest";
+import "./TestHomePage.css";
 
-import MovieList from "../../../components/movie/MovieList/MovieList.tsx";
-import Carousel from "../../../components/shared/Carousel/Carousel.tsx";
-import UserLayout from "../../../layouts/userLayout/UserLayout.tsx";
-import ShowtimesModal from "../components/ShowtimesModal/ShowtimesModal.tsx";
-import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmModal.tsx";
+gsap.registerPlugin(ScrollTrigger);
 
-import nowShowing from "@/assets/nowShowingText.png";
-import pTagImage from "@/assets/pTag.png";
-import upcoming from "@/assets/upComingText.png";
-import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
-import { useNavigate } from "react-router-dom";
-import type { MovieCardProps } from "../../../components/movie/MovieCard/MovieCard.tsx";
-import type { SchedulePerDay } from "../components/ShowtimesModal/ShowtimesModal.tsx";
+const TestHomePage = () => {
+  const heroRef = useRef<HTMLElement | null>(null);
+  const featuredMoviesRef = useRef<HTMLElement | null>(null);
+  const experienceRef = useRef<HTMLElement | null>(null);
+  const comingSoonRef = useRef<HTMLElement | null>(null);
+  const parallaxRef = useRef<HTMLElement | null>(null);
 
-// 1. MOCK DATA PHIM
-const mockMovies: MovieCardProps[] = [
-  {
-    id: "1",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Dune: Part Two",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "165 phút",
-    isHot: true,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w",
-  },
-  {
-    id: "2",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Anyone But You",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "103 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=EkqY-Z0TyHM",
-  },
-  {
-    id: "3",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "The Marvels",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "105 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=wS_qbDztgVY",
-  },
-  {
-    id: "4",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Love Again",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "104 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=2QL7mNGt3CA",
-  },
-  {
-    id: "5",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Transformers: Rise of the Beasts",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "127 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=itnqEauWQZM",
-  },
-  {
-    id: "6",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "No Hard Feelings",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "103 phút",
-    isHot: true,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=P15S6ND8kbQ",
-  },
-  {
-    id: "7",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Avatar: The Way of Water",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "192 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=d9MyW72ELq0",
-  },
-  {
-    id: "8",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Your Place or Mine",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "109 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=Y8DAi0H-V1I",
-  },
-  {
-    id: "9",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "The Creator",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "133 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=ex3C1-5Dhb8",
-  },
-  {
-    id: "10",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "The Perfect Find",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "99 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=DRNRNks2CE0",
-  },
-  {
-    id: "11",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "The Matrix Resurrections",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "148 phút",
-    isHot: true,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=9ix7TUGVYIo",
-  },
-  {
-    id: "12",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Ticket to Paradise",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "104 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=hkP4tVTdsz8",
-  },
-  {
-    id: "13",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Ready Player One",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "140 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=cSp1dM2Vj48",
-  },
-  {
-    id: "14",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Marry Me",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "112 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=Ebv9_rNb5Ig",
-  },
-];
+  useEffect(() => {
+    // Create smooth scroll effect
+    const smoothScroll = () => {
+      const currentScroll = window.pageYOffset;
+      document.body.style.setProperty("--scroll", currentScroll.toString());
+      requestAnimationFrame(smoothScroll);
+    };
+    smoothScroll();
 
-// 2. MOCK DATA LỊCH CHIẾU
-const mockScheduleData: SchedulePerDay[] = [
-  {
-    date: "2025-06-09",
-    showtimes: [
-      { time: "09:30", availableSeats: 50, format: "2D Phụ đề" },
-      { time: "11:45", availableSeats: 30, format: "2D Phụ đề" },
-      { time: "14:00", availableSeats: 45, format: "2D Phụ đề" },
-      { time: "16:15", availableSeats: 12, format: "3D Lồng tiếng" },
-      { time: "19:00", availableSeats: 60, format: "3D Lồng tiếng" },
-      { time: "21:30", availableSeats: 25, format: "IMAX 3D" },
-    ],
-  },
-  {
-    date: "2025-06-10",
-    showtimes: [
-      { time: "10:00", availableSeats: 55, format: "2D Phụ đề" },
-      { time: "13:15", availableSeats: 20, format: "2D Phụ đề" },
-      { time: "17:00", availableSeats: 3, format: "3D Lồng tiếng" },
-      { time: "20:45", availableSeats: 40, format: "IMAX 3D" },
-    ],
-  },
-  {
-    date: "2025-06-11",
-    showtimes: [
-      { time: "09:00", availableSeats: 0, format: "2D Phụ đề" },
-      { time: "12:00", availableSeats: 18, format: "2D Phụ đề" },
-      { time: "15:30", availableSeats: 33, format: "3D Lồng tiếng" },
-      { time: "20:00", availableSeats: 28, format: "IMAX 3D" },
-    ],
-  },
-];
-
-interface FinalSelection {
-  date: string;
-  time: string;
-  format: string;
-}
-
-function HomePage() {
-  const navigate = useNavigate();
-
-  const movieBaner: string[] = [
-    "https://weliveentertainment.com/wp-content/uploads/2025/04/minecraft-movie-banner.png",
-    "https://files.betacorp.vn/media/images/2025/06/04/1702x621-13-104719-040625-85.png",
-  ];
-
-  const [isShowtimesModalOpen, setIsShowtimesModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<MovieCardProps | null>(null);
-  const [finalSelection, setFinalSelection] = useState<FinalSelection | null>(null);
-  const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
-  const [selectedTrailerUrl, setSelectedTrailerUrl] = useState("");
-
-  const handleBuyTicketClick = (movie: MovieCardProps) => {
-    setSelectedMovie(movie);
-    setIsShowtimesModalOpen(true);
-  };
-
-  const handlePosterClick = (movie: MovieCardProps) => {
-    setSelectedMovie(movie);
-    setSelectedTrailerUrl(movie.trailerUrl);
-    setIsTrailerModalOpen(true);
-    console.log(movie.trailerUrl);
-  };
-
-  const handleTitleClick = (movie: MovieCardProps) => {
-    navigate(`/movie/${movie.id}`);
-  };
-
-  const handleCloseShowtimesModal = () => {
-    setIsShowtimesModalOpen(false);
-    setSelectedMovie(null);
-  };
-
-  const handleFinalShowtimeSelect = (selected: FinalSelection) => {
-    setFinalSelection(selected);
-    setIsShowtimesModalOpen(false);
-    setIsConfirmModalOpen(true);
-  };
-
-  const handleConfirmBooking = () => {
-    setIsConfirmModalOpen(false);
-    navigate("/booking", {
-      state: {
-        movie: selectedMovie,
-        selection: finalSelection,
-        cinemaName: "F-CINEMA",
+    // Hero section parallax and text animation
+    const heroTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: heroRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
       },
     });
-    setSelectedMovie(null);
-    setFinalSelection(null);
-  };
+
+    heroTl
+      .to(".hero-bg", { yPercent: 50, ease: "none" })
+      .to(".hero-content h1", { yPercent: -50, opacity: 0.5 }, 0)
+      .to(".hero-content p", { yPercent: -30, opacity: 0.5 }, 0);
+
+    // Create a floating badge
+    gsap.to(".hot-badge", {
+      y: -15,
+      rotation: 5,
+      duration: 2,
+      ease: "power1.inOut",
+      repeat: -1,
+      yoyo: true,
+    });
+
+    // Create section transitions with pinning
+    gsap.utils.toArray<HTMLElement>(".panel").forEach((panel) => {
+      ScrollTrigger.create({
+        trigger: panel,
+        start: "top top",
+        pin: true,
+        pinSpacing: false,
+        markers: false,
+      });
+    });
+
+    // Featured movies animation with staggering
+    gsap.fromTo(
+      ".movie-card",
+      {
+        y: 100,
+        opacity: 0,
+        scale: 0.8,
+      },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        stagger: 0.2,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: featuredMoviesRef.current,
+          start: "top 80%",
+          toggleActions: "play none none none",
+        },
+      },
+    );
+
+    // Now showing text animation
+    gsap.fromTo(
+      ".now-showing-img",
+      {
+        x: -100,
+        opacity: 0,
+        scale: 0.5,
+      },
+      {
+        x: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 1.2,
+        ease: "elastic.out(1, 0.3)",
+        scrollTrigger: {
+          trigger: featuredMoviesRef.current,
+          start: "top 70%",
+          toggleActions: "play none none none",
+        },
+      },
+    );
+
+    // Experience section parallax
+    const experienceTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: experienceRef.current,
+        start: "top 80%",
+        end: "bottom 20%",
+        scrub: 1,
+      },
+    });
+
+    experienceTl.fromTo(".experience-image", { y: 100 }, { y: -100 }).fromTo(".experience-text", { y: 50 }, { y: -50 }, "<");
+
+    // Add parallax layers
+    gsap.utils.toArray<HTMLElement>(".parallax-layer").forEach((layer) => {
+      const depth = Number(layer.dataset.depth || 0);
+      const movement = -(layer.offsetHeight * depth);
+
+      gsap.fromTo(
+        layer,
+        { y: 0 },
+        {
+          y: movement,
+          ease: "none",
+          scrollTrigger: {
+            trigger: parallaxRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        },
+      );
+    });
+
+    // Coming soon animation
+    gsap.fromTo(
+      ".coming-soon-content",
+      {
+        y: 100,
+        opacity: 0,
+      },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: comingSoonRef.current,
+          start: "top 70%",
+          toggleActions: "play none none none",
+        },
+      },
+    );
+
+    // Coming soon text animation
+    gsap.fromTo(
+      ".upcoming-img",
+      {
+        x: 100,
+        opacity: 0,
+        scale: 0.5,
+      },
+      {
+        x: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 1.2,
+        ease: "elastic.out(1, 0.3)",
+        scrollTrigger: {
+          trigger: comingSoonRef.current,
+          start: "top 70%",
+          toggleActions: "play none none none",
+        },
+      },
+    );
+
+    return () => {
+      // Clean up all ScrollTrigger instances
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
+  }, []);
 
   return (
-    <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
-      <Carousel autoplayInterval={2000} images={movieBaner} height={"600px"} />
+    <div className="test-home-page">
+      <HeaderTest />
 
-      <div
-        className="
-          flex items-center justify-center
-          p-2 h-48
-          bg-gradient-to-r from-black/40 via-transparent to-black/40
-        "
-        id="now-showing"
-      >
-        <img src={nowShowing} className="h-24" alt="Phim sắp chiếu" />
-      </div>
-      <MovieList
-        horizontal={true}
-        movies={mockMovies}
-        cardsPerRow={4}
-        onPosterClick={handlePosterClick}
-        onTitleClick={handleTitleClick}
-        onMovieBuyTicketClick={handleBuyTicketClick}
-      />
+      {/* Hero Section */}
+      <section className="hero-section panel" ref={heroRef}>
+        <div className="hero-bg"></div>
+        <div className="hero-content">
+          <h1>Experience Cinema Like Never Before</h1>
+          <p>Immerse yourself in stunning visuals and captivating stories</p>
+          <button className="cta-button">Book Now</button>
+        </div>
+      </section>
 
-      <div
-        className="
-          flex items-center justify-center
-          p-2 h-48
-          bg-gradient-to-r from-black/40 via-transparent to-black/40
-        "
-        id="coming-soon"
-      >
-        <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
-      </div>
-      <MovieList
-        horizontal={true}
-        movies={mockMovies}
-        cardsPerRow={4}
-        onPosterClick={handlePosterClick}
-        onTitleClick={handleTitleClick}
-        onMovieBuyTicketClick={handleBuyTicketClick}
-      />
+      {/* Featured Movies */}
+      <section className="featured-section" ref={featuredMoviesRef}>
+        <div className="section-header">
+          <img src={nowShowingText} alt="Now Showing" className="now-showing-img" />
+          <div className="section-line"></div>
+        </div>
+        <div className="movies-container">
+          {[1, 2, 3, 4].map((movie) => (
+            <div className="movie-card" key={movie}>
+              <div className="movie-poster">{movie === 1 && <img src={hotBadge} alt="Hot" className="hot-badge" />}</div>
+              <div className="movie-details">
+                <h3>Movie Title {movie}</h3>
+                <p>Genre • Duration</p>
+                <button className="ticket-button">Get Tickets</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {selectedMovie && (
-        <ShowtimesModal
-          isOpen={isShowtimesModalOpen}
-          onClose={handleCloseShowtimesModal}
-          movieTitle={selectedMovie.title}
-          cinemaName="F-CINEMA"
-          scheduleData={mockScheduleData}
-          onSelectShowtime={handleFinalShowtimeSelect}
-        />
-      )}
+      {/* Parallax Section */}
+      <section className="parallax-section" ref={parallaxRef}>
+        <div className="parallax-layer" data-depth="0.1"></div>
+        <div className="parallax-layer" data-depth="0.2"></div>
+        <div className="parallax-layer" data-depth="0.3"></div>
+        <div className="parallax-content">
+          <h2>The Ultimate Movie Experience</h2>
+          <p>Feel the magic of cinema</p>
+        </div>
+      </section>
 
-      {selectedMovie && finalSelection && (
-        <TicketConfirmModal
-          isOpen={isConfirmModalOpen}
-          onClose={() => setIsConfirmModalOpen(false)}
-          onConfirm={handleConfirmBooking}
-          movieTitle={selectedMovie.title}
-          cinemaName="F-CINEMA"
-          selectedDate={finalSelection.date}
-          selectedTime={finalSelection.time}
-        />
-      )}
-      {selectedTrailerUrl && (
-        <TrailerModal
-          isOpen={isTrailerModalOpen}
-          onClose={() => setIsTrailerModalOpen(false)}
-          movieTitle={selectedMovie?.title || ""}
-          trailerUrl={selectedTrailerUrl}
-        />
-      )}
-    </UserLayout>
+      {/* Cinema Experience */}
+      <section className="experience-section" ref={experienceRef}>
+        <div className="experience-content">
+          <div className="experience-text">
+            <h2>Premium Cinema Experience</h2>
+            <p>
+              Luxury seating, state-of-the-art sound systems, and crystal-clear projection technology. Our theaters are designed to provide the
+              ultimate movie-watching experience.
+            </p>
+            <button className="learn-button">Learn More</button>
+          </div>
+          <div className="experience-image"></div>
+        </div>
+      </section>
+
+      {/* Coming Soon */}
+      <section className="coming-soon-section" ref={comingSoonRef}>
+        <div className="section-header">
+          <img src={upComingText} alt="Coming Soon" className="upcoming-img" />
+          <div className="section-line"></div>
+        </div>
+        <div className="coming-soon-content">
+          <div className="coming-soon-image"></div>
+          <div className="coming-soon-details">
+            <h3>Blockbuster Title</h3>
+            <p>Experience the most anticipated movie of the year. Coming next month to our theaters.</p>
+            <button className="notify-button">Notify Me</button>
+          </div>
+        </div>
+      </section>
+
+      <FooterTest />
+    </div>
   );
-}
+};
 
-export default HomePage;
+export default TestHomePage;

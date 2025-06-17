@@ -1,0 +1,454 @@
+/* TestHomePage.css */
+:root {
+  --scroll: 0;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.test-home-page {
+  overflow-x: hidden;
+  background-color: #0a0a0a;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  background-image: url('../../../assets/brickWall.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.5);
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 900px;
+  padding: 0 20px;
+}
+
+.hero-content h1 {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  transform: translateY(20px);
+  animation: fadeInUp 1s forwards;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-content p {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  transform: translateY(20px);
+  opacity: 0;
+  animation: fadeInUp 1s 0.3s forwards;
+}
+
+.cta-button {
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  border: none;
+  color: white;
+  padding: 12px 30px;
+  font-size: 1.2rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transform: translateY(20px);
+  opacity: 0;
+  animation: fadeInUp 1s 0.6s forwards;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.cta-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(255, 32, 112, 0.3);
+}
+
+/* Featured Movies Section */
+.featured-section {
+  padding: 100px 5%;
+  background-color: #0a0a0a;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+  position: relative;
+}
+
+.section-header img {
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+
+.section-line {
+  height: 3px;
+  width: 100px;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  margin: 0 auto;
+}
+
+.movies-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.movie-card {
+  background-color: #151515;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s;
+}
+
+.movie-card:hover {
+  transform: translateY(-10px);
+}
+
+.movie-poster {
+  height: 350px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.movie-card:nth-child(1) .movie-poster {
+  background-image: url('../../../assets/bg-top.png');
+}
+
+.movie-card:nth-child(2) .movie-poster {
+  background-image: url('../../../assets/brickWall.jpg');
+}
+
+.movie-card:nth-child(3) .movie-poster {
+  background-image: url('../../../assets/bg-top.png');
+}
+
+.movie-card:nth-child(4) .movie-poster {
+  background-image: url('../../../assets/brickWall.jpg');
+}
+
+.hot-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 60px;
+  height: 60px;
+  filter: drop-shadow(0 5px 10px rgba(255, 32, 112, 0.5));
+}
+
+.movie-details {
+  padding: 20px;
+}
+
+.movie-details h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.movie-details p {
+  color: #999;
+  margin-bottom: 20px;
+}
+
+.ticket-button {
+  background-color: transparent;
+  border: 2px solid #ff2070;
+  color: #ff2070;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.ticket-button:hover {
+  background-color: #ff2070;
+  color: white;
+}
+
+/* Parallax Section */
+.parallax-section {
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parallax-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  z-index: 0;
+}
+
+.parallax-layer:nth-child(1) {
+  background-image: url('../../../assets/brickWall.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+}
+
+.parallax-layer:nth-child(2) {
+  background: radial-gradient(circle, rgba(255, 138, 0, 0.2) 0%, transparent 70%);
+}
+
+.parallax-layer:nth-child(3) {
+  background: radial-gradient(circle, rgba(255, 32, 112, 0.2) 0%, transparent 70%);
+  transform: translate(-20%, -20%);
+}
+
+.parallax-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.parallax-content h2 {
+  font-size: 5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-transform: uppercase;
+}
+
+.parallax-content p {
+  font-size: 1.8rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+}
+
+/* Experience Section */
+.experience-section {
+  padding: 150px 5%;
+  background-color: #080808;
+  position: relative;
+  overflow: hidden;
+}
+
+.experience-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.experience-text {
+  flex: 1;
+  padding-right: 50px;
+}
+
+.experience-text h2 {
+  font-size: 3rem;
+  margin-bottom: 30px;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.experience-text p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  color: #ccc;
+}
+
+.learn-button {
+  background: transparent;
+  border: 2px solid #ff8a00;
+  color: #ff8a00;
+  padding: 10px 25px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.learn-button:hover {
+  background-color: #ff8a00;
+  color: white;
+}
+
+.experience-image {
+  flex: 1;
+  height: 500px;
+  background-image: url('../../../assets/brickWall.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 15px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Coming Soon Section */
+.coming-soon-section {
+  padding: 100px 5%;
+  background-color: #0a0a0a;
+}
+
+.coming-soon-content {
+  display: flex;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: linear-gradient(to right, rgba(20, 20, 20, 0.8), rgba(20, 20, 20, 0.6));
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+.coming-soon-image {
+  flex: 1;
+  height: 400px;
+  background-image: url('../../../assets/bg-top.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.coming-soon-details {
+  flex: 1;
+  padding: 50px;
+}
+
+.coming-soon-details h3 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.coming-soon-details p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  color: #ccc;
+}
+
+.notify-button {
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  border: none;
+  color: white;
+  padding: 12px 30px;
+  font-size: 1.2rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.notify-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(255, 32, 112, 0.3);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Media Queries */
+@media (max-width: 992px) {
+  .hero-content h1 {
+    font-size: 3rem;
+  }
+
+  .experience-content {
+    flex-direction: column;
+  }
+
+  .experience-text {
+    padding-right: 0;
+    padding-bottom: 50px;
+  }
+
+  .coming-soon-content {
+    flex-direction: column;
+  }
+
+  .coming-soon-image {
+    width: 100%;
+  }
+
+  .parallax-content h2 {
+    font-size: 3.5rem;
+  }
+
+  .parallax-content p {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero-content p {
+    font-size: 1.2rem;
+  }
+
+  .section-header h2 {
+    font-size: 2.5rem;
+  }
+
+  .section-header img {
+    max-width: 200px;
+  }
+
+  .experience-text h2 {
+    font-size: 2.5rem;
+  }
+
+  .coming-soon-details h3 {
+    font-size: 2rem;
+  }
+
+  .parallax-content h2 {
+    font-size: 2.5rem;
+  }
+
+  .parallax-content p {
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+  }
+}
