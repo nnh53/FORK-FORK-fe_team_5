@@ -3,6 +3,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import CardSwap, { Card } from "../../../../Reactbits/CardSwap/CardSwap";
 import hotBadge from "../../../assets/hotBadge.png";
 import nowShowingText from "../../../assets/nowShowingText.png";
 import upComingText from "../../../assets/upComingText.png";
@@ -14,6 +15,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const TestHomePage = () => {
   const heroRef = useRef<HTMLElement | null>(null);
+  const cardSwapRef = useRef<HTMLElement | null>(null);
   const featuredMoviesRef = useRef<HTMLElement | null>(null);
   const experienceRef = useRef<HTMLElement | null>(null);
   const comingSoonRef = useRef<HTMLElement | null>(null);
@@ -42,6 +44,24 @@ const TestHomePage = () => {
       .to(".hero-bg", { yPercent: 50, ease: "none" })
       .to(".hero-content h1", { yPercent: -50, opacity: 0.5 }, 0)
       .to(".hero-content p", { yPercent: -30, opacity: 0.5 }, 0);
+
+    // Card Swap section animation
+    gsap.fromTo(
+      ".card-swap-section",
+      {
+        opacity: 0,
+      },
+      {
+        opacity: 1,
+        duration: 1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: cardSwapRef.current,
+          start: "top 80%",
+          toggleActions: "play none none none",
+        },
+      },
+    );
 
     // Create a floating badge
     gsap.to(".hot-badge", {
@@ -203,6 +223,46 @@ const TestHomePage = () => {
           <button className="cta-button">
             <Link to={ROUTES.BOOKING}>Book Now</Link>
           </button>
+        </div>
+      </section>
+
+      {/* Card Swap Section */}
+      <section className="card-swap-section" ref={cardSwapRef} id="trending-movies">
+        <div className="section-title">
+          <h2>Trending Movies</h2>
+          <div className="section-line"></div>
+        </div>
+        <div className="card-swap-wrapper">
+          <CardSwap width={320} height={450} cardDistance={40} verticalDistance={20} delay={3000} pauseOnHover={true} skewAmount={5} easing="elastic">
+            <Card>
+              <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                <h3>Avengers: Endgame</h3>
+                <p>Action • Adventure • 3h 2m</p>
+                <button className="card-button">View Details</button>
+              </div>
+            </Card>
+            <Card>
+              <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                <h3>The Batman</h3>
+                <p>Action • Crime • 2h 56m</p>
+                <button className="card-button">View Details</button>
+              </div>
+            </Card>
+            <Card>
+              <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                <h3>Dune</h3>
+                <p>Sci-Fi • Adventure • 2h 35m</p>
+                <button className="card-button">View Details</button>
+              </div>
+            </Card>
+            <Card>
+              <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                <h3>No Time to Die</h3>
+                <p>Action • Thriller • 2h 43m</p>
+                <button className="card-button">View Details</button>
+              </div>
+            </Card>
+          </CardSwap>
         </div>
       </section>
 
