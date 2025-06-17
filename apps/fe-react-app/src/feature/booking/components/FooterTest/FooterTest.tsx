@@ -1,11 +1,11 @@
+import FCinemaLogo from "@/assets/FCinema_Logo.png";
+import { ROUTES } from "@/routes/route.constants";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
-import FlowingMenu from "../../../../../Reactbits/FlowingMenu/FlowingMenu";
-import FCinemaLogo from "@/assets/FCinema_Logo.png";
-import "./FooterTest.css";
 import { Link } from "react-router-dom";
-import { ROUTES } from "@/routes/route.constants";
+import FlowingMenu from "../../../../../Reactbits/FlowingMenu/FlowingMenu";
+import "./FooterTest.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
