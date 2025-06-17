@@ -2,41 +2,41 @@
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  transition: all 0.4s ease-in-out;
+  background-color: rgba(0, 0, 0, 0.5);
   width: 100%;
   height: 90px;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  z-index: 1000;
-  transition: all 0.4s ease-in-out;
 }
 
 .header-test.scrolled {
-  background-color: rgba(0, 0, 0, 0.9);
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.9);
   height: 70px;
 }
 
 .header-container {
-  max-width: 1400px;
-  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 0 auto;
   padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  max-width: 1400px;
+  height: 100%;
 }
 
 .logo {
   display: flex;
   align-items: center;
   color: #fff;
-  font-size: 1.8rem;
   font-weight: 700;
+  font-size: 1.8rem;
 }
 
 .logo img {
-  height: 40px;
   margin-right: 10px;
+  height: 40px;
 }
 
 .logo span {
@@ -53,9 +53,9 @@
 
 .nav-menu ul {
   display: flex;
-  list-style: none;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 .nav-menu li {
@@ -63,24 +63,24 @@
 }
 
 .nav-link {
-  color: #fff;
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 5px 0;
   position: relative;
   transition: color 0.3s;
+  padding: 5px 0;
+  color: #fff;
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: none;
 }
 
 .nav-link::after {
-  content: '';
   position: absolute;
-  width: 0;
-  height: 2px;
   bottom: 0;
   left: 0;
-  background: linear-gradient(to right, #ff8a00, #ff2070);
   transition: width 0.3s;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  width: 0;
+  height: 2px;
+  content: "";
 }
 
 .nav-link:hover {
@@ -97,15 +97,17 @@
 }
 
 .login-button {
-  background-color: transparent;
-  border: 2px solid #ff8a00;
-  color: #ff8a00;
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-weight: 600;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
   cursor: pointer;
   margin-right: 15px;
-  transition: background-color 0.3s, color 0.3s;
+  border: 2px solid #ff8a00;
+  border-radius: 20px;
+  background-color: transparent;
+  padding: 8px 20px;
+  color: #ff8a00;
+  font-weight: 600;
 }
 
 .login-button:hover {
@@ -114,14 +116,16 @@
 }
 
 .book-button {
-  background: linear-gradient(to right, #ff8a00, #ff2070);
-  border: none;
-  color: white;
-  padding: 10px 25px;
-  border-radius: 20px;
-  font-weight: 600;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  padding: 10px 25px;
+  color: white;
+  font-weight: 600;
 }
 
 .book-button:hover {
@@ -136,11 +140,11 @@
 
 .bar {
   display: block;
+  transition: all 0.3s ease-in-out;
+  margin: 5px auto;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
   width: 25px;
   height: 3px;
-  margin: 5px auto;
-  transition: all 0.3s ease-in-out;
-  background: linear-gradient(to right, #ff8a00, #ff2070);
 }
 
 @media (max-width: 992px) {
@@ -162,17 +166,17 @@
 
   .nav-menu {
     position: fixed;
-    left: -100%;
     top: 70px;
-    gap: 0;
+    left: -100%;
     flex-direction: column;
-    background-color: rgba(0, 0, 0, 0.95);
+    gap: 0;
     backdrop-filter: blur(10px);
-    width: 100%;
-    text-align: center;
     transition: 0.3s;
     box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.95);
     padding: 20px 0;
+    width: 100%;
+    text-align: center;
   }
 
   .nav-menu.active {
