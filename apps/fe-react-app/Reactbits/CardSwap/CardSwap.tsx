@@ -1,3 +1,4 @@
+import gsap from "gsap";
 import React, {
   Children,
   cloneElement,
@@ -10,7 +11,6 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import gsap from "gsap";
 import "./CardSwap.css";
 
 export interface CardSwapProps {
@@ -30,15 +30,9 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   customClass?: string;
 }
 
-export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ customClass, ...rest }, ref) => (
-    <div
-      ref={ref}
-      {...rest}
-      className={`card ${customClass ?? ""} ${rest.className ?? ""}`.trim()}
-    />
-  )
-);
+export const Card = forwardRef<HTMLDivElement, CardProps>(({ customClass, ...rest }, ref) => (
+  <div ref={ref} {...rest} className={`card ${customClass ?? ""} ${rest.className ?? ""}`.trim()} />
+));
 Card.displayName = "Card";
 
 type CardRef = RefObject<HTMLDivElement>;
@@ -49,12 +43,7 @@ interface Slot {
   zIndex: number;
 }
 
-const makeSlot = (
-  i: number,
-  distX: number,
-  distY: number,
-  total: number
-): Slot => ({
+const makeSlot = (i: number, distX: number, distY: number, total: number): Slot => ({
   x: i * distX,
   y: -i * distY,
   z: -i * distX * 1.5,
@@ -105,18 +94,10 @@ const CardSwap: React.FC<CardSwapProps> = ({
           returnDelay: 0.2,
         };
 
-  const childArr = useMemo(
-    () => Children.toArray(children) as ReactElement<CardProps>[],
-    [children]
-  );
-  const refs = useMemo<RefObject<HTMLDivElement | null>[]>(
-    () => childArr.map(() => React.createRef<HTMLDivElement>()),
-    [childArr.length]
-  );
+  const childArr = useMemo(() => Children.toArray(children) as ReactElement<CardProps>[], [children]);
+  const refs = useMemo<RefObject<HTMLDivElement | null>[]>(() => childArr.map(() => React.createRef<HTMLDivElement>()), [childArr.length]);
 
-  const order = useRef<number[]>(
-    Array.from({ length: childArr.length }, (_, i) => i)
-  );
+  const order = useRef<number[]>(Array.from({ length: childArr.length }, (_, i) => i));
 
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const intervalRef = useRef<number | null>(null);
@@ -124,13 +105,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
 
   useEffect(() => {
     const total = refs.length;
-    refs.forEach((r, i) =>
-      placeNow(
-        r.current!,
-        makeSlot(i, cardDistance, verticalDistance, total),
-        skewAmount
-      )
-    );
+    refs.forEach((r, i) => placeNow(r.current!, makeSlot(i, cardDistance, verticalDistance, total), skewAmount));
 
     const swap = () => {
       if (order.current.length < 2) return;
@@ -160,23 +135,18 @@ const CardSwap: React.FC<CardSwapProps> = ({
             duration: config.durMove,
             ease: config.ease,
           },
-          `promote+=${i * 0.15}`
+          `promote+=${i * 0.15}`,
         );
       });
 
-      const backSlot = makeSlot(
-        refs.length - 1,
-        cardDistance,
-        verticalDistance,
-        refs.length
-      );
+      const backSlot = makeSlot(refs.length - 1, cardDistance, verticalDistance, refs.length);
       tl.addLabel("return", `promote+=${config.durMove * config.returnDelay}`);
       tl.call(
         () => {
           gsap.set(elFront, { zIndex: backSlot.zIndex });
         },
         undefined,
-        "return"
+        "return",
       );
       tl.set(elFront, { x: backSlot.x, z: backSlot.z }, "return");
       tl.to(
@@ -186,7 +156,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
           duration: config.durReturn,
           ease: config.ease,
         },
-        "return"
+        "return",
       );
 
       tl.call(() => {
@@ -229,15 +199,11 @@ const CardSwap: React.FC<CardSwapProps> = ({
             onCardClick?.(i);
           },
         } as CardProps & React.RefAttributes<HTMLDivElement>)
-      : child
+      : child,
   );
 
   return (
-    <div
-      ref={container}
-      className="card-swap-container"
-      style={{ width, height }}
-    >
+    <div ref={container} className="card-swap-container" style={{ width, height }}>
       {rendered}
     </div>
   );
