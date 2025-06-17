@@ -1,8 +1,8 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
-import FCinemaLogo from "../../../../assets/FCinema_Logo.png";
 import FlowingMenu from "../../../../../Reactbits/FlowingMenu/FlowingMenu";
+import FCinemaLogo from "../../../../assets/FCinema_Logo.png";
 import "./FooterTest.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -14,15 +14,15 @@ const FooterTest = () => {
   // Định nghĩa menuItems cho FlowingMenu
   const menuItems = [
     {
-      link: '#',
-      text: 'F-Cinema',
-      image: 'https://picsum.photos/600/400?random=1'
+      link: "#",
+      text: "F-Cinema",
+      image: "https://picsum.photos/600/400?random=1",
     },
     {
-      link: '#',
-      text: 'Group 5',
-      image: 'https://picsum.photos/600/400?random=2'
-    }
+      link: "#",
+      text: "Group 5",
+      image: "https://picsum.photos/600/400?random=2",
+    },
   ];
 
   useEffect(() => {
@@ -196,7 +196,7 @@ const FooterTest = () => {
       </footer>
 
       {/* FlowingMenu section */}
-      <div className="flowing-menu-container" ref={flowingMenuRef} style={{ height: '300px', position: 'relative' }}>
+      <div className="flowing-menu-container" ref={flowingMenuRef} style={{ height: "300px", position: "relative" }}>
         <FlowingMenu items={menuItems} />
       </div>
     </>
