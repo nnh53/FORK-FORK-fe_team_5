@@ -14,15 +14,15 @@ import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.
 import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
+import About from "@/feature/static/About";
+import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
+import TermOfService from "@/feature/static/TermOfService";
 import Welcome from "@/feature/theme/Welcome";
 import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import AdminLayout from "@/layouts/adminLayout/AdminLayout.tsx";
 import UserLayout from "@/layouts/userLayout/UserLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import TermOfService from "@/feature/static/TermOfService";
-import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
-import About from "@/feature/static/About";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
