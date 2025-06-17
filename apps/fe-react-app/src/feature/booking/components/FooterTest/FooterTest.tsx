@@ -2,8 +2,10 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
 import FlowingMenu from "../../../../../Reactbits/FlowingMenu/FlowingMenu";
-import FCinemaLogo from "../../../../assets/FCinema_Logo.png";
+import FCinemaLogo from "@/assets/FCinema_Logo.png";
 import "./FooterTest.css";
+import { Link } from "react-router-dom";
+import { ROUTES } from "@/routes/route.constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -165,10 +167,10 @@ const FooterTest = () => {
                   <a href="#">FAQs</a>
                 </li>
                 <li>
-                  <a href="#">Terms of Service</a>
+                  <Link to={ROUTES.TERM_OF_SERVICE}>Terms of Service</Link>
                 </li>
                 <li>
-                  <a href="#">Privacy Policy</a>
+                  <Link to={ROUTES.PRIVACY_POLICY}>Privacy Policy</Link>
                 </li>
                 <li>
                   <a href="#">Contact Us</a>
