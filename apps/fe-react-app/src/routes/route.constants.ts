@@ -10,6 +10,14 @@ export const ROUTES = {
   CHECKOUT: "/checkout",
   MOVIE_DETAIL: "/movie/:movieId",
 
+  //Static Routes
+  TERM_OF_SERVICE: "/term-of-service",
+  PRIVACY_POLICY: "/privacy-policy",
+  FAQ: "/faq",
+  ABOUT: "/about",
+  HELP: "/help",
+  SEARCH: "/search",
+
   // Auth Routes
   AUTH: {
     ROOT: "/auth",

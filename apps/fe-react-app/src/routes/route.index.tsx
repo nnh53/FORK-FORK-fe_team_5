@@ -20,6 +20,9 @@ import AdminLayout from "@/layouts/adminLayout/AdminLayout.tsx";
 import UserLayout from "@/layouts/userLayout/UserLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import TermOfService from "@/feature/static/TermOfService";
+import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
+import About from "@/feature/static/About";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -33,6 +36,11 @@ export const AppRoutes = () => (
     <Route path={ROUTES.BOOKING} element={<BookingPage />} />
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
+
+    {/* Static Routes */}
+    <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
+    <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
+    <Route path={ROUTES.ABOUT} element={<About />} />
 
     {/* Auth Routes - grouped under /auth path prefix */}
     <Route path={ROUTES.AUTH.ROOT}>
