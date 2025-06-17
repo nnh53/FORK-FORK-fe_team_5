@@ -8,19 +8,19 @@ body {
 }
 
 .test-home-page {
-  overflow-x: hidden;
   background-color: #0a0a0a;
+  overflow-x: hidden;
   color: #ffffff;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 /* Hero Section */
 .hero-section {
-  position: relative;
-  height: 100vh;
   display: flex;
-  align-items: center;
+  position: relative;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
   overflow: hidden;
 }
 
@@ -28,55 +28,57 @@ body {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 0;
+  filter: brightness(0.5);
+  background-image: url("../../../assets/brickWall.jpg");
+  background-position: center;
+  background-size: cover;
   width: 100%;
   height: 120%;
-  background-image: url('../../../assets/brickWall.jpg');
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.5);
-  z-index: 0;
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
-  text-align: center;
-  max-width: 900px;
   padding: 0 20px;
+  max-width: 900px;
+  text-align: center;
 }
 
 .hero-content h1 {
-  font-size: 4rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
   transform: translateY(20px);
   animation: fadeInUp 1s forwards;
+  margin-bottom: 1rem;
   background: linear-gradient(to right, #ff8a00, #ff2070);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  font-weight: 700;
+  font-size: 4rem;
 }
 
 .hero-content p {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
   transform: translateY(20px);
   opacity: 0;
   animation: fadeInUp 1s 0.3s forwards;
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
 }
 
 .cta-button {
-  background: linear-gradient(to right, #ff8a00, #ff2070);
-  border: none;
-  color: white;
-  padding: 12px 30px;
-  font-size: 1.2rem;
-  border-radius: 30px;
-  cursor: pointer;
   transform: translateY(20px);
   opacity: 0;
   animation: fadeInUp 1s 0.6s forwards;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+  cursor: pointer;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  padding: 12px 30px;
+  color: white;
+  font-size: 1.2rem;
 }
 
 .cta-button:hover {
@@ -86,26 +88,26 @@ body {
 
 /* Featured Movies Section */
 .featured-section {
-  padding: 100px 5%;
   background-color: #0a0a0a;
+  padding: 100px 5%;
 }
 
 .section-header {
-  text-align: center;
-  margin-bottom: 60px;
   position: relative;
+  margin-bottom: 60px;
+  text-align: center;
 }
 
 .section-header img {
-  max-width: 300px;
   margin-bottom: 20px;
+  max-width: 300px;
 }
 
 .section-line {
-  height: 3px;
-  width: 100px;
-  background: linear-gradient(to right, #ff8a00, #ff2070);
   margin: 0 auto;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  width: 100px;
+  height: 3px;
 }
 
 .movies-container {
@@ -115,11 +117,11 @@ body {
 }
 
 .movie-card {
-  background-color: #151515;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   transition: transform 0.3s;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-radius: 15px;
+  background-color: #151515;
+  overflow: hidden;
 }
 
 .movie-card:hover {
@@ -127,35 +129,35 @@ body {
 }
 
 .movie-poster {
-  height: 350px;
-  background-size: cover;
-  background-position: center;
   position: relative;
+  background-position: center;
+  background-size: cover;
+  height: 350px;
 }
 
 .movie-card:nth-child(1) .movie-poster {
-  background-image: url('../../../assets/bg-top.png');
+  background-image: url("../../../assets/bg-top.png");
 }
 
 .movie-card:nth-child(2) .movie-poster {
-  background-image: url('../../../assets/brickWall.jpg');
+  background-image: url("../../../assets/brickWall.jpg");
 }
 
 .movie-card:nth-child(3) .movie-poster {
-  background-image: url('../../../assets/bg-top.png');
+  background-image: url("../../../assets/bg-top.png");
 }
 
 .movie-card:nth-child(4) .movie-poster {
-  background-image: url('../../../assets/brickWall.jpg');
+  background-image: url("../../../assets/brickWall.jpg");
 }
 
 .hot-badge {
   position: absolute;
   top: 10px;
   right: 10px;
+  filter: drop-shadow(0 5px 10px rgba(255, 32, 112, 0.5));
   width: 60px;
   height: 60px;
-  filter: drop-shadow(0 5px 10px rgba(255, 32, 112, 0.5));
 }
 
 .movie-details {
@@ -163,24 +165,26 @@ body {
 }
 
 .movie-details h3 {
-  font-size: 1.5rem;
   margin-bottom: 10px;
+  font-size: 1.5rem;
 }
 
 .movie-details p {
-  color: #999;
   margin-bottom: 20px;
+  color: #999;
 }
 
 .ticket-button {
-  background-color: transparent;
-  border: 2px solid #ff2070;
-  color: #ff2070;
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-weight: 600;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
   cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  border: 2px solid #ff2070;
+  border-radius: 20px;
+  background-color: transparent;
+  padding: 8px 20px;
+  color: #ff2070;
+  font-weight: 600;
 }
 
 .ticket-button:hover {
@@ -190,28 +194,28 @@ body {
 
 /* Parallax Section */
 .parallax-section {
-  height: 100vh;
-  position: relative;
-  overflow: hidden;
   display: flex;
-  align-items: center;
+  position: relative;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .parallax-layer {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 0;
   width: 100%;
   height: 120%;
-  z-index: 0;
 }
 
 .parallax-layer:nth-child(1) {
-  background-image: url('../../../assets/brickWall.jpg');
-  background-size: cover;
-  background-position: center;
   opacity: 0.4;
+  background-image: url("../../../assets/brickWall.jpg");
+  background-position: center;
+  background-size: cover;
 }
 
 .parallax-layer:nth-child(2) {
@@ -219,50 +223,50 @@ body {
 }
 
 .parallax-layer:nth-child(3) {
-  background: radial-gradient(circle, rgba(255, 32, 112, 0.2) 0%, transparent 70%);
   transform: translate(-20%, -20%);
+  background: radial-gradient(circle, rgba(255, 32, 112, 0.2) 0%, transparent 70%);
 }
 
 .parallax-content {
   position: relative;
   z-index: 1;
-  text-align: center;
-  max-width: 800px;
   padding: 0 20px;
+  max-width: 800px;
+  text-align: center;
 }
 
 .parallax-content h2 {
-  font-size: 5rem;
-  font-weight: 700;
   margin-bottom: 20px;
   background: linear-gradient(to right, #ff8a00, #ff2070);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  font-weight: 700;
+  font-size: 5rem;
   text-transform: uppercase;
 }
 
 .parallax-content p {
-  font-size: 1.8rem;
   color: #fff;
-  text-transform: uppercase;
+  font-size: 1.8rem;
   letter-spacing: 5px;
+  text-transform: uppercase;
 }
 
 /* Experience Section */
 .experience-section {
-  padding: 150px 5%;
-  background-color: #080808;
   position: relative;
+  background-color: #080808;
+  padding: 150px 5%;
   overflow: hidden;
 }
 
 .experience-content {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  max-width: 1200px;
+  align-items: center;
   margin: 0 auto;
+  max-width: 1200px;
 }
 
 .experience-text {
@@ -271,30 +275,32 @@ body {
 }
 
 .experience-text h2 {
-  font-size: 3rem;
   margin-bottom: 30px;
   background: linear-gradient(to right, #ff8a00, #ff2070);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  font-size: 3rem;
 }
 
 .experience-text p {
-  font-size: 1.2rem;
-  line-height: 1.6;
   margin-bottom: 30px;
   color: #ccc;
+  font-size: 1.2rem;
+  line-height: 1.6;
 }
 
 .learn-button {
-  background: transparent;
-  border: 2px solid #ff8a00;
-  color: #ff8a00;
-  padding: 10px 25px;
-  border-radius: 25px;
-  font-weight: 600;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
   cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  border: 2px solid #ff8a00;
+  border-radius: 25px;
+  background: transparent;
+  padding: 10px 25px;
+  color: #ff8a00;
+  font-weight: 600;
 }
 
 .learn-button:hover {
@@ -304,37 +310,37 @@ body {
 
 .experience-image {
   flex: 1;
-  height: 500px;
-  background-image: url('../../../assets/brickWall.jpg');
-  background-size: cover;
-  background-position: center;
-  border-radius: 15px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border-radius: 15px;
+  background-image: url("../../../assets/brickWall.jpg");
+  background-position: center;
+  background-size: cover;
+  height: 500px;
 }
 
 /* Coming Soon Section */
 .coming-soon-section {
-  padding: 100px 5%;
   background-color: #0a0a0a;
+  padding: 100px 5%;
 }
 
 .coming-soon-content {
   display: flex;
   align-items: center;
-  max-width: 1200px;
   margin: 0 auto;
-  background: linear-gradient(to right, rgba(20, 20, 20, 0.8), rgba(20, 20, 20, 0.6));
-  border-radius: 15px;
-  overflow: hidden;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  background: linear-gradient(to right, rgba(20, 20, 20, 0.8), rgba(20, 20, 20, 0.6));
+  max-width: 1200px;
+  overflow: hidden;
 }
 
 .coming-soon-image {
   flex: 1;
-  height: 400px;
-  background-image: url('../../../assets/bg-top.png');
-  background-size: cover;
+  background-image: url("../../../assets/bg-top.png");
   background-position: center;
+  background-size: cover;
+  height: 400px;
 }
 
 .coming-soon-details {
@@ -343,30 +349,32 @@ body {
 }
 
 .coming-soon-details h3 {
-  font-size: 2.5rem;
   margin-bottom: 20px;
   background: linear-gradient(to right, #ff8a00, #ff2070);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  font-size: 2.5rem;
 }
 
 .coming-soon-details p {
-  font-size: 1.2rem;
-  line-height: 1.6;
   margin-bottom: 30px;
   color: #ccc;
+  font-size: 1.2rem;
+  line-height: 1.6;
 }
 
 .notify-button {
-  background: linear-gradient(to right, #ff8a00, #ff2070);
-  border: none;
-  color: white;
-  padding: 12px 30px;
-  font-size: 1.2rem;
-  border-radius: 30px;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(to right, #ff8a00, #ff2070);
+  padding: 12px 30px;
+  color: white;
+  font-size: 1.2rem;
 }
 
 .notify-button:hover {
@@ -377,12 +385,12 @@ body {
 /* Animations */
 @keyframes fadeInUp {
   from {
-    opacity: 0;
     transform: translateY(20px);
+    opacity: 0;
   }
   to {
-    opacity: 1;
     transform: translateY(0);
+    opacity: 1;
   }
 }
 
