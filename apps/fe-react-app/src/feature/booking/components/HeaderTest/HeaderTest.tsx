@@ -1,10 +1,10 @@
+import { ROUTES } from "@/routes/route.constants";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import FCinemaLogo from "../../../../assets/FCinema_Logo.png";
 import "./HeaderTest.css";
-import { ROUTES } from "@/routes/route.constants";
-import { Link } from "react-router-dom";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -96,7 +96,8 @@ const HeaderTest = () => {
         </nav>
 
         <div className="header-actions">
-          <button className="login-button" ><Link to={ROUTES.AUTH.LOGIN}>Login</Link>
+          <button className="login-button">
+            <Link to={ROUTES.AUTH.LOGIN}>Login</Link>
           </button>
           <button className="book-button">Book Now</button>
         </div>

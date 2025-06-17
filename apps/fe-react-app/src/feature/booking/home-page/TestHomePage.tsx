@@ -1,14 +1,14 @@
+import { ROUTES } from "@/routes/route.constants";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import hotBadge from "../../../assets/hotBadge.png";
 import nowShowingText from "../../../assets/nowShowingText.png";
 import upComingText from "../../../assets/upComingText.png";
 import FooterTest from "../components/FooterTest/FooterTest";
 import HeaderTest from "../components/HeaderTest/HeaderTest";
 import "./TestHomePage.css";
-import { Link } from "react-router-dom";
-import { ROUTES } from "@/routes/route.constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
