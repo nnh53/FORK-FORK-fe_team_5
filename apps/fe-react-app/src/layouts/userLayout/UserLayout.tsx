@@ -17,19 +17,19 @@ const navItems: NavItemData[] = [
     path: ROUTES.HOME,
   },
   {
-    label: "Movies",
-    path: ROUTES.HOME, // Nhớ fix cái này lại ko nó báo lỗi bên console
+    label: "Phim",
+    path: ROUTES.HOME, // Movies are displayed on home page with search
     children: [
-      { label: "Now Showing", path: ROUTES.HOME + "#now-showing" },
-      { label: "Coming Soon", path: ROUTES.HOME + "#coming-soon" },
+      { label: "Phim Đang Chiếu", path: ROUTES.HOME + "#now-showing" },
+      { label: "Phim Sắp Chiếu", path: ROUTES.HOME + "#coming-soon" },
     ],
   },
   {
-    label: "Booking",
+    label: "Đặt Vé",
     path: ROUTES.BOOKING,
   },
   {
-    label: "Account",
+    label: "Tài Khoản",
     path: ROUTES.ACCOUNT,
   },
 ];
