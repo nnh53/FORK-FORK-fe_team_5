@@ -31,29 +31,6 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
-/* Welcome Text Animation */
-.welcome-text {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 1000px;
-  margin-bottom: 20px;
-}
-
-.welcome-text .letter {
-  display: inline-block;
-  transform-style: preserve-3d;
-  visibility: hidden; /* Initially hidden, will be shown by GSAP */
-  margin: 0 2px;
-  background: linear-gradient(to right, var(--color-accent), var(--color-secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-weight: 800;
-  font-size: 5rem;
-  text-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
-
 /* Hero Section */
 .hero-section {
   display: flex;

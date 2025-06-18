@@ -1,0 +1,57 @@
+/* WelcomePanel.css */
+.welcome-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.welcome-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px;
+  margin-bottom: 20px;
+}
+
+.welcome-text .letter {
+  display: inline-block;
+  transform-style: preserve-3d;
+  visibility: hidden; /* Initially hidden, will be shown by GSAP */
+  margin: 0 2px;
+  background: linear-gradient(to right, var(--color-accent, #946b38), var(--color-secondary, #392819));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+  font-size: 5rem;
+  text-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-text .space {
+  width: 1rem;
+}
+
+.welcome-text .hyphen {
+  position: relative;
+  top: -0.5rem;
+}
+
+.welcome-text .special-a {
+  display: inline-block;
+  position: relative;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .welcome-text .letter {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-text .letter {
+    margin: 0 1px;
+    font-size: 2rem;
+  }
+}
