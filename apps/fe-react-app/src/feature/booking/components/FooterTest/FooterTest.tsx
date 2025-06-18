@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import FlowingMenu from "../../../../../Reactbits/FlowingMenu/FlowingMenu";
 import "./FooterTest.css";
+import { Icon } from "@iconify/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,7 +14,6 @@ const FooterTest = () => {
   const footerRef = useRef<HTMLElement | null>(null);
   const flowingMenuRef = useRef<HTMLDivElement | null>(null);
 
-  // Định nghĩa menuItems cho FlowingMenu
   const menuItems = [
     {
       link: "#",
@@ -27,8 +27,8 @@ const FooterTest = () => {
     },
   ];
 
+  //footer animation
   useEffect(() => {
-    // Reveal footer animation
     gsap.fromTo(
       footerRef.current,
       {
@@ -121,21 +121,21 @@ const FooterTest = () => {
               <div className="footer-logo">
                 <img src={FCinemaLogo} alt="F-Cinema Logo" />
                 <h3>F-Cinema</h3>
-              </div>
+              </div>{" "}
               <p>Experience cinema like never before with the latest blockbusters and timeless classics in state-of-the-art theaters.</p>
               <div className="social-links">
-                <a href="#" className="social-icon">
-                  <i className="fab fa-facebook-f">F</i>
-                </a>
-                <a href="#" className="social-icon">
-                  <i className="fab fa-twitter">T</i>
-                </a>
-                <a href="#" className="social-icon">
-                  <i className="fab fa-instagram">I</i>
-                </a>
-                <a href="#" className="social-icon">
-                  <i className="fab fa-youtube">Y</i>
-                </a>
+                <div className="social-icon">
+                  <Icon icon="tabler:brand-facebook" />
+                </div>
+                <div className="social-icon">
+                  <Icon icon="tabler:brand-twitter" />
+                </div>
+                <div className="social-icon">
+                  <Icon icon="tabler:brand-instagram" />
+                </div>
+                <div className="social-icon">
+                  <Icon icon="tabler:brand-youtube" />
+                </div>
               </div>
             </div>
 
@@ -154,9 +154,6 @@ const FooterTest = () => {
                 <li>
                   <a href="#">Offers</a>
                 </li>
-                <li>
-                  <a href="#">Gift Cards</a>
-                </li>
               </ul>
             </div>
 
@@ -174,9 +171,6 @@ const FooterTest = () => {
                 </li>
                 <li>
                   <a href="#">Contact Us</a>
-                </li>
-                <li>
-                  <a href="#">Careers</a>
                 </li>
               </ul>
             </div>

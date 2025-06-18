@@ -355,13 +355,13 @@ const TestHomePage = () => {
           </div>
           <div className="card-swap-wrapper">
             <CardSwap
-              width={320}
+              width={620}
               height={450}
               cardDistance={40}
               verticalDistance={20}
               delay={3000}
               pauseOnHover={true}
-              skewAmount={5}
+              skewAmount={3}
               easing="elastic"
             >
               <Card>
