@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/utils/DatePicker";
 import { Plus } from "lucide-react";
@@ -8,13 +10,12 @@ import { toast } from "sonner";
 import { type Movie, type MovieFormData } from "../../../interfaces/movies.interface";
 import MovieDetail from "./MovieDetail";
 import MovieList from "./MovieList";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | undefined>();
   const [movies, setMovies] = useState<Movie[]>([]);
-
+  const [searchInput, setSearchInput] = useState<string>("");
   const [from, setFrom] = useState<Date | undefined>(undefined);
   const [to, setTo] = useState<Date | undefined>(undefined);
   // Fetch movies for the initial load
@@ -168,7 +169,7 @@ const MovieManagement = () => {
                 placeholder="Search cinemas..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                onKeyPress={handleKeyPress}
+                // onKeyPress={handleKeyPress}
                 maxLength={28}
                 className="mr-2 w-1/3"
               />
@@ -186,7 +187,7 @@ const MovieManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleSearch}>Search</Button>
+              <Button>Search</Button>
             </div>
             <MovieList onEdit={handleEdit} movies={movies} onMoviesChange={fetchMovies} />
           </CardContent>
