@@ -1,16 +1,40 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Folder from "../../../../Reactbits/Folder/Folder";
 
 const FrequentlyAsk = () => {
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handlePaperClick = (folderId: string) => {
+  const handlePaperClick = (folderId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent event bubbling
     setExpandedFolder(expandedFolder === folderId ? null : folderId);
   };
+  // Close expanded folder when clicking anywhere
+  useEffect(() => {
+    const handleClickAnywhere = (event: MouseEvent) => {
+      if (expandedFolder) {
+        // Check if click is on any expanded paper content
+        const target = event.target as HTMLElement;
+        const isClickOnExpandedPaper = target.closest(".paper-expanded") || target.closest('[data-expanded="true"]');
 
+        if (!isClickOnExpandedPaper) {
+          setExpandedFolder(null);
+        }
+      }
+    };
+
+    if (expandedFolder) {
+      document.addEventListener("mousedown", handleClickAnywhere);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickAnywhere);
+    };
+  }, [expandedFolder]);
   const faq1 = [
     <div
       key="faq1"
+      data-expanded={expandedFolder === "folder1"}
       style={{
         padding: "4px",
         fontSize: expandedFolder === "folder1" ? "10px" : "7px",
@@ -20,7 +44,7 @@ const FrequentlyAsk = () => {
         transition: "all 0.3s ease",
         cursor: "pointer",
       }}
-      onClick={() => handlePaperClick("folder1")}
+      onClick={(event) => handlePaperClick("folder1", event)}
     >
       <strong>Cancel booking?</strong>
       <br />
@@ -34,10 +58,10 @@ const FrequentlyAsk = () => {
       </span>
     </div>,
   ];
-
   const faq2 = [
     <div
       key="faq2"
+      data-expanded={expandedFolder === "folder2"}
       style={{
         padding: "4px",
         fontSize: expandedFolder === "folder2" ? "10px" : "7px",
@@ -47,7 +71,7 @@ const FrequentlyAsk = () => {
         transition: "all 0.3s ease",
         cursor: "pointer",
       }}
-      onClick={() => handlePaperClick("folder2")}
+      onClick={(event) => handlePaperClick("folder2", event)}
     >
       <strong>Refund policy?</strong>
       <br />
@@ -61,10 +85,10 @@ const FrequentlyAsk = () => {
       </span>
     </div>,
   ];
-
   const faq3 = [
     <div
       key="faq3"
+      data-expanded={expandedFolder === "folder3"}
       style={{
         padding: "4px",
         fontSize: expandedFolder === "folder3" ? "10px" : "7px",
@@ -74,7 +98,7 @@ const FrequentlyAsk = () => {
         transition: "all 0.3s ease",
         cursor: "pointer",
       }}
-      onClick={() => handlePaperClick("folder3")}
+      onClick={(event) => handlePaperClick("folder3", event)}
     >
       <strong>Seat selection?</strong>
       <br />
@@ -88,9 +112,8 @@ const FrequentlyAsk = () => {
       </span>
     </div>,
   ];
-
   return (
-    <div style={{ height: "600px", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div ref={containerRef} style={{ height: "600px", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
         <h3 style={{ marginBottom: "30px", color: "#5227FF" }}>Frequently Asked Questions</h3>
         <p style={{ marginBottom: "30px", color: "#666" }}>Click each folder to explore different questions</p>{" "}
