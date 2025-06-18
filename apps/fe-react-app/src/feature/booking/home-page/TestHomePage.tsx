@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import CardSwap, { Card } from "../../../../Reactbits/CardSwap/CardSwap";
+import ClickSpark from "../../../../Reactbits/ClickSpark/ClickSpark";
 import hotBadge from "../../../assets/hotBadge.png";
 import nowShowingText from "../../../assets/nowShowingText.png";
 import upComingText from "../../../assets/upComingText.png";
@@ -267,167 +268,169 @@ const TestHomePage = () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
-
   return (
-    <div className="test-home-page">
-      <HeaderTest />
-
-      {/* Hero Section */}
-      <section className="hero-section panel" ref={heroRef}>
-        <div className="hero-bg"></div>
-        <div className="hero-content">
-          <WelcomePanel />
-          <h1>Experience Cinema Like Never Before</h1>
-          <p>Immerse yourself in stunning visuals and captivating stories</p>
-          <button className="cta-button">
-            <Link to={ROUTES.BOOKING}>Book Now</Link>
-          </button>
-        </div>
-      </section>
-
-      {/* New Releases Carousel Section */}
-      <section className="carousel-section" ref={carouselRef} id="new-releases">
-        <div className="section-title">
-          <h2>New Releases</h2>
-          <div className="section-line"></div>
-        </div>
-        <div className="carousel-wrapper">
-          <div
-            style={{
-              padding: "0 20px",
-              maxWidth: "1800px",
-              margin: "0 auto",
-            }}
-          >
-            <Carousel className="w-full">
-              <CarouselContent>
-                {recentMovies.map((movie) => (
-                  <CarouselItem key={movie.id} className="md:basis-1/2 lg:basis-1/3">
-                    <div className="p-1">
-                      <ShadcnCard>
-                        <CardContent className="flex flex-col items-center justify-center p-6 aspect-video">
-                          <h3 className="text-xl font-bold mb-2">{movie.title}</h3>
-                          <p className="text-sm text-center">{movie.description}</p>
-                          <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
-                            View Details
-                          </button>
-                        </CardContent>
-                      </ShadcnCard>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" />
-            </Carousel>
+    <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
+      <div className="test-home-page">
+        <HeaderTest />
+        {/* Hero Section */}
+        <section className="hero-section panel" ref={heroRef}>
+          <div className="hero-bg"></div>
+          <div className="hero-content">
+            <WelcomePanel />
+            <h1>Experience Cinema Like Never Before</h1>
+            <p>Immerse yourself in stunning visuals and captivating stories</p>
+            <button className="cta-button">
+              <Link to={ROUTES.BOOKING}>Book Now</Link>
+            </button>
           </div>
-        </div>
-      </section>
-
-      {/* Card Swap Section */}
-      <section className="card-swap-section" ref={cardSwapRef} id="trending-movies">
-        <div className="section-title">
-          <h2>Trending Movies</h2>
-          <div className="section-line"></div>
-        </div>
-        <div className="card-swap-wrapper">
-          <CardSwap width={320} height={450} cardDistance={40} verticalDistance={20} delay={3000} pauseOnHover={true} skewAmount={5} easing="elastic">
-            <Card>
-              <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
-                <h3>Avengers: Endgame</h3>
-                <p>Action • Adventure • 3h 2m</p>
-                <button className="card-button">View Details</button>
-              </div>
-            </Card>
-            <Card>
-              <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
-                <h3>The Batman</h3>
-                <p>Action • Crime • 2h 56m</p>
-                <button className="card-button">View Details</button>
-              </div>
-            </Card>
-            <Card>
-              <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
-                <h3>Dune</h3>
-                <p>Sci-Fi • Adventure • 2h 35m</p>
-                <button className="card-button">View Details</button>
-              </div>
-            </Card>
-            <Card>
-              <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
-                <h3>No Time to Die</h3>
-                <p>Action • Thriller • 2h 43m</p>
-                <button className="card-button">View Details</button>
-              </div>
-            </Card>
-          </CardSwap>
-        </div>
-      </section>
-
-      {/* Featured Movies */}
-      <section className="featured-section" ref={featuredMoviesRef}>
-        <div className="section-header">
-          <img src={nowShowingText} alt="Now Showing" className="now-showing-img" />
-          <div className="section-line"></div>
-        </div>
-        <div className="movies-container">
-          {[1, 2, 3, 4].map((movie) => (
-            <div className="movie-card" key={movie}>
-              <div className="movie-poster">{movie === 1 && <img src={hotBadge} alt="Hot" className="hot-badge" />}</div>
-              <div className="movie-details">
-                <h3>Movie Title {movie}</h3>
-                <p>Genre • Duration</p>
-                <button className="ticket-button">Get Tickets</button>
-              </div>
+        </section>
+        {/* New Releases Carousel Section */}
+        <section className="carousel-section" ref={carouselRef} id="new-releases">
+          <div className="section-title">
+            <h2>New Releases</h2>
+            <div className="section-line"></div>
+          </div>
+          <div className="carousel-wrapper">
+            <div
+              style={{
+                padding: "0 20px",
+                maxWidth: "1800px",
+                margin: "0 auto",
+              }}
+            >
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {recentMovies.map((movie) => (
+                    <CarouselItem key={movie.id} className="md:basis-1/2 lg:basis-1/3">
+                      <div className="p-1">
+                        <ShadcnCard>
+                          <CardContent className="flex flex-col items-center justify-center p-6 aspect-video">
+                            <h3 className="text-xl font-bold mb-2">{movie.title}</h3>
+                            <p className="text-sm text-center">{movie.description}</p>
+                            <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+                              View Details
+                            </button>
+                          </CardContent>
+                        </ShadcnCard>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2" />
+                <CarouselNext className="right-2" />
+              </Carousel>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Parallax Section */}
-      <section className="parallax-section" ref={parallaxRef}>
-        <div className="parallax-layer" data-depth="0.1"></div>
-        <div className="parallax-layer" data-depth="0.2"></div>
-        <div className="parallax-layer" data-depth="0.3"></div>
-        <div className="parallax-content">
-          <h2>The Ultimate Movie Experience</h2>
-          <p>Feel the magic of cinema</p>
-        </div>
-      </section>
-
-      {/* Cinema Experience */}
-      <section className="experience-section" ref={experienceRef}>
-        <div className="experience-content">
-          <div className="experience-text">
-            <h2>Premium Cinema Experience</h2>
-            <p>
-              Luxury seating, state-of-the-art sound systems, and crystal-clear projection technology. Our theaters are designed to provide the
-              ultimate movie-watching experience.
-            </p>
-            <button className="learn-button">Learn More</button>
           </div>
-          <div className="experience-image"></div>
-        </div>
-      </section>
-
-      {/* Coming Soon */}
-      <section className="coming-soon-section" ref={comingSoonRef}>
-        <div className="section-header">
-          <img src={upComingText} alt="Coming Soon" className="upcoming-img" />
-          <div className="section-line"></div>
-        </div>
-        <div className="coming-soon-content">
-          <div className="coming-soon-image"></div>
-          <div className="coming-soon-details">
-            <h3>Blockbuster Title</h3>
-            <p>Experience the most anticipated movie of the year. Coming next month to our theaters.</p>
-            <button className="notify-button">Notify Me</button>
+        </section>
+        {/* Card Swap Section */}
+        <section className="card-swap-section" ref={cardSwapRef} id="trending-movies">
+          <div className="section-title">
+            <h2>Trending Movies</h2>
+            <div className="section-line"></div>
           </div>
-        </div>
-      </section>
-
-      <FooterTest />
-    </div>
+          <div className="card-swap-wrapper">
+            <CardSwap
+              width={320}
+              height={450}
+              cardDistance={40}
+              verticalDistance={20}
+              delay={3000}
+              pauseOnHover={true}
+              skewAmount={5}
+              easing="elastic"
+            >
+              <Card>
+                <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                  <h3>Avengers: Endgame</h3>
+                  <p>Action • Adventure • 3h 2m</p>
+                  <button className="card-button">View Details</button>
+                </div>
+              </Card>
+              <Card>
+                <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                  <h3>The Batman</h3>
+                  <p>Action • Crime • 2h 56m</p>
+                  <button className="card-button">View Details</button>
+                </div>
+              </Card>
+              <Card>
+                <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                  <h3>Dune</h3>
+                  <p>Sci-Fi • Adventure • 2h 35m</p>
+                  <button className="card-button">View Details</button>
+                </div>
+              </Card>
+              <Card>
+                <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                  <h3>No Time to Die</h3>
+                  <p>Action • Thriller • 2h 43m</p>
+                  <button className="card-button">View Details</button>
+                </div>
+              </Card>
+            </CardSwap>
+          </div>
+        </section>
+        {/* Featured Movies */}
+        <section className="featured-section" ref={featuredMoviesRef}>
+          <div className="section-header">
+            <img src={nowShowingText} alt="Now Showing" className="now-showing-img" />
+            <div className="section-line"></div>
+          </div>
+          <div className="movies-container">
+            {[1, 2, 3, 4].map((movie) => (
+              <div className="movie-card" key={movie}>
+                <div className="movie-poster">{movie === 1 && <img src={hotBadge} alt="Hot" className="hot-badge" />}</div>
+                <div className="movie-details">
+                  <h3>Movie Title {movie}</h3>
+                  <p>Genre • Duration</p>
+                  <button className="ticket-button">Get Tickets</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        {/* Parallax Section */}
+        <section className="parallax-section" ref={parallaxRef}>
+          <div className="parallax-layer" data-depth="0.1"></div>
+          <div className="parallax-layer" data-depth="0.2"></div>
+          <div className="parallax-layer" data-depth="0.3"></div>
+          <div className="parallax-content">
+            <h2>The Ultimate Movie Experience</h2>
+            <p>Feel the magic of cinema</p>
+          </div>
+        </section>
+        {/* Cinema Experience */}
+        <section className="experience-section" ref={experienceRef}>
+          <div className="experience-content">
+            <div className="experience-text">
+              <h2>Premium Cinema Experience</h2>
+              <p>
+                Luxury seating, state-of-the-art sound systems, and crystal-clear projection technology. Our theaters are designed to provide the
+                ultimate movie-watching experience.
+              </p>
+              <button className="learn-button">Learn More</button>
+            </div>
+            <div className="experience-image"></div>
+          </div>
+        </section>
+        {/* Coming Soon */}
+        <section className="coming-soon-section" ref={comingSoonRef}>
+          <div className="section-header">
+            <img src={upComingText} alt="Coming Soon" className="upcoming-img" />
+            <div className="section-line"></div>
+          </div>
+          <div className="coming-soon-content">
+            <div className="coming-soon-image"></div>
+            <div className="coming-soon-details">
+              <h3>Blockbuster Title</h3>
+              <p>Experience the most anticipated movie of the year. Coming next month to our theaters.</p>
+              <button className="notify-button">Notify Me</button>
+            </div>
+          </div>
+        </section>{" "}
+        <FooterTest />
+      </div>
+    </ClickSpark>
   );
 };
 
