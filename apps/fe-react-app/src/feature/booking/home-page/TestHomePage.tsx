@@ -759,7 +759,7 @@ const TestHomePage = () => {
               }}
             >
               <img
-                src="faq.png"
+                src="../images/faq.png"
                 alt="Customer Support"
                 style={{
                   width: "100%",
