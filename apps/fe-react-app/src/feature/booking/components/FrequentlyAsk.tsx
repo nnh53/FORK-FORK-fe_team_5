@@ -1,22 +1,58 @@
 import { useEffect, useRef, useState } from "react";
 import Folder from "../../../../Reactbits/Folder/Folder";
 
-const FrequentlyAsk = () => {
-  const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+interface FaqData {
+  id: string;
+  title: string;
+  content: string;
+  label: string;
+  color: string;
+}
 
-  const handlePaperClick = (folderId: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent event bubbling
-    setExpandedFolder(expandedFolder === folderId ? null : folderId);
-  };
-  // Close expanded folder when clicking anywhere
+const FAQ_DATA: FaqData[] = [
+  {
+    id: "folder1",
+    title: "Cancel booking?",
+    content: "Go to My Bookings section and click Cancel button to cancel your reservation",
+    label: "Booking",
+    color: "#D2691E"
+  },
+  {
+    id: "folder2",
+    title: "Refund policy?",
+    content: "Refunds are processed within 24 hours after cancellation request is approved",
+    label: "Refunds",
+    color: "#D4791F"
+  },
+  {
+    id: "folder3",
+    title: "Seat selection?",
+    content: "You can choose your preferred seats during the booking process before payment",
+    label: "Seats",
+    color: "#D78B1F"
+  },
+  {
+    id: "folder4",
+    title: "Payment methods?",
+    content: "We accept all major credit cards, PayPal, and digital wallets for secure payment",
+    label: "Payment",
+    color: "#D99D1F"
+  },
+  {
+    id: "folder5",
+    title: "Movie schedules?",
+    content: "Movie schedules are updated daily. Check our website for the latest showtimes and availability",
+    label: "Schedules",
+    color: "#DAA520"
+  }
+];
+
+const useClickOutside = (expandedFolder: string | null, setExpandedFolder: (folder: string | null) => void) => {
   useEffect(() => {
     const handleClickAnywhere = (event: MouseEvent) => {
       if (expandedFolder) {
-        // Check if click is on any expanded paper content
         const target = event.target as HTMLElement;
         const isClickOnExpandedPaper = target.closest(".paper-expanded") || target.closest('[data-expanded="true"]');
-
         if (!isClickOnExpandedPaper) {
           setExpandedFolder(null);
         }
@@ -30,124 +66,82 @@ const FrequentlyAsk = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickAnywhere);
     };
-  }, [expandedFolder]);
-  const faq1 = [
+  }, [expandedFolder, setExpandedFolder]);
+};
+
+const createFaqItem = (faqData: FaqData, expandedFolder: string | null, handlePaperClick: (folderId: string, event: React.MouseEvent) => void) => {
+  const isExpanded = expandedFolder === faqData.id;
+
+  return [
     <div
-      key="faq1"
-      data-expanded={expandedFolder === "folder1"}
+      key={faqData.id}
+      data-expanded={isExpanded}
       style={{
         padding: "4px",
-        fontSize: expandedFolder === "folder1" ? "10px" : "7px",
+        fontSize: isExpanded ? "10px" : "7px",
         color: "#333",
         lineHeight: "1.2",
         wordWrap: "break-word",
         transition: "all 0.3s ease",
       }}
     >
-      <strong style={{ cursor: "pointer" }} onClick={(event) => handlePaperClick("folder1", event)}>
-        Cancel booking?
+      <strong style={{ cursor: "pointer" }} onClick={(event) => handlePaperClick(faqData.id, event)}>
+        {faqData.title}
       </strong>
       <br />
       <span
         style={{
-          fontSize: expandedFolder === "folder1" ? "9px" : "6px",
+          fontSize: isExpanded ? "9px" : "6px",
           transition: "all 0.3s ease",
         }}
       >
-        {expandedFolder === "folder1" ? "Go to My Bookings section and click Cancel button to cancel your reservation" : "Click above"}
+        {isExpanded ? faqData.content : "Click above"}
       </span>
     </div>,
   ];
-  const faq2 = [
-    <div
-      key="faq2"
-      data-expanded={expandedFolder === "folder2"}
-      style={{
-        padding: "4px",
-        fontSize: expandedFolder === "folder2" ? "10px" : "7px",
-        color: "#333",
-        lineHeight: "1.2",
-        wordWrap: "break-word",
-        transition: "all 0.3s ease",
-      }}
-    >
-      <strong style={{ cursor: "pointer" }} onClick={(event) => handlePaperClick("folder2", event)}>
-        Refund policy?
-      </strong>
-      <br />
-      <span
-        style={{
-          fontSize: expandedFolder === "folder2" ? "9px" : "6px",
-          transition: "all 0.3s ease",
-        }}
-      >
-        {expandedFolder === "folder2" ? "Refunds are processed within 24 hours after cancellation request is approved" : "Click above"}
-      </span>
-    </div>,
-  ];
-  const faq3 = [
-    <div
-      key="faq3"
-      data-expanded={expandedFolder === "folder3"}
-      style={{
-        padding: "4px",
-        fontSize: expandedFolder === "folder3" ? "10px" : "7px",
-        color: "#333",
-        lineHeight: "1.2",
-        wordWrap: "break-word",
-        transition: "all 0.3s ease",
-      }}
-    >
-      <strong style={{ cursor: "pointer" }} onClick={(event) => handlePaperClick("folder3", event)}>
-        Seat selection?
-      </strong>
-      <br />
-      <span
-        style={{
-          fontSize: expandedFolder === "folder3" ? "9px" : "6px",
-          transition: "all 0.3s ease",
-        }}
-      >
-        {expandedFolder === "folder3" ? "You can choose your preferred seats during the booking process before payment" : "Click above"}
-      </span>
-    </div>,
-  ];
+};
+
+const renderFolderGroup = (faqItems: FaqData[], expandedFolder: string | null, handlePaperClick: (folderId: string, event: React.MouseEvent) => void) => {
+  return faqItems.map((faq) => (
+    <div key={faq.id} style={{ textAlign: "center" }}>
+      <Folder
+        size={expandedFolder === faq.id ? 2 : 1.2}
+        color={faq.color}
+        className={`custom-${faq.id}`}
+        items={createFaqItem(faq, expandedFolder, handlePaperClick)}
+        expanded={expandedFolder === faq.id}
+      />
+      <p style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>{faq.label}</p>
+    </div>
+  ));
+};
+
+const FrequentlyAsk = () => {
+  const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handlePaperClick = (folderId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setExpandedFolder(expandedFolder === folderId ? null : folderId);
+  };
+
+  useClickOutside(expandedFolder, setExpandedFolder);
+
+  const firstRowFaqs = FAQ_DATA.slice(0, 2);
+  const secondRowFaqs = FAQ_DATA.slice(2, 5);
+
   return (
     <div ref={containerRef} style={{ height: "600px", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
-        <p style={{ marginBottom: "30px", color: "#666" }}>Click each folder to explore different questions</p>{" "}
-        <div style={{ display: "flex", gap: "40px", alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
-          <div style={{ textAlign: "center" }}>
-            <Folder
-              size={expandedFolder === "folder1" ? 2 : 1.5}
-              color="#5227FF"
-              className="custom-folder-1"
-              items={faq1}
-              expanded={expandedFolder === "folder1"}
-            />
-            <p style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>Booking</p>
+        <p style={{ marginBottom: "100px", color: "#666" }}>Click each folder to explore different questions</p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "40px", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "60px", justifyContent: "center", alignItems: "center" }}>
+            {renderFolderGroup(firstRowFaqs, expandedFolder, handlePaperClick)}
           </div>
 
-          <div style={{ textAlign: "center" }}>
-            <Folder
-              size={expandedFolder === "folder2" ? 2 : 1.5}
-              color="#FF6B35"
-              className="custom-folder-2"
-              items={faq2}
-              expanded={expandedFolder === "folder2"}
-            />
-            <p style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>Refunds</p>
-          </div>
-
-          <div style={{ textAlign: "center" }}>
-            <Folder
-              size={expandedFolder === "folder3" ? 2 : 1.5}
-              color="#00C9A7"
-              className="custom-folder-3"
-              items={faq3}
-              expanded={expandedFolder === "folder3"}
-            />
-            <p style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>Seats</p>
+          <div style={{ display: "flex", gap: "40px", justifyContent: "center", alignItems: "center" }}>
+            {renderFolderGroup(secondRowFaqs, expandedFolder, handlePaperClick)}
           </div>
         </div>
       </div>
