@@ -482,18 +482,18 @@ const TestHomePage = () => {
         <section className="faq-section" ref={faqRef}>
           <div className="section-header">
             <h2
-            style={{
-              background: "linear-gradient(to right, #946b38, #392819)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-              fontWeight: "800",
-              fontSize: "2.5rem",
-              marginBottom: "2rem",
-            }}
-          >
-            Frequently Asked Questions
-          </h2>
+              style={{
+                background: "linear-gradient(to right, #946b38, #392819)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                fontWeight: "800",
+                fontSize: "2.5rem",
+                marginBottom: "2rem",
+              }}
+            >
+              Frequently Asked Questions
+            </h2>
             <div className="section-line"></div>
           </div>
           <div className="faq-content">
