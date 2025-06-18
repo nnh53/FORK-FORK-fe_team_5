@@ -71,12 +71,12 @@ export interface MyInfoData {
   id: string;
   name: string;
   phone: string;
-  dob?: string | "";
+  dob?: string;
   email: string;
-  gender?: "Nam" | "Nu" | "BD" | "";
-  city?: string | "";
-  district?: string | "";
-  address?: string | "";
+  gender?: "Nam" | "Nu" | "BD";
+  city?: string;
+  district?: string;
+  address?: string;
   img?: string | Blob;
 }
 

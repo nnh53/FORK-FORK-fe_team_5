@@ -46,7 +46,7 @@ export const MyInfo: React.FC = () => {
       name: user?.name,
       phone: user?.phone,
       email: user?.email,
-      gender: user?.gender || "",
+      gender: user?.gender || undefined,
       img: user?.img || "",
     };
   }
@@ -101,8 +101,8 @@ export const MyInfo: React.FC = () => {
         validationSchema={MyInfoSchema}
         onSubmit={(values) => {
           // Ensure gender is one of the allowed values
-          const allowedGenders = [null, "Nam", "Nu", "BD"];
-          const gender = allowedGenders.includes(values.gender) ? (values.gender as undefined | "Nam" | "Nu" | "BD") : "";
+          const allowedGenders = ["Nam", "Nu", "BD"];
+          const gender = allowedGenders.includes(values.gender || "") ? values.gender : undefined;
           editUser({ ...values, gender });
         }}
       >
