@@ -1,3 +1,4 @@
+import { Filter, type FilterCriteria } from "@/components/shared/Filter";
 import { SearchBar, type SearchCriteria } from "@/components/shared/SearchBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,50 @@ import StaffForm from "./StaffForm";
 import StaffTable from "./StaffTable";
 import { createStaff, deleteStaff, getStaffs, updateStaff } from "./services/staffApi";
 
+// Helper functions để giảm complexity
+const filterBySearch = (staff: Staff, criteria: SearchCriteria): boolean => {
+  if (!criteria.value) return true;
+
+  switch (criteria.field) {
+    case "id":
+      return staff.staff_id.toString().includes(criteria.value);
+    case "name":
+      return staff.name.toLowerCase().includes(criteria.value.toLowerCase());
+    case "phone":
+      return staff.phone?.toLowerCase().includes(criteria.value.toLowerCase()) || false;
+    case "email":
+      return staff.email.toLowerCase().includes(criteria.value.toLowerCase());
+    case "address":
+      return staff.address?.toLowerCase().includes(criteria.value.toLowerCase()) || false;
+    default:
+      return true;
+  }
+};
+
+const filterByGlobalSearch = (staff: Staff, searchValue: string): boolean => {
+  const lowerSearchValue = searchValue.toLowerCase();
+  return (
+    staff.staff_id.toString().includes(searchValue) ||
+    staff.name.toLowerCase().includes(lowerSearchValue) ||
+    staff.phone?.toLowerCase().includes(lowerSearchValue) ||
+    staff.email.toLowerCase().includes(lowerSearchValue) ||
+    staff.address?.toLowerCase().includes(lowerSearchValue)
+  );
+};
+
+const filterByDateRange = (staff: Staff, range: { from: Date | undefined; to: Date | undefined }): boolean => {
+  if (!range.from && !range.to) return true;
+
+  const staffBirthDate = staff.date_of_birth ? new Date(staff.date_of_birth) : null;
+  if (!staffBirthDate) return false;
+
+  return !(range.from && staffBirthDate < range.from) && !(range.to && staffBirthDate > range.to);
+};
+
+const filterByStatus = (staff: Staff, status: string): boolean => {
+  return staff.status?.toLowerCase() === status.toLowerCase();
+};
+
 const StaffManagement = () => {
   const [staffs, setStaffs] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(false);
@@ -18,17 +63,24 @@ const StaffManagement = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria[]>([]);
+  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
 
+  // Search options - thêm ID như MemberManagement
   const searchOptions = [
-    { label: "Tên", value: "name", type: "text" as const },
-    { label: "Số điện thoại", value: "phone", type: "text" as const },
-    { label: "Email", value: "email", type: "text" as const },
+    { label: "ID", value: "id" },
+    { label: "Tên", value: "name" },
+    { label: "Số điện thoại", value: "phone" },
+    { label: "Email", value: "email" },
+    { label: "Địa chỉ", value: "address" },
+  ];
+
+  // Filter options - bỏ date cụ thể, chỉ giữ dateRange và select
+  const filterOptions = [
     {
-      label: "Ngày sinh",
-      value: "date_of_birth",
-      type: "date" as const,
+      label: "Khoảng ngày sinh",
+      value: "birth_date_range",
+      type: "dateRange" as const,
     },
-    { label: "Địa chỉ", value: "address", type: "text" as const },
     {
       label: "Trạng thái",
       value: "status",
@@ -38,6 +90,7 @@ const StaffManagement = () => {
         { value: "BAN", label: "Bị cấm" },
         { value: "UNVERIFY", label: "Chưa xác minh" },
       ],
+      placeholder: "Chọn trạng thái",
     },
   ];
 
@@ -59,34 +112,45 @@ const StaffManagement = () => {
   }, []);
 
   const filteredStaffs = useMemo(() => {
-    if (!staffs || searchCriteria.length === 0) return staffs;
+    if (!staffs) return [];
 
-    return staffs.filter((staff) => {
-      return searchCriteria.every((criteria) => {
-        if (!criteria.value) return true;
+    let result = staffs;
 
-        switch (criteria.field) {
-          case "name":
-            return staff.name.toLowerCase().includes((criteria.value as string).toLowerCase());
-          case "phone":
-            return staff.phone?.toLowerCase().includes((criteria.value as string).toLowerCase()) || false;
-          case "email":
-            return staff.email.toLowerCase().includes((criteria.value as string).toLowerCase());
-          case "date_of_birth":
-            if (criteria.value instanceof Date) {
-              return staff.date_of_birth?.includes(criteria.value.toISOString().split("T")[0]) || false;
-            }
-            return staff.date_of_birth?.includes(criteria.value as string) || false;
-          case "address":
-            return staff.address?.toLowerCase().includes((criteria.value as string).toLowerCase()) || false;
-          case "status":
-            return staff.status?.toLowerCase() === (criteria.value as string).toLowerCase();
-          default:
-            return true;
+    // Áp dụng search criteria
+    if (searchCriteria.length > 0) {
+      result = result.filter((staff) => {
+        const globalSearchValue = searchCriteria[0]?.value;
+        const isGlobalSearch = searchCriteria.every((c) => c.value === globalSearchValue);
+
+        if (isGlobalSearch && globalSearchValue) {
+          return filterByGlobalSearch(staff, globalSearchValue);
         }
+
+        return searchCriteria.every((criteria) => filterBySearch(staff, criteria));
       });
-    });
-  }, [staffs, searchCriteria]);
+    }
+
+    // Áp dụng filter criteria
+    if (filterCriteria.length > 0) {
+      result = result.filter((staff) => {
+        return filterCriteria.every((criteria) => {
+          switch (criteria.field) {
+            case "birth_date_range": {
+              const range = criteria.value as { from: Date | undefined; to: Date | undefined };
+              return filterByDateRange(staff, range);
+            }
+            case "status": {
+              return filterByStatus(staff, criteria.value as string);
+            }
+            default:
+              return true;
+          }
+        });
+      });
+    }
+
+    return result;
+  }, [staffs, searchCriteria, filterCriteria]);
 
   const handleCreate = () => {
     setSelectedStaff(undefined);
@@ -149,21 +213,36 @@ const StaffManagement = () => {
     <>
       <div className="container mx-auto p-4">
         <Card className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-2xl font-bold ">Danh sách nhân viên</CardTitle>
-            <div className="flex items-center gap-4">
-              <SearchBar searchOptions={searchOptions} onSearchChange={setSearchCriteria} maxSelections={6} />
-              <Button onClick={handleCreate}>
+          <CardHeader className="space-y-4">
+            {/* Title and Add button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <CardTitle className="text-2xl font-bold">Danh sách nhân viên</CardTitle>
+              <Button onClick={handleCreate} className="shrink-0">
                 <Plus className="mr-2 h-4 w-4" />
                 Thêm nhân viên
               </Button>
             </div>
+
+            {/* Search and Filter row */}
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              {/* Search Bar - Left */}
+              <div className="flex-1">
+                <SearchBar searchOptions={searchOptions} onSearchChange={setSearchCriteria} maxSelections={5} placeholder="Tìm kiếm nhân viên..." />
+              </div>
+
+              {/* Filter - Right */}
+              <div className="shrink-0">
+                <Filter filterOptions={filterOptions} onFilterChange={setFilterCriteria} />
+              </div>
+            </div>
           </CardHeader>
+
           <CardContent>
             <StaffTable staffs={filteredStaffs} onEdit={handleEdit} onDelete={handleDeleteClick} />
           </CardContent>
         </Card>
       </div>
+
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => {

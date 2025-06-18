@@ -1,3 +1,4 @@
+import { Filter, type FilterCriteria } from "@/components/shared/Filter";
 import { SearchBar, type SearchCriteria } from "@/components/shared/SearchBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,25 +11,76 @@ import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 import { createMember, deleteMember, getMembers, updateMember } from "./services/memberApi";
 
+// Helper functions để giảm complexity
+const filterBySearch = (member: Member, criteria: SearchCriteria): boolean => {
+  if (!criteria.value) return true;
+  switch (criteria.field) {
+    case "id":
+      return member.member_id.toString().includes(criteria.value);
+    case "name":
+      return member.name.toLowerCase().includes(criteria.value.toLowerCase());
+    case "phone":
+      return member.phone?.toLowerCase().includes(criteria.value.toLowerCase()) || false;
+    case "email":
+      return member.email.toLowerCase().includes(criteria.value.toLowerCase());
+    case "address":
+      return member.address?.toLowerCase().includes(criteria.value.toLowerCase()) || false;
+    default:
+      return true;
+  }
+};
+
+const filterByGlobalSearch = (member: Member, searchValue: string): boolean => {
+  const lowerSearchValue = searchValue.toLowerCase();
+  return (
+    member.member_id.toString().includes(searchValue) ||
+    member.name.toLowerCase().includes(lowerSearchValue) ||
+    member.phone?.toLowerCase().includes(lowerSearchValue) ||
+    member.email.toLowerCase().includes(lowerSearchValue) ||
+    member.address?.toLowerCase().includes(lowerSearchValue)
+  );
+};
+
+const filterByDateRange = (member: Member, range: { from: Date | undefined; to: Date | undefined }): boolean => {
+  if (!range.from && !range.to) return true;
+
+  const memberBirthDate = member.date_of_birth ? new Date(member.date_of_birth) : null;
+  if (!memberBirthDate) return false;
+
+  // Sửa logic để bao gồm cả ngày from và to (inclusive)
+  return !(range.from && memberBirthDate < range.from) && !(range.to && memberBirthDate > range.to);
+};
+
+const filterByStatus = (member: Member, status: string): boolean => {
+  return member.status.toLowerCase() === status.toLowerCase();
+};
+
 const MemberManagement = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>();
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria[]>([]);
+  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
 
+  // Search options
   const searchOptions = [
-    { label: "Tên", value: "name", type: "text" as const },
-    { label: "Số điện thoại", value: "phone", type: "text" as const },
-    { label: "Email", value: "email", type: "text" as const },
+    { label: "ID", value: "id" },
+    { label: "Tên", value: "name" },
+    { label: "Số điện thoại", value: "phone" },
+    { label: "Email", value: "email" },
+    { label: "Địa chỉ", value: "address" },
+  ];
+
+  // Filter options - bỏ date cụ thể, chỉ giữ dateRange và select
+  const filterOptions = [
     {
-      label: "Ngày sinh",
-      value: "date_of_birth",
-      type: "date" as const,
+      label: "Khoảng ngày sinh",
+      value: "birth_date_range",
+      type: "dateRange" as const,
     },
-    { label: "Địa chỉ", value: "address", type: "text" as const },
     {
       label: "Trạng thái",
       value: "status",
@@ -38,6 +90,7 @@ const MemberManagement = () => {
         { value: "BAN", label: "Bị cấm" },
         { value: "UNVERIFY", label: "Chưa xác minh" },
       ],
+      placeholder: "Chọn trạng thái",
     },
   ];
 
@@ -59,34 +112,45 @@ const MemberManagement = () => {
   }, []);
 
   const filteredMembers = useMemo(() => {
-    if (!members || searchCriteria.length === 0) return members;
+    if (!members) return [];
 
-    return members.filter((member) => {
-      return searchCriteria.every((criteria) => {
-        if (!criteria.value) return true; // Bỏ qua criteria không có giá trị
+    let result = members;
 
-        switch (criteria.field) {
-          case "name":
-            return member.name.toLowerCase().includes((criteria.value as string).toLowerCase());
-          case "phone":
-            return member.phone?.toLowerCase().includes((criteria.value as string).toLowerCase()) || false;
-          case "email":
-            return member.email.toLowerCase().includes((criteria.value as string).toLowerCase());
-          case "date_of_birth":
-            if (criteria.value instanceof Date) {
-              return member.date_of_birth?.includes(criteria.value.toISOString().split("T")[0]) || false;
-            }
-            return member.date_of_birth?.includes(criteria.value as string) || false;
-          case "address":
-            return member.address?.toLowerCase().includes((criteria.value as string).toLowerCase()) || false;
-          case "status":
-            return member.status.toLowerCase() === (criteria.value as string).toLowerCase();
-          default:
-            return true;
+    // Áp dụng search criteria
+    if (searchCriteria.length > 0) {
+      result = result.filter((member) => {
+        const globalSearchValue = searchCriteria[0]?.value;
+        const isGlobalSearch = searchCriteria.every((c) => c.value === globalSearchValue);
+
+        if (isGlobalSearch && globalSearchValue) {
+          return filterByGlobalSearch(member, globalSearchValue);
         }
+
+        return searchCriteria.every((criteria) => filterBySearch(member, criteria));
       });
-    });
-  }, [members, searchCriteria]);
+    }
+
+    // Áp dụng filter criteria
+    if (filterCriteria.length > 0) {
+      result = result.filter((member) => {
+        return filterCriteria.every((criteria) => {
+          switch (criteria.field) {
+            case "birth_date_range": {
+              const range = criteria.value as { from: Date | undefined; to: Date | undefined };
+              return filterByDateRange(member, range);
+            }
+            case "status": {
+              return filterByStatus(member, criteria.value as string);
+            }
+            default:
+              return true;
+          }
+        });
+      });
+    }
+
+    return result;
+  }, [members, searchCriteria, filterCriteria]);
 
   const handleCreate = () => {
     setSelectedMember(undefined);
@@ -149,21 +213,36 @@ const MemberManagement = () => {
     <>
       <div className="container mx-auto p-4">
         <Card className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-2xl font-bold">Danh sách thành viên</CardTitle>
-            <div className="flex items-center gap-4">
-              <SearchBar searchOptions={searchOptions} onSearchChange={setSearchCriteria} maxSelections={6} />
-              <Button onClick={handleCreate}>
+          <CardHeader className="space-y-4">
+            {/* Title and Add button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <CardTitle className="text-2xl font-bold">Danh sách thành viên</CardTitle>
+              <Button onClick={handleCreate} className="shrink-0">
                 <Plus className="mr-2 h-4 w-4" />
                 Thêm thành viên
               </Button>
             </div>
+
+            {/* Search and Filter row */}
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              {/* Search Bar - Left */}
+              <div className="flex-1">
+                <SearchBar searchOptions={searchOptions} onSearchChange={setSearchCriteria} maxSelections={5} placeholder="Tìm kiếm thành viên..." />
+              </div>
+
+              {/* Filter - Right */}
+              <div className="shrink-0">
+                <Filter filterOptions={filterOptions} onFilterChange={setFilterCriteria} />
+              </div>
+            </div>
           </CardHeader>
+
           <CardContent>
             <MemberTable members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} />
           </CardContent>
         </Card>
-      </div>{" "}
+      </div>
+
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => {
@@ -177,6 +256,7 @@ const MemberManagement = () => {
           <MemberForm member={selectedMember} onSubmit={handleSubmit} onCancel={handleCancel} />
         </DialogContent>
       </Dialog>
+
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>

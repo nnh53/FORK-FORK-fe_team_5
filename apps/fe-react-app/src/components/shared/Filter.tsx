@@ -69,9 +69,9 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
 
       if (option.type === "dateRange") {
         const range = value as { from: Date | undefined; to: Date | undefined };
-        isValid = range && (range.from || range.to);
+        isValid = Boolean(range && (range.from || range.to));
       } else {
-        isValid = value && value !== "";
+        isValid = Boolean(value && value !== "");
       }
 
       if (isValid) {
