@@ -71,13 +71,13 @@ export interface MyInfoData {
   id: string;
   name: string;
   phone: string;
-  dob?: string | null;
+  dob?: string | "";
   email: string;
-  gender?: "Nam" | "Nu" | "BD" | null;
-  city?: string | null;
-  district?: string | null;
-  address?: string | null;
-  img?: string | null;
+  gender?: "Nam" | "Nu" | "BD" | "";
+  city?: string | "";
+  district?: string | "";
+  address?: string | "";
+  img?: string | Blob;
 }
 
 export interface MyMembershipData {

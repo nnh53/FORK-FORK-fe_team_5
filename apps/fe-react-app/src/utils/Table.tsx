@@ -32,9 +32,9 @@ export const CustomTable = <T extends object>({ tableColumns, tableData, action 
             </TableRow>
           </TableHeader>
           {/* <!-- Table Body --> */}
-          <TableBody>
-            {tableData &&
-              tableData.map((data, index) => {
+          {tableData.length > 0 && (
+            <TableBody>
+              {tableData.map((data, index) => {
                 return (
                   <TableRow key={`row_${(data as any).id ?? index}`}>
                     {tableColumns.map((column) => (
@@ -55,8 +55,10 @@ export const CustomTable = <T extends object>({ tableColumns, tableData, action 
                   </TableRow>
                 );
               })}
-          </TableBody>
+            </TableBody>
+          )}
         </Table>
+        {tableData.length == 0 && <h1 className="text-red-400"> Không có dữ liệu</h1>}
       </div>
     </>
   );

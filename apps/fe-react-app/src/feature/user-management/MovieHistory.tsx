@@ -1,3 +1,7 @@
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { MovieHistory } from "../../interfaces/movies.interface";
 import { CustomTable, type TableColumns } from "../../utils/Table";
@@ -28,30 +32,36 @@ export const MyMovieHistory: React.FC = () => {
       accessorKey: "seats",
     },
     {
-      header: "Ngày đặt",
-      accessorKey: "usedPoints",
-    },
-    {
       header: "Điểm",
-      accessorKey: "availablePoints",
+      accessorKey: "points",
     },
   ];
 
   const [tableData, setTableData] = useState<MovieHistory[]>([]);
   const [errors, setError] = useState<string | null>(null);
+
+  const [from, setFrom] = useState<Date | undefined>(undefined);
+  const [to, setTo] = useState<Date | undefined>(undefined);
+
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/myMovieHistory");
+        let url = "http://localhost:3000/myMovieHistory";
+        if (from || to) {
+          const params = [];
+          if (from) params.push(`from=${from.toISOString().slice(0, 10)}`);
+          if (to) params.push(`to=${to.toISOString().slice(0, 10)}`);
+          url += `?${params.join("&")}`;
+        }
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`Failed to fetch profile: ${response.statusText}`);
         }
         const data: MovieHistory[] = await response.json();
-        const formattedData: MovieHistory[] = data.map((movie) => ({
+        const formattedData = data.map((movie) => ({
           ...movie,
           movieSlot: formatDateTime(movie.movieSlot).join(" "),
         }));
-
         setTableData(formattedData);
       } catch (err) {
         if (err instanceof Error) {
@@ -63,14 +73,59 @@ export const MyMovieHistory: React.FC = () => {
       }
     };
     getData();
-  }, []);
+  }, [from, to]);
+
   if (!tableData) {
     return <div>Loading profile...</div>;
   }
   return (
     <>
+      <div className="mb-4 flex gap-4">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" id="from" className="w-48 justify-between font-normal">
+              {from ? from.toLocaleDateString() : "Select date"}
+              <ChevronDownIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={from}
+              captionLayout="dropdown"
+              onSelect={(date) => {
+                setFrom(date);
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" id="to" className="w-48 justify-between font-normal">
+              {to ? to.toLocaleDateString() : "Select date"}
+              <ChevronDownIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={to}
+              captionLayout="dropdown"
+              onSelect={(date) => {
+                setTo(date);
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
       {errors && <p className="text-red-500">{errors}</p>}
-      <CustomTable tableColumns={tableColumns} tableData={tableData} />{" "}
+      <CustomTable
+        tableColumns={tableColumns}
+        tableData={tableData.map((row) => ({
+          ...row,
+          seats: Array.isArray(row.seats) ? row.seats.join(", ") : row.seats,
+        }))}
+      />
     </>
   );
 };

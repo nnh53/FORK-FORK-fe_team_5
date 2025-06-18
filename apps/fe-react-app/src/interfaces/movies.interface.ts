@@ -61,6 +61,5 @@ export interface MovieHistory {
   room: string;
   movieSlot: string;
   seats: string[];
-  usedPoints: number;
-  availablePoints: number;
+  points: number;
 }

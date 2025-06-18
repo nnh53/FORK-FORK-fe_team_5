@@ -41,15 +41,14 @@ export const MyInfoSchema: Yup.ObjectSchema<MyInfoFormData> = Yup.object().shape
     .matches(/^\d{9,11}$/, "Số điện thoại không hợp lệ")
     .required("Số điện thoại bắt buộc"),
   dob: Yup.string()
-    .nullable()
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "Ngày sinh không hợp lệ")
-    .default(null),
+    .optional()
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "Ngày sinh không hợp lệ"),
   email: Yup.string().email("Email không hợp lệ").required("Email bắt buộc"),
-  gender: Yup.mixed<"Nam" | "Nu" | "BD">().oneOf(["Nam", "Nu", "BD"], "Giới tính không hợp lệ").nullable("").default(null),
-  city: Yup.string().nullable().default(null),
-  district: Yup.string().nullable().default(null),
-  address: Yup.string().nullable().default(null),
-  img: Yup.string().nullable().url("Ảnh phải là một URL hợp lệ").default(null),
+  gender: Yup.mixed<"Nam" | "Nu" | "BD">().oneOf(["Nam", "Nu", "BD"], "Giới tính không hợp lệ").optional(),
+  city: Yup.string().optional(),
+  district: Yup.string().optional(),
+  address: Yup.string().optional(),
+  img: Yup.mixed<string | Blob>().optional(),
 });
 
 export function formatDateTime(isoString: string): string[] {

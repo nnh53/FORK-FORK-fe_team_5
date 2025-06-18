@@ -1,16 +1,19 @@
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { Promotion } from "@/interfaces/promotion.interface.";
 import { type TableColumns } from "@/utils/Table";
-import { Plus } from "lucide-react";
+import { ChevronDownIcon, Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { PromotionDialog } from "./PromotionDialog";
 import { PromotionTable } from "./PromotionTable";
-
 export const PromotionManagement: React.FC = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion>();
   const [open, setOpen] = useState<boolean>(false);
+  const [from, setFrom] = useState<Date | undefined>(undefined);
+  const [to, setTo] = useState<Date | undefined>(undefined);
   const promotionColumn: TableColumns[] = [
     {
       header: "#",
@@ -103,17 +106,57 @@ export const PromotionManagement: React.FC = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="mb-6 flex w-full max-w-md">
+            <div className="mb-6 flex gap-4">
               {/*<Input*/}
               {/*  type="text"*/}
-              {/*  placeholder="Search cinema rooms..."*/}
+              {/*  placeholder="Search promotions"*/}
               {/*  value={searchInput}*/}
               {/*  onChange={(e) => setSearchInput(e.target.value)}*/}
               {/*  onKeyPress={handleKeyPress}*/}
               {/*  maxLength={28}*/}
-              {/*  className="mr-2"*/}
+              {/*  className="mr-2 w-1/3"*/}
               {/*/>*/}
+              <div className="mb-4 flex gap-4">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" id="from" className="w-48 justify-between font-normal">
+                      {from ? from.toLocaleDateString() : "Select date"}
+                      <ChevronDownIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={from}
+                      captionLayout="dropdown"
+                      onSelect={(date) => {
+                        setFrom(date);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" id="to" className="w-48 justify-between font-normal">
+                      {to ? to.toLocaleDateString() : "Select date"}
+                      <ChevronDownIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={to}
+                      captionLayout="dropdown"
+                      onSelect={(date) => {
+                        setTo(date);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
               {/*<Button onClick={handleSearch}>Search</Button>*/}
+
+              {/* <DatePicker ></DatePicker> */}
             </div>
             <PromotionTable promotions={promotions} columns={promotionColumn} onView={handleOpenDialog} />
           </CardContent>

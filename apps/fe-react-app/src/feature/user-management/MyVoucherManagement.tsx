@@ -1,3 +1,4 @@
+import { DatePicker } from "@/utils/DatePicker";
 import { useEffect, useState } from "react";
 import type { MyVoucher, MyVoucherHistory } from "../../interfaces/voucher.interface";
 import { CustomTable, type TableColumns } from "../../utils/Table";
@@ -48,6 +49,9 @@ export const MyVoucherManagement: React.FC = () => {
   const [myVoucherData, setMyVoucherData] = useState<MyVoucher[] | null>([]);
   const [myVoucherHistory, setMyVoucherHistory] = useState<MyVoucherHistory[] | null>([]);
   const [errors, setError] = useState<string | null>(null);
+  const [from, setFrom] = useState<Date | undefined>(undefined);
+  const [to, setTo] = useState<Date | undefined>(undefined);
+
   useEffect(() => {
     const getVoucher = async () => {
       try {
@@ -100,10 +104,14 @@ export const MyVoucherManagement: React.FC = () => {
   console.log(errors);
   return (
     <>
-      <h2 className="text-2xl font-bold text-[#E52226] uppercase mb-5">Lịch sử điểm</h2>
+      <h2 className="text-2xl font-bold text-[#E52226] uppercase mb-5">Voucher hiện có</h2>
       <CustomTable tableColumns={voucherColumns} tableData={myVoucherData} />
 
-      <h2 className="text-2xl font-bold text-[#E52226] uppercase mb-5 mt-20">Lịch sử điểm</h2>
+      <h2 className="text-2xl font-bold text-[#E52226] uppercase mb-5 mt-20">Lịch sử sử dụng Voucher</h2>
+      <div className="mb-4 flex gap-4">
+        <DatePicker value={from} setValue={setFrom} label="From date" />
+        <DatePicker value={to} setValue={setTo} label="To date" />
+      </div>
       <CustomTable tableColumns={voucherHistoryColumns} tableData={myVoucherHistory} />
     </>
   );

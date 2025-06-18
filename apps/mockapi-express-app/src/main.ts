@@ -5,7 +5,6 @@
 
 import cors from "cors";
 import express from "express";
-import * as path from "path";
 import { blogsMockData } from "./blogs.mockapi";
 import { availableCombos, bookingAPI } from "./booking.mockapi";
 import { cinemaRoomsAPI, seatsAPI } from "./cinema-room.mockapi";
@@ -13,13 +12,12 @@ import { healthMetricListMockData } from "./health-metric.mockapi";
 import { genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi";
 import { User } from "./myInfo.mockapi";
 import { myMembership } from "./myMembership";
-import { myMovieHistory } from "./myMovieHistory";
+import { getAllMovieHistoryFiltered, myMovieHistory } from "./myMovieHistory";
 import { myPoint } from "./mypoint";
-import { promotions, promotionsAPI } from "./promotions.mockapi";
+import { promotionsAPI } from "./promotions.mockapi";
 import { showtimesAPI } from "./showtimes.mockapi";
 import { loginMock } from "./users.mockapi";
 import { mockVoucherHistory, mockVouchers } from "./voucher.mockapi";
-
 const app = express();
 const corsOptions = {
   origin: ["http://localhost:4222", "http://localhost:5173"],
@@ -29,7 +27,7 @@ app.use(cors(corsOptions));
 //middleware
 app.use(express.json());
 
-app.use("/assets", express.static(path.join(__dirname, "assets")));
+// app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 app.get("/api", (req, res) => {
   res.send({ message: "Welcome to mockapi-express!" });
@@ -60,23 +58,40 @@ app.get("/myInfo", (req, res) => {
   res.send(user);
 });
 
-app.put("/myInfo", (req, res) => {
-  const updatedData = req.body;
+// app.put("/myInfo", upload.single("img"), (req: Request, res: Response) => {
+//   try {
+//     // Extract file and info
+//     const file = req.file as Express.Multer.File | undefined;
+//     const infoRaw = req.body.info;
+//     let info = {};
+//     if (infoRaw) {
+//       info = JSON.parse(infoRaw);
+//     }
+//     // Simulate updating user: merge info and file (if present)
+//     user = {
+//       ...user,
+//       ...info,
+//       // img: file ? `/assets/${file.originalname}` : user.img,
+//     };
+//     // You may want to save the file to disk or cloud storage in a real app
+//     res.status(200).json(user);
+//   } catch (error) {
+//     res.status(400).json({
+//       message: "update fail",
+//       error: error instanceof Error ? error.message : error,
+//     });
+//   }
+// });
 
-  // Update user object with new data
-  user = {
-    ...user,
-    ...updatedData,
-  };
-
-  res.send(user);
-});
 app.get("/myMembership", (req, res) => {
   res.send(myMembership);
 });
 
+// Movie history endpoint with optional from/to date filtering
 app.get("/myMovieHistory", (req, res) => {
-  res.send(myMovieHistory);
+  const { from, to } = req.query;
+  const filtered = getAllMovieHistoryFiltered(myMovieHistory, typeof from === "string" ? from : undefined, typeof to === "string" ? to : undefined);
+  res.send(filtered);
 });
 app.get("/myPoint", (req, res) => {
   res.send(myPoint);
@@ -286,10 +301,22 @@ app.put("/seats/:seatId", (req, res) => {
 
 // PROMOTION
 
+// Get all promotions or filter by title, startTime, endTime
 app.get("/promotions", (req, res) => {
-  res.send(promotions);
+  const { title, startTime, endTime } = req.query;
+  if (title || startTime || endTime) {
+    const filtered = promotionsAPI.filterByFields({
+      title: typeof title === "string" ? title : undefined,
+      startTime: typeof startTime === "string" ? startTime : undefined,
+      endTime: typeof endTime === "string" ? endTime : undefined,
+    });
+    res.send(filtered);
+  } else {
+    res.send(promotionsAPI.getAll());
+  }
 });
 
+// Get promotion by id
 app.get("/promotions/:id", (req, res) => {
   const promotion = promotionsAPI.getById(req.params.id);
   if (promotion) {
@@ -299,11 +326,13 @@ app.get("/promotions/:id", (req, res) => {
   }
 });
 
+// Create promotion
 app.post("/promotions", (req, res) => {
   const promotion = promotionsAPI.create(req.body);
   res.status(201).send(promotion);
 });
 
+// Update promotion
 app.put("/promotions/:id", (req, res) => {
   const promotion = promotionsAPI.update(req.params.id, req.body);
   if (promotion) {

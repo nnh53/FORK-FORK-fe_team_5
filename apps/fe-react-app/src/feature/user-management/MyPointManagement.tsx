@@ -1,8 +1,8 @@
+import { DatePicker } from "@/utils/DatePicker";
 import { formatDateTime } from "@/utils/validation.utils";
 import { useEffect, useState } from "react";
 import type { MyPoint, MyPointHistory } from "../../interfaces/users.interface";
 import { CustomTable, type TableColumns } from "../../utils/Table";
-
 export const MyPointManagement: React.FC = () => {
   const tableColumns: TableColumns[] = [
     {
@@ -23,6 +23,9 @@ export const MyPointManagement: React.FC = () => {
   const [pointSummary, setPointSummary] = useState<MyPoint | null>(null);
   const [tableData, setTableData] = useState<MyPointHistory[]>([]);
   const [errors, setError] = useState<string | null>(null);
+
+  const [from, setFrom] = useState<Date | undefined>(undefined);
+  const [to, setTo] = useState<Date | undefined>(undefined);
   useEffect(() => {
     const getData = async () => {
       try {
@@ -82,6 +85,10 @@ export const MyPointManagement: React.FC = () => {
         </div>
       </div>
       <h2 className="text-2xl font-bold text-[#E52226] uppercase mb-5">Lịch sử điểm</h2>
+      <div className="mb-4 flex gap-4">
+        <DatePicker value={from} setValue={setFrom} label="From date" />
+        <DatePicker value={to} setValue={setTo} label="To date" />
+      </div>
       <CustomTable tableColumns={tableColumns} tableData={tableData} />{" "}
     </>
   );

@@ -1,5 +1,7 @@
+import axios from "axios";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import type { MyInfoData } from "../../interfaces/users.interface";
 import { MyInfoSchema } from "../../utils/validation.utils";
 
@@ -8,24 +10,24 @@ export const MyInfo: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setError] = useState<string | null>(null);
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/myInfo");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch profile: ${response.statusText}`);
-        }
-        const user: MyInfoData = await response.json();
-        setFormData(user);
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred.");
-        }
-        console.error("Error fetching user profile:", err);
+  const getUser = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/myInfo");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch profile: ${response.statusText}`);
       }
-    };
+      const user: MyInfoData = await response.json();
+      setFormData(user);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
+      console.error("Error fetching user profile:", err);
+    }
+  };
+  useEffect(() => {
     getUser();
   }, []);
   if (errors) {
@@ -55,6 +57,42 @@ export const MyInfo: React.FC = () => {
   if (errors) {
     return <h1 className="text-red-500">Có lỗi xảy ra</h1>;
   }
+
+  const editUser = async (data: MyInfoData) => {
+    try {
+      const formData = new FormData();
+      // Only append file if it's a File object (not a string URL)
+      if (data.img && typeof data.img !== "string") {
+        formData.append("img", data.img);
+      }
+      // Append the rest of the user info as a JSON string
+      const userInfo = { ...data };
+      delete userInfo.img;
+      formData.append("info", JSON.stringify(userInfo));
+
+      const response = await axios.put("http://localhost:3000/myInfo", formData, {
+        headers: {
+          // Let the browser set the correct Content-Type for FormData
+        },
+      });
+      if (response.status === 200) {
+        setFormData(response.data);
+        getUser();
+        setError(null);
+        toast.info("Cập nhật thông tin thành công!");
+      } else {
+        setError("Cập nhật thất bại.");
+        toast.error("Cập nhật thông tin thất bại.");
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
+      console.error("Error updating user profile:", err);
+    }
+  };
   return (
     <>
       <Formik
@@ -62,29 +100,35 @@ export const MyInfo: React.FC = () => {
         enableReinitialize
         validationSchema={MyInfoSchema}
         onSubmit={(values) => {
-          // api call here
-          console.log("why it not running ");
-          console.log("Submitted data:", values);
+          // Ensure gender is one of the allowed values
+          const allowedGenders = [null, "Nam", "Nu", "BD"];
+          const gender = allowedGenders.includes(values.gender) ? (values.gender as undefined | "Nam" | "Nu" | "BD") : "";
+          editUser({ ...values, gender });
         }}
       >
         {({ setFieldValue, handleSubmit, errors }) => {
           return (
             <Form onSubmit={handleSubmit}>
-              {/* <!-- Avatar Upload Section --> */}
+              {/* <!-- img Upload Section --> */}
               <div className="flex flex-wrap items-center gap-4 mb-8">
                 <div className="relative min-w-48">
-                  {imagePreview ? <img src={imagePreview} className="w-40 h-40" /> : formData.img && <img src={formData.img} className="w-40 h-40" />}
+                  {imagePreview ? (
+                    <img src={imagePreview} className="w-40 h-40" />
+                  ) : (
+                    typeof formData.img === "string" && formData.img && <img src={formData.img} className="w-40 h-40" />
+                  )}
                   <input
                     ref={fileInputRef}
                     id="img"
                     type="file"
                     className="input input-bordered w-full pr-2"
+                    accept="image/*"
                     placeholder=""
                     hidden
                     onChange={(event) => {
                       const file = event.currentTarget.files?.[0];
                       if (file) {
-                        setFieldValue("avatar", file);
+                        setFieldValue("img", file);
                         const reader = new FileReader();
                         reader.onloadend = () => setImagePreview(reader.result as string);
                         reader.readAsDataURL(file);

@@ -1,19 +1,19 @@
 export interface User {
   id: string;
   name: string;
-  phone: string;
+  phone: string | null;
   dob: Date | null;
   email: string;
   city: string | null;
   district: string | null;
   address: string | null;
-  img: string | null;
+  img: string | File | null;
 }
-const formattedDate = new Intl.DateTimeFormat("en-GB", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-}).format(dob);
+// const formattedDate = new Intl.DateTimeFormat("en-GB", {
+//   year: "numeric",
+//   month: "2-digit",
+//   day: "2-digit",
+// }).format(dob);
 
 export let user: User = {
   id: "asdasfasd",

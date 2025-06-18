@@ -36,6 +36,42 @@ export let promotions = [
     description: "Flat 50,000đ off for purchases above 200,000đ.",
     status: "inactive",
   },
+  {
+    id: 3,
+    image: "https://cdn.pixabay.com/photo/2017/01/20/00/30/podium-1993896_1280.png",
+    title: "Spring Special",
+    type: "buy_one_get_one",
+    minPurchase: 150000,
+    discountValue: 0,
+    startTime: "2025-03-01T00:00:00Z",
+    endTime: "2025-03-31T23:59:59Z",
+    description: "Buy one get one free for all tickets in March.",
+    status: "active",
+  },
+  {
+    id: 4,
+    image: "https://img.freepik.com/free-vector/flat-design-autumn-sale-background_23-2148620262.jpg",
+    title: "Autumn Bonanza",
+    type: "fixed",
+    minPurchase: 120000,
+    discountValue: 30000,
+    startTime: "2025-09-10T00:00:00Z",
+    endTime: "2025-09-20T23:59:59Z",
+    description: "Get 30,000đ off for orders over 120,000đ during Autumn.",
+    status: "inactive",
+  },
+  {
+    id: 5,
+    image: "https://img.freepik.com/free-vector/gradient-winter-sale-background_23-2149722982.jpg",
+    title: "Winter Warmers",
+    type: "percentage",
+    minPurchase: 90000,
+    discountValue: 10,
+    startTime: "2025-12-01T00:00:00Z",
+    endTime: "2025-12-31T23:59:59Z",
+    description: "10% off for all orders above 90,000đ in December.",
+    status: "active",
+  },
 ];
 
 export const promotionsAPI = {
@@ -71,5 +107,44 @@ export const promotionsAPI = {
       return deletedpromotion;
     }
     return null;
+  },
+
+  filter: (criteria: Partial<Promotion>) => {
+    return promotions.filter((promotion) => {
+      return Object.entries(criteria).every(([key, value]) => {
+        const typedKey = key as keyof Promotion;
+        if (typeof value === "string" && value !== "" && promotion[typedKey]) {
+          return promotion[typedKey]?.toString().toLowerCase().includes(value.toString().toLowerCase());
+        }
+        if (typeof value === "number" && !isNaN(value)) {
+          return promotion[typedKey] === value;
+        }
+        if (Array.isArray(value)) {
+          return value.includes(promotion[typedKey]);
+        }
+        return true;
+      });
+    });
+  },
+
+  /**
+   * Filter promotions by title (case-insensitive, partial match),
+   * and/or by startTime and/or endTime (inclusive, ISO string compare).
+   * Any field can be provided, others are optional.
+   */
+  filterByFields: (criteria: { title?: string; startTime?: string; endTime?: string }) => {
+    return promotions.filter((promotion) => {
+      let match = true;
+      if (criteria.title) {
+        match = match && promotion.title.toLowerCase().includes(criteria.title.toLowerCase());
+      }
+      if (criteria.startTime) {
+        match = match && promotion.startTime >= criteria.startTime;
+      }
+      if (criteria.endTime) {
+        match = match && promotion.endTime <= criteria.endTime;
+      }
+      return match;
+    });
   },
 };
