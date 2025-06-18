@@ -353,46 +353,122 @@ const TestHomePage = () => {
               }}
             ></div>
           </div>
-          <div className="card-swap-wrapper">
-            <CardSwap
-              width={620}
-              height={450}
-              cardDistance={40}
-              verticalDistance={20}
-              delay={3000}
-              pauseOnHover={true}
-              skewAmount={3}
-              easing="elastic"
+
+          <div
+            className="trending-content"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "4rem",
+              maxWidth: "1400px",
+              margin: "0 auto",
+              padding: "2rem 1rem",
+            }}
+          >
+            {/* Left Side - Text Content */}
+            <div
+              className="trending-text"
+              style={{
+                flex: "1",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                padding: "2rem",
+              }}
             >
-              <Card>
-                <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
-                  <h3>Avengers: Endgame</h3>
-                  <p>Action • Adventure • 3h 2m</p>
-                  <button className="card-button">View Details</button>
-                </div>
-              </Card>
-              <Card>
-                <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
-                  <h3>The Batman</h3>
-                  <p>Action • Crime • 2h 56m</p>
-                  <button className="card-button">View Details</button>
-                </div>
-              </Card>
-              <Card>
-                <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
-                  <h3>Dune</h3>
-                  <p>Sci-Fi • Adventure • 2h 35m</p>
-                  <button className="card-button">View Details</button>
-                </div>
-              </Card>
-              <Card>
-                <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
-                  <h3>No Time to Die</h3>
-                  <p>Action • Thriller • 2h 43m</p>
-                  <button className="card-button">View Details</button>
-                </div>
-              </Card>
-            </CardSwap>
+              <h3
+                style={{
+                  fontSize: "2.5rem",
+                  fontWeight: "bold",
+                  marginBottom: "1.5rem",
+                  background: "linear-gradient(to right, #946b38, #392819)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  color: "transparent",
+                  lineHeight: "1.2",
+                }}
+              >
+                Elevate your viewing.
+              </h3>
+              <p
+                style={{
+                  fontSize: "1.2rem",
+                  color: "#666",
+                  lineHeight: "1.6",
+                  marginBottom: "2rem",
+                }}
+              >
+                Explosive emotions, exclusively on the grand screen
+              </p>
+              <button
+                style={{
+                  backgroundColor: "#946b38",
+                  color: "white",
+                  padding: "1rem 2rem",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  alignSelf: "flex-start",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                Explore More
+              </button>
+            </div>
+
+            {/* Right Side - CardSwap */}
+            <div
+              className="card-swap-wrapper"
+              style={{
+                flex: "1",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <CardSwap
+                width={650}
+                height={500}
+                cardDistance={20}
+                verticalDistance={20}
+                delay={3000}
+                pauseOnHover={true}
+                skewAmount={5}
+                easing="elastic"
+              >
+                <Card>
+                  <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                    <h3>Avengers: Endgame</h3>
+                    <p>Action • Adventure • 3h 2m</p>
+                    <button className="card-button">View Details</button>
+                  </div>
+                </Card>
+                <Card>
+                  <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                    <h3>The Batman</h3>
+                    <p>Action • Crime • 2h 56m</p>
+                    <button className="card-button">View Details</button>
+                  </div>
+                </Card>
+                <Card>
+                  <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                    <h3>Dune</h3>
+                    <p>Sci-Fi • Adventure • 2h 35m</p>
+                    <button className="card-button">View Details</button>
+                  </div>
+                </Card>
+                <Card>
+                  <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                    <h3>No Time to Die</h3>
+                    <p>Action • Thriller • 2h 43m</p>
+                    <button className="card-button">View Details</button>
+                  </div>
+                </Card>{" "}
+              </CardSwap>
+            </div>
           </div>
         </section>{" "}
         {/* Featured Movies */}
@@ -482,6 +558,7 @@ const TestHomePage = () => {
         <section className="faq-section" ref={faqRef}>
           <div className="section-header">
             <h2
+              className="faq-title"
               style={{
                 background: "linear-gradient(to right, #946b38, #392819)",
                 WebkitBackgroundClip: "text",
@@ -494,10 +571,65 @@ const TestHomePage = () => {
             >
               Frequently Asked Questions
             </h2>
-            <div className="section-line"></div>
+            <div
+              className="section-line"
+              style={{
+                background: "linear-gradient(to right, #946b38, #392819)",
+                height: "3px",
+              }}
+            ></div>
           </div>
-          <div className="faq-content">
-            <FrequentlyAsk />
+
+          <div
+            className="faq-content"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "4rem",
+              maxWidth: "1400px",
+              margin: "0 auto",
+              padding: "2rem 1rem",
+            }}
+          >
+            {/* Left Side - Image */}
+            <div
+              className="faq-image"
+              style={{
+                flex: "1",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: "2rem",
+              }}
+            >
+              <img
+                src="https://images.unsplash.com/photo-1489599004792-0ecbc7d0a94e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                alt="Customer Support"
+                style={{
+                  width: "100%",
+                  maxWidth: "500px",
+                  height: "400px",
+                  objectFit: "cover",
+                  borderRadius: "15px",
+                  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)",
+                  transition: "transform 0.3s ease",
+                }}
+              />
+            </div>
+
+            {/* Right Side - FrequentlyAsk */}
+            <div
+              className="faq-component"
+              style={{
+                flex: "1",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <FrequentlyAsk />
+            </div>
           </div>
         </section>{" "}
         <FooterTest />
