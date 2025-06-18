@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import gsap from "gsap";
 import React, {
   Children,

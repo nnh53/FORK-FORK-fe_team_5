@@ -73,5 +73,6 @@
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
-  "json.schemaDownload.enable": true
+  "json.schemaDownload.enable": true,
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }
