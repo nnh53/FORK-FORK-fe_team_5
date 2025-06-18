@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useRef, ReactNode, RefObject } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { ReactNode, RefObject, useEffect, useMemo, useRef } from "react";
 
 import "./ScrollFloat.css";
 
@@ -27,7 +27,7 @@ const ScrollFloat: React.FC<ScrollFloatProps> = ({
   ease = "back.inOut(2)",
   scrollStart = "center bottom+=50%",
   scrollEnd = "bottom bottom-=40%",
-  stagger = 0.03
+  stagger = 0.03,
 }) => {
   const containerRef = useRef<HTMLHeadingElement>(null);
 
@@ -44,10 +44,7 @@ const ScrollFloat: React.FC<ScrollFloatProps> = ({
     const el = containerRef.current;
     if (!el) return;
 
-    const scroller =
-      scrollContainerRef && scrollContainerRef.current
-        ? scrollContainerRef.current
-        : window;
+    const scroller = scrollContainerRef && scrollContainerRef.current ? scrollContainerRef.current : window;
 
     const charElements = el.querySelectorAll(".char");
 
@@ -59,7 +56,7 @@ const ScrollFloat: React.FC<ScrollFloatProps> = ({
         yPercent: 120,
         scaleY: 2.3,
         scaleX: 0.7,
-        transformOrigin: "50% 0%"
+        transformOrigin: "50% 0%",
       },
       {
         duration: animationDuration,
@@ -74,18 +71,11 @@ const ScrollFloat: React.FC<ScrollFloatProps> = ({
           scroller,
           start: scrollStart,
           end: scrollEnd,
-          scrub: true
+          scrub: true,
         },
-      }
+      },
     );
-  }, [
-    scrollContainerRef,
-    animationDuration,
-    ease,
-    scrollStart,
-    scrollEnd,
-    stagger
-  ]);
+  }, [scrollContainerRef, animationDuration, ease, scrollStart, scrollEnd, stagger]);
 
   return (
     <h2 ref={containerRef} className={`scroll-float ${containerClassName}`}>
