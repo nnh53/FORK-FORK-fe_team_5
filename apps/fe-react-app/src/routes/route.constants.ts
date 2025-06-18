@@ -6,6 +6,7 @@ export const ROUTES = {
   // Public Routes
   HOME: "/home",
   HOME_TEST: "/home-test",
+  FREQUENTLY_ASK: "/frequently-ask",
   BOOKING: "/booking",
   CHECKOUT: "/checkout",
   MOVIE_DETAIL: "/movie/:movieId",

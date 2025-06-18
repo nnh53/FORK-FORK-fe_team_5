@@ -1,17 +1,18 @@
+import { CardContent, Card as ShadcnCard } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ROUTES } from "@/routes/route.constants";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import CardSwap, { Card } from "../../../../Reactbits/CardSwap/CardSwap";
-import Carousel from "../../../../Reactbits/Carousel/Carousel";
 import hotBadge from "../../../assets/hotBadge.png";
 import nowShowingText from "../../../assets/nowShowingText.png";
 import upComingText from "../../../assets/upComingText.png";
 import FooterTest from "../components/FooterTest/FooterTest";
 import HeaderTest from "../components/HeaderTest/HeaderTest";
-import "./TestHomePage.css";
 import WelcomePanel from "../components/WelcomePanel/WelcomePanel";
+import "./TestHomePage.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,26 +24,6 @@ const TestHomePage = () => {
   const experienceRef = useRef<HTMLElement | null>(null);
   const comingSoonRef = useRef<HTMLElement | null>(null);
   const parallaxRef = useRef<HTMLElement | null>(null);
-
-  // State for carousel width
-  const [carouselWidth, setCarouselWidth] = useState(1000);
-
-  // Handle window resize for responsive carousel
-  useEffect(() => {
-    const updateCarouselWidth = () => {
-      const width = window.innerWidth;
-      setCarouselWidth(width > 768 ? width * 0.85 : width * 0.95);
-    };
-
-    // Set initial width
-    updateCarouselWidth();
-
-    // Add resize listener
-    window.addEventListener("resize", updateCarouselWidth);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", updateCarouselWidth);
-  }, []);
 
   // Movie data for carousel
   const recentMovies = [
@@ -313,22 +294,32 @@ const TestHomePage = () => {
         <div className="carousel-wrapper">
           <div
             style={{
-              height: "400px",
-              position: "relative",
-              width: "100%",
               padding: "0 20px",
               maxWidth: "1800px",
+              margin: "0 auto",
             }}
           >
-            <Carousel
-              items={recentMovies}
-              baseWidth={carouselWidth}
-              autoplay={true}
-              autoplayDelay={4000}
-              pauseOnHover={true}
-              loop={true}
-              round={false}
-            />
+            <Carousel className="w-full">
+              <CarouselContent>
+                {recentMovies.map((movie) => (
+                  <CarouselItem key={movie.id} className="md:basis-1/2 lg:basis-1/3">
+                    <div className="p-1">
+                      <ShadcnCard>
+                        <CardContent className="flex flex-col items-center justify-center p-6 aspect-video">
+                          <h3 className="text-xl font-bold mb-2">{movie.title}</h3>
+                          <p className="text-sm text-center">{movie.description}</p>
+                          <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+                            View Details
+                          </button>
+                        </CardContent>
+                      </ShadcnCard>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" />
+            </Carousel>
           </div>
         </div>
       </section>

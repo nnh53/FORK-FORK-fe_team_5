@@ -9,6 +9,7 @@ import Register from "@/feature/auth/Register";
 import Unauthorized from "@/feature/auth/unauth/Unauthor";
 import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
+import FrequentlyAsk from "@/feature/booking/components/FrequentlyAsk";
 import HomePage from "@/feature/booking/home-page/HomePage.tsx";
 import HomePageTest from "@/feature/booking/home-page/TestHomePage.tsx";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
@@ -34,6 +35,7 @@ export const AppRoutes = () => (
     {/* Public Routes */}
     <Route path={ROUTES.HOME} element={<HomePage />} />
     <Route path={ROUTES.HOME_TEST} element={<HomePageTest />} />
+    <Route path={ROUTES.FREQUENTLY_ASK} element={<FrequentlyAsk />} />
     <Route path={ROUTES.BOOKING} element={<BookingPage />} />
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
