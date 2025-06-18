@@ -1,5 +1,7 @@
+import { SortButton } from "@/components/shared/SortButton";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useSortable } from "@/hooks/useSortable";
 import type { Member } from "@/interfaces/member.interface";
 import { MemberStatus } from "@/interfaces/member.interface";
 import { Edit, Trash } from "lucide-react";
@@ -24,15 +26,32 @@ const getStatusDisplay = (status: MemberStatus) => {
 };
 
 const MemberTable = ({ members, onEdit, onDelete }: MemberTableProps) => {
+  const { sortedData, getSortProps } = useSortable<Member>(members);
+
   return (
     <div className="w-full overflow-hidden rounded-lg">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-red-50 hover:bg-red-100">
-              <TableHead>Tên</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Ngày sinh</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Tên
+                  <SortButton {...getSortProps("name")} />
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Email
+                  <SortButton {...getSortProps("email")} />
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Ngày sinh
+                  <SortButton {...getSortProps("date_of_birth")} />
+                </div>
+              </TableHead>
               <TableHead>Số điện thoại</TableHead>
               <TableHead>Địa chỉ</TableHead>
               <TableHead>Trạng thái</TableHead>
@@ -40,14 +59,14 @@ const MemberTable = ({ members, onEdit, onDelete }: MemberTableProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {members.length === 0 ? (
+            {sortedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-4 text-gray-500">
                   Không tìm thấy thành viên
                 </TableCell>
               </TableRow>
             ) : (
-              members.map((member) => {
+              sortedData.map((member) => {
                 const { label, className } = getStatusDisplay(member.status);
                 return (
                   <TableRow key={member.member_id}>

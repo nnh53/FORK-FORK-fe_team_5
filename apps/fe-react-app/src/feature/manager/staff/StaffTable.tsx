@@ -1,5 +1,7 @@
+import { SortButton } from "@/components/shared/SortButton";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useSortable } from "@/hooks/useSortable";
 import type { Staff } from "@/interfaces/staff.interface";
 import { StaffStatus } from "@/interfaces/staff.interface";
 import { Edit, Trash } from "lucide-react";
@@ -24,14 +26,26 @@ const getStatusDisplay = (status: StaffStatus) => {
 };
 
 const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
+  const { sortedData, getSortProps } = useSortable<Staff>(staffs);
+
   return (
     <div className="w-full overflow-hidden rounded-lg">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-red-50 hover:bg-red-100">
-              <TableHead>Tên</TableHead>
-              <TableHead>Email</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Tên
+                  <SortButton {...getSortProps("name")} />
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Email
+                  <SortButton {...getSortProps("email")} />
+                </div>
+              </TableHead>
               <TableHead>Ngày sinh</TableHead>
               <TableHead>Số điện thoại</TableHead>
               <TableHead>Địa chỉ</TableHead>
@@ -40,14 +54,14 @@ const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {staffs.length === 0 ? (
+            {sortedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-4 text-gray-500">
                   Không tìm thấy nhân viên
                 </TableCell>
               </TableRow>
             ) : (
-              staffs.map((staff) => {
+              sortedData.map((staff) => {
                 const { label, className } = getStatusDisplay(staff.status);
                 return (
                   <TableRow key={staff.staff_id}>
