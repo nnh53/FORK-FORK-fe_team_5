@@ -27,12 +27,11 @@ interface SearchCriteria {
 interface SearchBarProps {
   searchOptions: SearchOption[];
   onSearchChange: (criteria: SearchCriteria[]) => void;
-  placeholder?: string;
   className?: string;
   maxSelections?: number;
 }
 
-function SearchBar({ searchOptions, onSearchChange, placeholder = "Tìm kiếm...", className, maxSelections = 5 }: SearchBarProps) {
+function SearchBar({ searchOptions, onSearchChange, className, maxSelections = 5 }: SearchBarProps) {
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 

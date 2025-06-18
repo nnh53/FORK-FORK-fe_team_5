@@ -15,8 +15,6 @@ const StaffManagement = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | undefined>();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSearchTypes, setSelectedSearchTypes] = useState<string[]>(["name"]); // Thay đổi từ searchType thành selectedSearchTypes
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria[]>([]);
@@ -60,13 +58,12 @@ const StaffManagement = () => {
     fetchStaffs();
   }, []);
 
-  // Updated filtering logic
   const filteredStaffs = useMemo(() => {
     if (!staffs || searchCriteria.length === 0) return staffs;
 
     return staffs.filter((staff) => {
       return searchCriteria.every((criteria) => {
-        if (!criteria.value) return true; // Bỏ qua criteria không có giá trị
+        if (!criteria.value) return true;
 
         switch (criteria.field) {
           case "name":
