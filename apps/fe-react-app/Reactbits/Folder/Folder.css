@@ -6,7 +6,6 @@
 
 .folder {
   transition: all 0.2s ease-in;
-  cursor: pointer;
 }
 
 .folder:not(.folder--click):hover {

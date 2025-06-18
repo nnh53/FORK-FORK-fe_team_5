@@ -54,7 +54,7 @@ const FrequentlyAsk = () => {
           transition: "all 0.3s ease",
         }}
       >
-        {expandedFolder === "folder1" ? "Go to My Bookings section and click Cancel button to cancel your reservation" : "My Bookings → Cancel"}
+        {expandedFolder === "folder1" ? "Go to My Bookings section and click Cancel button to cancel your reservation" : "Click above"}
       </span>
     </div>,
   ];
@@ -81,7 +81,7 @@ const FrequentlyAsk = () => {
           transition: "all 0.3s ease",
         }}
       >
-        {expandedFolder === "folder2" ? "Refunds are processed within 24 hours after cancellation request is approved" : "24hrs processing"}
+        {expandedFolder === "folder2" ? "Refunds are processed within 24 hours after cancellation request is approved" : "Click above"}
       </span>
     </div>,
   ];
@@ -108,7 +108,7 @@ const FrequentlyAsk = () => {
           transition: "all 0.3s ease",
         }}
       >
-        {expandedFolder === "folder3" ? "You can choose your preferred seats during the booking process before payment" : "During booking"}
+        {expandedFolder === "folder3" ? "You can choose your preferred seats during the booking process before payment" : "Click above"}
       </span>
     </div>,
   ];
