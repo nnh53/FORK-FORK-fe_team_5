@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 interface GridDistortionProps {
@@ -35,14 +35,7 @@ void main() {
 }
 `;
 
-const GridDistortion: React.FC<GridDistortionProps> = ({
-  grid = 15,
-  mouse = 0.1,
-  strength = 0.15,
-  relaxation = 0.9,
-  imageSrc,
-  className = "",
-}) => {
+const GridDistortion: React.FC<GridDistortionProps> = ({ grid = 15, mouse = 0.1, strength = 0.15, relaxation = 0.9, imageSrc, className = "" }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageAspectRef = useRef<number>(1);
   const cameraRef = useRef<THREE.OrthographicCamera | null>(null);
@@ -94,13 +87,7 @@ const GridDistortion: React.FC<GridDistortionProps> = ({
     }
     initialDataRef.current = new Float32Array(data);
 
-    const dataTexture = new THREE.DataTexture(
-      data,
-      size,
-      size,
-      THREE.RGBAFormat,
-      THREE.FloatType
-    );
+    const dataTexture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat, THREE.FloatType);
     dataTexture.needsUpdate = true;
     uniforms.uDataTexture.value = dataTexture;
 
@@ -187,8 +174,7 @@ const GridDistortion: React.FC<GridDistortionProps> = ({
 
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          const distSq =
-            Math.pow(gridMouseX - i, 2) + Math.pow(gridMouseY - j, 2);
+          const distSq = Math.pow(gridMouseX - i, 2) + Math.pow(gridMouseY - j, 2);
           if (distSq < maxDist * maxDist) {
             const index = 4 * (i + size * j);
             const power = Math.min(maxDist / Math.sqrt(distSq), 10);
@@ -215,9 +201,7 @@ const GridDistortion: React.FC<GridDistortionProps> = ({
     };
   }, [grid, mouse, strength, relaxation, imageSrc]);
 
-  return (
-    <div ref={containerRef} className={`distortion-container ${className}`} />
-  );
+  return <div ref={containerRef} className={`distortion-container ${className}`} />;
 };
 
 export default GridDistortion;
