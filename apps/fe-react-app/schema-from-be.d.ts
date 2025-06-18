@@ -4,900 +4,900 @@
  */
 
 export interface paths {
-    "/users/{userId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getUser"];
-        put: operations["update"];
-        post?: never;
-        delete: operations["delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/users/{userId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/promotions/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getPromotion"];
-        put: operations["updatePromotion"];
-        post?: never;
-        delete: operations["deletePromotion"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["getUser"];
+    put: operations["update"];
+    post?: never;
+    delete: operations["delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/promotions/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/cinema-rooms/{roomId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["get"];
-        put: operations["update_1"];
-        post?: never;
-        delete: operations["delete_1"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["getPromotion"];
+    put: operations["updatePromotion"];
+    post?: never;
+    delete: operations["deletePromotion"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/cinema-rooms/{roomId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/seats/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getSeatById"];
-        put: operations["updateSeat"];
-        post?: never;
-        delete: operations["deleteSeat"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["get"];
+    put: operations["update_1"];
+    post?: never;
+    delete: operations["delete_1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/seats/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getUsers"];
-        put?: never;
-        post: operations["createUser"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["getSeatById"];
+    put: operations["updateSeat"];
+    post?: never;
+    delete: operations["deleteSeat"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/promotions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAllPromotions"];
-        put?: never;
-        post: operations["createPromotion"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["getUsers"];
+    put?: never;
+    post: operations["createUser"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/promotions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/cinema-rooms": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAll"];
-        put?: never;
-        post: operations["create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["getAllPromotions"];
+    put?: never;
+    post: operations["createPromotion"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/cinema-rooms": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/introspect": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["introspect"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["getAll"];
+    put?: never;
+    post: operations["create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/introspect": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/authenticate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["authenticate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations["introspect"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/authenticate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/seats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAllSeats"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations["authenticate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/seats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/seats/room/{roomId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getSeatsByCinemaRoomId"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["getAllSeats"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/seats/room/{roomId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get: operations["getSeatsByCinemaRoomId"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        UserUpdate: {
-            fullName?: string;
-            phone?: string;
-            address?: string;
-            avatar?: string;
-            role?: string;
-            active?: boolean;
-        };
-        ApiResponseVoid: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: unknown;
-        };
-        PromotionRequest: {
-            image?: string;
-            title: string;
-            type: string;
-            /** Format: double */
-            minPurchase: number;
-            /** Format: double */
-            discountValue: number;
-            /** Format: date-time */
-            startTime: string;
-            /** Format: date-time */
-            endTime: string;
-            description: string;
-            /** @enum {string} */
-            status: "ACTIVE" | "INACTIVE";
-        };
-        ApiResponsePromotionResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["PromotionResponse"];
-        };
-        PromotionResponse: {
-            /** Format: int64 */
-            id?: number;
-            image?: string;
-            title?: string;
-            type?: string;
-            /** Format: double */
-            minPurchase?: number;
-            /** Format: double */
-            discountValue?: number;
-            /** Format: date-time */
-            startTime?: string;
-            /** Format: date-time */
-            endTime?: string;
-            description?: string;
-            status?: string;
-        };
-        CinemaRoomUpdateRequest: {
-            /** Format: int32 */
-            roomNumber?: number;
-            type?: string;
-            /** Format: double */
-            fee?: number;
-            /** Format: int32 */
-            capacity?: number;
-            status?: string;
-            /** Format: int32 */
-            width?: number;
-            /** Format: int32 */
-            length?: number;
-        };
-        ApiResponseCinemaRoomResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["CinemaRoomResponse"];
-        };
-        CinemaRoomResponse: {
-            /** Format: int32 */
-            id?: number;
-            /** Format: int32 */
-            roomNumber?: number;
-            type?: string;
-            /** Format: double */
-            fee?: number;
-            /** Format: int32 */
-            capacity?: number;
-            status?: string;
-            /** Format: int32 */
-            width?: number;
-            /** Format: int32 */
-            length?: number;
-            seats?: components["schemas"]["SeatResponse"][];
-        };
-        SeatResponse: {
-            /** Format: int32 */
-            id?: number;
-            /** Format: int32 */
-            roomId?: number;
-            row?: string;
-            column?: string;
-            name?: string;
-            type?: string;
-            status?: string;
-        };
-        SeatRequest: {
-            type?: string;
-            status?: string;
-        };
-        ApiResponseSeatResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["SeatResponse"];
-        };
-        UserRequest: {
-            email: string;
-            fullName: string;
-            password: string;
-            phone?: string;
-            address?: string;
-            avatar?: string;
-            role?: string;
-            active?: boolean;
-        };
-        ApiResponseUser: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["User"];
-        };
-        User: {
-            id?: string;
-            fullName?: string;
-            /** Format: date */
-            dateOfBirth?: string;
-            email?: string;
-            password?: string;
-            isActive?: boolean;
-            /** Format: int32 */
-            isSubscription?: number;
-            /** @enum {string} */
-            role?: "ADMIN" | "MANAGER" | "CUSTOMER" | "STAFF";
-            avatarUrl?: string;
-            /** Format: int32 */
-            loyaltyPoint?: number;
-        };
-        CinemaRoomRequest: {
-            /** Format: int32 */
-            roomNumber: number;
-            type: string;
-            /** Format: double */
-            fee: number;
-            /** Format: int32 */
-            capacity: number;
-            /** Format: int32 */
-            width: number;
-            /** Format: int32 */
-            length: number;
-        };
-        IntrospectRequest: {
-            token?: string;
-        };
-        ApiResponseIntrospectResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["IntrospectResponse"];
-        };
-        IntrospectResponse: {
-            valid?: boolean;
-        };
-        AuthenticationRequest: {
-            email: string;
-            password: string;
-        };
-        ApiResponseAuthenticationResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["AuthenticationResponse"];
-        };
-        AuthenticationResponse: {
-            token?: string;
-        };
-        ApiResponseListUser: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["User"][];
-        };
-        ApiResponseListPromotionResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["PromotionResponse"][];
-        };
-        ApiResponseListCinemaRoomResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["CinemaRoomResponse"][];
-        };
-        ApiResponseListSeatResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["SeatResponse"][];
-        };
+  schemas: {
+    UserUpdate: {
+      fullName?: string;
+      phone?: string;
+      address?: string;
+      avatar?: string;
+      role?: string;
+      active?: boolean;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    ApiResponseVoid: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: unknown;
+    };
+    PromotionRequest: {
+      image?: string;
+      title: string;
+      type: string;
+      /** Format: double */
+      minPurchase: number;
+      /** Format: double */
+      discountValue: number;
+      /** Format: date-time */
+      startTime: string;
+      /** Format: date-time */
+      endTime: string;
+      description: string;
+      /** @enum {string} */
+      status: "ACTIVE" | "INACTIVE";
+    };
+    ApiResponsePromotionResponse: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["PromotionResponse"];
+    };
+    PromotionResponse: {
+      /** Format: int64 */
+      id?: number;
+      image?: string;
+      title?: string;
+      type?: string;
+      /** Format: double */
+      minPurchase?: number;
+      /** Format: double */
+      discountValue?: number;
+      /** Format: date-time */
+      startTime?: string;
+      /** Format: date-time */
+      endTime?: string;
+      description?: string;
+      status?: string;
+    };
+    CinemaRoomUpdateRequest: {
+      /** Format: int32 */
+      roomNumber?: number;
+      type?: string;
+      /** Format: double */
+      fee?: number;
+      /** Format: int32 */
+      capacity?: number;
+      status?: string;
+      /** Format: int32 */
+      width?: number;
+      /** Format: int32 */
+      length?: number;
+    };
+    ApiResponseCinemaRoomResponse: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["CinemaRoomResponse"];
+    };
+    CinemaRoomResponse: {
+      /** Format: int32 */
+      id?: number;
+      /** Format: int32 */
+      roomNumber?: number;
+      type?: string;
+      /** Format: double */
+      fee?: number;
+      /** Format: int32 */
+      capacity?: number;
+      status?: string;
+      /** Format: int32 */
+      width?: number;
+      /** Format: int32 */
+      length?: number;
+      seats?: components["schemas"]["SeatResponse"][];
+    };
+    SeatResponse: {
+      /** Format: int32 */
+      id?: number;
+      /** Format: int32 */
+      roomId?: number;
+      row?: string;
+      column?: string;
+      name?: string;
+      type?: string;
+      status?: string;
+    };
+    SeatRequest: {
+      type?: string;
+      status?: string;
+    };
+    ApiResponseSeatResponse: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["SeatResponse"];
+    };
+    UserRequest: {
+      email: string;
+      fullName: string;
+      password: string;
+      phone?: string;
+      address?: string;
+      avatar?: string;
+      role?: string;
+      active?: boolean;
+    };
+    ApiResponseUser: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["User"];
+    };
+    User: {
+      id?: string;
+      fullName?: string;
+      /** Format: date */
+      dateOfBirth?: string;
+      email?: string;
+      password?: string;
+      isActive?: boolean;
+      /** Format: int32 */
+      isSubscription?: number;
+      /** @enum {string} */
+      role?: "ADMIN" | "MANAGER" | "CUSTOMER" | "STAFF";
+      avatarUrl?: string;
+      /** Format: int32 */
+      loyaltyPoint?: number;
+    };
+    CinemaRoomRequest: {
+      /** Format: int32 */
+      roomNumber: number;
+      type: string;
+      /** Format: double */
+      fee: number;
+      /** Format: int32 */
+      capacity: number;
+      /** Format: int32 */
+      width: number;
+      /** Format: int32 */
+      length: number;
+    };
+    IntrospectRequest: {
+      token?: string;
+    };
+    ApiResponseIntrospectResponse: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["IntrospectResponse"];
+    };
+    IntrospectResponse: {
+      valid?: boolean;
+    };
+    AuthenticationRequest: {
+      email: string;
+      password: string;
+    };
+    ApiResponseAuthenticationResponse: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["AuthenticationResponse"];
+    };
+    AuthenticationResponse: {
+      token?: string;
+    };
+    ApiResponseListUser: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["User"][];
+    };
+    ApiResponseListPromotionResponse: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["PromotionResponse"][];
+    };
+    ApiResponseListCinemaRoomResponse: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["CinemaRoomResponse"][];
+    };
+    ApiResponseListSeatResponse: {
+      /** Format: int32 */
+      code?: number;
+      message?: string;
+      result?: components["schemas"]["SeatResponse"][];
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    getUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseUser"];
-                };
-            };
-        };
+  getUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        userId: string;
+      };
+      cookie?: never;
     };
-    update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserUpdate"];
-            };
+        content: {
+          "*/*": components["schemas"]["ApiResponseUser"];
         };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseVoid"];
-                };
-            };
-        };
+      };
     };
-    delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseVoid"];
-                };
-            };
-        };
+  };
+  update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        userId: string;
+      };
+      cookie?: never;
     };
-    getPromotion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponsePromotionResponse"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserUpdate"];
+      };
     };
-    updatePromotion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PromotionRequest"];
-            };
+        content: {
+          "*/*": components["schemas"]["ApiResponseVoid"];
         };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponsePromotionResponse"];
-                };
-            };
-        };
+      };
     };
-    deletePromotion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseVoid"];
-                };
-            };
-        };
+  };
+  delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        userId: string;
+      };
+      cookie?: never;
     };
-    get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                roomId: number;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseCinemaRoomResponse"];
-                };
-            };
+        content: {
+          "*/*": components["schemas"]["ApiResponseVoid"];
         };
+      };
     };
-    update_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                roomId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CinemaRoomUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseCinemaRoomResponse"];
-                };
-            };
-        };
+  };
+  getPromotion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
     };
-    delete_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                roomId: number;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseVoid"];
-                };
-            };
+        content: {
+          "*/*": components["schemas"]["ApiResponsePromotionResponse"];
         };
+      };
     };
-    getSeatById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseSeatResponse"];
-                };
-            };
-        };
+  };
+  updatePromotion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
     };
-    updateSeat: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SeatRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseSeatResponse"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PromotionRequest"];
+      };
     };
-    deleteSeat: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseVoid"];
-                };
-            };
+        content: {
+          "*/*": components["schemas"]["ApiResponsePromotionResponse"];
         };
+      };
     };
-    getUsers: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseListUser"];
-                };
-            };
-        };
+  };
+  deletePromotion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
     };
-    createUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserRequest"];
-            };
+        content: {
+          "*/*": components["schemas"]["ApiResponseVoid"];
         };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseUser"];
-                };
-            };
-        };
+      };
     };
-    getAllPromotions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseListPromotionResponse"];
-                };
-            };
-        };
+  };
+  get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        roomId: number;
+      };
+      cookie?: never;
     };
-    createPromotion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PromotionRequest"];
-            };
+        content: {
+          "*/*": components["schemas"]["ApiResponseCinemaRoomResponse"];
         };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponsePromotionResponse"];
-                };
-            };
-        };
+      };
     };
-    getAll: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseListCinemaRoomResponse"];
-                };
-            };
-        };
+  };
+  update_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        roomId: number;
+      };
+      cookie?: never;
     };
-    create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CinemaRoomRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseCinemaRoomResponse"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CinemaRoomUpdateRequest"];
+      };
     };
-    introspect: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IntrospectRequest"];
-            };
+        content: {
+          "*/*": components["schemas"]["ApiResponseCinemaRoomResponse"];
         };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseIntrospectResponse"];
-                };
-            };
-        };
+      };
     };
-    authenticate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AuthenticationRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseAuthenticationResponse"];
-                };
-            };
-        };
+  };
+  delete_1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        roomId: number;
+      };
+      cookie?: never;
     };
-    getAllSeats: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseListSeatResponse"];
-                };
-            };
+        content: {
+          "*/*": components["schemas"]["ApiResponseVoid"];
         };
+      };
     };
-    getSeatsByCinemaRoomId: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                roomId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseListSeatResponse"];
-                };
-            };
-        };
+  };
+  getSeatById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
     };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseSeatResponse"];
+        };
+      };
+    };
+  };
+  updateSeat: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SeatRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseSeatResponse"];
+        };
+      };
+    };
+  };
+  deleteSeat: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseVoid"];
+        };
+      };
+    };
+  };
+  getUsers: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseListUser"];
+        };
+      };
+    };
+  };
+  createUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseUser"];
+        };
+      };
+    };
+  };
+  getAllPromotions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseListPromotionResponse"];
+        };
+      };
+    };
+  };
+  createPromotion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PromotionRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponsePromotionResponse"];
+        };
+      };
+    };
+  };
+  getAll: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseListCinemaRoomResponse"];
+        };
+      };
+    };
+  };
+  create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CinemaRoomRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseCinemaRoomResponse"];
+        };
+      };
+    };
+  };
+  introspect: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["IntrospectRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseIntrospectResponse"];
+        };
+      };
+    };
+  };
+  authenticate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AuthenticationRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseAuthenticationResponse"];
+        };
+      };
+    };
+  };
+  getAllSeats: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseListSeatResponse"];
+        };
+      };
+    };
+  };
+  getSeatsByCinemaRoomId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        roomId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "*/*": components["schemas"]["ApiResponseListSeatResponse"];
+        };
+      };
+    };
+  };
 }
