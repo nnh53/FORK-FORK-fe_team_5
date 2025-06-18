@@ -551,7 +551,162 @@ const TestHomePage = () => {
               </p>
               <button className="learn-button">Learn More</button>
             </div>
-            <div className="experience-image"></div>
+            <div
+              className="experience-images"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gridTemplateRows: "1fr 1fr",
+                gap: "20px",
+                width: "100%",
+                maxWidth: "500px",
+                height: "400px",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  borderRadius: "15px",
+                  overflow: "hidden",
+                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                  transition: "transform 0.3s ease",
+                }}
+              >
+                <img
+                  src="../images/normal-chair.png"
+                  alt="Normal Chair"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                    color: "white",
+                    padding: "15px 10px 10px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    textAlign: "center",
+                  }}
+                >
+                  Normal Chair
+                </div>
+              </div>
+
+              <div
+                style={{
+                  position: "relative",
+                  borderRadius: "15px",
+                  overflow: "hidden",
+                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                  transition: "transform 0.3s ease",
+                }}
+              >
+                <img
+                  src="../images/vip-chair.png"
+                  alt="VIP Chair"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                    color: "white",
+                    padding: "15px 10px 10px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    textAlign: "center",
+                  }}
+                >
+                  VIP Chair
+                </div>
+              </div>
+
+              <div
+                style={{
+                  position: "relative",
+                  borderRadius: "15px",
+                  overflow: "hidden",
+                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                  transition: "transform 0.3s ease",
+                }}
+              >
+                <img
+                  src="../images/premium-chair.png"
+                  alt="Premium Chair"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                    color: "white",
+                    padding: "15px 10px 10px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    textAlign: "center",
+                  }}
+                >
+                  Premium Chair
+                </div>
+              </div>
+
+              <div
+                style={{
+                  position: "relative",
+                  borderRadius: "15px",
+                  overflow: "hidden",
+                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                  transition: "transform 0.3s ease",
+                }}
+              >
+                <img
+                  src="../images/couple-chair.png"
+                  alt="Couple Chair"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                    color: "white",
+                    padding: "15px 10px 10px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    textAlign: "center",
+                  }}
+                >
+                  Couple Chair
+                </div>
+              </div>
+            </div>
           </div>
         </section>{" "}
         {/* FAQ Section */}
