@@ -22,6 +22,7 @@ const TestHomePage = () => {
   const experienceRef = useRef<HTMLElement | null>(null);
   const comingSoonRef = useRef<HTMLElement | null>(null);
   const parallaxRef = useRef<HTMLElement | null>(null);
+  const welcomeTextRef = useRef<HTMLDivElement | null>(null);
 
   // State for carousel width
   const [carouselWidth, setCarouselWidth] = useState(1000);
@@ -85,6 +86,52 @@ const TestHomePage = () => {
       requestAnimationFrame(smoothScroll);
     };
     smoothScroll();
+
+    // Welcome text animation
+    if (welcomeTextRef.current) {
+      const welcomeLetters = welcomeTextRef.current.querySelectorAll(".letter");
+
+      // Clear any existing animations
+      gsap.set(welcomeLetters, { autoAlpha: 0, y: 0, rotationX: 0 });
+
+      // Create timeline for welcome text animation
+      const welcomeTl = gsap.timeline({ delay: 0.5 });
+
+      // W - from left, flipping up
+      welcomeTl.fromTo(
+        welcomeLetters[0],
+        { autoAlpha: 0, x: -50, rotationX: -90 },
+        { autoAlpha: 1, x: 0, rotationX: 0, duration: 0.7, ease: "back.out" },
+      );
+
+      // E - from top
+      welcomeTl.fromTo(welcomeLetters[1], { autoAlpha: 0, y: -50 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, "-=0.3");
+
+      // L - following E
+      welcomeTl.fromTo(welcomeLetters[2], { autoAlpha: 0, y: -30 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, "-=0.25");
+
+      // C - appearing from behind L
+      welcomeTl.fromTo(
+        welcomeLetters[3],
+        { autoAlpha: 0, scale: 0.5, transformOrigin: "left center" },
+        { autoAlpha: 1, scale: 1, duration: 0.5, ease: "elastic.out(1, 0.3)" },
+        "-=0.2",
+      );
+
+      // O - appearing from C
+      welcomeTl.fromTo(
+        welcomeLetters[4],
+        { autoAlpha: 0, scale: 0.5, transformOrigin: "left center" },
+        { autoAlpha: 1, scale: 1, duration: 0.5, ease: "elastic.out(1, 0.3)" },
+        "-=0.3",
+      );
+
+      // M - following O
+      welcomeTl.fromTo(welcomeLetters[5], { autoAlpha: 0, x: -20 }, { autoAlpha: 1, x: 0, duration: 0.5, ease: "power2.out" }, "-=0.2");
+
+      // E - last letter
+      welcomeTl.fromTo(welcomeLetters[6], { autoAlpha: 0, x: -20 }, { autoAlpha: 1, x: 0, duration: 0.5, ease: "power2.out" }, "-=0.3");
+    }
 
     // Hero section parallax and text animation
     const heroTl = gsap.timeline({
@@ -294,6 +341,15 @@ const TestHomePage = () => {
       <section className="hero-section panel" ref={heroRef}>
         <div className="hero-bg"></div>
         <div className="hero-content">
+          <div className="welcome-text" ref={welcomeTextRef}>
+            <span className="letter">W</span>
+            <span className="letter">e</span>
+            <span className="letter">l</span>
+            <span className="letter">c</span>
+            <span className="letter">o</span>
+            <span className="letter">m</span>
+            <span className="letter">e</span>
+          </div>
           <h1>Experience Cinema Like Never Before</h1>
           <p>Immerse yourself in stunning visuals and captivating stories</p>
           <button className="cta-button">
