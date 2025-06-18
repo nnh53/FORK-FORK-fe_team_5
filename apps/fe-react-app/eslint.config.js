@@ -23,6 +23,7 @@ export default tseslint.config(
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "warn",
       "sonarjs/no-commented-code": "warn",
+      "sonarjs/no-nested-functions": "warn",
     },
     ignores: ["src/components/ui/*", "*.d.ts"],
   },
