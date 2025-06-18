@@ -29,13 +29,13 @@ const MovieCard: React.FC<MovieCardProps> = ({
   onBuyTicketClick,
 }) => {
   return (
-    <div className="flex flex-col h-full w-full bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+    <div className="flex flex-col w-72 h-[580px] bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
       {/* --- Phần Poster --- */}
-      <button className="relative group w-full" onClick={onPosterClick} type="button">
+      <button className="relative group w-full h-96 flex-shrink-0" onClick={onPosterClick} type="button">
         <img
           src={posterUrl}
           alt={`Poster phim ${title}`}
-          className="w-full h-[420px] object-cover transition-all duration-300 group-hover:brightness-50"
+          className="w-full h-full object-cover transition-all duration-300 group-hover:brightness-50"
         />
         <div className="absolute inset-0 flex items-center justify-center cursor-pointer">
           <div className="fa fa-play-circle text-6xl text-white opacity-0 group-hover:opacity-90 transition-opacity duration-300" aria-hidden="true">
@@ -55,25 +55,25 @@ const MovieCard: React.FC<MovieCardProps> = ({
       </button>
 
       {/* --- Phần Nội dung --- */}
-      <div className="flex flex-col flex-1 pe-4 px-4 pb-4 min-w-3xs max-w-3xs">
+      <div className="flex flex-col flex-1 px-4 pb-4 min-h-0">
         {/* div flex-grow này sẽ đẩy nút Mua Vé xuống dưới */}
-        <div className="flex-grow">
+        <div className="flex-grow pt-3 min-h-0">
           <h3
             title={title}
             onClick={(e) => {
               e.stopPropagation();
               onTitleClick?.();
             }}
-            className="text-lg sm:text-xl font-bold text-red-600 overflow-hidden hover:text-red-700 hover:underline cursor-pointer"
+            className="text-lg font-bold text-red-600 overflow-hidden hover:text-red-700 hover:underline cursor-pointer mb-2 line-clamp-2"
             style={{
               display: "-webkit-box",
-              WebkitLineClamp: 1,
+              WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
             }}
           >
             {title}
           </h3>
-          <p className="text-sm text-gray-600 truncate">
+          <p className="text-sm text-gray-600 mb-1 line-clamp-1">
             <span className="font-bold">Thể loại:</span> {genres.join(", ")}
           </p>
           <p className="text-sm text-gray-600">
@@ -86,7 +86,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
           onClick={onBuyTicketClick}
           className="w-full h-11 bg-gradient-to-r from-red-700 via-red-600 to-red-500 hover:brightness-110 text-white font-bold rounded-md
                      transition duration-200 flex items-center justify-center text-base relative mt-4
-                     cursor-pointer"
+                     cursor-pointer flex-shrink-0"
         >
           <span className={"text-7xl"}>
             <Icon
@@ -96,13 +96,6 @@ const MovieCard: React.FC<MovieCardProps> = ({
               className="absolute -left-1 -top-2 text-9xl opacity-60"
               style={{ transform: "rotate(45deg)" }}
             />
-
-            {/* <LocalActivityRoundedIcon
-              className="absolute -left-1 -top-2 text-9xl opacity-60"
-              fontSize="inherit"
-              style={{ transform: "rotate(45deg)" }}
-              aria-hidden="true"
-            /> */}
           </span>
           <span> MUA VÉ</span>
         </button>

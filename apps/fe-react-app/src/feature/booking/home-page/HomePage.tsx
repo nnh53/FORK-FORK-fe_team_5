@@ -1,196 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import MovieList from "../../../components/movie/MovieList/MovieList.tsx";
+import MovieSearch from "../../../components/MovieSearch.tsx";
 import Carousel from "../../../components/shared/Carousel/Carousel.tsx";
 import UserLayout from "../../../layouts/userLayout/UserLayout.tsx";
 import ShowtimesModal from "../components/ShowtimesModal/ShowtimesModal.tsx";
 import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmModal.tsx";
 
 import nowShowing from "@/assets/nowShowingText.png";
-import pTagImage from "@/assets/pTag.png";
 import upcoming from "@/assets/upComingText.png";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import { useNavigate } from "react-router-dom";
+import type { Movie } from "../../../../../mockapi-express-app/src/movies.mockapi";
 import type { MovieCardProps } from "../../../components/movie/MovieCard/MovieCard.tsx";
+import { movieService } from "../../../services/movieService";
+import { showtimeService } from "../../../services/showtimeService";
+import { convertMoviesToMovieCards } from "../../../utils/movieUtils";
+import { convertShowtimesToSchedulePerDay } from "../../../utils/showtimeUtils";
 import type { SchedulePerDay } from "../components/ShowtimesModal/ShowtimesModal.tsx";
 
 // 1. MOCK DATA PHIM
-const mockMovies: MovieCardProps[] = [
-  {
-    id: "1",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Dune: Part Two",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "165 phút",
-    isHot: true,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w",
-  },
-  {
-    id: "2",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Anyone But You",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "103 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=EkqY-Z0TyHM",
-  },
-  {
-    id: "3",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "The Marvels",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "105 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=wS_qbDztgVY",
-  },
-  {
-    id: "4",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Love Again",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "104 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=2QL7mNGt3CA",
-  },
-  {
-    id: "5",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Transformers: Rise of the Beasts",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "127 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=itnqEauWQZM",
-  },
-  {
-    id: "6",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "No Hard Feelings",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "103 phút",
-    isHot: true,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=P15S6ND8kbQ",
-  },
-  {
-    id: "7",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Avatar: The Way of Water",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "192 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=d9MyW72ELq0",
-  },
-  {
-    id: "8",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Your Place or Mine",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "109 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=Y8DAi0H-V1I",
-  },
-  {
-    id: "9",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "The Creator",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "133 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=ex3C1-5Dhb8",
-  },
-  {
-    id: "10",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "The Perfect Find",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "99 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=DRNRNks2CE0",
-  },
-  {
-    id: "11",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "The Matrix Resurrections",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "148 phút",
-    isHot: true,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=9ix7TUGVYIo",
-  },
-  {
-    id: "12",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Ticket to Paradise",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "104 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=hkP4tVTdsz8",
-  },
-  {
-    id: "13",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Ready Player One",
-    genres: ["Hành động", "Khoa học viễn tưởng"],
-    duration: "140 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=cSp1dM2Vj48",
-  },
-  {
-    id: "14",
-    posterUrl: "https://files.betacorp.vn/media%2fimages%2f2025%2f05%2f18%2fbeta%2D400x633%2D192849%2D180525%2D39.png",
-    title: "Marry Me",
-    genres: ["Tình cảm", "Hài hước"],
-    duration: "112 phút",
-    isHot: false,
-    ageBadgeUrl: pTagImage,
-    trailerUrl: "https://www.youtube.com/watch?v=Ebv9_rNb5Ig",
-  },
-];
-
-// 2. MOCK DATA LỊCH CHIẾU
-const mockScheduleData: SchedulePerDay[] = [
-  {
-    date: "2025-06-09",
-    showtimes: [
-      { time: "09:30", availableSeats: 50, format: "2D Phụ đề" },
-      { time: "11:45", availableSeats: 30, format: "2D Phụ đề" },
-      { time: "14:00", availableSeats: 45, format: "2D Phụ đề" },
-      { time: "16:15", availableSeats: 12, format: "3D Lồng tiếng" },
-      { time: "19:00", availableSeats: 60, format: "3D Lồng tiếng" },
-      { time: "21:30", availableSeats: 25, format: "IMAX 3D" },
-    ],
-  },
-  {
-    date: "2025-06-10",
-    showtimes: [
-      { time: "10:00", availableSeats: 55, format: "2D Phụ đề" },
-      { time: "13:15", availableSeats: 20, format: "2D Phụ đề" },
-      { time: "17:00", availableSeats: 3, format: "3D Lồng tiếng" },
-      { time: "20:45", availableSeats: 40, format: "IMAX 3D" },
-    ],
-  },
-  {
-    date: "2025-06-11",
-    showtimes: [
-      { time: "09:00", availableSeats: 0, format: "2D Phụ đề" },
-      { time: "12:00", availableSeats: 18, format: "2D Phụ đề" },
-      { time: "15:30", availableSeats: 33, format: "3D Lồng tiếng" },
-      { time: "20:00", availableSeats: 28, format: "IMAX 3D" },
-    ],
-  },
-];
-
 interface FinalSelection {
   date: string;
   time: string;
@@ -199,6 +28,15 @@ interface FinalSelection {
 
 function HomePage() {
   const navigate = useNavigate();
+  // State for movies from API
+  const [movies, setMovies] = useState<MovieCardProps[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // State for showtimes
+  const [showtimes, setShowtimes] = useState<SchedulePerDay[]>([]);
+  const [showtimesLoading, setShowtimesLoading] = useState(false);
+  const [showtimesError, setShowtimesError] = useState<string | null>(null);
 
   const movieBaner: string[] = [
     "https://weliveentertainment.com/wp-content/uploads/2025/04/minecraft-movie-banner.png",
@@ -212,9 +50,45 @@ function HomePage() {
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [selectedTrailerUrl, setSelectedTrailerUrl] = useState("");
 
-  const handleBuyTicketClick = (movie: MovieCardProps) => {
+  // Fetch movies from API when component mounts
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        setLoading(true);
+        const moviesData = await movieService.getAllMovies();
+        const movieCards = convertMoviesToMovieCards(moviesData);
+        setMovies(movieCards);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching movies:", err);
+        setError("Failed to load movies. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, []);
+  const handleBuyTicketClick = async (movie: MovieCardProps) => {
     setSelectedMovie(movie);
     setIsShowtimesModalOpen(true);
+
+    // Fetch showtimes for the selected movie
+    try {
+      setShowtimesLoading(true);
+      setShowtimesError(null);
+
+      const showtimesData = await showtimeService.getShowtimesByMovieId(movie.id.toString());
+      const scheduleData = convertShowtimesToSchedulePerDay(showtimesData);
+      setShowtimes(scheduleData);
+    } catch (err) {
+      console.error("Error fetching showtimes:", err);
+      setShowtimesError("Failed to load showtimes. Please try again later.");
+      // Keep empty array if API fails
+      setShowtimes([]);
+    } finally {
+      setShowtimesLoading(false);
+    }
   };
 
   const handlePosterClick = (movie: MovieCardProps) => {
@@ -223,14 +97,40 @@ function HomePage() {
     setIsTrailerModalOpen(true);
     console.log(movie.trailerUrl);
   };
-
   const handleTitleClick = (movie: MovieCardProps) => {
-    navigate(`/movie/${movie.id}`);
+    navigate(`/movie/${movie.id}`, {
+      state: {
+        movie: {
+          id: movie.id,
+          title: movie.title,
+          poster: movie.posterUrl,
+          genres: movie.genres.map((g) => ({ id: g, name: g })), // Convert to expected format
+          genre: movie.genres[0] || "",
+          director: "Đang cập nhật", // Default values since not available in MovieCardProps
+          actors: "Đang cập nhật",
+          releaseYear: new Date().getFullYear(),
+          productionCompany: "Đang cập nhật",
+          duration: parseInt(movie.duration.replace(" phút", "")),
+          rating: 8.0,
+          description: "Thông tin chi tiết về phim sẽ được cập nhật.",
+          trailerUrl: movie.trailerUrl,
+          startShowingDate: new Date().toISOString().split("T")[0],
+          endShowingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+          status: "active",
+          version: "2D",
+          showtimes: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    });
   };
-
   const handleCloseShowtimesModal = () => {
     setIsShowtimesModalOpen(false);
     setSelectedMovie(null);
+    // Reset showtimes state
+    setShowtimes([]);
+    setShowtimesError(null);
   };
 
   const handleFinalShowtimeSelect = (selected: FinalSelection) => {
@@ -251,11 +151,47 @@ function HomePage() {
     setSelectedMovie(null);
     setFinalSelection(null);
   };
+  const handleMovieSearchSelect = (movie: Movie) => {
+    // Navigate to movie detail page with movie ID in URL
+    navigate(`/movie/${movie.id}`, {
+      state: {
+        movie: {
+          id: movie.id,
+          title: movie.title,
+          poster: movie.poster,
+          genres: movie.genre.split(",").map((g) => ({ id: g.trim(), name: g.trim() })),
+          genre: movie.genre,
+          director: movie.director,
+          actors: movie.actors,
+          releaseYear: movie.releaseYear,
+          productionCompany: movie.productionCompany,
+          duration: movie.duration,
+          rating: movie.rating,
+          description: movie.description,
+          trailerUrl: movie.trailerUrl,
+          startShowingDate: movie.startShowingDate,
+          endShowingDate: movie.endShowingDate,
+          status: movie.status,
+          version: movie.version,
+          showtimes: [],
+          createdAt: movie.createdAt,
+          updatedAt: movie.updatedAt,
+        },
+      },
+    });
+  };
 
   return (
     <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
       <Carousel autoplayInterval={2000} images={movieBaner} height={"600px"} />
-
+      {/* Movie Search Section */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold text-white mb-2">Tìm Kiếm Phim</h2>
+          <p className="text-gray-300">Tìm kiếm và đặt vé phim nhanh chóng</p>
+        </div>
+        <MovieSearch onMovieSelect={handleMovieSearchSelect} placeholder="Nhập tên phim để tìm kiếm..." className="max-w-md mx-auto" />
+      </div>
       <div
         className="
           flex items-center justify-center
@@ -266,15 +202,29 @@ function HomePage() {
       >
         <img src={nowShowing} className="h-24" alt="Phim sắp chiếu" />
       </div>
-      <MovieList
-        horizontal={true}
-        movies={mockMovies}
-        cardsPerRow={4}
-        onPosterClick={handlePosterClick}
-        onTitleClick={handleTitleClick}
-        onMovieBuyTicketClick={handleBuyTicketClick}
-      />
-
+      {/* Loading state */}
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <div className="text-white text-lg">Đang tải phim...</div>
+        </div>
+      )}
+      {/* Error state */}
+      {error && (
+        <div className="flex justify-center items-center py-12">
+          <div className="text-red-500 text-lg">{error}</div>
+        </div>
+      )}
+      {/* Movies list */}
+      {!loading && !error && (
+        <MovieList
+          horizontal={true}
+          movies={movies}
+          cardsPerRow={4}
+          onPosterClick={handlePosterClick}
+          onTitleClick={handleTitleClick}
+          onMovieBuyTicketClick={handleBuyTicketClick}
+        />
+      )}
       <div
         className="
           flex items-center justify-center
@@ -285,26 +235,29 @@ function HomePage() {
       >
         <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
       </div>
-      <MovieList
-        horizontal={true}
-        movies={mockMovies}
-        cardsPerRow={4}
-        onPosterClick={handlePosterClick}
-        onTitleClick={handleTitleClick}
-        onMovieBuyTicketClick={handleBuyTicketClick}
-      />
-
+      {/* Upcoming movies - for now, show same movies but could be filtered differently */}
+      {!loading && !error && (
+        <MovieList
+          horizontal={true}
+          movies={movies.slice(0, 6)} // Show first 6 movies as upcoming
+          cardsPerRow={4}
+          onPosterClick={handlePosterClick}
+          onTitleClick={handleTitleClick}
+          onMovieBuyTicketClick={handleBuyTicketClick}
+        />
+      )}{" "}
       {selectedMovie && (
         <ShowtimesModal
           isOpen={isShowtimesModalOpen}
           onClose={handleCloseShowtimesModal}
           movieTitle={selectedMovie.title}
           cinemaName="F-CINEMA"
-          scheduleData={mockScheduleData}
+          scheduleData={showtimes}
           onSelectShowtime={handleFinalShowtimeSelect}
+          loading={showtimesLoading}
+          error={showtimesError}
         />
       )}
-
       {selectedMovie && finalSelection && (
         <TicketConfirmModal
           isOpen={isConfirmModalOpen}

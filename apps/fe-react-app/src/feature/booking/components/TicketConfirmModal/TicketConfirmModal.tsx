@@ -1,6 +1,6 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Icon } from "@iconify/react";
 import React from "react";
-import Modal from "../../../../components/shared/Modal/Modal.tsx";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -22,14 +22,12 @@ const formatDate = (dateString: string) => {
 
 const TicketConfirmModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, onConfirm, movieTitle, cinemaName, selectedDate, selectedTime }) => {
   if (!isOpen) return null;
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} containerClassName="w-full max-w-2xl">
-      <div className="relative">
-        {/* Header của Modal */}
-        <div className="p-4 border-b border-gray-200">
-          <h3 className="text-base font-bold text-gray-700 uppercase">BẠN ĐANG ĐẶT VÉ XEM PHIM</h3>
-        </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="w-full max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-base font-bold text-gray-700 uppercase">BẠN ĐANG ĐẶT VÉ XEM PHIM</DialogTitle>
+        </DialogHeader>
 
         {/* Nội dung chính */}
         <div className="p-8 flex flex-col items-center text-center gap-y-6">
@@ -67,8 +65,8 @@ const TicketConfirmModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose,
             <span>ĐỒNG Ý</span>
           </button>
         </div>
-      </div>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 };
 

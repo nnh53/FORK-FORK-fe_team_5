@@ -5,41 +5,12 @@ import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/Show
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
 import UserLayout from "@/layouts/userLayout/UserLayout";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-const movieData = {
-  id: "doraemon-2025",
-  posterUrl: "https://files.betacorp.vn/media%2fimages%2f2024%2f05%2f23%2fdoraemon-nobita-va-ban-giao-huong-dia-cau-1716453999903.jpg",
-  title: "Doraemon: Nobita và Cuộc Phiêu Lưu Vào Thế Giới Trong Tranh",
-  description:
-    "Thông qua món bảo bối của Doraemon, cả nhóm bạn bước thế giới trong một bức tranh với sông và núi. Doraemon và Nobita đã gặp một cô bé tên Sphia hiền lành, xinh đẹp, dễ mến...",
-  director: "Yukiyo Teramoto",
-  actors: "Wasabi Mizuta, Megumi Ohara, Yumi Kakazu, Subaru Kimura, Tomokazu Seki...",
-  genres: ["Hoạt Hình", "Phiêu Lưu"],
-  duration: "107 phút",
-  language: "Tiếng Nhật",
-  ageRating: "P",
-  trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w",
-};
-
-const mockScheduleData: SchedulePerDay[] = [
-  {
-    date: "2025-06-13",
-    showtimes: [
-      { time: "14:00", availableSeats: 50, format: "2D Phụ đề" },
-      {
-        time: "17:00",
-        availableSeats: 30,
-        format: "2D Phụ đề",
-      },
-    ],
-  },
-  { date: "2025-06-14", showtimes: [{ time: "15:00", availableSeats: 45, format: "2D Phụ đề" }] },
-  { date: "2025-06-15", showtimes: [{ time: "17:00", availableSeats: 12, format: "2D Phụ đề" }] },
-  { date: "2025-06-16", showtimes: [{ time: "18:00", availableSeats: 60, format: "2D Phụ đề" }] },
-  { date: "2025-06-17", showtimes: [{ time: "19:00", availableSeats: 25, format: "2D Phụ đề" }] },
-];
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import type { Movie } from "../../../../../mockapi-express-app/src/movies.mockapi";
+import { movieService } from "../../../services/movieService";
+import { showtimeService } from "../../../services/showtimeService";
+import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "../../../utils/showtimeUtils";
 
 const MovieInfoItem = ({ label, value }: { label: string; value: string | string[] }) => (
   <div className="flex text-sm">
@@ -55,24 +26,72 @@ const getYouTubeId = (url: string) => {
 };
 
 const MovieDetailPage: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<string | null>(mockScheduleData[0]?.date || null);
+  const { movieId } = useParams<{ movieId: string }>();
   const navigate = useNavigate();
+  // State for movie data and showtimes
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [scheduleData, setScheduleData] = useState<SchedulePerDay[]>([]);
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const scheduleForSelectedDay = mockScheduleData.find((d) => d.date === selectedDate);
-  const availableDates = mockScheduleData.map((s) => s.date);
+  useEffect(() => {
+    const fetchMovieAndShowtimes = async () => {
+      if (!movieId) {
+        setError("Movie ID is required");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        // Always fetch movie data from API to ensure consistency
+        const movieData = await movieService.getMovieById(movieId);
+        setMovie(movieData);
+
+        // Fetch showtimes for this movie
+        const showtimesData = await showtimeService.getShowtimesByMovieId(movieId);
+
+        // Convert showtimes to schedule format
+        const schedulePerDay = convertShowtimesToSchedulePerDay(showtimesData);
+        setScheduleData(schedulePerDay);
+
+        // Get available dates
+        const dates = getAvailableDatesFromShowtimes(showtimesData);
+        setAvailableDates(dates);
+
+        // Set default selected date
+        if (dates.length > 0) {
+          setSelectedDate(dates[0]);
+        }
+
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching movie data:", err);
+        setError("Failed to load movie details. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMovieAndShowtimes();
+  }, [movieId]);
+
+  const scheduleForSelectedDay = scheduleData.find((d) => d.date === selectedDate);
 
   const handleShowtimeSelection = (showtime: { time: string; format: string }) => {
-    if (selectedDate) {
+    if (selectedDate && movie) {
       navigate("/booking", {
         state: {
           movie: {
-            id: movieData.id,
-            posterUrl: movieData.posterUrl,
-            title: movieData.title,
-            genres: movieData.genres,
-            duration: movieData.duration,
+            id: movie.id,
+            posterUrl: movie.poster,
+            title: movie.title,
+            genres: movie.genres ? movie.genres.map((g) => g.name) : [movie.genre],
+            duration: `${movie.duration} phút`,
             ageBadgeUrl: pTagImage,
-            trailerUrl: movieData.trailerUrl,
+            trailerUrl: movie.trailerUrl,
           },
           selection: {
             date: selectedDate,
@@ -85,7 +104,30 @@ const MovieDetailPage: React.FC = () => {
     }
   };
 
-  const embedUrl = getYouTubeId(movieData.trailerUrl) ? `https://www.youtube.com/embed/${getYouTubeId(movieData.trailerUrl)}?autoplay=0` : "";
+  // Loading state
+  if (loading) {
+    return (
+      <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+        <div className="flex justify-center items-center py-20">
+          <div className="text-white text-xl">Đang tải thông tin phim...</div>
+        </div>
+      </UserLayout>
+    );
+  }
+
+  // Error state
+  if (error || !movie) {
+    return (
+      <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+        <div className="flex justify-center items-center py-20">
+          <div className="text-red-500 text-xl">{error || "Không tìm thấy thông tin phim"}</div>
+        </div>
+      </UserLayout>
+    );
+  }
+
+  const embedUrl =
+    movie.trailerUrl && getYouTubeId(movie.trailerUrl) ? `https://www.youtube.com/embed/${getYouTubeId(movie.trailerUrl)}?autoplay=0` : "";
 
   return (
     <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
@@ -99,54 +141,62 @@ const MovieDetailPage: React.FC = () => {
                   Trang chủ
                 </a>
               </li>
-              <li className="font-semibold">{movieData.title}</li>
+              <li className="font-semibold">{movie.title}</li>
             </ul>
           </div>
 
           {/* Movie Details */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
             <div className="md:col-span-3">
-              <img src={movieData.posterUrl} alt={movieData.title} className="w-full h-auto rounded-lg shadow-lg" />
+              <img src={movie.poster} alt={movie.title} className="w-full h-auto rounded-lg shadow-lg" />
             </div>
             <div className="md:col-span-9">
-              <h1 className="text-3xl font-bold text-red-600 mb-4">{movieData.title}</h1>
+              <h1 className="text-3xl font-bold text-red-600 mb-4">{movie.title}</h1>
               <div className="space-y-2">
-                <MovieInfoItem label="Đạo diễn" value={movieData.director} />
-                <MovieInfoItem label="Diễn viên" value={movieData.actors} />
-                <MovieInfoItem label="Thể loại" value={movieData.genres} />
-                <MovieInfoItem label="Thời lượng" value={movieData.duration} />
-                <MovieInfoItem label="Ngôn ngữ" value={movieData.language} />
-                <MovieInfoItem label="Rated" value={movieData.ageRating} />
+                <MovieInfoItem label="Đạo diễn" value={movie.director} />
+                <MovieInfoItem label="Diễn viên" value={movie.actors || "Đang cập nhật"} />
+                <MovieInfoItem label="Thể loại" value={movie.genres ? movie.genres.map((g) => g.name) : [movie.genre]} />
+                <MovieInfoItem label="Thời lượng" value={`${movie.duration} phút`} />
+                <MovieInfoItem label="Năm sản xuất" value={movie.releaseYear.toString()} />
+                <MovieInfoItem label="Đánh giá" value={`${movie.rating}/10`} />
               </div>
-              <p className="mt-4 text-sm text-gray-700 leading-relaxed">{movieData.description}</p>
+              <p className="mt-4 text-sm text-gray-700 leading-relaxed">{movie.description}</p>
             </div>
           </div>
 
           {/* Showtimes */}
           <div className="mt-12 bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">LỊCH CHIẾU</h2>
-            <ShowDateSelector dates={availableDates} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
-            <ShowtimesGroup scheduleForDay={scheduleForSelectedDay} onSelectShowtime={handleShowtimeSelection} />
+            {availableDates.length > 0 ? (
+              <>
+                <ShowDateSelector dates={availableDates} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+                <ShowtimesGroup scheduleForDay={scheduleForSelectedDay} onSelectShowtime={handleShowtimeSelection} />
+              </>
+            ) : (
+              <div className="text-center py-8 text-gray-500">Hiện tại chưa có lịch chiếu cho phim này</div>
+            )}
           </div>
 
           {/* Trailer Section */}
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">TRAILER</h2>
-            <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
-              {embedUrl ? (
-                <iframe
-                  src={embedUrl}
-                  title="Trailer"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                ></iframe>
-              ) : (
-                <div className="text-center text-white py-20">Không thể phát trailer.</div>
-              )}
+          {movie.trailerUrl && (
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">TRAILER</h2>
+              <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
+                {embedUrl ? (
+                  <iframe
+                    src={embedUrl}
+                    title="Trailer"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  ></iframe>
+                ) : (
+                  <div className="text-center text-white py-20">Không thể phát trailer.</div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </UserLayout>

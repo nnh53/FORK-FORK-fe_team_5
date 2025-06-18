@@ -1,14 +1,13 @@
 // Route constants for better maintainability and type safety
 export const ROUTES = {
   // Root
-  ROOT: "/",
-
-  // Public Routes
+  ROOT: "/", // Public Routes
   HOME: "/home",
   HOME_TEST: "/home-test",
   FREQUENTLY_ASK: "/frequently-ask",
   BOOKING: "/booking",
   CHECKOUT: "/checkout",
+  BOOKING_SUCCESS: "/booking-success",
   MOVIE_DETAIL: "/movie/:movieId",
 
   //Static Routes
@@ -58,7 +57,16 @@ export const ROUTES = {
     SETTINGS: "/admin/settings",
     HELP: "/admin/help",
     SEARCH: "/admin/search",
+  }, // Staff Routes
+  STAFF: {
+    ROOT: "/staff",
+    DASHBOARD: "/staff/dashboard",
+    MOVIES: "/staff/movies",
+    BOOKING: "/staff/booking",
+    TICKET_SALES: "/staff/sales",
+    CHECKIN: "/staff/checkin",
   },
+
   // Legacy Management Routes (to be deprecated)
   LEGACY: {
     MOVIE_MANAGEMENT: "/movie-management",
@@ -85,6 +93,7 @@ export const createCinemaRoomEditRoute = (id: string | number) => `/admin/cinema
 // Navigation helpers
 export const isAuthRoute = (pathname: string) => pathname.startsWith("/auth");
 export const isAdminRoute = (pathname: string) => pathname.startsWith("/admin");
+export const isStaffRoute = (pathname: string) => pathname.startsWith("/staff");
 export const isAccountRoute = (pathname: string) => pathname.startsWith("/account");
 
 // Route groups for easier management

@@ -36,7 +36,6 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           <p className="text-sm text-gray-600">{selection.format}</p>
         </div>
       </div>
-
       <div className="mt-6 space-y-3 text-sm border-t pt-4">
         <div className="flex justify-between">
           <span className="text-gray-500">Rạp chiếu</span> <span className="font-semibold">{cinemaName}</span>
@@ -55,18 +54,23 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           <span className="font-semibold text-right w-1/2 break-words">{selectedSeats.map((s) => s.id).join(", ")}</span>
         </div>
       </div>
-
       <div className="mt-6 border-t pt-4">
         <div className="flex justify-between text-xl font-bold">
           <span>TỔNG TIỀN</span>
           <span className="text-red-600">{totalCost.toLocaleString("vi-VN")}đ</span>
         </div>
-      </div>
-
+      </div>{" "}
       <div className={`mt-6 w-full ${showBackButton ? "flex items-center gap-3" : ""}`}>
         {showBackButton ? (
           <>
-            <button onClick={() => navigate(-1)} className="w-1/2 py-3 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300 transition">
+            <button
+              onClick={() => {
+                // Navigate back to booking page with preserved state
+                const bookingState = JSON.parse(localStorage.getItem("bookingState") || "{}");
+                navigate("/booking", { state: bookingState });
+              }}
+              className="w-1/2 py-3 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300 transition"
+            >
               QUAY LẠI
             </button>
             <button

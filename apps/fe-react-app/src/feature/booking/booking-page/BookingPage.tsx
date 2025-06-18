@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import BookingBreadcrumb from "../../../components/booking/BookingBreadcrumb.tsx";
 import UserLayout from "../../../layouts/userLayout/UserLayout.tsx";
 import BookingFooter from "../components/BookingFooter/BookingFooter.tsx";
 import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
@@ -22,9 +23,32 @@ interface SeatMapData {
 const SeatSelectionPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Get booking state from location.state or localStorage
   const initialBookingState = location.state || JSON.parse(localStorage.getItem("bookingState") || "{}");
   const { movie, selection, cinemaName } = initialBookingState;
-  const [selectedSeats, setSelectedSeats] = useState<SeatType[]>(initialBookingState.selectedSeats || []);
+
+  // Initialize selectedSeats from initialBookingState or empty array
+  const [selectedSeats, setSelectedSeats] = useState<SeatType[]>(() => {
+    // Prioritize selectedSeats from initialBookingState
+    return initialBookingState.selectedSeats || [];
+  });
+  // Save booking state to localStorage whenever selectedSeats changes
+  const updateBookingState = useCallback(
+    (newSelectedSeats: SeatType[]) => {
+      const updatedBookingState = {
+        ...initialBookingState,
+        selectedSeats: newSelectedSeats,
+        totalCost: newSelectedSeats.reduce((total, seat) => {
+          if (seat.type === "vip") return total + 90000;
+          if (seat.type === "double") return total + 150000;
+          return total + 75000;
+        }, 0),
+      };
+      localStorage.setItem("bookingState", JSON.stringify(updatedBookingState));
+    },
+    [initialBookingState],
+  );
 
   const createSeatsForRow = (row: string, count: number, type: SeatType["type"], taken: number[] = []): SeatType[] => {
     const seats: SeatType[] = [];
@@ -60,6 +84,24 @@ const SeatSelectionPage: React.FC = () => {
 
   const seatMapData = mockSeatMap.P1;
 
+  // Ensure localStorage is updated when component mounts or data changes
+  useEffect(() => {
+    if (movie && selection && cinemaName) {
+      const currentBookingState = {
+        movie,
+        selection,
+        cinemaName,
+        selectedSeats,
+        totalCost: selectedSeats.reduce((total, seat) => {
+          if (seat.type === "vip") return total + 90000;
+          if (seat.type === "double") return total + 150000;
+          return total + 75000;
+        }, 0),
+      };
+      localStorage.setItem("bookingState", JSON.stringify(currentBookingState));
+    }
+  }, [movie, selection, cinemaName, selectedSeats]);
+
   if (!movie) {
     return (
       <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
@@ -72,27 +114,38 @@ const SeatSelectionPage: React.FC = () => {
       </UserLayout>
     );
   }
-
   const handleSeatSelect = (seat: SeatType) => {
     setSelectedSeats((prev) => {
       const isSelected = prev.some((s) => s.id === seat.id);
+      let newSelectedSeats: SeatType[];
+
       if (isSelected) {
-        return prev.filter((s) => s.id !== seat.id);
+        newSelectedSeats = prev.filter((s) => s.id !== seat.id);
       } else {
-        return [...prev, seat];
+        newSelectedSeats = [...prev, seat];
       }
+
+      // Update localStorage whenever selectedSeats changes
+      updateBookingState(newSelectedSeats);
+
+      return newSelectedSeats;
     });
   };
-
   const handleContinue = () => {
-    const updatedBookingState = {
-      ...initialBookingState, // Giữ lại thông tin cũ
+    // Get the latest booking state from localStorage
+    const latestBookingState = JSON.parse(localStorage.getItem("bookingState") || "{}");
+
+    // Ensure we have the latest selectedSeats and totalCost
+    const finalBookingState = {
+      ...latestBookingState,
       selectedSeats,
       totalCost,
     };
-    localStorage.setItem("bookingState", JSON.stringify(updatedBookingState));
 
-    navigate("/checkout", { state: updatedBookingState });
+    // Update localStorage with final state
+    localStorage.setItem("bookingState", JSON.stringify(finalBookingState));
+
+    navigate("/checkout", { state: finalBookingState });
   };
 
   const totalCost = selectedSeats.reduce((total, seat) => {
@@ -100,11 +153,12 @@ const SeatSelectionPage: React.FC = () => {
     if (seat.type === "double") return total + 150000;
     return total + 75000;
   }, 0);
-
   return (
     <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
       <div className="max-w-screen-2xl mx-auto p-4 md:p-8">
-        {/* ... Breadcrumbs ... */}
+        {/* Breadcrumb */}
+        <BookingBreadcrumb movieTitle={movie?.title} className="mb-6" />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cột trái: Sơ đồ ghế */}
           <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">

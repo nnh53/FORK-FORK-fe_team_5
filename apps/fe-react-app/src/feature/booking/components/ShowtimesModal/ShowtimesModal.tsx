@@ -1,5 +1,5 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import React, { useEffect, useMemo, useState } from "react";
-import Modal from "../../../../components/shared/Modal/Modal.tsx";
 import ShowDateSelector from "../ShowDateSelector/ShowDateSelector.tsx";
 import ShowtimesGroup from "../ShowtimesGroup/ShowtimesGroup";
 
@@ -7,6 +7,10 @@ export interface Showtime {
   time: string;
   availableSeats: number;
   format: string;
+  price?: number;
+  showtimeId?: string;
+  cinemaRoomId?: string;
+  endTime?: string;
 }
 
 export interface SchedulePerDay {
@@ -21,9 +25,20 @@ export interface ShowtimesModalProps {
   cinemaName: string;
   scheduleData: SchedulePerDay[];
   onSelectShowtime: (selected: { date: string; time: string; format: string }) => void;
+  loading?: boolean;
+  error?: string | null;
 }
 
-const ShowtimesModal: React.FC<ShowtimesModalProps> = ({ isOpen, onClose, movieTitle, cinemaName, scheduleData, onSelectShowtime }) => {
+const ShowtimesModal: React.FC<ShowtimesModalProps> = ({
+  isOpen,
+  onClose,
+  movieTitle,
+  cinemaName,
+  scheduleData,
+  onSelectShowtime,
+  loading = false,
+  error = null,
+}) => {
   // ... (toàn bộ logic useState, useMemo, useEffect giữ nguyên)
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
@@ -47,27 +62,40 @@ const ShowtimesModal: React.FC<ShowtimesModalProps> = ({ isOpen, onClose, movieT
       });
     }
   };
-
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      // Truyền class để tùy chỉnh kích thước modal
-      containerClassName="w-full max-w-4xl"
-    >
-      {/* Phần nội dung bên trong giữ nguyên các class Tailwind */}
-      <div>
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-700 uppercase">LỊCH CHIẾU - {movieTitle}</h2>
-        </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="w-full max-w-4xl min-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold text-gray-700 uppercase">LỊCH CHIẾU - {movieTitle}</DialogTitle>
+        </DialogHeader>
 
         <div className="p-4 sm:p-6">
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">{cinemaName}</h1>
-          <ShowDateSelector dates={availableDates} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
-          <ShowtimesGroup scheduleForDay={scheduleForSelectedDay} onSelectShowtime={handleShowtimeSelection} />
+
+          {/* Loading state */}
+          {loading && (
+            <div className="flex justify-center items-center py-12">
+              <div className="text-gray-600 text-lg">Đang tải lịch chiếu...</div>
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && !loading && (
+            <div className="flex justify-center items-center py-12">
+              <div className="text-red-500 text-lg">{error}</div>
+            </div>
+          )}
+
+          {/* Content */}
+          {!loading && !error && (
+            <>
+              <ShowDateSelector dates={availableDates} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+              <ShowtimesGroup scheduleForDay={scheduleForSelectedDay} onSelectShowtime={handleShowtimeSelection} />
+            </>
+          )}
         </div>
-      </div>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 };
 

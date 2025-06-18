@@ -59,7 +59,7 @@ export interface Combo {
   name: string;
   description: string;
   price: number;
-  image: string;
+  imageUrl: string;
 }
 
 export const bookingService = {
