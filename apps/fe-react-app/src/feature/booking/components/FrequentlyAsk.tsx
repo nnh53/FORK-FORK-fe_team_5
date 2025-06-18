@@ -42,11 +42,11 @@ const FrequentlyAsk = () => {
         lineHeight: "1.2",
         wordWrap: "break-word",
         transition: "all 0.3s ease",
-        cursor: "pointer",
       }}
-      onClick={(event) => handlePaperClick("folder1", event)}
     >
-      <strong>Cancel booking?</strong>
+      <strong style={{ cursor: "pointer" }} onClick={(event) => handlePaperClick("folder1", event)}>
+        Cancel booking?
+      </strong>
       <br />
       <span
         style={{
@@ -69,11 +69,11 @@ const FrequentlyAsk = () => {
         lineHeight: "1.2",
         wordWrap: "break-word",
         transition: "all 0.3s ease",
-        cursor: "pointer",
       }}
-      onClick={(event) => handlePaperClick("folder2", event)}
     >
-      <strong>Refund policy?</strong>
+      <strong style={{ cursor: "pointer" }} onClick={(event) => handlePaperClick("folder2", event)}>
+        Refund policy?
+      </strong>
       <br />
       <span
         style={{
@@ -96,11 +96,11 @@ const FrequentlyAsk = () => {
         lineHeight: "1.2",
         wordWrap: "break-word",
         transition: "all 0.3s ease",
-        cursor: "pointer",
       }}
-      onClick={(event) => handlePaperClick("folder3", event)}
     >
-      <strong>Seat selection?</strong>
+      <strong style={{ cursor: "pointer" }} onClick={(event) => handlePaperClick("folder3", event)}>
+        Seat selection?
+      </strong>
       <br />
       <span
         style={{
