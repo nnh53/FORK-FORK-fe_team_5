@@ -8,9 +8,8 @@ import { Link } from "react-router-dom";
 import CardSwap, { Card } from "../../../../Reactbits/CardSwap/CardSwap";
 import ClickSpark from "../../../../Reactbits/ClickSpark/ClickSpark";
 import hotBadge from "../../../assets/hotBadge.png";
-import nowShowingText from "../../../assets/nowShowingText.png";
-import upComingText from "../../../assets/upComingText.png";
 import FooterTest from "../components/FooterTest/FooterTest";
+import FrequentlyAsk from "../components/FrequentlyAsk";
 import HeaderTest from "../components/HeaderTest/HeaderTest";
 import WelcomePanel from "../components/WelcomePanel/WelcomePanel";
 import "./TestHomePage.css";
@@ -23,7 +22,7 @@ const TestHomePage = () => {
   const cardSwapRef = useRef<HTMLElement | null>(null);
   const featuredMoviesRef = useRef<HTMLElement | null>(null);
   const experienceRef = useRef<HTMLElement | null>(null);
-  const comingSoonRef = useRef<HTMLElement | null>(null);
+  const faqRef = useRef<HTMLElement | null>(null);
   const parallaxRef = useRef<HTMLElement | null>(null);
 
   // Movie data for carousel
@@ -164,11 +163,9 @@ const TestHomePage = () => {
           toggleActions: "play none none none",
         },
       },
-    );
-
-    // Now showing text animation
+    ); // Now showing text animation
     gsap.fromTo(
-      ".now-showing-img",
+      ".now-showing-title",
       {
         x: -100,
         opacity: 0,
@@ -202,7 +199,7 @@ const TestHomePage = () => {
 
     // Add parallax layers
     gsap.utils.toArray<HTMLElement>(".parallax-layer").forEach((layer) => {
-      const depth = Number(layer.dataset.depth || 0);
+      const depth = Number(layer.dataset.depth || "0folder");
       const movement = -(layer.offsetHeight * depth);
 
       gsap.fromTo(
@@ -219,11 +216,9 @@ const TestHomePage = () => {
           },
         },
       );
-    });
-
-    // Coming soon animation
+    }); // FAQ section animation
     gsap.fromTo(
-      ".coming-soon-content",
+      ".faq-content",
       {
         y: 100,
         opacity: 0,
@@ -234,16 +229,16 @@ const TestHomePage = () => {
         duration: 1,
         ease: "power2.out",
         scrollTrigger: {
-          trigger: comingSoonRef.current,
+          trigger: faqRef.current,
           start: "top 70%",
           toggleActions: "play none none none",
         },
       },
     );
 
-    // Coming soon text animation
+    // FAQ title animation
     gsap.fromTo(
-      ".upcoming-img",
+      ".faq-title",
       {
         x: 100,
         opacity: 0,
@@ -256,7 +251,7 @@ const TestHomePage = () => {
         duration: 1.2,
         ease: "elastic.out(1, 0.3)",
         scrollTrigger: {
-          trigger: comingSoonRef.current,
+          trigger: faqRef.current,
           start: "top 70%",
           toggleActions: "play none none none",
         },
@@ -277,8 +272,6 @@ const TestHomePage = () => {
           <div className="hero-bg"></div>
           <div className="hero-content">
             <WelcomePanel />
-            <h1>Experience Cinema Like Never Before</h1>
-            <p>Immerse yourself in stunning visuals and captivating stories</p>
             <button className="cta-button">
               <Link to={ROUTES.BOOKING}>Book Now</Link>
             </button>
@@ -287,8 +280,24 @@ const TestHomePage = () => {
         {/* New Releases Carousel Section */}
         <section className="carousel-section" ref={carouselRef} id="new-releases">
           <div className="section-title">
-            <h2>New Releases</h2>
-            <div className="section-line"></div>
+            <h2
+              style={{
+                background: "linear-gradient(to right, #946b38, #392819)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                fontWeight: "800",
+              }}
+            >
+              New Releases
+            </h2>
+            <div
+              className="section-line"
+              style={{
+                background: "linear-gradient(to right, #946b38, #392819)",
+                height: "3px",
+              }}
+            ></div>
           </div>
           <div className="carousel-wrapper">
             <div
@@ -321,12 +330,28 @@ const TestHomePage = () => {
               </Carousel>
             </div>
           </div>
-        </section>
+        </section>{" "}
         {/* Card Swap Section */}
         <section className="card-swap-section" ref={cardSwapRef} id="trending-movies">
           <div className="section-title">
-            <h2>Trending Movies</h2>
-            <div className="section-line"></div>
+            <h2
+              style={{
+                background: "linear-gradient(to right, #946b38, #392819)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                fontWeight: "800",
+              }}
+            >
+              Trending Movies
+            </h2>
+            <div
+              className="section-line"
+              style={{
+                background: "linear-gradient(to right, #946b38, #392819)",
+                height: "3px",
+              }}
+            ></div>
           </div>
           <div className="card-swap-wrapper">
             <CardSwap
@@ -369,12 +394,31 @@ const TestHomePage = () => {
               </Card>
             </CardSwap>
           </div>
-        </section>
+        </section>{" "}
         {/* Featured Movies */}
         <section className="featured-section" ref={featuredMoviesRef}>
           <div className="section-header">
-            <img src={nowShowingText} alt="Now Showing" className="now-showing-img" />
-            <div className="section-line"></div>
+            <h2
+              className="now-showing-title"
+              style={{
+                background: "linear-gradient(to right, #946b38, #392819)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                fontWeight: "800",
+                fontSize: "2.5rem",
+                marginBottom: "2rem",
+              }}
+            >
+              Now Showing
+            </h2>
+            <div
+              className="section-line"
+              style={{
+                background: "linear-gradient(to right, #946b38, #392819)",
+                height: "3px",
+              }}
+            ></div>
           </div>
           <div className="movies-container">
             {[1, 2, 3, 4].map((movie) => (
@@ -393,17 +437,38 @@ const TestHomePage = () => {
         <section className="parallax-section" ref={parallaxRef}>
           <div className="parallax-layer" data-depth="0.1"></div>
           <div className="parallax-layer" data-depth="0.2"></div>
-          <div className="parallax-layer" data-depth="0.3"></div>
+          <div className="parallax-layer" data-depth="0.3"></div>{" "}
           <div className="parallax-content">
-            <h2>The Ultimate Movie Experience</h2>
+            <h2
+              style={{
+                background: "linear-gradient(to right, #946b38, #392819)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                fontWeight: "800",
+              }}
+            >
+              The Ultimate Movie Experience
+            </h2>
             <p>Feel the magic of cinema</p>
           </div>
         </section>
         {/* Cinema Experience */}
         <section className="experience-section" ref={experienceRef}>
           <div className="experience-content">
+            {" "}
             <div className="experience-text">
-              <h2>Premium Cinema Experience</h2>
+              <h2
+                style={{
+                  background: "linear-gradient(to right, #946b38, #392819)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  color: "transparent",
+                  fontWeight: "800",
+                }}
+              >
+                Premium Cinema Experience
+              </h2>
               <p>
                 Luxury seating, state-of-the-art sound systems, and crystal-clear projection technology. Our theaters are designed to provide the
                 ultimate movie-watching experience.
@@ -412,20 +477,27 @@ const TestHomePage = () => {
             </div>
             <div className="experience-image"></div>
           </div>
-        </section>
-        {/* Coming Soon */}
-        <section className="coming-soon-section" ref={comingSoonRef}>
+        </section>{" "}
+        {/* FAQ Section */}
+        <section className="faq-section" ref={faqRef}>
           <div className="section-header">
-            <img src={upComingText} alt="Coming Soon" className="upcoming-img" />
+            <h2
+            style={{
+              background: "linear-gradient(to right, #946b38, #392819)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+              fontWeight: "800",
+              fontSize: "2.5rem",
+              marginBottom: "2rem",
+            }}
+          >
+            Frequently Asked Questions
+          </h2>
             <div className="section-line"></div>
           </div>
-          <div className="coming-soon-content">
-            <div className="coming-soon-image"></div>
-            <div className="coming-soon-details">
-              <h3>Blockbuster Title</h3>
-              <p>Experience the most anticipated movie of the year. Coming next month to our theaters.</p>
-              <button className="notify-button">Notify Me</button>
-            </div>
+          <div className="faq-content">
+            <FrequentlyAsk />
           </div>
         </section>{" "}
         <FooterTest />

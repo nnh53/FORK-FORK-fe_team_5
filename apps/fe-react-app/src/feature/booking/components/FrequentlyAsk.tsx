@@ -115,7 +115,6 @@ const FrequentlyAsk = () => {
   return (
     <div ref={containerRef} style={{ height: "600px", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
-        <h3 style={{ marginBottom: "30px", color: "#5227FF" }}>Frequently Asked Questions</h3>
         <p style={{ marginBottom: "30px", color: "#666" }}>Click each folder to explore different questions</p>{" "}
         <div style={{ display: "flex", gap: "40px", alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
           <div style={{ textAlign: "center" }}>

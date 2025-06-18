@@ -117,13 +117,36 @@ body {
 
 .section-header {
   position: relative;
-  margin-bottom: 60px;
+  z-index: 2;
+  margin-bottom: 40px;
   text-align: center;
+}
+
+.section-header h2 {
+  margin-bottom: 15px;
+  color: #5227ff;
+  font-weight: 700;
+  font-size: 2.5rem;
 }
 
 .section-header img {
   margin-bottom: 20px;
   max-width: 300px;
+}
+
+/* General Section Title Styles */
+.section-title {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.section-title h2 {
+  margin-bottom: 15px;
+  color: #5227ff;
+  font-weight: 700;
+  font-size: 2.5rem;
 }
 
 .section-line {
@@ -504,14 +527,14 @@ body {
 
 .carousel-section .section-title h2 {
   margin-bottom: 15px;
-  color: #fff;
+  color: #5227ff;
   font-size: 2.5rem;
 }
 
 .carousel-section .section-line {
   margin: 0 auto;
   border-radius: 2px;
-  background: linear-gradient(90deg, #ff4d4d, #ff9d4d);
+  background: #5227ff;
   width: 80px;
   height: 4px;
 }

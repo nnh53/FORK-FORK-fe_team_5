@@ -17,6 +17,7 @@ const darkenColor = (hex: string, percent: number): string => {
       .map((c) => c + c)
       .join("");
   }
+
   const num = parseInt(color, 16);
   let r = (num >> 16) & 0xff;
   let g = (num >> 8) & 0xff;
@@ -27,7 +28,7 @@ const darkenColor = (hex: string, percent: number): string => {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
 };
 
-const Folder: React.FC<FolderProps> = ({ color = "#5227FF", size = 1, items = [], className = "", expanded = false }) => {
+const Folder: React.FC<FolderProps> = ({ color = "#F4A460", size = 1, items = [], className = "", expanded = false }) => {
   const [open, setOpen] = useState(false);
   const [paperOffset, setPaperOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
