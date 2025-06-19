@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 
-
 //Custom hook for scroll effect
 export const useSmoothScroll = () => {
   useEffect(() => {

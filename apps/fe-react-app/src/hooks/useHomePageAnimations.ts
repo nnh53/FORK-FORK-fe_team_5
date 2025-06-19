@@ -16,15 +16,7 @@ interface AnimationRefs {
 }
 
 export const useHomePageAnimations = (refs: AnimationRefs) => {
-  const {
-    heroRef,
-    carouselRef,
-    cardSwapRef,
-    featuredMoviesRef,
-    experienceRef,
-    faqRef,
-    parallaxRef,
-  } = refs;
+  const { heroRef, carouselRef, cardSwapRef, featuredMoviesRef, experienceRef, faqRef, parallaxRef } = refs;
 
   // Use smooth scroll hook
   useSmoothScroll();
@@ -138,9 +130,7 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
       },
     });
 
-    experienceTl
-      .fromTo(".experience-image", { y: 100 }, { y: -100 })
-      .fromTo(".experience-text", { y: 50 }, { y: -50 }, "<");
+    experienceTl.fromTo(".experience-image", { y: 100 }, { y: -100 }).fromTo(".experience-text", { y: 50 }, { y: -50 }, "<");
 
     // Add parallax layers
     gsap.utils.toArray<HTMLElement>(".parallax-layer").forEach((layer) => {
@@ -209,13 +199,5 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
       // Clean up all ScrollTrigger instances
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, [
-    heroRef,
-    carouselRef,
-    cardSwapRef,
-    featuredMoviesRef,
-    experienceRef,
-    faqRef,
-    parallaxRef,
-  ]);
+  }, [heroRef, carouselRef, cardSwapRef, featuredMoviesRef, experienceRef, faqRef, parallaxRef]);
 };
