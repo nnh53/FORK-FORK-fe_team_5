@@ -14,7 +14,12 @@ interface FoodFormProps {
 }
 
 const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<Omit<Food, "id">>();
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<Omit<Food, "id">>();
 
   useEffect(() => {
     if (food) {
@@ -43,14 +48,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
             name="comboId"
             control={control}
             rules={{ required: "Combo ID là bắt buộc" }}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="number"
-                placeholder="Nhập Combo ID"
-                className={errors.comboId ? "border-red-500" : ""}
-              />
-            )}
+            render={({ field }) => <Input {...field} type="number" placeholder="Nhập Combo ID" className={errors.comboId ? "border-red-500" : ""} />}
           />
           {errors.comboId && <p className="text-red-500 text-sm mt-1">{errors.comboId.message}</p>}
         </div>
@@ -61,13 +59,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
             name="img"
             control={control}
             rules={{ required: "URL hình ảnh là bắt buộc" }}
-            render={({ field }) => (
-              <Input
-                {...field}
-                placeholder="Nhập URL hình ảnh"
-                className={errors.img ? "border-red-500" : ""}
-              />
-            )}
+            render={({ field }) => <Input {...field} placeholder="Nhập URL hình ảnh" className={errors.img ? "border-red-500" : ""} />}
           />
           {errors.img && <p className="text-red-500 text-sm mt-1">{errors.img.message}</p>}
         </div>
@@ -78,13 +70,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
             name="name"
             control={control}
             rules={{ required: "Tên món ăn là bắt buộc" }}
-            render={({ field }) => (
-              <Input
-                {...field}
-                placeholder="Nhập tên món ăn"
-                className={errors.name ? "border-red-500" : ""}
-              />
-            )}
+            render={({ field }) => <Input {...field} placeholder="Nhập tên món ăn" className={errors.name ? "border-red-500" : ""} />}
           />
           {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
         </div>
@@ -140,13 +126,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
             name="flavor"
             control={control}
             rules={{ required: "Hương vị là bắt buộc" }}
-            render={({ field }) => (
-              <Input
-                {...field}
-                placeholder="Nhập hương vị"
-                className={errors.flavor ? "border-red-500" : ""}
-              />
-            )}
+            render={({ field }) => <Input {...field} placeholder="Nhập hương vị" className={errors.flavor ? "border-red-500" : ""} />}
           />
           {errors.flavor && <p className="text-red-500 text-sm mt-1">{errors.flavor.message}</p>}
         </div>
@@ -157,14 +137,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
             name="price"
             control={control}
             rules={{ required: "Giá là bắt buộc", min: { value: 0, message: "Giá phải lớn hơn 0" } }}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="number"
-                placeholder="Nhập giá"
-                className={errors.price ? "border-red-500" : ""}
-              />
-            )}
+            render={({ field }) => <Input {...field} type="number" placeholder="Nhập giá" className={errors.price ? "border-red-500" : ""} />}
           />
           {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>}
         </div>
@@ -175,14 +148,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
             name="quantity"
             control={control}
             rules={{ required: "Số lượng là bắt buộc", min: { value: 0, message: "Số lượng phải lớn hơn hoặc bằng 0" } }}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="number"
-                placeholder="Nhập số lượng"
-                className={errors.quantity ? "border-red-500" : ""}
-              />
-            )}
+            render={({ field }) => <Input {...field} type="number" placeholder="Nhập số lượng" className={errors.quantity ? "border-red-500" : ""} />}
           />
           {errors.quantity && <p className="text-red-500 text-sm mt-1">{errors.quantity.message}</p>}
         </div>
@@ -212,9 +178,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
           <Button type="button" variant="outline" onClick={onCancel}>
             Hủy
           </Button>
-          <Button type="submit">
-            {food ? "Cập nhật" : "Thêm"} món ăn
-          </Button>
+          <Button type="submit">{food ? "Cập nhật" : "Thêm"} món ăn</Button>
         </div>
       </form>
     </div>
