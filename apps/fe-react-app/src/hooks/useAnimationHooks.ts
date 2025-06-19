@@ -4,9 +4,7 @@ import { useEffect, type RefObject } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/**
- * Custom hook for section-based scroll animations
- */
+// Custom hook for section animations
 export const useSectionAnimations = (
   trigger: RefObject<HTMLElement | null>,
   selector: string,
@@ -14,7 +12,7 @@ export const useSectionAnimations = (
     from?: gsap.TweenVars;
     to: gsap.TweenVars;
     scrollTrigger?: ScrollTrigger.Vars;
-  }
+  },
 ) => {
   useEffect(() => {
     if (!trigger.current) return;
@@ -25,17 +23,13 @@ export const useSectionAnimations = (
       toggleActions: "play none none none",
     };
 
-    const animation = gsap.fromTo(
-      selector,
-      animationConfig.from || {},
-      {
-        ...animationConfig.to,
-        scrollTrigger: {
-          ...defaultScrollTrigger,
-          ...animationConfig.scrollTrigger,
-        },
-      }
-    );
+    const animation = gsap.fromTo(selector, animationConfig.from || {}, {
+      ...animationConfig.to,
+      scrollTrigger: {
+        ...defaultScrollTrigger,
+        ...animationConfig.scrollTrigger,
+      },
+    });
 
     return () => {
       animation.kill();
@@ -43,13 +37,11 @@ export const useSectionAnimations = (
   }, [trigger, selector, animationConfig]);
 };
 
-/**
- * Custom hook for timeline-based animations
- */
+//Custom hook for timeline-based animations
 export const useTimelineAnimation = (
   trigger: RefObject<HTMLElement | null>,
   animationCallback: (tl: gsap.core.Timeline) => void,
-  scrollTriggerConfig?: ScrollTrigger.Vars
+  scrollTriggerConfig?: ScrollTrigger.Vars,
 ) => {
   useEffect(() => {
     if (!trigger.current) return;
