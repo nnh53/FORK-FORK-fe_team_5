@@ -120,12 +120,12 @@ export const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
       baseX.set(baseX.get() + moveBy);
     });
 
-    const spans = [];
+    const spans: React.JSX.Element[] = [];
     for (let i = 0; i < numCopies!; i++) {
       spans.push(
         <span className={className} key={i} ref={i === 0 ? copyRef : null}>
           {children}
-        </span>,
+        </span>
       );
     }
 
