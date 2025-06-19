@@ -10,6 +10,7 @@ import Unauthorized from "@/feature/auth/unauth/Unauthor";
 import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
 import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccessPage.tsx";
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
+import CarouselTest from "@/feature/booking/components/CarouselSection/CarouselTest";
 import FrequentlyAsk from "@/feature/booking/components/FrequentlyAsk";
 import HomePage from "@/feature/booking/home-page/HomePage.tsx";
 import HomePageTest from "@/feature/booking/home-page/TestHomePage.tsx";
@@ -38,11 +39,13 @@ export const AppRoutes = () => (
     <Route path={ROUTES.HOME} element={<HomePage />} />
     <Route path={ROUTES.HOME_TEST} element={<HomePageTest />} />
     <Route path={ROUTES.FREQUENTLY_ASK} element={<FrequentlyAsk />} />
-    <Route index element={<Navigate to={ROUTES.HOME} replace />} /> {/* Public Routes */} <Route path={ROUTES.HOME} element={<HomePage />} />
+    <Route index element={<Navigate to={ROUTES.HOME} replace />} />
     <Route path={ROUTES.BOOKING} element={<BookingPage />} />
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
     <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
+    {/* Viewing Test Route */}
+    <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />
     {/* Static Routes */}
     <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
     <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />

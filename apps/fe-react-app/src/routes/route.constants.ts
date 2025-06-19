@@ -10,6 +10,9 @@ export const ROUTES = {
   BOOKING_SUCCESS: "/booking-success",
   MOVIE_DETAIL: "/movie/:movieId",
 
+  //viewing test
+  CAROUSEL_SECTION: "/carousel-section",
+
   //Static Routes
   TERM_OF_SERVICE: "/term-of-service",
   PRIVACY_POLICY: "/privacy-policy",
