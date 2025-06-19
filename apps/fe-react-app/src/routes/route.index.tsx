@@ -12,6 +12,7 @@ import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccess
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
 import CarouselTest from "@/feature/booking/components/CarouselSection/CarouselTest";
 import FrequentlyAsk from "@/feature/booking/components/FrequentlyAsk";
+import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
 import HomePage from "@/feature/booking/home-page/HomePage.tsx";
 import HomePageTest from "@/feature/booking/home-page/TestHomePage.tsx";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
@@ -43,9 +44,9 @@ export const AppRoutes = () => (
     <Route path={ROUTES.BOOKING} element={<BookingPage />} />
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
-    <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
-    {/* Viewing Test Route */}
+    <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} /> {/* Viewing Test Route */}
     <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />
+    <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
     {/* Static Routes */}
     <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
     <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />

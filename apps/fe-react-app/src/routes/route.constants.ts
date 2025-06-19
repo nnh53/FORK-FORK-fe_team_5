@@ -12,6 +12,7 @@ export const ROUTES = {
 
   //viewing test
   CAROUSEL_SECTION: "/carousel-section",
+  SCROLL_VELOCITY: "/scroll-velocity",
 
   //Static Routes
   TERM_OF_SERVICE: "/term-of-service",
