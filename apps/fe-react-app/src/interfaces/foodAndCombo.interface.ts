@@ -1,6 +1,7 @@
 export interface Food {
   id: number;
   comboId: number;
+  img: string;
   category: "drink" | "food" | "combo";
   name: string;
   size: "S" | "M" | "L" | "XL";
