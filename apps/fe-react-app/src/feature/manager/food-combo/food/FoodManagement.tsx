@@ -5,9 +5,9 @@ import type { Food } from "@/interfaces/foodAndCombo.interface";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { createFood, deleteFood, getFoods, updateFood } from "../service/foodApi";
 import FoodCard from "./FoodCard";
 import FoodForm from "./FoodForm";
-import { createFood, deleteFood, getFoods, updateFood } from "../service/foodApi";
 
 const FoodManagement: React.FC = () => {
   const [foods, setFoods] = useState<Food[]>([]);
@@ -99,34 +99,19 @@ const FoodManagement: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {foods.map((food) => (
-              <FoodCard
-                key={food.id}
-                food={food}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
+              <FoodCard key={food.id} food={food} onEdit={handleEdit} onDelete={handleDelete} />
             ))}
           </div>
-          {foods.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              Chưa có món ăn nào. Hãy thêm món ăn đầu tiên!
-            </div>
-          )}
+          {foods.length === 0 && <div className="text-center py-8 text-gray-500">Chưa có món ăn nào. Hãy thêm món ăn đầu tiên!</div>}
         </CardContent>
       </Card>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {selectedFood ? "Chỉnh sửa món ăn" : "Thêm món ăn mới"}
-            </DialogTitle>
+            <DialogTitle>{selectedFood ? "Chỉnh sửa món ăn" : "Thêm món ăn mới"}</DialogTitle>
           </DialogHeader>
-          <FoodForm
-            food={selectedFood}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-          />
+          <FoodForm food={selectedFood} onSubmit={handleSubmit} onCancel={handleCancel} />
         </DialogContent>
       </Dialog>
     </div>
