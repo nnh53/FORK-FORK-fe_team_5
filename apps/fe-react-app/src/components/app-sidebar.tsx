@@ -150,6 +150,16 @@ const data = {
       url: "/admin/staffs",
       icon: IconUserHeart,
     },
+    {
+      name: "Combo",
+      url: "/admin/combo",
+      icon: IconBox,
+    },
+    {
+      name: "Foods",
+      url: "/admin/foods",
+      icon: IconBox,
+    },
   ],
 };
 
