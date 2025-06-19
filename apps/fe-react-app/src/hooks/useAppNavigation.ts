@@ -38,6 +38,8 @@ export const useAppNavigation = () => {
     goToCinemaRoomEdit: (id: string | number) => navigate(createCinemaRoomEditRoute(id)),
     goToShowtimeManagement: () => navigate(ROUTES.ADMIN.SHOWTIME),
     goToMemberManagement: () => navigate(ROUTES.ADMIN.MEMBERS),
+    goToFoodManagement: () => navigate(ROUTES.ADMIN.FOODS),
+    goToComboManagement: () => navigate(ROUTES.ADMIN.COMBO),
     goToStaffManagement: () => navigate(ROUTES.ADMIN.STAFFS),
     goToPromotionManagement: () => navigate(ROUTES.ADMIN.PROMOTION),
     goToAdminSettings: () => navigate(ROUTES.ADMIN.SETTINGS),
