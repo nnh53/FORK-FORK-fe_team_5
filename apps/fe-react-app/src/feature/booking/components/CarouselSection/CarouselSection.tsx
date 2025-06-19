@@ -3,6 +3,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { forwardRef, useEffect } from "react";
+import Aurora from "../../../../../Reactbits/Aurora/Aurora";
 import "./CarouselSection.css";
 
 interface MovieData {
@@ -49,9 +50,13 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>(({ movies 
       });
     };
   }, [ref]);
-
   return (
     <section className="carousel-section" ref={ref} id="new-releases">
+      {" "}
+      {/* Aurora Background */}
+      <div className="aurora-background">
+        <Aurora colorStops={["#F5DEB3", "#FFDEAD", "#FFE4C4"]} blend={0.5} amplitude={1.0} speed={0.5} />
+      </div>
       <div className="section-title">
         <h2
           style={{
