@@ -1,13 +1,5 @@
-import React, { useRef, useLayoutEffect, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useSpring,
-  useTransform,
-  useMotionValue,
-  useVelocity,
-  useAnimationFrame,
-} from "framer-motion";
+import { motion, useAnimationFrame, useMotionValue, useScroll, useSpring, useTransform, useVelocity } from "framer-motion";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import "./ScrollVelocity.css";
 
 interface VelocityMapping {
@@ -98,12 +90,7 @@ export const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
       damping: damping ?? 50,
       stiffness: stiffness ?? 400,
     });
-    const velocityFactor = useTransform(
-      smoothVelocity,
-      velocityMapping?.input || [0, 1000],
-      velocityMapping?.output || [0, 5],
-      { clamp: false }
-    );
+    const velocityFactor = useTransform(smoothVelocity, velocityMapping?.input || [0, 1000], velocityMapping?.output || [0, 5], { clamp: false });
 
     const copyRef = useRef<HTMLSpanElement>(null);
     const copyWidth = useElementWidth(copyRef);
@@ -138,16 +125,13 @@ export const ScrollVelocity: React.FC<ScrollVelocityProps> = ({
       spans.push(
         <span className={className} key={i} ref={i === 0 ? copyRef : null}>
           {children}
-        </span>
+        </span>,
       );
     }
 
     return (
       <div className={parallaxClassName} style={parallaxStyle}>
-        <motion.div
-          className={scrollerClassName}
-          style={{ x, ...scrollerStyle }}
-        >
+        <motion.div className={scrollerClassName} style={{ x, ...scrollerStyle }}>
           {spans}
         </motion.div>
       </div>
