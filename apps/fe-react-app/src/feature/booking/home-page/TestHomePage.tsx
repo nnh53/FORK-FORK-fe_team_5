@@ -1,5 +1,3 @@
-import { CardContent, Card as ShadcnCard } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ROUTES } from "@/routes/route.constants";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -8,6 +6,8 @@ import { Link } from "react-router-dom";
 import CardSwap, { Card } from "../../../../Reactbits/CardSwap/CardSwap";
 import ClickSpark from "../../../../Reactbits/ClickSpark/ClickSpark";
 import hotBadge from "../../../assets/hotBadge.png";
+import type { MovieData } from "../components/CarouselSection/CarouselSection";
+import CarouselSection from "../components/CarouselSection/CarouselSection";
 import FooterTest from "../components/FooterTest/FooterTest";
 import FrequentlyAsk from "../components/FrequentlyAsk";
 import HeaderTest from "../components/HeaderTest/HeaderTest";
@@ -24,9 +24,8 @@ const TestHomePage = () => {
   const experienceRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
   const parallaxRef = useRef<HTMLElement | null>(null);
-
   // Movie data for carousel
-  const recentMovies = [
+  const recentMovies: MovieData[] = [
     {
       title: "The Marvels",
       description: "Carol Danvers teams up with Monica Rambeau and Kamala Khan in this cosmic adventure.",
@@ -77,31 +76,10 @@ const TestHomePage = () => {
         scrub: true,
       },
     });
-
     heroTl
       .to(".hero-bg", { yPercent: 50, ease: "none" })
       .to(".hero-content h1", { yPercent: -50, opacity: 0.5 }, 0)
       .to(".hero-content p", { yPercent: -30, opacity: 0.5 }, 0);
-
-    // Carousel section animation
-    gsap.fromTo(
-      ".carousel-section",
-      {
-        opacity: 0,
-        y: 50,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: carouselRef.current,
-          start: "top 80%",
-          toggleActions: "play none none none",
-        },
-      },
-    );
 
     // Card Swap section animation
     gsap.fromTo(
@@ -199,7 +177,7 @@ const TestHomePage = () => {
 
     // Add parallax layers
     gsap.utils.toArray<HTMLElement>(".parallax-layer").forEach((layer) => {
-      const depth = Number(layer.dataset.depth || "0folder");
+      const depth = Number(layer.dataset.depth ?? "0");
       const movement = -(layer.offsetHeight * depth);
 
       gsap.fromTo(
@@ -275,62 +253,10 @@ const TestHomePage = () => {
             <button className="cta-button">
               <Link to={ROUTES.BOOKING}>Book Now</Link>
             </button>
-          </div>
+          </div>{" "}
         </section>
         {/* New Releases Carousel Section */}
-        <section className="carousel-section" ref={carouselRef} id="new-releases">
-          <div className="section-title">
-            <h2
-              style={{
-                background: "linear-gradient(to right, #946b38, #392819)",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-                fontWeight: "800",
-              }}
-            >
-              New Releases
-            </h2>
-            <div
-              className="section-line"
-              style={{
-                background: "linear-gradient(to right, #946b38, #392819)",
-                height: "3px",
-              }}
-            ></div>
-          </div>
-          <div className="carousel-wrapper">
-            <div
-              style={{
-                padding: "0 20px",
-                maxWidth: "1800px",
-                margin: "0 auto",
-              }}
-            >
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {recentMovies.map((movie) => (
-                    <CarouselItem key={movie.id} className="md:basis-1/2 lg:basis-1/3">
-                      <div className="p-1">
-                        <ShadcnCard>
-                          <CardContent className="flex flex-col items-center justify-center p-6 aspect-video">
-                            <h3 className="text-xl font-bold mb-2">{movie.title}</h3>
-                            <p className="text-sm text-center">{movie.description}</p>
-                            <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
-                              View Details
-                            </button>
-                          </CardContent>
-                        </ShadcnCard>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-2" />
-                <CarouselNext className="right-2" />
-              </Carousel>
-            </div>
-          </div>
-        </section>{" "}
+        <CarouselSection ref={carouselRef} movies={recentMovies} />
         {/* Card Swap Section */}
         <section className="card-swap-section" ref={cardSwapRef} id="trending-movies">
           <div className="section-title">
