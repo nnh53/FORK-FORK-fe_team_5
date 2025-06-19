@@ -11,7 +11,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       position="top-right"
       style={
         {
-          "--normal-bg": "var(--popover)",
+          "--normal-bg": "#FFF4E7", // Màu nền cụ thể (caramel latte vibe)
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
         } as React.CSSProperties
