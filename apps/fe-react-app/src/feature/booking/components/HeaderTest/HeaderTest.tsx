@@ -9,7 +9,7 @@ import "./HeaderTest.css";
 gsap.registerPlugin(ScrollTrigger);
 
 const HeaderTest = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMenuOpen = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -47,10 +47,6 @@ const HeaderTest = () => {
     };
   }, []);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
   return (
     <header className={`header-test ${scrolled ? "scrolled" : ""}`}>
       <div className="header-container">
@@ -59,11 +55,6 @@ const HeaderTest = () => {
           <span>F-Cinema</span>
         </div>
 
-        <div className={`hamburger ${isMenuOpen ? "active" : ""}`} onClick={toggleMenu}>
-          <span className="bar"></span>
-          <span className="bar"></span>
-          <span className="bar"></span>
-        </div>
 
         <nav className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
           <ul>
