@@ -29,6 +29,7 @@ import StaffLayout from "@/layouts/staffLayout/StaffLayout.tsx";
 import UserLayout from "@/layouts/userLayout/UserLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import HeaderTest from "@/feature/booking/components/HeaderTest/HeaderTest";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -44,9 +45,11 @@ export const AppRoutes = () => (
     <Route path={ROUTES.BOOKING} element={<BookingPage />} />
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
-    <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} /> {/* Viewing Test Route */}
+    <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} /> 
+    {/* Viewing Test Route */}
     <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />
     <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
+    <Route path={ROUTES.HEADER_TEST} element={<HeaderTest />} />
     {/* Static Routes */}
     <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
     <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
