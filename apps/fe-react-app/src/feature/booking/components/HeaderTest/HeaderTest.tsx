@@ -1,8 +1,5 @@
-import { ROUTES } from "@/routes/route.constants";
-import { Link } from "react-router-dom";
-import ScrollVelocity from "../../../../../Reactbits/ScrollVelocity/ScrollVelocity";
-import FCinemaLogo from "../../../../assets/FCinema_Logo.png";
 import { useHeader } from "../../../../hooks";
+import { AuthSection, HeaderContainer, Logo, Navigation, ScrollBanner } from "./";
 import "./HeaderTest.css";
 
 const HeaderTest = () => {
@@ -16,62 +13,19 @@ const HeaderTest = () => {
       defaultVelocity: 100,
       texts: ["F CINEMA"],
       className: "text-2xl font-bold text-white",
-      numCopies: 40, // Further increased to ensure full coverage on all screen sizes
+      numCopies: 20,
       parallaxClassName: "parallax w-full overflow-hidden whitespace-nowrap",
       scrollerClassName: "scroller flex",
     },
   });
-
   return (
     <header className={`header-test ${scrolled ? "scrolled" : ""}`}>
-      {/* Red Demo ScrollVelocity at the top inside header */}
-      <div className="bg-red-600 p-2">
-        <div className="w-full overflow-hidden">
-          <ScrollVelocity {...scrollVelocityProps} />
-        </div>
-      </div>
-
-      <div className="header-container">
-        <div className="logo">
-          <img src={FCinemaLogo} alt="F-Cinema Logo" />
-          <span>F-Cinema</span>
-        </div>
-        <nav className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
-          <ul>
-            <li>
-              <a href="#" className="nav-link">
-                Home
-              </a>
-            </li>
-            <li>
-              <a href="#" className="nav-link">
-                Movies
-              </a>
-            </li>
-            <li>
-              <a href="#" className="nav-link">
-                Theaters
-              </a>
-            </li>
-            <li>
-              <a href="#" className="nav-link">
-                Offers
-              </a>
-            </li>
-            <li>
-              <a href="#" className="nav-link">
-                Membership
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <div className="header-actions">
-          <button className="login-button">
-            <Link to={ROUTES.AUTH.LOGIN}>Login</Link>
-          </button>
-          <button className="book-button">Book Now</button>{" "}
-        </div>
-      </div>
+      <ScrollBanner scrollVelocityProps={scrollVelocityProps} />
+      <HeaderContainer>
+        <Logo />
+        <Navigation isMenuOpen={isMenuOpen} />
+        <AuthSection />
+      </HeaderContainer>
     </header>
   );
 };
