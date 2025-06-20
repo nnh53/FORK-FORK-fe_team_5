@@ -14,7 +14,7 @@ export const useScrollVelocity = (options: UseScrollVelocityOptions = {}) => {
     defaultVelocity = 100,
     texts = ["F CINEMA"],
     className = "text-2xl font-bold text-white",
-    numCopies = 10,
+    numCopies = 25, // Increased from 15 to ensure full coverage
     parallaxClassName = "parallax w-full overflow-hidden whitespace-nowrap",
     scrollerClassName = "scroller flex",
   } = options;
@@ -35,4 +35,3 @@ export const useScrollVelocity = (options: UseScrollVelocityOptions = {}) => {
     scrollVelocityProps,
   };
 };
-

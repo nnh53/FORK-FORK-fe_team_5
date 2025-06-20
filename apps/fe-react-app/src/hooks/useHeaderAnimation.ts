@@ -55,4 +55,3 @@ export const useHeaderAnimation = (options: UseHeaderAnimationOptions = {}) => {
 
   return { scrolled };
 };
-

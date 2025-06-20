@@ -16,6 +16,9 @@ const HeaderTest = () => {
       defaultVelocity: 100,
       texts: ["F CINEMA"],
       className: "text-2xl font-bold text-white",
+      numCopies: 40, // Further increased to ensure full coverage on all screen sizes
+      parallaxClassName: "parallax w-full overflow-hidden whitespace-nowrap",
+      scrollerClassName: "scroller flex",
     },
   });
 

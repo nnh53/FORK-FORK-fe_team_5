@@ -140,3 +140,26 @@
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
+
+/* ScrollVelocity specific styles for HeaderTest */
+.header-test .bg-red-600 {
+  position: relative;
+  width: 100%;
+}
+
+.header-test .bg-red-600 .parallax {
+  width: 100%;
+  overflow: hidden;
+}
+
+.header-test .bg-red-600 .scroller {
+  display: flex;
+  animation-fill-mode: both;
+  width: max-content;
+}
+
+.header-test .bg-red-600 .scroller span {
+  display: inline-block;
+  padding-right: 3rem;
+  white-space: nowrap;
+}

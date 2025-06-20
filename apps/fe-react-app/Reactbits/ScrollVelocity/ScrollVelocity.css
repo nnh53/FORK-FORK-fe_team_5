@@ -1,5 +1,7 @@
 .parallax {
+  display: flex;
   position: relative;
+  align-items: center;
   width: 100%;
   overflow: hidden;
 }
@@ -17,8 +19,10 @@
 }
 
 .scroller span {
+  display: inline-block;
   flex-shrink: 0;
-  padding-right: 2rem;
+  padding-right: 4rem; /* Increased padding for better spacing */
+  min-width: max-content;
 }
 
 @media (min-width: 768px) {
