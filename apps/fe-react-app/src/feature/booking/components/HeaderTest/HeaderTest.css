@@ -9,30 +9,36 @@
   transition: all 0.4s ease-in-out;
   background-color: rgba(252, 250, 245, 0.8); /* Lighter version of base-100 */
   width: 100%;
-  height: 140px; /* Reduced height since control section was removed */
+  height: 140px;
 }
 
 .header-test.scrolled {
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-  background-color: rgba(252, 250, 245, 0.95); /* Nearly opaque base-100 */
-  height: 120px; /* Reduced scrolled height since control section was removed */
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  background-color: rgba(252, 250, 245, 0.95); /* Clean transparent background */
+  height: 60px; /* Collapsed height showing only ScrollVelocity */
+  overflow: hidden;
+}
+
+.header-test.scrolled:hover {
+  height: 120px;
 }
 
 .header-container {
   display: flex;
-  flex: 1; /* Take remaining space after ScrollVelocity */
+  flex: 1;
   justify-content: space-between;
   align-items: center;
-  box-sizing: border-box;
+  transition: all 0.3s ease-in-out;
+  background-color: transparent;
   padding: 0 20px;
   width: 100%;
-  min-height: 70px; /* Minimum height for navigation */
+  min-height: 70px;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  color: oklch(40% 0.123 38.172); /* base-content */
+  color: oklch(40% 0.123 38.172);
   font-weight: 700;
   font-size: 1.8rem;
 }
@@ -43,7 +49,7 @@
 }
 
 .logo span {
-  background: linear-gradient(to right, oklch(46.44% 0.111 37.85), oklch(22.45% 0.075 37.85)); /* accent to secondary */
+  background: linear-gradient(to right, oklch(46.44% 0.111 37.85), oklch(22.45% 0.075 37.85));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -80,14 +86,14 @@
   bottom: 0;
   left: 0;
   transition: width 0.3s;
-  background: linear-gradient(to right, oklch(46.44% 0.111 37.85), oklch(22.45% 0.075 37.85)); /* accent to secondary */
+  background: linear-gradient(to right, oklch(46.44% 0.111 37.85), oklch(22.45% 0.075 37.85));
   width: 0;
   height: 2px;
   content: "";
 }
 
 .nav-link:hover {
-  color: oklch(46.44% 0.111 37.85); /* accent */
+  color: oklch(46.44% 0.111 37.85);
 }
 
 .nav-link:hover::after {
@@ -114,8 +120,8 @@
 }
 
 .login-button:hover {
-  background-color: oklch(46.44% 0.111 37.85); /* accent */
-  color: oklch(90% 0.076 70.697); /* accent-content */
+  background-color: oklch(46.44% 0.111 37.85);
+  color: oklch(90% 0.076 70.697);
 }
 
 .login-button a {
@@ -162,4 +168,43 @@
   display: inline-block;
   padding-right: 3rem;
   white-space: nowrap;
+}
+
+/* ScrollVelocity hover and collapsed states */
+.header-test.scrolled .header-container {
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.header-test.scrolled:hover .header-container {
+  transform: translateY(0);
+  opacity: 1;
+  backdrop-filter: blur(12px);
+  margin: 0 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 0 0 16px 16px;
+  background-color: rgba(252, 250, 245, 0.8);
+}
+
+.scroll-banner {
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.header-test.scrolled .scroll-banner {
+  z-index: 1001;
+}
+
+.header-test.scrolled .scroll-banner:hover {
+  background-color: rgba(220, 38, 38, 0.9);
+}
+
+/* Improve text readability on transparent background */
+.header-test.scrolled:hover .header-container .nav-link,
+.header-test.scrolled:hover .header-container .logo,
+.header-test.scrolled:hover .header-container .login-button,
+.header-test.scrolled:hover .header-container .book-button {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
