@@ -4,10 +4,8 @@ import { useScrollVelocity } from "./useScrollVelocity";
 
 interface UseHeaderOptions {
   // Header animation options
-  headerSelector?: string;
   logoSelector?: string;
   navLinkSelector?: string;
-  scrolledHeight?: string;
 
   // ScrollVelocity options
   scrollVelocityConfig?: {
@@ -22,21 +20,11 @@ interface UseHeaderOptions {
 
 export const useHeader = (options: UseHeaderOptions = {}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const {
-    headerSelector = ".header-test",
-    logoSelector = ".logo",
-    navLinkSelector = ".nav-link",
-    scrolledHeight = "120px",
-    scrollVelocityConfig = {},
-  } = options;
-
+  const { logoSelector = ".logo", navLinkSelector = ".nav-link", scrollVelocityConfig = {} } = options;
   // Use header animation hook
   const { scrolled } = useHeaderAnimation({
-    headerSelector,
     logoSelector,
     navLinkSelector,
-    scrolledHeight,
   });
 
   // Use scroll velocity hook

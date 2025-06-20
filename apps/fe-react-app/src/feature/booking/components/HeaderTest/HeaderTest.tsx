@@ -5,10 +5,8 @@ import "./HeaderTest.css";
 const HeaderTest = () => {
   // Use combined header hook
   const { isMenuOpen, scrolled, scrollVelocityProps } = useHeader({
-    headerSelector: ".header-test",
     logoSelector: ".logo",
     navLinkSelector: ".nav-link",
-    scrolledHeight: "120px",
     scrollVelocityConfig: {
       defaultVelocity: 100,
       texts: ["F CINEMA"],
