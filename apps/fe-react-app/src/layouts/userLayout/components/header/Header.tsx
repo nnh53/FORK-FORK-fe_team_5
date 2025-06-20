@@ -19,7 +19,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ logoSrc, navItems, user, onLogin, onRegister, onLogout }) => {
   return (
-    <header className="bg-[url('./assets/bg-top.png')] bg-repeat-x fixed top-0 left-0 w-full z-50">
+    <header className="] bg-repeat-x fixed top-0 left-0 w-full z-50">
       <div className="container mx-auto flex items-center justify-between px-4 py-4 text-white">
         {/* Logo */}
         <div className="text-2xl font-bold text-red-500">
