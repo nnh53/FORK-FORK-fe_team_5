@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
+import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -13,16 +14,24 @@ import { cn } from "@/lib/utils";
 interface FilterOption {
   value: string;
   label: string;
-  type: "select" | "dateRange";
+  type: "select" | "dateRange" | "numberRange";
   selectOptions?: { value: string; label: string }[];
   placeholder?: string;
+  numberRangeConfig?: {
+    fromPlaceholder?: string;
+    toPlaceholder?: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    suffix?: string; // Đơn vị hiển thị như "đ", "kg", "cái"
+  };
 }
 
 interface FilterCriteria {
   field: string;
-  value: string | { from: Date | undefined; to: Date | undefined };
+  value: string | { from: Date | undefined; to: Date | undefined } | { from: number | undefined; to: number | undefined };
   label: string;
-  type: "select" | "dateRange";
+  type: "select" | "dateRange" | "numberRange";
 }
 
 interface FilterProps {
@@ -33,7 +42,7 @@ interface FilterProps {
 }
 
 // Type for temp values
-type TempFilterValue = string | { from: Date | undefined; to: Date | undefined } | undefined;
+type TempFilterValue = string | { from: Date | undefined; to: Date | undefined } | { from: number | undefined; to: number | undefined } | undefined;
 
 function Filter({ filterOptions, onFilterChange, className, showActiveFilters = true }: FilterProps) {
   const [appliedFilters, setAppliedFilters] = useState<FilterCriteria[]>([]);
@@ -59,25 +68,31 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
     }));
   };
 
+  const isValidFilter = (option: FilterOption, value: TempFilterValue): boolean => {
+    if (option.type === "dateRange") {
+      const range = value as { from: Date | undefined; to: Date | undefined };
+      return Boolean(range && (range.from || range.to));
+    }
+
+    if (option.type === "numberRange") {
+      const range = value as { from: number | undefined; to: number | undefined };
+      return Boolean(range && (range.from !== undefined || range.to !== undefined));
+    }
+
+    return Boolean(value && value !== "");
+  };
+
   const handleApplyFilters = () => {
     // Tạo danh sách filters từ các giá trị đã nhập
     const validFilters: FilterCriteria[] = [];
 
     filterOptions.forEach((option) => {
       const value = tempValues[option.value];
-      let isValid = false;
 
-      if (option.type === "dateRange") {
-        const range = value as { from: Date | undefined; to: Date | undefined };
-        isValid = Boolean(range && (range.from || range.to));
-      } else {
-        isValid = Boolean(value && value !== "");
-      }
-
-      if (isValid) {
+      if (isValidFilter(option, value)) {
         validFilters.push({
           field: option.value,
-          value: value as string | { from: Date | undefined; to: Date | undefined },
+          value: value as string | { from: Date | undefined; to: Date | undefined } | { from: number | undefined; to: number | undefined },
           label: option.label,
           type: option.type,
         });
@@ -132,6 +147,48 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
     );
   };
 
+  const renderNumberRangeFilter = (option: FilterOption) => {
+    const value = (tempValues[option.value] as { from: number | undefined; to: number | undefined }) || { from: undefined, to: undefined };
+    const config = option.numberRangeConfig || {};
+    const { fromPlaceholder = "Từ giá trị", toPlaceholder = "Đến giá trị", min = 0, max, step = 1 } = config;
+
+    return (
+      <div className="space-y-2">
+        <div className="text-sm font-medium">{option.label}</div>
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <Input
+              type="number"
+              placeholder={fromPlaceholder}
+              value={value.from ?? ""}
+              onChange={(e) => {
+                const num = e.target.value ? Number(e.target.value) : undefined;
+                handleTempValueChange(option.value, { ...value, from: num });
+              }}
+              min={min}
+              max={max}
+              step={step}
+            />
+          </div>
+          <div className="flex-1">
+            <Input
+              type="number"
+              placeholder={toPlaceholder}
+              value={value.to ?? ""}
+              onChange={(e) => {
+                const num = e.target.value ? Number(e.target.value) : undefined;
+                handleTempValueChange(option.value, { ...value, to: num });
+              }}
+              min={min}
+              max={max}
+              step={step}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderSelectFilter = (option: FilterOption) => {
     const value = (tempValues[option.value] as string) || "";
     return (
@@ -156,11 +213,47 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
   const hasAnyValues = () => {
     return Object.values(tempValues).some((value) => {
       if (typeof value === "object" && value !== null && value !== undefined) {
-        const range = value as { from: Date | undefined; to: Date | undefined };
-        return range.from || range.to;
+        if ("from" in value && "to" in value) {
+          return value.from !== undefined || value.to !== undefined;
+        }
       }
       return value && value !== "";
     });
+  };
+
+  const formatDateRange = (range: { from: Date | undefined; to: Date | undefined }): string => {
+    const fromStr = range.from ? range.from.toLocaleDateString() : "";
+    const toStr = range.to ? range.to.toLocaleDateString() : "";
+    if (fromStr && toStr) return `: ${fromStr} - ${toStr}`;
+    if (fromStr) return `: từ ${fromStr}`;
+    if (toStr) return `: đến ${toStr}`;
+    return "";
+  };
+
+  const formatNumberRange = (range: { from: number | undefined; to: number | undefined }, suffix: string): string => {
+    const fromStr = range.from !== undefined ? range.from.toLocaleString() + suffix : "";
+    const toStr = range.to !== undefined ? range.to.toLocaleString() + suffix : "";
+    if (fromStr && toStr) return `: ${fromStr} - ${toStr}`;
+    if (fromStr) return `: từ ${fromStr}`;
+    if (toStr) return `: đến ${toStr}`;
+    return "";
+  };
+
+  const formatFilterValue = (filter: FilterCriteria): string => {
+    switch (filter.type) {
+      case "dateRange": {
+        const range = filter.value as { from: Date | undefined; to: Date | undefined };
+        return formatDateRange(range);
+      }
+      case "numberRange": {
+        const range = filter.value as { from: number | undefined; to: number | undefined };
+        const option = filterOptions.find((opt) => opt.value === filter.field);
+        const suffix = option?.numberRangeConfig?.suffix || "";
+        return formatNumberRange(range, suffix);
+      }
+      default:
+        return `: ${filter.value}`;
+    }
   };
 
   return (
@@ -209,6 +302,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
                 {filterOptions.map((option) => (
                   <div key={option.value}>
                     {option.type === "dateRange" && renderDateRangeFilter(option)}
+                    {option.type === "numberRange" && renderNumberRangeFilter(option)}
                     {option.type === "select" && renderSelectFilter(option)}
                   </div>
                 ))}
@@ -236,17 +330,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
               <Badge key={`applied-${filter.field}-${index}`} variant="secondary" className="flex items-center gap-1">
                 <span className="text-xs">
                   {filter.label}
-                  {filter.type === "dateRange"
-                    ? (() => {
-                        const range = filter.value as { from: Date | undefined; to: Date | undefined };
-                        const fromStr = range.from ? range.from.toLocaleDateString() : "";
-                        const toStr = range.to ? range.to.toLocaleDateString() : "";
-                        if (fromStr && toStr) return `: ${fromStr} - ${toStr}`;
-                        if (fromStr) return `: từ ${fromStr}`;
-                        if (toStr) return `: đến ${toStr}`;
-                        return "";
-                      })()
-                    : `: ${filter.value}`}
+                  {formatFilterValue(filter)}
                 </span>
                 <Button variant="ghost" size="sm" onClick={() => handleRemoveAppliedFilter(index)} className="h-3 w-3 p-0 hover:bg-destructive/20">
                   <X className="h-2 w-2" />
