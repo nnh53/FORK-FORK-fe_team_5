@@ -9,6 +9,7 @@ import { blogsMockData } from "./blogs.mockapi";
 import { availableCombos, bookingAPI } from "./booking.mockapi";
 import { cinemaRoomsAPI, seatsAPI } from "./cinema-room.mockapi";
 import { healthMetricListMockData } from "./health-metric.mockapi";
+import { membersAPI } from "./members.mockapi";
 import { genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi";
 import { User } from "./myInfo.mockapi";
 import { myMembership } from "./myMembership";
@@ -18,6 +19,7 @@ import { promotionsAPI } from "./promotions.mockapi";
 import { showtimesAPI } from "./showtimes.mockapi";
 import { loginMock } from "./users.mockapi";
 import { mockVoucherHistory, mockVouchers } from "./voucher.mockapi";
+import { vouchersAPI } from "./vouchers.mockapi";
 const app = express();
 const corsOptions = {
   origin: ["http://localhost:4222", "http://localhost:5173"],
@@ -460,6 +462,12 @@ app.post("/bookings/:id/cancel", (req, res) => {
   }
 });
 
+// Get bookings by customer phone
+app.get("/bookings/phone/:phone", (req, res) => {
+  const bookings = bookingAPI.getByPhone(req.params.phone);
+  res.send(bookings);
+});
+
 // Delete booking
 app.delete("/bookings/:id", (req, res) => {
   const booking = bookingAPI.delete(req.params.id);
@@ -470,9 +478,198 @@ app.delete("/bookings/:id", (req, res) => {
   }
 });
 
+// === MEMBERS ENDPOINTS ===
+
+// Get all members
+app.get("/members", (req, res) => {
+  res.send(membersAPI.getAll());
+});
+
+// Get member by ID
+app.get("/members/:id", (req, res) => {
+  const member = membersAPI.getById(req.params.id);
+  if (member) {
+    res.send(member);
+  } else {
+    res.status(404).send({ error: "Member not found" });
+  }
+});
+
+// Get member by phone
+app.get("/members/phone/:phone", (req, res) => {
+  const member = membersAPI.getByPhone(req.params.phone);
+  if (member) {
+    res.send(member);
+  } else {
+    res.status(404).send({ error: "Member not found" });
+  }
+});
+
+// Create new member
+app.post("/members", (req, res) => {
+  const member = membersAPI.create(req.body);
+  res.status(201).send(member);
+});
+
+// Update member
+app.put("/members/:id", (req, res) => {
+  const member = membersAPI.update(req.params.id, req.body);
+  if (member) {
+    res.send(member);
+  } else {
+    res.status(404).send({ error: "Member not found" });
+  }
+});
+
+// Update member points
+app.post("/members/:id/points", (req, res) => {
+  const { points, type, description } = req.body;
+  const member = membersAPI.updatePoints(req.params.id, points, type, description);
+  if (member) {
+    res.send(member);
+  } else {
+    res.status(404).send({ error: "Member not found" });
+  }
+});
+
+// Get member transactions
+app.get("/members/:id/transactions", (req, res) => {
+  const transactions = membersAPI.getTransactions(req.params.id);
+  res.send(transactions);
+});
+
+// Redeem points for discount
+app.post("/members/:id/redeem", (req, res) => {
+  const { points } = req.body;
+  const member = membersAPI.getById(req.params.id);
+
+  if (!member) {
+    res.status(404).send({ error: "Member not found" });
+    return;
+  }
+
+  if (points > member.currentPoints) {
+    res.status(400).send({ error: "Insufficient points" });
+    return;
+  }
+
+  // Points to VND conversion (1 point = 1000 VND)
+  const discount = points * 1000;
+  const updatedMember = membersAPI.updatePoints(req.params.id, points, "redeem", "Đổi điểm lấy giảm giá");
+
+  if (updatedMember) {
+    res.send({
+      discount,
+      newPoints: updatedMember.currentPoints,
+    });
+  } else {
+    res.status(500).send({ error: "Failed to redeem points" });
+  }
+});
+
+// Delete member
+app.delete("/members/:id", (req, res) => {
+  const member = membersAPI.delete(req.params.id);
+  if (member) {
+    res.send(member);
+  } else {
+    res.status(404).send({ error: "Member not found" });
+  }
+});
+
+// === VOUCHERS ENDPOINTS ===
+
+// Get all vouchers
+app.get("/vouchers", (req, res) => {
+  res.send(vouchersAPI.getAll());
+});
+
+// Get active vouchers
+app.get("/vouchers/active", (req, res) => {
+  res.send(vouchersAPI.getActive());
+});
+
+// Get voucher by ID
+app.get("/vouchers/:id", (req, res) => {
+  const voucher = vouchersAPI.getById(req.params.id);
+  if (voucher) {
+    res.send(voucher);
+  } else {
+    res.status(404).send({ error: "Voucher not found" });
+  }
+});
+
+// Get voucher by code
+app.get("/vouchers/code/:code", (req, res) => {
+  const voucher = vouchersAPI.getByCode(req.params.code);
+  if (voucher) {
+    res.send(voucher);
+  } else {
+    res.status(404).send({ error: "Voucher not found" });
+  }
+});
+
+// Validate voucher
+app.post("/vouchers/validate", (req, res) => {
+  const { code, orderAmount, movieId } = req.body;
+  const result = vouchersAPI.validateVoucher(code, orderAmount, movieId);
+
+  if (result.isValid) {
+    res.send(result);
+  } else {
+    res.status(400).send(result);
+  }
+});
+
+// Apply voucher
+app.post("/vouchers/apply", (req, res) => {
+  const { code, bookingId } = req.body;
+  const voucher = vouchersAPI.applyVoucher(code, bookingId);
+
+  if (voucher) {
+    res.send(voucher);
+  } else {
+    res.status(404).send({ error: "Voucher not found" });
+  }
+});
+
+// Create voucher
+app.post("/vouchers", (req, res) => {
+  const voucher = vouchersAPI.create(req.body);
+  res.status(201).send(voucher);
+});
+
+// Update voucher
+app.put("/vouchers/:id", (req, res) => {
+  const voucher = vouchersAPI.update(req.params.id, req.body);
+  if (voucher) {
+    res.send(voucher);
+  } else {
+    res.status(404).send({ error: "Voucher not found" });
+  }
+});
+
+// Delete voucher
+app.delete("/vouchers/:id", (req, res) => {
+  const voucher = vouchersAPI.delete(req.params.id);
+  if (voucher) {
+    res.send(voucher);
+  } else {
+    res.status(404).send({ error: "Voucher not found" });
+  }
+});
+
 // Get available combos
 app.get("/combos", (req, res) => {
-  res.send(availableCombos);
+  // Transform combos to match frontend interface
+  const transformedCombos = availableCombos.map((combo) => ({
+    id: combo.id,
+    name: combo.name,
+    description: combo.description,
+    price: combo.price,
+    imageUrl: combo.image, // Transform image to imageUrl
+  }));
+  res.send(transformedCombos);
 });
 
 const port = 3000;
