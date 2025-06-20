@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import MovieSearch from "../../../components/MovieSearch";
 import { bookingService, type BookingCreateRequest, type Combo } from "../../../services/bookingService";
+import { memberService, type Member } from "../../../services/memberService";
 import { movieService } from "../../../services/movieService";
 import { showtimeService } from "../../../services/showtimeService";
 
@@ -56,19 +57,11 @@ const StaffTicketSales: React.FC = () => {
     phone: "",
     email: "",
   });
-
   // State for payment
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "momo" | "banking">("cash");
   const [usePoints, setUsePoints] = useState(0);
   const [memberPhone, setMemberPhone] = useState("");
-  const [memberInfo, setMemberInfo] = useState<{
-    id: string;
-    name: string;
-    phone: string;
-    email: string;
-    points: number;
-    membershipLevel: string;
-  } | null>(null);
+  const [memberInfo, setMemberInfo] = useState<Member | null>(null);
   // State for UI
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"movie" | "showtime" | "seats" | "snacks" | "customer" | "payment">("movie");
@@ -211,32 +204,34 @@ const StaffTicketSales: React.FC = () => {
       [snackId]: Math.max(0, quantity),
     }));
   };
-
   const searchMember = async () => {
-    if (!memberPhone) return;
+    if (!memberPhone) {
+      toast.error("Vui lòng nhập số điện thoại");
+      return;
+    }
 
     try {
-      // Mock member search - replace with real API call
-      const mockMember = {
-        id: "M001",
-        name: "Nguyễn Văn A",
-        phone: memberPhone,
-        email: "nguyenvana@gmail.com",
-        points: 1500,
-        membershipLevel: "Gold",
-      };
-      setMemberInfo(mockMember);
-      setCustomerInfo({
-        name: mockMember.name,
-        phone: mockMember.phone,
-        email: mockMember.email,
-      });
+      setLoading(true);
+      const member = await memberService.getMemberByPhone(memberPhone);
 
-      toast.success(`Tìm thấy hội viên: ${mockMember.name}`);
+      if (member) {
+        setMemberInfo(member);
+        setCustomerInfo({
+          name: member.name,
+          phone: member.phone,
+          email: member.email,
+        });
+        toast.success(`Tìm thấy hội viên: ${member.name}`);
+      } else {
+        setMemberInfo(null);
+        toast.error("Không tìm thấy hội viên với số điện thoại này");
+      }
     } catch (error) {
       console.error("Error searching member:", error);
-      toast.error("Không tìm thấy hội viên");
+      toast.error("Có lỗi khi tìm kiếm hội viên");
       setMemberInfo(null);
+    } finally {
+      setLoading(false);
     }
   };
   const calculateTotal = () => {
@@ -255,7 +250,6 @@ const StaffTicketSales: React.FC = () => {
 
     return Math.max(0, subtotal - pointsDiscount);
   };
-
   const handleCreateBooking = async () => {
     if (!selectedMovie || !selectedShowtime || selectedSeats.length === 0) {
       toast.error("Vui lòng chọn đầy đủ thông tin");
@@ -298,9 +292,22 @@ const StaffTicketSales: React.FC = () => {
             }),
         ],
         usePoints: usePoints > 0 ? usePoints : undefined,
+        memberId: memberInfo?.id,
+        isStaffBooking: true, // Mark as staff booking for confirmed status
       };
 
       const booking = await bookingService.createBooking(bookingData);
+
+      // If member used points, update their points
+      if (memberInfo && usePoints > 0) {
+        try {
+          await memberService.updateMemberPoints(memberInfo.id, usePoints, "redeem", `Sử dụng điểm cho booking ${booking.id}`);
+        } catch (error) {
+          console.error("Error updating member points:", error);
+          // Don't fail the booking if points update fails
+          toast.warning("Booking thành công nhưng không thể cập nhật điểm");
+        }
+      }
 
       toast.success(`Đặt vé thành công! Mã booking: ${booking.id}`);
 
@@ -334,7 +341,7 @@ const StaffTicketSales: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Bán Vé Trực Tiếp</h1>
         <Button variant="outline" onClick={resetForm}>
@@ -655,7 +662,7 @@ const StaffTicketSales: React.FC = () => {
                     <div className="mt-3 p-3 bg-green-50 rounded border">
                       <p className="font-semibold">{memberInfo.name}</p>
                       <p className="text-sm text-gray-600">{memberInfo.phone}</p>
-                      <p className="text-sm text-gray-600">Điểm tích lũy: {memberInfo.points}</p>
+                      <p className="text-sm text-gray-600">Điểm tích lũy: {memberInfo.currentPoints}</p>
                       <p className="text-sm text-gray-600">Hạng: {memberInfo.membershipLevel}</p>
                     </div>
                   )}
@@ -761,13 +768,14 @@ const StaffTicketSales: React.FC = () => {
                   <div>
                     <h3 className="font-semibold mb-3">Sử Dụng Điểm Tích Lũy</h3>
                     <div className="flex items-center gap-4">
-                      <Label htmlFor="points">Điểm sử dụng (có {memberInfo.points} điểm):</Label>
+                      {" "}
+                      <Label htmlFor="points">Điểm sử dụng (có {memberInfo.currentPoints} điểm):</Label>
                       <Input
                         id="points"
                         type="number"
                         value={usePoints}
-                        onChange={(e) => setUsePoints(Math.min(parseInt(e.target.value) || 0, memberInfo.points))}
-                        max={memberInfo.points}
+                        onChange={(e) => setUsePoints(Math.min(parseInt(e.target.value) || 0, memberInfo.currentPoints))}
+                        max={memberInfo.currentPoints}
                         className="w-24"
                       />
                       <span className="text-sm text-gray-500">= {(usePoints * 1000).toLocaleString("vi-VN")} VNĐ</span>

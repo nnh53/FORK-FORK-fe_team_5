@@ -1,132 +1,124 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Gift, QrCode, Search, Star, Ticket, User } from "lucide-react";
+import { QrCode, Search, Star, Ticket, User } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
-
-interface Member {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  membershipLevel: "Silver" | "Gold" | "Platinum";
-  currentPoints: number;
-  totalSpent: number;
-}
-
-interface CheckinBooking {
-  id: string;
-  movieTitle: string;
-  showtime: string;
-  date: string;
-  seats: string[];
-  cinemaRoom: string;
-  status: "pending" | "checked-in";
-  pointsToEarn: number;
-}
-
-// Mock data
-const mockMembers: Record<string, Member> = {
-  "0123456789": {
-    id: "M001",
-    name: "Nguyễn Văn A",
-    phone: "0123456789",
-    email: "a.nguyen@email.com",
-    membershipLevel: "Gold",
-    currentPoints: 1250,
-    totalSpent: 2500000,
-  },
-  "0987654321": {
-    id: "M002",
-    name: "Trần Thị B",
-    phone: "0987654321",
-    email: "b.tran@email.com",
-    membershipLevel: "Silver",
-    currentPoints: 850,
-    totalSpent: 1200000,
-  },
-};
-
-const mockBookings: Record<string, CheckinBooking[]> = {
-  "0123456789": [
-    {
-      id: "BK001",
-      movieTitle: "Dune: Part Two",
-      showtime: "19:00",
-      date: "2025-06-16",
-      seats: ["A1", "A2"],
-      cinemaRoom: "Phòng 1",
-      status: "pending",
-      pointsToEarn: 50,
-    },
-  ],
-  "0987654321": [
-    {
-      id: "BK002",
-      movieTitle: "Avatar: The Way of Water",
-      showtime: "21:30",
-      date: "2025-06-16",
-      seats: ["B5", "B6", "B7"],
-      cinemaRoom: "Phòng 2",
-      status: "pending",
-      pointsToEarn: 75,
-    },
-  ],
-};
+import { bookingService, type Booking } from "../../../services/bookingService";
+import { memberService, type Member } from "../../../services/memberService";
 
 const StaffCheckinManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [foundMember, setFoundMember] = useState<Member | null>(null);
-  const [memberBookings, setMemberBookings] = useState<CheckinBooking[]>([]);
-  const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
-  const [pointsToRedeem, setPointsToRedeem] = useState("");
+  const [memberBookings, setMemberBookings] = useState<Booking[]>([]);
+  const [checkinDialogOpen, setCheckinDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [pointsToUse, setPointsToUse] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const searchMember = async () => {
+    if (!searchTerm) {
+      toast.error("Vui lòng nhập số điện thoại");
+      return;
+    }
 
-  const searchMember = () => {
-    const member = mockMembers[searchTerm];
-    if (member) {
-      setFoundMember(member);
-      setMemberBookings(mockBookings[searchTerm] || []);
-      toast.success("Tìm thấy thành viên!");
-    } else {
+    try {
+      setLoading(true);
+      const member = await memberService.getMemberByPhone(searchTerm);
+
+      if (member) {
+        setFoundMember(member);
+
+        // Fetch member's bookings
+        const bookings = await bookingService.getBookingsByPhone(searchTerm);
+        const confirmedBookings = bookings.filter((booking) => booking.status === "confirmed" || booking.status === "completed");
+        setMemberBookings(confirmedBookings);
+
+        toast.success("Tìm thấy thành viên!");
+      } else {
+        setFoundMember(null);
+        setMemberBookings([]);
+        toast.error("Không tìm thấy thành viên!");
+      }
+    } catch (error) {
+      console.error("Error searching member:", error);
       setFoundMember(null);
       setMemberBookings([]);
-      toast.error("Không tìm thấy thành viên!");
+      toast.error("Có lỗi khi tìm kiếm thành viên");
+    } finally {
+      setLoading(false);
     }
   };
-
-  const handleCheckin = (bookingId: string) => {
+  const handleCheckin = async (bookingId: string) => {
     const booking = memberBookings.find((b) => b.id === bookingId);
-    if (booking && foundMember) {
-      setMemberBookings((prev) => prev.map((b) => (b.id === bookingId ? { ...b, status: "checked-in" as const } : b)));
-
-      // Update member points
-      const updatedMember = {
-        ...foundMember,
-        currentPoints: foundMember.currentPoints + booking.pointsToEarn,
-      };
-      setFoundMember(updatedMember);
-
-      toast.success(`Check-in thành công! +${booking.pointsToEarn} điểm`);
+    if (booking) {
+      setSelectedBooking(booking);
+      setCheckinDialogOpen(true);
     }
   };
 
-  const handleRedeemPoints = () => {
-    const points = parseInt(pointsToRedeem);
-    if (foundMember && points > 0 && points <= foundMember.currentPoints) {
+  const handleConfirmCheckin = async () => {
+    if (!selectedBooking || !foundMember) return;
+
+    try {
+      setLoading(true);
+
+      // Calculate points earned (10% of total amount or minimum 10 points)
+      const pointsToEarn = Math.max(10, Math.floor(selectedBooking.totalAmount * 0.1));
+
+      // Calculate discount from points usage (1 point = 1000 VND)
+      const pointsDiscount = pointsToUse * 1000;
+      const finalAmount = selectedBooking.paymentStatus === "pending" ? Math.max(0, selectedBooking.totalAmount - pointsDiscount) : 0;
+
+      // If booking is not paid and has remaining amount, process payment
+      if (selectedBooking.paymentStatus === "pending" && finalAmount > 0) {
+        // Update booking with payment info
+        await bookingService.updateBooking(selectedBooking.id, {
+          paymentStatus: "paid",
+          totalAmount: finalAmount,
+        });
+      }
+
+      // Update booking status to completed (checked-in)
+      await bookingService.confirmBooking(selectedBooking.id);
+
+      // Update member points: subtract used points and add earned points
+      if (pointsToUse > 0) {
+        await memberService.updateMemberPoints(foundMember.id, pointsToUse, "redeem", `Sử dụng điểm cho booking ${selectedBooking.id}`);
+      }
+
+      await memberService.updateMemberPoints(foundMember.id, pointsToEarn, "earn", `Check-in cho booking ${selectedBooking.id}`);
+
+      // Update local state
+      setMemberBookings((prev) =>
+        prev.map((b) => (b.id === selectedBooking.id ? { ...b, status: "completed" as const, paymentStatus: "paid" as const } : b)),
+      );
+
+      // Update member info with new points
       const updatedMember = {
         ...foundMember,
-        currentPoints: foundMember.currentPoints - points,
+        currentPoints: foundMember.currentPoints - pointsToUse + pointsToEarn,
       };
       setFoundMember(updatedMember);
-      setPointsToRedeem("");
-      setRedeemDialogOpen(false);
-      toast.success(`Đã đổi ${points} điểm thành công!`);
-    } else {
-      toast.error("Số điểm không hợp lệ!");
+
+      // Reset form
+      setPointsToUse(0);
+      setCheckinDialogOpen(false);
+      setSelectedBooking(null);
+
+      const message =
+        pointsToUse > 0
+          ? `Check-in thành công! Đã sử dụng ${pointsToUse} điểm và nhận ${pointsToEarn} điểm mới`
+          : `Check-in thành công! +${pointsToEarn} điểm`;
+
+      toast.success(message);
+    } catch (error) {
+      console.error("Error during check-in:", error);
+      toast.error("Có lỗi khi check-in");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -142,16 +134,24 @@ const StaffCheckinManagement: React.FC = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
-
   const getBookingStatusColor = (status: string) => {
     switch (status) {
+      case "confirmed":
+        return "bg-blue-100 text-blue-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
       case "pending":
         return "bg-orange-100 text-orange-800";
-      case "checked-in":
-        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const getCheckinButtonText = (booking: Booking, loading: boolean) => {
+    if (loading) return "Đang xử lý...";
+    return booking.paymentStatus === "pending" ? "Check-in & Thanh toán" : "Check-in";
   };
 
   return (
@@ -171,7 +171,9 @@ const StaffCheckinManagement: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="flex gap-4">
             <div className="flex-1">
-              <Label htmlFor="search">Số điện thoại thành viên</Label>
+              <Label htmlFor="search" className="mb-2 block">
+                Số điện thoại thành viên
+              </Label>
               <Input
                 id="search"
                 placeholder="Nhập số điện thoại..."
@@ -231,49 +233,119 @@ const StaffCheckinManagement: React.FC = () => {
                   <p className="text-sm text-muted-foreground">Tổng chi tiêu</p>
                   <p className="font-semibold">{foundMember.totalSpent.toLocaleString("vi-VN")} VNĐ</p>
                 </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2 mt-6 pt-4 border-t">
-              <Dialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Gift className="h-4 w-4" />
-                    Đổi điểm
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Đổi điểm thưởng</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="points">Số điểm muốn đổi</Label>
-                      <Input
-                        id="points"
-                        type="number"
-                        placeholder="Nhập số điểm..."
-                        value={pointsToRedeem}
-                        onChange={(e) => setPointsToRedeem(e.target.value)}
-                        max={foundMember.currentPoints}
-                      />
-                      <p className="text-sm text-muted-foreground mt-1">Điểm hiện có: {foundMember.currentPoints}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={handleRedeemPoints} className="flex-1">
-                        Xác nhận đổi điểm
-                      </Button>
-                      <Button variant="outline" onClick={() => setRedeemDialogOpen(false)}>
-                        Hủy
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              </div>{" "}
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* Check-in Dialog */}
+      <Dialog open={checkinDialogOpen} onOpenChange={setCheckinDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Ticket className="h-5 w-5" />
+              Check-in Khách Hàng
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedBooking && foundMember && (
+            <div className="space-y-4">
+              {/* Booking Info */}
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <h4 className="font-semibold text-sm">Thông tin booking</h4>
+                <p className="text-sm text-gray-600">ID: {selectedBooking.id}</p>
+                <p className="text-sm text-gray-600">Tổng tiền: {selectedBooking.totalAmount.toLocaleString()} VNĐ</p>
+                <p className="text-sm text-gray-600">
+                  Trạng thái thanh toán:
+                  <Badge
+                    className={`ml-2 ${selectedBooking.paymentStatus === "paid" ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}`}
+                  >
+                    {selectedBooking.paymentStatus === "paid" ? "Đã thanh toán" : "Chưa thanh toán"}
+                  </Badge>
+                </p>
+              </div>
+
+              {/* Points Usage */}
+              {foundMember.currentPoints > 0 && (
+                <div className="space-y-2">
+                  <Label htmlFor="points-use">Sử dụng điểm tích lũy (tùy chọn)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="points-use"
+                      type="number"
+                      placeholder="Nhập số điểm..."
+                      value={pointsToUse || ""}
+                      onChange={(e) => setPointsToUse(parseInt(e.target.value) || 0)}
+                      max={Math.min(foundMember.currentPoints, Math.floor(selectedBooking.totalAmount / 1000))}
+                      min={0}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPointsToUse(Math.min(foundMember.currentPoints, Math.floor(selectedBooking.totalAmount / 1000)))}
+                    >
+                      Max
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Có thể sử dụng tối đa: {Math.min(foundMember.currentPoints, Math.floor(selectedBooking.totalAmount / 1000)).toLocaleString()} điểm
+                    (= {(Math.min(foundMember.currentPoints, Math.floor(selectedBooking.totalAmount / 1000)) * 1000).toLocaleString()} VNĐ)
+                  </p>
+                  {pointsToUse > 0 && <p className="text-sm text-green-600">Giảm giá: -{(pointsToUse * 1000).toLocaleString()} VNĐ</p>}
+                </div>
+              )}
+
+              {/* Payment Summary */}
+              {selectedBooking.paymentStatus === "pending" && (
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <h4 className="font-semibold text-sm text-blue-800">Tính toán thanh toán</h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Tổng tiền:</span>
+                      <span>{selectedBooking.totalAmount.toLocaleString()} VNĐ</span>
+                    </div>
+                    {pointsToUse > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>Giảm từ điểm:</span>
+                        <span>-{(pointsToUse * 1000).toLocaleString()} VNĐ</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-semibold border-t pt-1">
+                      <span>Cần thanh toán:</span>
+                      <span>{Math.max(0, selectedBooking.totalAmount - pointsToUse * 1000).toLocaleString()} VNĐ</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Points Earned */}
+              <div className="bg-green-50 p-3 rounded-lg">
+                <h4 className="font-semibold text-sm text-green-800">Điểm thưởng</h4>
+                <p className="text-sm text-green-600">+{Math.max(10, Math.floor(selectedBooking.totalAmount * 0.1))} điểm sau khi check-in</p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button onClick={handleConfirmCheckin} className="flex-1" disabled={loading}>
+                  {loading ? "Đang xử lý..." : "Xác nhận Check-in"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setCheckinDialogOpen(false);
+                    setPointsToUse(0);
+                    setSelectedBooking(null);
+                  }}
+                  disabled={loading}
+                >
+                  Hủy
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Bookings */}
       {memberBookings.length > 0 && (
@@ -285,45 +357,62 @@ const StaffCheckinManagement: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {" "}
             <div className="space-y-4">
-              {memberBookings.map((booking) => (
-                <div key={booking.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="secondary" className="font-mono">
-                        {booking.id}
-                      </Badge>
-                      <Badge className={getBookingStatusColor(booking.status)}>{booking.status === "pending" ? "Chờ check-in" : "Đã check-in"}</Badge>
+              {memberBookings.map((booking) => {
+                const pointsToEarn = Math.max(10, Math.floor(booking.totalAmount * 0.1));
+                return (
+                  <div key={booking.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-3">
+                        <Badge variant="secondary" className="font-mono">
+                          {booking.id}
+                        </Badge>{" "}
+                        <Badge className={getBookingStatusColor(booking.status)}>
+                          {booking.status === "confirmed" && "Chờ check-in"}
+                          {booking.status === "completed" && "Đã check-in"}
+                          {booking.status === "pending" && "Chờ xử lý"}
+                          {booking.status === "cancelled" && "Đã hủy"}
+                        </Badge>
+                      </div>{" "}
+                      <div className="text-right">
+                        <p className="text-sm text-green-600">+{pointsToEarn} điểm</p>
+                        <p className="text-sm text-muted-foreground">{booking.totalAmount.toLocaleString()} VNĐ</p>
+                        <Badge
+                          className={`text-xs ${booking.paymentStatus === "paid" ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}`}
+                        >
+                          {booking.paymentStatus === "paid" ? "Đã thanh toán" : "Chưa thanh toán"}
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-green-600">+{booking.pointsToEarn} điểm</p>
-                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <h4 className="font-semibold">Booking #{booking.id}</h4>
+                        <p className="text-sm text-muted-foreground">{new Date(booking.bookingDate).toLocaleDateString("vi-VN")}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Movie ID: {booking.movieId} | Showtime ID: {booking.showtimeId}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm">
+                          <span className="text-muted-foreground">Phòng:</span> {booking.cinemaRoomId}
+                        </p>
+                        <p className="text-sm">
+                          <span className="text-muted-foreground">Ghế:</span> {booking.seats.join(", ")}
+                        </p>
+                        <p className="text-sm">
+                          <span className="text-muted-foreground">Thanh toán:</span> {booking.paymentMethod}
+                        </p>
+                      </div>
+                    </div>{" "}
+                    {booking.status === "confirmed" && (
+                      <Button onClick={() => handleCheckin(booking.id)} className="w-full" disabled={loading}>
+                        {getCheckinButtonText(booking, loading)}
+                      </Button>
+                    )}
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <h4 className="font-semibold">{booking.movieTitle}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(booking.date).toLocaleDateString("vi-VN")} - {booking.showtime}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm">
-                        <span className="text-muted-foreground">Phòng:</span> {booking.cinemaRoom}
-                      </p>
-                      <p className="text-sm">
-                        <span className="text-muted-foreground">Ghế:</span> {booking.seats.join(", ")}
-                      </p>
-                    </div>
-                  </div>
-
-                  {booking.status === "pending" && (
-                    <Button onClick={() => handleCheckin(booking.id)} className="w-full">
-                      Check-in
-                    </Button>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>

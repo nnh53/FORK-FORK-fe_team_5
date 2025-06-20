@@ -6,6 +6,8 @@ import UserLayout from "../../../layouts/userLayout/UserLayout";
 import { bookingService, type BookingCreateRequest, type Combo } from "../../../services/bookingService";
 import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
 
+import DiscountSection from "../../../components/DiscountSection.tsx";
+import { type Member } from "../../../services/memberService";
 import ComboList from "../components/ComboList/ComboList.tsx";
 import PaymentInfo from "../components/PaymentInfo/PaymentInfo.tsx";
 import PaymentMethodSelector from "../components/PaymentMethodSelector/PaymentMethodSelector.tsx";
@@ -54,13 +56,15 @@ const CheckoutPage: React.FC = () => {
     }
     return location.state || {};
   });
-
   const [selectedCombos, setSelectedCombos] = useState<Record<string, number>>({});
   const [combos, setCombos] = useState<Combo[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "momo" | "banking">("momo");
   const [isCreatingBooking, setIsCreatingBooking] = useState(false);
   const [usePoints, setUsePoints] = useState(0);
+  const [pointsDiscount, setPointsDiscount] = useState(0);
   const [voucherCode, setVoucherCode] = useState("");
+  const [voucherDiscount, setVoucherDiscount] = useState(0);
+  const [currentMember, setCurrentMember] = useState<Member | null>(null);
   // Ensure localStorage is updated if we receive new state via location
   useEffect(() => {
     if (location.state) {
@@ -68,15 +72,16 @@ const CheckoutPage: React.FC = () => {
       setBookingState(location.state);
     }
   }, [location.state]);
-
   // Fetch combos from API
   useEffect(() => {
     const fetchCombos = async () => {
       try {
         const combosData = await bookingService.getCombos();
+        console.log("Fetched combos from API:", combosData);
         setCombos(combosData);
       } catch (error) {
         console.error("Error fetching combos:", error);
+        console.log("Using fallback mock combos");
         // Fallback to mock data
         setCombos(
           mockCombos.map((combo) => ({
@@ -87,8 +92,6 @@ const CheckoutPage: React.FC = () => {
             imageUrl: combo.imageUrl,
           })),
         );
-        setUsePoints(100);
-        setVoucherCode("");
       }
     };
 
@@ -104,16 +107,36 @@ const CheckoutPage: React.FC = () => {
       [comboId]: quantity,
     }));
   };
-
   const comboCost = Object.entries(selectedCombos).reduce((total, [comboId, quantity]) => {
-    const combo = mockCombos.find((c) => c.id === comboId);
-    return total + (combo ? combo.price * quantity : 0);
+    // Use API combos first, fallback to mock combos
+    const combo = combos.find((c) => c.id === comboId) || mockCombos.find((c) => c.id === comboId);
+    const cost = combo ? combo.price * quantity : 0;
+    console.log(`Combo ${comboId}: ${quantity} x ${combo?.price || 0} = ${cost}`);
+    return total + cost;
   }, 0);
 
-  const finalTotalCost = ticketCost + comboCost;
+  console.log("Total combo cost:", comboCost);
+  console.log("Selected combos:", selectedCombos);
+  console.log("Available combos from API:", combos);
 
-  const handlePayment = () => {
-    alert("thành công");
+  const subtotal = ticketCost + comboCost;
+  const totalDiscount = pointsDiscount + voucherDiscount;
+  const finalTotalCost = Math.max(0, subtotal - totalDiscount);
+
+  // Handle points change
+  const handlePointsChange = (points: number, discount: number) => {
+    setUsePoints(points);
+    setPointsDiscount(discount);
+  };
+  // Handle voucher change
+  const handleVoucherChange = (code: string, discount: number) => {
+    setVoucherCode(code);
+    setVoucherDiscount(discount);
+  };
+
+  // Handle member change
+  const handleMemberChange = (member: Member | null) => {
+    setCurrentMember(member);
   };
 
   const handleCreateBooking = async () => {
@@ -151,6 +174,7 @@ const CheckoutPage: React.FC = () => {
           })),
         usePoints: usePoints > 0 ? usePoints : undefined,
         voucherCode: voucherCode || undefined,
+        memberId: currentMember?.id,
       };
 
       const booking = await bookingService.createBooking(bookingData);
@@ -207,11 +231,26 @@ const CheckoutPage: React.FC = () => {
         {/* Breadcrumb */}
         <BookingBreadcrumb movieTitle={bookingState.movie?.title} className="mb-6" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {" "}
           {/* Cột trái: Thông tin và lựa chọn */}
           <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md space-y-8">
             <PaymentInfo user={{ name: "Phát Đạt", phone: "0123456789", email: "test@gmail.com" }} selectedSeats={selectedSeats} />{" "}
             <ComboList combos={uiCombos} selectedCombos={selectedCombos} onQuantityChange={handleQuantityChange} />
-            <PaymentSummary ticketCost={ticketCost} comboCost={comboCost} totalCost={finalTotalCost} />{" "}
+            {/* Discount Section */}
+            <DiscountSection
+              orderAmount={subtotal}
+              movieId={bookingState.movie?.id?.toString()}
+              onPointsChange={handlePointsChange}
+              onVoucherChange={handleVoucherChange}
+              onMemberChange={handleMemberChange}
+            />
+            <PaymentSummary
+              ticketCost={ticketCost}
+              comboCost={comboCost}
+              pointsDiscount={pointsDiscount}
+              voucherDiscount={voucherDiscount}
+              totalCost={finalTotalCost}
+            />{" "}
             <PaymentMethodSelector
               selectedMethod={paymentMethod}
               onMethodChange={(method) => setPaymentMethod(method as "cash" | "card" | "momo" | "banking")}
@@ -226,8 +265,7 @@ const CheckoutPage: React.FC = () => {
                 {isCreatingBooking ? "Đang xử lý..." : "ĐẶT VÉ NGAY"}
               </button>
             </div>
-          </div>
-
+          </div>{" "}
           {/* Cột phải: Tổng hợp vé */}
           <div className="lg:col-span-1">
             <BookingSummary
@@ -236,9 +274,11 @@ const CheckoutPage: React.FC = () => {
               cinemaName={cinemaName}
               selectedSeats={selectedSeats}
               totalCost={ticketCost}
-              actionText="THANH TOÁN" // Thay đổi văn bản nút
-              onActionClick={handlePayment} // Gọi hàm thanh toán
-              showBackButton={true} // Hiển thị nút Quay lại
+              comboCost={comboCost}
+              pointsDiscount={pointsDiscount}
+              voucherDiscount={voucherDiscount}
+              finalTotal={finalTotalCost}
+              showBackButton={true}
             />
           </div>
         </div>

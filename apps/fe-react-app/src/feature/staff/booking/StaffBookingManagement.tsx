@@ -154,7 +154,9 @@ const StaffBookingManagement: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <Label htmlFor="search">Tìm kiếm</Label>
+              <Label htmlFor="search" className="mb-2 block">
+                Tìm kiếm
+              </Label>
               <Input
                 id="search"
                 placeholder="Mã booking, tên khách hàng, SĐT..."
@@ -163,7 +165,9 @@ const StaffBookingManagement: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="status">Trạng thái</Label>
+              <Label htmlFor="status" className="mb-2 block">
+                Trạng thái
+              </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
                   <SelectValue />
@@ -178,7 +182,9 @@ const StaffBookingManagement: React.FC = () => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="date">Ngày</Label>
+              <Label htmlFor="date" className="mb-2 block">
+                Ngày
+              </Label>
               <Input id="date" type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} />
             </div>
             <div className="flex items-end">
@@ -306,7 +312,7 @@ const StaffBookingManagement: React.FC = () => {
 
       {/* Booking Detail Modal */}
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] min-w-[40vw] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Ticket className="h-5 w-5" />

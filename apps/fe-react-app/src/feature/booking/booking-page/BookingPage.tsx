@@ -131,6 +131,7 @@ const SeatSelectionPage: React.FC = () => {
       return newSelectedSeats;
     });
   };
+
   const handleContinue = () => {
     // Get the latest booking state from localStorage
     const latestBookingState = JSON.parse(localStorage.getItem("bookingState") || "{}");
@@ -170,8 +171,7 @@ const SeatSelectionPage: React.FC = () => {
 
             {/* ++ THÊM BOOKING FOOTER VÀO ĐÂY ++ */}
             <BookingFooter selectedSeats={selectedSeats} totalCost={totalCost} />
-          </div>
-
+          </div>{" "}
           {/* Cột phải: Thông tin */}
           <div className="lg:col-span-1">
             <BookingSummary
@@ -180,8 +180,9 @@ const SeatSelectionPage: React.FC = () => {
               cinemaName={cinemaName}
               selectedSeats={selectedSeats}
               totalCost={totalCost}
-              actionText="TIẾP TỤC"
-              onActionClick={handleContinue}
+              showContinueButton={true}
+              onContinueClick={handleContinue}
+              continueText="TIẾP TỤC"
             />
           </div>
         </div>
