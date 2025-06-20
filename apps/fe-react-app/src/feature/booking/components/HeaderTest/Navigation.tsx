@@ -5,24 +5,14 @@ interface MenuItem {
 }
 
 interface NavigationProps {
-  /** Whether the mobile menu is open */
   isMenuOpen?: boolean;
-  /** Custom CSS class name for the navigation container */
   className?: string;
-  /** Additional CSS class name for the nav element */
   navClassName?: string;
-  /** CSS class name for navigation links */
   linkClassName?: string;
-  /** Custom menu items array */
   menuItems?: MenuItem[];
-  /** Callback function when a menu item is clicked */
   onMenuItemClick?: (item: MenuItem) => void;
 }
 
-/**
- * Navigation component for the header
- * Renders a list of navigation menu items
- */
 const Navigation = ({
   isMenuOpen = false,
   className = "nav-menu",
