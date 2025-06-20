@@ -10,9 +10,9 @@ import "./HeaderTest.css";
 gsap.registerPlugin(ScrollTrigger);
 
 const HeaderTest = () => {
-  const isMenuOpen = useState(false);
+  const [isMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [velocity, setVelocity] = useState(100);
+  const velocity = 100; // Fixed velocity value
 
   useEffect(() => {
     // Animation for header on scroll
@@ -30,11 +30,10 @@ const HeaderTest = () => {
         },
       },
     });
-
     headerAnim.to(".header-test", {
       backgroundColor: "rgba(0, 0, 0, 0.9)",
       boxShadow: "0 5px 20px rgba(0, 0, 0, 0.3)",
-      height: "70px",
+      height: "120px", // Updated to match CSS
       duration: 0.5,
     });
 
@@ -49,78 +48,63 @@ const HeaderTest = () => {
     };
   }, []);
   return (
-    <>
-      {/* Red Demo ScrollVelocity at the top */}
-      <div className="bg-red-600 p-4">
-        {/* Velocity Control */}
-        <div className="mb-4 max-w-md mx-auto">
-          <label className="block text-sm font-medium mb-2 text-center text-white">Velocity: {velocity}</label>
-          <input
-            type="range"
-            min="-200"
-            max="200"
-            value={velocity}
-            onChange={(e) => setVelocity(Number(e.target.value))}
-            className="w-full h-2 bg-red-800 rounded-lg appearance-none cursor-pointer"
-          />
-        </div>
-
+    <header className={`header-test ${scrolled ? "scrolled" : ""}`}>
+      {/* Red Demo ScrollVelocity at the top inside header */}
+      <div className="bg-red-600 p-2">
         <div className="w-full overflow-hidden">
           <ScrollVelocity
             texts={["F CINEMA"]}
             velocity={velocity}
-            className="text-4xl font-bold text-white"
-            numCopies={10}
+            className="text-2xl font-bold text-white"
+            numCopies={15}
             parallaxClassName="parallax w-full overflow-hidden whitespace-nowrap"
             scrollerClassName="scroller flex"
           />
         </div>
       </div>
 
-      <header className={`header-test ${scrolled ? "scrolled" : ""}`}>
-        <div className="header-container">
-          <div className="logo">
-            <img src={FCinemaLogo} alt="F-Cinema Logo" />
-            <span>F-Cinema</span>
-          </div>
-          <nav className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
-            <ul>
-              <li>
-                <a href="#" className="nav-link">
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="#" className="nav-link">
-                  Movies
-                </a>
-              </li>
-              <li>
-                <a href="#" className="nav-link">
-                  Theaters
-                </a>
-              </li>
-              <li>
-                <a href="#" className="nav-link">
-                  Offers
-                </a>
-              </li>
-              <li>
-                <a href="#" className="nav-link">
-                  Membership
-                </a>
-              </li>
-            </ul>
-          </nav>
-          <div className="header-actions">
-            <button className="login-button">
-              <Link to={ROUTES.AUTH.LOGIN}>Login</Link>
-            </button>
-            <button className="book-button">Book Now</button>
-          </div>
+      <div className="header-container">
+        <div className="logo">
+          <img src={FCinemaLogo} alt="F-Cinema Logo" />
+          <span>F-Cinema</span>
         </div>
-      </header>
-    </>
+        <nav className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
+          <ul>
+            <li>
+              <a href="#" className="nav-link">
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="#" className="nav-link">
+                Movies
+              </a>
+            </li>
+            <li>
+              <a href="#" className="nav-link">
+                Theaters
+              </a>
+            </li>
+            <li>
+              <a href="#" className="nav-link">
+                Offers
+              </a>
+            </li>
+            <li>
+              <a href="#" className="nav-link">
+                Membership
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div className="header-actions">
+          <button className="login-button">
+            <Link to={ROUTES.AUTH.LOGIN}>Login</Link>
+          </button>
+          <button className="book-button">Book Now</button>{" "}
+        </div>
+      </div>
+    </header>
   );
 };
 
