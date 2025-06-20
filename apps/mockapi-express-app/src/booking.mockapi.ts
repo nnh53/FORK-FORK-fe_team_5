@@ -1,3 +1,6 @@
+import { membersAPI } from "./members.mockapi";
+import { vouchersAPI } from "./vouchers.mockapi";
+
 export interface Booking {
   id: string;
   userId: string;
@@ -47,7 +50,9 @@ export interface BookingCreateRequest {
     quantity: number;
   }[];
   usePoints?: number;
+  memberId?: string;
   voucherCode?: string;
+  isStaffBooking?: boolean;
 }
 
 // Mock data
@@ -100,6 +105,55 @@ let bookings: Booking[] = [
     createdAt: new Date("2025-06-16T09:15:00"),
     updatedAt: new Date("2025-06-16T09:15:00"),
   },
+  // Add more test data for confirmed bookings
+  {
+    id: "BK003",
+    userId: "USER003",
+    movieId: "3",
+    showtimeId: "ST003",
+    cinemaRoomId: "ROOM001",
+    seats: ["C1", "C2"],
+    totalAmount: 180000,
+    status: "confirmed",
+    paymentStatus: "pending", // Need payment
+    paymentMethod: "cash",
+    bookingDate: new Date("2025-06-19T20:00:00"),
+    customerInfo: {
+      name: "Lê Văn C",
+      phone: "0555123456", // Member phone
+      email: "levanc@gmail.com",
+    },
+    combos: [
+      {
+        id: "COMBO002",
+        name: "Combo Couple",
+        price: 90000,
+        quantity: 1,
+      },
+    ],
+    createdAt: new Date("2025-06-18T14:20:00"),
+    updatedAt: new Date("2025-06-18T14:20:00"),
+  },
+  {
+    id: "BK004",
+    userId: "USER004",
+    movieId: "1",
+    showtimeId: "ST004",
+    cinemaRoomId: "ROOM002",
+    seats: ["D5"],
+    totalAmount: 100000,
+    status: "confirmed",
+    paymentStatus: "paid",
+    paymentMethod: "momo",
+    bookingDate: new Date("2025-06-19T18:30:00"),
+    customerInfo: {
+      name: "Phạm Thị D",
+      phone: "0987654321", // Another member phone
+      email: "phamthid@gmail.com",
+    },
+    createdAt: new Date("2025-06-18T16:45:00"),
+    updatedAt: new Date("2025-06-18T16:45:00"),
+  },
 ];
 
 // Mock combo data for booking
@@ -135,6 +189,7 @@ export const bookingAPI = {
 
   getByUserId: (userId: string) => bookings.filter((booking) => booking.userId === userId),
 
+  getByPhone: (phone: string) => bookings.filter((booking) => booking.customerInfo.phone === phone),
   create: (data: BookingCreateRequest): Booking => {
     const newBooking: Booking = {
       id: `BK${String(bookings.length + 1).padStart(3, "0")}`,
@@ -144,7 +199,7 @@ export const bookingAPI = {
       cinemaRoomId: data.cinemaRoomId,
       seats: data.seats,
       totalAmount: calculateTotalAmount(data),
-      status: "pending",
+      status: data.isStaffBooking ? "confirmed" : "pending", // Staff bookings are auto-confirmed
       paymentStatus: data.paymentMethod === "cash" ? "pending" : "paid",
       paymentMethod: data.paymentMethod,
       bookingDate: new Date(),
@@ -162,6 +217,16 @@ export const bookingAPI = {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
+    // Process member points deduction
+    if (data.memberId && data.usePoints && data.usePoints > 0) {
+      membersAPI.updatePoints(data.memberId, data.usePoints, "redeem", `Sử dụng điểm cho booking ${newBooking.id}`);
+    }
+
+    // Process voucher usage
+    if (data.voucherCode) {
+      vouchersAPI.applyVoucher(data.voucherCode, newBooking.id);
+    }
 
     bookings.push(newBooking);
     return newBooking;
@@ -225,24 +290,48 @@ function calculateTotalAmount(data: BookingCreateRequest): number {
     total -= data.usePoints * 1000;
   }
 
+  // Apply voucher discount
+  if (data.voucherCode) {
+    const voucherResult = vouchersAPI.validateVoucher(data.voucherCode, total, data.movieId);
+    if (voucherResult.isValid) {
+      total -= voucherResult.discount;
+    }
+  }
+
   return Math.max(total, 0);
 }
 
 function calculateDiscount(data: BookingCreateRequest): Booking["discount"] | undefined {
+  let totalDiscount = 0;
+  const discounts: string[] = [];
+
+  // Points discount
   if (data.usePoints && data.usePoints > 0) {
-    return {
-      type: "points",
-      amount: data.usePoints * 1000,
-      description: `Sử dụng ${data.usePoints} điểm`,
-    };
+    totalDiscount += data.usePoints * 1000;
+    discounts.push(`${data.usePoints} điểm`);
   }
 
+  // Voucher discount
   if (data.voucherCode) {
-    // Mock voucher discount
+    const subtotal =
+      data.seats.length * 100000 +
+      (data.combos?.reduce((sum, combo) => {
+        const comboData = availableCombos.find((c) => c.id === combo.id);
+        return sum + (comboData ? comboData.price * combo.quantity : 0);
+      }, 0) || 0);
+
+    const voucherResult = vouchersAPI.validateVoucher(data.voucherCode, subtotal - (data.usePoints || 0) * 1000, data.movieId);
+    if (voucherResult.isValid) {
+      totalDiscount += voucherResult.discount;
+      discounts.push(`voucher ${data.voucherCode}`);
+    }
+  }
+
+  if (totalDiscount > 0) {
     return {
-      type: "voucher",
-      amount: 20000,
-      description: `Voucher ${data.voucherCode}`,
+      type: data.voucherCode ? "voucher" : "points",
+      amount: totalDiscount,
+      description: `Giảm từ ${discounts.join(" và ")}`,
     };
   }
 

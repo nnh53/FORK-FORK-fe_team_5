@@ -19,7 +19,9 @@ export interface BookingCreateRequest {
     quantity: number;
   }[];
   usePoints?: number;
+  memberId?: string;
   voucherCode?: string;
+  isStaffBooking?: boolean; // New field to identify staff bookings
 }
 
 export interface Booking {
@@ -115,6 +117,16 @@ export const bookingService = {
       return response.data;
     } catch (error) {
       console.error("Error confirming booking:", error);
+      throw error;
+    }
+  },
+  // Get bookings by customer phone
+  getBookingsByPhone: async (phone: string): Promise<Booking[]> => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/bookings/phone/${phone}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching bookings by phone:", error);
       throw error;
     }
   },
