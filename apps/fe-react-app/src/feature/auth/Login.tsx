@@ -2,9 +2,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import AnimatedContent from "../../../Reactbits/AnimatedContent/AnimatedContent";
 import Beams from "../../../Reactbits/Beams/Beams";
-import AuthFormContainer from "../../components/forms/AuthFormContainer";
 import CheckboxForm from "../../components/forms/CheckboxForm";
 import FormField from "../../components/forms/FormFields";
 import { Logo } from "../../components/logo/Logo";
@@ -80,47 +81,61 @@ const Login: React.FC = () => {
   };
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      {/* Beams Background */}
-      <div className="absolute inset-0 z-0">
-        <Beams beamWidth={5} beamHeight={30} beamNumber={20 } lightColor="#EE3F3F" speed={3} noiseIntensity={1.75} scale={0.2} rotation={30} />
+      {/* Beams Background - Full Screen */}
+      <div className="absolute inset-0 z-0" style={{ width: "100%", height: "100vh" }}>
+        <Beams beamWidth={3} beamHeight={25} beamNumber={30} lightColor="#F52E2E" speed={3} noiseIntensity={1.3} scale={0.2} rotation={90} />
       </div>
-      {/* Login Form Overlay */}
-      <AuthFormContainer transparent>
-        <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-8 border border-white/20">
-          <div className="text-center mb-8">
-            <Logo className="mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold text-white">Đăng Nhập</h3>
-            <p className="text-white/80">Đăng nhập để trải nghiệm dịch vụ tốt nhất</p>
+
+      {/* Login Form Overlay with Animation */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <AnimatedContent
+          distance={230}
+          direction="horizontal"
+          duration={3}
+          ease="power3.out"
+          delay={0.8}
+          scale = {0}
+          initialOpacity={0.1}
+          animateOpacity={true}
+          threshold={0.1}
+        >
+          <div className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-8 border border-white/30">
+            <div className="text-center mb-8">
+              <Logo className="mx-auto mb-4" />
+
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <h2 className="text-2xl font-bold text-center text-red-600 mb-4">Đăng nhập</h2>
+              <FormField name="email" label="Email" type="email" control={control} errors={errors} />
+              <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
+
+              <div className="flex justify-between items-center">
+                <Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm text-red-600 hover:text-red-800 hover:underline">
+                  Quên mật khẩu?
+                </Link>
+                <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-all duration-300 disabled:opacity-50"
+                disabled={isLoading}
+              >
+                {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+              </button>
+
+              <div className="text-center mt-4">
+                <span  className="text-sm text-gray-600">Chưa có tài khoản? </span>
+                <Link to={ROUTES.AUTH.REGISTER} className="text-sm text-red-600 hover:text-red-800 hover:underline">
+                  Đăng ký ngay
+                </Link>
+              </div>
+            </form>
           </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <FormField name="email" label="Email" type="email" control={control} errors={errors} />
-            <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
-
-            <div className="flex justify-between items-center">
-              <Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm text-blue-300 hover:text-blue-200 hover:underline">
-                Quên mật khẩu?
-              </Link>
-              <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-red-600/80 backdrop-blur-sm text-white py-2 rounded-md hover:bg-red-700/80 transition-all duration-300 disabled:opacity-50 border border-red-500/30"
-              disabled={isLoading}
-            >
-              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
-            </button>
-
-            <div className="text-center mt-4">
-              <span className="text-sm text-white/70">Chưa có tài khoản? </span>
-              <Link to={ROUTES.AUTH.REGISTER} className="text-sm text-blue-300 hover:text-blue-200 hover:underline">
-                Đăng ký ngay
-              </Link>
-            </div>
-          </form>
-        </div>
-      </AuthFormContainer>
+        </AnimatedContent>
+        <ToastContainer />
+      </div>
     </div>
   );
 };
