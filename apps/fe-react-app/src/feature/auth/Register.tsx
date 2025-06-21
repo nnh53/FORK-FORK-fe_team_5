@@ -94,16 +94,14 @@ const Register: React.FC = () => {
               </div>
             </div>{" "}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <h3 className="text-2xl font-semibold text-gray-900 text-center mb-6">Đăng Ký</h3>              {/* Row 1: Full Name & Date of Birth */}
+
               <div className="grid grid-cols-2 gap-4">
                 <FormField name="fullName" label="Họ và tên" type="text" control={control} errors={errors} />
                 <FormField name="dateOfBirth" label="Ngày sinh" type="date" control={control} errors={errors} isRequired={false} />
               </div>
 
-              {/* Row 2: Email (full width) */}
               <FormField name="email" label="Email" type="email" control={control} errors={errors} />
 
-              {/* Row 3: Password & Confirm Password */}
               <div className="grid grid-cols-2 gap-4">
                 <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
                 <FormField name="confirmPassword" label="Xác nhận mật khẩu" type="password" control={control} errors={errors} />
@@ -116,7 +114,6 @@ const Register: React.FC = () => {
               >
                 {loading ? "Đang đăng ký..." : "Đăng ký"}
               </button>
-
               <div className="text-center mt-4">
                 <span className="text-sm text-gray-600">Đã có tài khoản? </span>
                 <Link to={ROUTES.AUTH.LOGIN} className="text-sm text-red-600 hover:text-red-800 hover:underline">

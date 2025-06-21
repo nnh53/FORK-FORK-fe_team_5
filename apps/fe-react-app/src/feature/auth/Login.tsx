@@ -48,12 +48,9 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginDTO) => {
     setIsLoading(true);
     try {
-      // Mock login - check if email is guest@example.com
       if (data.email === "guest@example.com") {
-        // Simulate API delay
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Use mock data instead of API call
         const userData = mockUserData.guest;
 
         authLogin({
@@ -69,7 +66,6 @@ const Login: React.FC = () => {
           navigate(RoleRouteToEachPage(userData.roles[0]));
         }, 1000);
       } else {
-        // For any other email, show error
         toast.error("Invalid email or password");
       }
     } catch (error) {
@@ -81,12 +77,10 @@ const Login: React.FC = () => {
   };
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      {/* Beams Background - Full Screen */}
       <div className="absolute inset-0 z-0" style={{ width: "100%", height: "100vh" }}>
         <Beams beamWidth={3} beamHeight={50} beamNumber={50} lightColor="#F52E2E" speed={3} noiseIntensity={1.3} scale={0.2} rotation={90} />
       </div>
 
-      {/* Login Form Overlay with Animation */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <AnimatedContent
           distance={230}
@@ -99,17 +93,15 @@ const Login: React.FC = () => {
           animateOpacity={true}
           threshold={0.1}
         >
-          {" "}
           <div className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-8 border border-white/30">
-            {/* Logo Section - Smaller and centered */}
             <div className="text-center mb-6">
               <div className="inline-block">
                 <Logo className="w-20 h-12 mx-auto" altText="F-Cinema Logo" logoText="" />
               </div>
-            </div>            {/* Login Form */}
+            </div>{" "}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <h3 className="text-2xl font-semibold text-gray-900 text-center mb-6">Đăng Nhập</h3>
-              
+
               <FormField name="email" label="Email" type="email" control={control} errors={errors} />
               <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
 

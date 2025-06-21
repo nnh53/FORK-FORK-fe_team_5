@@ -8,21 +8,17 @@ interface ConditionalPageTransitionProps {
 
 const ConditionalPageTransition: React.FC<ConditionalPageTransitionProps> = ({ children }) => {
   const location = useLocation();
-  
-  // Check if current route is an auth route (including legacy routes)
-  const isAuthRoute = location.pathname.startsWith('/auth') || 
-                     location.pathname === '/login' || 
-                     location.pathname === '/register' || 
-                     location.pathname === '/forgot-password' ||
-                     location.pathname === '/logviareg' ||
-                     location.pathname.includes('auth');
-
-  // If it's an auth route, don't apply PageTransition
+  const isAuthRoute =
+    location.pathname.startsWith("/auth") ||
+    location.pathname === "/login" ||
+    location.pathname === "/register" ||
+    location.pathname === "/forgot-password" ||
+    location.pathname === "/logviareg" ||
+    location.pathname.includes("auth");
+    
   if (isAuthRoute) {
     return <>{children}</>;
   }
-
-  // For non-auth routes, apply PageTransition
   return <PageTransition>{children}</PageTransition>;
 };
 
