@@ -8,12 +8,12 @@ import AnimatedContent from "../../../Reactbits/AnimatedContent/AnimatedContent"
 import Beams from "../../../Reactbits/Beams/Beams";
 import CheckboxForm from "../../components/forms/CheckboxForm";
 import FormField from "../../components/forms/FormFields";
-import { Logo } from "../../components/logo/Logo";
 import { useAuth } from "../../hooks/useAuth";
 import type { Role } from "../../interfaces/roles.interface";
 import type { LoginDTO } from "../../interfaces/users.interface";
 import { ROUTES } from "../../routes/route.constants";
 import { loginValidationSchema } from "../../utils/validation.utils";
+import { Logo } from "../booking/components/HeaderTest";
 import { RoleRouteToEachPage } from "./RoleRoute";
 
 // Mock user data for direct login
@@ -94,19 +94,23 @@ const Login: React.FC = () => {
           duration={3}
           ease="power3.out"
           delay={0.8}
-          scale = {0}
+          scale={0}
           initialOpacity={0.1}
           animateOpacity={true}
           threshold={0.1}
         >
+          {" "}
           <div className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-8 border border-white/30">
-            <div className="text-center mb-8">
-              <Logo className="mx-auto mb-4" />
-
+            {/* Logo Section - Smaller and centered */}
+            <div className="text-center mb-6">
+              <div className="inline-block">
+                <Logo className="w-20 h-12 mx-auto" altText="F-Cinema Logo" logoText="" />
+              </div>
             </div>
 
+            {/* Login Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <h2 className="text-2xl font-bold text-center text-red-600 mb-4">Đăng nhập</h2>
+
               <FormField name="email" label="Email" type="email" control={control} errors={errors} />
               <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
 
@@ -126,7 +130,7 @@ const Login: React.FC = () => {
               </button>
 
               <div className="text-center mt-4">
-                <span  className="text-sm text-gray-600">Chưa có tài khoản? </span>
+                <span className="text-sm text-brown-600">Chưa có tài khoản? </span>
                 <Link to={ROUTES.AUTH.REGISTER} className="text-sm text-red-600 hover:text-red-800 hover:underline">
                   Đăng ký ngay
                 </Link>

@@ -31,7 +31,7 @@ const FormField: React.FC<FormFieldProps> = ({ name, label, type = "text", contr
         }
       `}
     </style>
-    <label htmlFor={name} className="mb-2 text-lg text-gray-700 text-left">
+    <label htmlFor={name} className="mb-2 text-lg text-brown-700 text-left">
       {isRequired && <span className="text-red-500">*</span>} {label}
     </label>
     <Controller
@@ -43,7 +43,7 @@ const FormField: React.FC<FormFieldProps> = ({ name, label, type = "text", contr
           type={type}
           id={name}
           className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10 ${
-            errors[name] ? "border-red-500 focus:ring-red-500" : "border-blue-300 hover:border-blue-500 focus:ring-blue-500"
+            errors[name] ? "border-red-500 focus:ring-red-500" : "border-brown-300 hover:border-brown-500 focus:ring-brown-500"
           }`}
           placeholder={`Nhập ${label}`}
         />

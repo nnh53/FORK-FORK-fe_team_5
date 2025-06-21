@@ -66,7 +66,7 @@ const CheckboxForm: React.FC<CheckboxProps> = ({ name, label, control, errors })
           const { ref, ...inputProps } = field;
           return (
             <div className="checkbox-wrapper">
-              <label className="checkbox path relative block w-5 h-5 border-2 border-blue-500 rounded">
+              <label className="checkbox path relative block w-5 h-5 border-2 border-brown-500 rounded">
                 <input
                   type="checkbox"
                   {...inputProps}
