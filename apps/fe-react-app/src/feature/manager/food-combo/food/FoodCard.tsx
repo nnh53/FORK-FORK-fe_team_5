@@ -10,155 +10,310 @@ interface FoodCardProps {
   food: Food;
   onEdit?: (food: Food) => void;
   onDelete?: (id: number) => void;
+  viewMode?: "grid" | "list";
 }
 
-const FoodCard: React.FC<FoodCardProps> = ({ food, onEdit, onDelete }) => {
-  const isLowStock = food.quantity < 10;
+const FoodCard: React.FC<FoodCardProps> = ({ food, onEdit, onDelete, viewMode = "grid" }) => {
+  const isLowStock = food.quantity < 10 && food.quantity > 0;
   const isOutOfStock = food.quantity === 0 || food.status !== "available";
 
-  // Xác định trạng thái badge
-  const getBadgeVariant = () => {
-    if (isOutOfStock) return "destructive";
-    if (isLowStock) return "outline";
-    return "default";
+  // Helper functions
+  const getCategoryDisplay = (category: string) => {
+    const categoryMap = {
+      food: { label: "🍽️ Thức ăn", className: "bg-blue-100 text-blue-800" },
+      drink: { label: "🥤 Đồ uống", className: "bg-green-100 text-green-800" },
+      combo: { label: "🍕 Combo", className: "bg-purple-100 text-purple-800" },
+    };
+    return categoryMap[category as keyof typeof categoryMap] || { label: category, className: "bg-gray-100 text-gray-800" };
   };
 
-  const getBadgeText = () => {
-    if (isOutOfStock) return "Ngừng bán";
-    if (isLowStock)
-      return (
-        <>
-          <AlertTriangle className="h-3 w-3" />
-          Sắp hết
-        </>
-      );
-    return "Còn hàng";
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
   };
 
-  const getBadgeClass = () => {
-    if (isOutOfStock) return "";
-    if (isLowStock) return "text-red-600 border-red-600";
-    return "bg-green-600 hover:bg-green-700";
-  };
-
-  // Tách nested ternary cho text color
   const getQuantityTextColor = () => {
     if (isOutOfStock) return "text-destructive";
     if (isLowStock) return "text-orange-600";
     return "text-green-600";
   };
 
-  // Tách nested ternary cho progress bar color
   const getProgressBarColor = () => {
     if (isOutOfStock) return "bg-destructive";
     if (isLowStock) return "bg-orange-400";
     return "bg-green-500";
   };
 
-  return (
-    <Card
-      className={cn(
-        "w-full max-w-md transition-all duration-200 hover:shadow-lg",
-        isOutOfStock && "opacity-75 border-destructive/30",
-        isLowStock && !isOutOfStock && "border-orange-200 bg-orange-50/30",
-      )}
-    >
-      <CardHeader className="">
-        <div className="flex justify-between items-start gap-2">
-          <CardTitle className="text-xl leading-tight flex-1 min-w-0 break-words">{food.name}</CardTitle>
-          <div className="flex-shrink-0">
-            <Badge variant={getBadgeVariant()} className={cn("text-xs whitespace-nowrap", getBadgeClass())}>
-              {getBadgeText()}
-            </Badge>
-          </div>
+  const categoryInfo = getCategoryDisplay(food.category);
+
+  // Shared components
+  const CategoryBadge = () => (
+    <Badge variant="secondary" className={`text-xs ${categoryInfo.className}`}>
+      {categoryInfo.label}
+    </Badge>
+  );
+
+  // Unified Stock Badge for both views
+  const StockBadge = () => {
+    if (isOutOfStock) {
+      return (
+        <Badge variant="secondary" className="text-xs bg-red-100 text-red-800">
+          Ngừng bán
+        </Badge>
+      );
+    }
+
+    if (isLowStock) {
+      return (
+        <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800">
+          <AlertTriangle className="h-3 w-3 mr-1" />
+          Sắp hết
+        </Badge>
+      );
+    }
+
+    return (
+      <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+        Có sẵn
+      </Badge>
+    );
+  };
+
+  const StockProgress = () => (
+    <div className="space-y-1">
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>Tồn kho</span>
+        <div className="flex items-center gap-1">
+          <Package className="h-3 w-3" />
+          <span className={cn("font-semibold", getQuantityTextColor())}>{food.quantity}</span>
         </div>
-      </CardHeader>
+      </div>
+      <div className="w-full bg-muted rounded-full h-1.5">
+        <div
+          className={cn("h-1.5 rounded-full transition-all", getProgressBarColor())}
+          style={{
+            width: `${Math.min((food.quantity / 50) * 100, 100)}%`,
+          }}
+        />
+      </div>
+    </div>
+  );
 
-      <CardContent className="space-y-3">
-        {/* Hình ảnh và thông tin chính - 2 cột */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Cột 1: Hình ảnh */}
-          <div className="flex-shrink-0">
-            {food.img ? (
-              <img src={food.img} alt={food.name} className="w-full h-32 object-cover rounded-lg border" />
-            ) : (
-              <div className="w-full h-32 rounded-lg bg-muted flex items-center justify-center border">
-                <Avatar className="h-16 w-16">
-                  <AvatarFallback className="bg-primary/10 text-primary">
-                    <Utensils className="h-8 w-8" />
-                  </AvatarFallback>
-                </Avatar>
+  const ActionButtons = ({ isFullWidth = false }: { isFullWidth?: boolean }) => (
+    <>
+      {onEdit && (
+        <Button size="sm" variant="outline" onClick={() => onEdit(food)} className={isFullWidth ? "flex-1" : "h-8 w-8 p-0"}>
+          <Edit className={isFullWidth ? "h-3 w-3 mr-1" : "h-4 w-4"} />
+          {isFullWidth && "Chỉnh sửa"}
+        </Button>
+      )}
+      {onDelete && (
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={() => onDelete(food.id)}
+          className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 hover:border-red-200"}
+        >
+          <Trash className={isFullWidth ? "h-3 w-3 mr-1" : "h-4 w-4"} />
+          {isFullWidth && "Xóa"}
+        </Button>
+      )}
+    </>
+  );
+
+  // Image Component for Grid View (5:4 aspect ratio)
+  const GridImageComponent = () => (
+    <div className="flex-shrink-0">
+      {food.img ? (
+        <img
+          src={food.img}
+          alt={food.name}
+          className="w-full h-32 object-cover rounded-lg border"
+          style={{ aspectRatio: "5/4" }}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "/placeholder-food.jpg";
+          }}
+        />
+      ) : (
+        <div
+          className="w-full h-32 rounded-lg bg-gray-50 border border-gray-200 flex flex-col items-center justify-center"
+          style={{ aspectRatio: "5/4" }}
+        >
+          <Avatar className="h-12 w-12 mb-2">
+            <AvatarFallback className="bg-gray-100 text-gray-400">
+              <Utensils className="h-6 w-6" />
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-xs text-gray-400 font-medium">No image</span>
+        </div>
+      )}
+    </div>
+  );
+
+  // Image Component for List View (5:4 aspect ratio)
+  const ListImageComponent = () => (
+    <div className="w-16 rounded-lg overflow-hidden flex-shrink-0" style={{ aspectRatio: "5/4" }}>
+      {food.img ? (
+        <img
+          src={food.img}
+          alt={food.name}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "/placeholder-food.jpg";
+          }}
+        />
+      ) : (
+        <div className="w-full h-full bg-gray-50 border border-gray-200 flex flex-col items-center justify-center">
+          <Avatar className="h-6 w-6 mb-1">
+            <AvatarFallback className="bg-gray-100 text-gray-400">
+              <Utensils className="h-3 w-3" />
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-[10px] text-gray-400 font-medium leading-none">No image</span>
+        </div>
+      )}
+    </div>
+  );
+
+  // Grid View
+  if (viewMode === "grid") {
+    return (
+      <Card
+        className={cn(
+          "w-full max-w-md transition-all duration-200 hover:shadow-lg",
+          isOutOfStock && "opacity-75 border-destructive/30",
+          isLowStock && !isOutOfStock && "border-orange-200 bg-orange-50/30",
+        )}
+      >
+        <CardHeader className="">
+          <div className="flex justify-between items-start gap-2">
+            <CardTitle className="text-xl leading-tight flex-1 min-w-0 break-words">{food.name}</CardTitle>
+            <StockBadge />
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-3">
+          {/* Hình ảnh và thông tin chính - 2 cột */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Cột 1: Hình ảnh với tỷ lệ 5:4 */}
+            <GridImageComponent />
+
+            {/* Cột 2: Thông tin */}
+            <div className="space-y-3">
+              {/* ID - Thêm vào đây */}
+              <div>
+                <span className="text-sm text-muted-foreground block">ID: #{food.id}</span>
               </div>
-            )}
+
+              <div>
+                <span className="text-xl font-bold text-primary block">{food.price.toLocaleString("vi-VN")}₫</span>
+              </div>
+
+              {/* Category badge */}
+              <div className="flex gap-1 flex-wrap">
+                <CategoryBadge />
+              </div>
+
+              {/* Tồn kho với progress bar */}
+              <StockProgress />
+            </div>
           </div>
 
-          {/* Cột 2: Thông tin */}
-          <div className="space-y-3">
-            <div>
-              <span className="text-xl font-bold text-primary block">{food.price.toLocaleString("vi-VN")}₫</span>
+          {/* Thông tin chi tiết dạng grid 3 cột */}
+          <div className="grid grid-cols-3 gap-2 text-xs p-3 bg-muted/30 rounded-lg">
+            <div className="text-center">
+              <span className="text-muted-foreground block">Combo ID</span>
+              <span className="font-medium truncate block">#{food.comboId}</span>
+            </div>
+            <div className="text-center">
+              <span className="text-muted-foreground block">Kích cỡ</span>
+              <span className="font-medium truncate block">{food.size}</span>
+            </div>
+            <div className="text-center">
+              <span className="text-muted-foreground block">Hương vị</span>
+              <span className="font-medium truncate block">{food.flavor}</span>
+            </div>
+          </div>
+
+          {/* Buttons hành động */}
+          {(onEdit || onDelete) && (
+            <div className="flex gap-2 pt-2">
+              <ActionButtons isFullWidth={true} />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // List View
+  return (
+    <Card className="hover:shadow-md transition-shadow duration-200">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-4">
+          {/* Image với tỷ lệ 5:4 */}
+          <ListImageComponent />
+
+          {/* Content Grid */}
+          <div className="flex-1 grid grid-cols-12 gap-4 items-center">
+            {/* Name and Category */}
+            <div className="col-span-3">
+              <h3 className="font-semibold text-sm line-clamp-1">{food.name}</h3>
+              <div className="text-xs text-muted-foreground">ID: #{food.id}</div>
+              <div className="flex gap-1 mt-1">
+                <CategoryBadge />
+              </div>
             </div>
 
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p className="truncate">{food.category}</p>
-              <p className="truncate">
-                {food.size} • {food.flavor}
-              </p>
+            {/* Size */}
+            <div className="col-span-1 text-sm">
+              <div className="text-muted-foreground text-xs">Kích thước</div>
+              <div className="font-medium">{food.size}</div>
             </div>
 
-            {/* Tồn kho */}
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Tồn kho</span>
-                <div className="flex items-center gap-1">
-                  <Package className="h-3 w-3" />
-                  <span className={cn("font-semibold", getQuantityTextColor())}>{food.quantity}</span>
+            {/* Flavor */}
+            <div className="col-span-2 text-sm">
+              <div className="text-muted-foreground text-xs">Hương vị</div>
+              <div className="font-medium line-clamp-1">{food.flavor}</div>
+            </div>
+
+            {/* Price */}
+            <div className="col-span-2 text-sm">
+              <div className="text-muted-foreground text-xs">Giá</div>
+              <div className="font-bold text-primary">{formatPrice(food.price)}</div>
+            </div>
+
+            {/* Stock with progress */}
+            <div className="col-span-2 text-sm">
+              <div className="text-muted-foreground text-xs">Tồn kho</div>
+              <div className="flex items-center gap-2">
+                <span className={cn("font-medium", getQuantityTextColor())}>{food.quantity}</span>
+                <div className="flex-1 bg-muted rounded-full h-1">
+                  <div
+                    className={cn("h-1 rounded-full transition-all", getProgressBarColor())}
+                    style={{
+                      width: `${Math.min((food.quantity / 50) * 100, 100)}%`,
+                    }}
+                  />
                 </div>
               </div>
-              <div className="w-full bg-muted rounded-full h-1.5">
-                <div
-                  className={cn("h-1.5 rounded-full transition-all", getProgressBarColor())}
-                  style={{
-                    width: `${Math.min((food.quantity / 50) * 100, 100)}%`,
-                  }}
-                />
-              </div>
+            </div>
+
+            {/* Stock Badge */}
+            <div className="col-span-1">
+              <StockBadge />
+            </div>
+
+            {/* Actions */}
+            <div className="col-span-1 flex gap-1 justify-end">
+              <ActionButtons isFullWidth={false} />
             </div>
           </div>
         </div>
-
-        {/* Thông tin chi tiết dạng grid 3 cột */}
-        <div className="grid grid-cols-3 gap-2 text-xs p-3 bg-muted/30 rounded-lg">
-          <div className="text-center">
-            <span className="text-muted-foreground block">Danh mục</span>
-            <span className="font-medium truncate block">{food.category}</span>
-          </div>
-          <div className="text-center">
-            <span className="text-muted-foreground block">Kích cỡ</span>
-            <span className="font-medium truncate block">{food.size}</span>
-          </div>
-          <div className="text-center">
-            <span className="text-muted-foreground block">Hương vị</span>
-            <span className="font-medium truncate block">{food.flavor}</span>
-          </div>
-        </div>
-
-        {/* Buttons hành động */}
-        {(onEdit || onDelete) && (
-          <div className="flex gap-2 pt-2">
-            {onEdit && (
-              <Button size="sm" variant="outline" onClick={() => onEdit(food)} className="flex-1">
-                <Edit className="h-3 w-3 mr-1" />
-                Chỉnh sửa
-              </Button>
-            )}
-            {onDelete && (
-              <Button size="sm" variant="destructive" onClick={() => onDelete(food.id)} className="flex-1">
-                <Trash className="h-3 w-3 mr-1" />
-                Xóa
-              </Button>
-            )}
-          </div>
-        )}
       </CardContent>
     </Card>
   );
