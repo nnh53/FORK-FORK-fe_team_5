@@ -1,4 +1,4 @@
-import { FC, forwardRef, ReactNode, useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import { type FC, forwardRef, type ReactNode, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 
 import * as THREE from "three";
 

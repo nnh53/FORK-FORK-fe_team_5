@@ -1,16 +1,17 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { animated, useSpring } from "@react-spring/web";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Beams from "../../../Reactbits/Beams/Beams";
+import AuthFormContainer from "../../components/forms/AuthFormContainer";
 import CheckboxForm from "../../components/forms/CheckboxForm";
 import FormField from "../../components/forms/FormFields";
 import { Logo } from "../../components/logo/Logo";
-import BannerTransition from "../../components/shared/BannerTransition";
 import { useAuth } from "../../hooks/useAuth";
 import type { Role } from "../../interfaces/roles.interface";
 import type { LoginDTO } from "../../interfaces/users.interface";
+import { ROUTES } from "../../routes/route.constants";
 import { loginValidationSchema } from "../../utils/validation.utils";
 import { RoleRouteToEachPage } from "./RoleRoute";
 
@@ -77,36 +78,19 @@ const Login: React.FC = () => {
       setIsLoading(false);
     }
   };
-
-  const pageAnimation = useSpring({
-    from: {
-      opacity: 0,
-      transform: "translateX(50px)",
-    },
-    to: {
-      opacity: 1,
-      transform: "translateX(0px)",
-    },
-    config: {
-      tension: 280,
-      friction: 20,
-    },
-  });
-
   return (
-    <animated.div style={pageAnimation} className="flex h-screen">
-      <BannerTransition>
-        <h2 className="text-3xl font-bold">Chào mừng trở lại</h2>
-        <p className="text-lg">Trải nghiệm những bộ phim tuyệt vời nhất tại rạp chiếu phim hiện đại</p>
-      </BannerTransition>
-
-      {/*right banner*/}
-      <div className="w-1/2 flex items-center justify-center p-12">
-        <div className="w-full max-w-md">
+    <div className="relative w-full h-screen overflow-hidden">
+      {/* Beams Background */}
+      <div className="absolute inset-0 z-0">
+        <Beams beamWidth={5} beamHeight={30} beamNumber={20 } lightColor="#EE3F3F" speed={3} noiseIntensity={1.75} scale={0.2} rotation={30} />
+      </div>
+      {/* Login Form Overlay */}
+      <AuthFormContainer transparent>
+        <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-8 border border-white/20">
           <div className="text-center mb-8">
             <Logo className="mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold">Đăng Nhập</h3>
-            <p className="text-gray-600">Tạo tài khoản mới để trải nghiệm dịch vụ tốt nhất</p>
+            <h3 className="text-2xl font-semibold text-white">Đăng Nhập</h3>
+            <p className="text-white/80">Đăng nhập để trải nghiệm dịch vụ tốt nhất</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -114,28 +98,30 @@ const Login: React.FC = () => {
             <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
 
             <div className="flex justify-between items-center">
-              <a href="/forgot-password">Quên mật khẩu?</a>
+              <Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm text-blue-300 hover:text-blue-200 hover:underline">
+                Quên mật khẩu?
+              </Link>
               <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
+              className="w-full bg-red-600/80 backdrop-blur-sm text-white py-2 rounded-md hover:bg-red-700/80 transition-all duration-300 disabled:opacity-50 border border-red-500/30"
               disabled={isLoading}
             >
               {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
 
             <div className="text-center mt-4">
-              <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
-              <a href="/register" className="text-sm text-red-600 hover:underline">
+              <span className="text-sm text-white/70">Chưa có tài khoản? </span>
+              <Link to={ROUTES.AUTH.REGISTER} className="text-sm text-blue-300 hover:text-blue-200 hover:underline">
                 Đăng ký ngay
-              </a>
+              </Link>
             </div>
           </form>
         </div>
-      </div>
-    </animated.div>
+      </AuthFormContainer>
+    </div>
   );
 };
 
