@@ -110,7 +110,6 @@ const Login: React.FC = () => {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
               <FormField name="email" label="Email" type="email" control={control} errors={errors} />
               <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
 
