@@ -1,21 +1,17 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { animated, useSpring, useTransition } from "@react-spring/web";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Logo } from "../../components/logo/Logo";
+import AnimatedContent from "../../../Reactbits/AnimatedContent/AnimatedContent";
+import Beams from "../../../Reactbits/Beams/Beams";
+import FormField from "../../components/forms/FormFields";
+import AnimatedButton from "../../components/shared/AnimatedButton";
 import NavigateButton from "../../components/shared/NavigateButton";
-
+import { ROUTES } from "../../routes/route.constants";
 import { forgotPasswordValidationSchema } from "../../utils/validation.utils";
-
-const slides = [
-  "photo-1524985069026-dd778a71c7b4",
-  "photo-1489599849927-2ee91cede3ba",
-  "photo-1536440136628-1c6cb5a2a869",
-  "photo-1542204637-e9f12f144cca",
-];
+import { Logo } from "../booking/components/HeaderTest";
 
 interface ForgotPasswordFormData {
   password: string;
@@ -23,188 +19,88 @@ interface ForgotPasswordFormData {
 }
 
 const ForgotPassword: React.FC = () => {
-  const [index, setIndex] = useState(0);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Background transition
-  const transitions = useTransition(index, {
-    key: index,
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 },
-    config: { duration: 3000 },
-    onRest: (_a, _b, item) => {
-      if (index === item) {
-        setIndex((state) => (state + 1) % slides.length);
-      }
-    },
-    exitBeforeEnter: true,
-  });
-
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm<ForgotPasswordFormData>({
     resolver: yupResolver(forgotPasswordValidationSchema),
   });
-
   const onSubmit = async () => {
-    setError(null);
-    setMessage(null);
     setLoading(true);
     try {
-      // This is a placeholder for now - we'll implement this later
-      // Instead of using Supabase, we'll just show a success message
-      setMessage("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
       toast.success("Đổi mật khẩu thành công!");
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => navigate(ROUTES.AUTH.LOGIN), 2000);
       reset();
     } catch {
-      setError("Có lỗi xảy ra. Vui lòng thử lại.");
+      toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
   };
-
-  // Page entrance animation
-  const pageAnimation = useSpring({
-    from: {
-      opacity: 0,
-      transform: "translateX(50px)",
-    },
-    to: {
-      opacity: 1,
-      transform: "translateX(0px)",
-    },
-    config: {
-      tension: 280,
-      friction: 20,
-    },
-  });
-
   return (
-    <animated.div style={pageAnimation} className="flex h-screen">
-      {/* Left Banner */}
-      <div className="w-1/2 bg-red-700 text-white flex flex-col justify-center p-12 relative overflow-hidden">
-        {transitions((style, i) => (
-          <animated.div
-            key={i}
-            style={{
-              ...style,
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundImage: `url(https://images.unsplash.com/${slides[i]}?w=1920&q=80&auto=format&fit=crop)`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-        ))}
-        <div className="relative z-10">
-          <h2 className="text-3xl font-bold">Quên mật khẩu?</h2>
-          <p className="text-lg">Tạo lại mật khẩu mới để tiếp tục trải nghiệm dịch vụ của chúng tôi</p>
-        </div>
+    <div className="relative w-full h-screen overflow-hidden">
+      <div className="absolute inset-0 z-0" style={{ width: "100%", height: "100vh" }}>
+        <Beams beamWidth={3} beamHeight={50} beamNumber={50} lightColor="#F52E2E" speed={3} noiseIntensity={1.3} scale={0.2} rotation={90} />
       </div>
-      {/* Right Banner */}
-      <div className="w-1/2 flex items-center justify-center p-12">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <Logo className="mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold">Tạo mật khẩu mới</h3>
-            <p className="text-gray-600">Nhập mật khẩu mới cho tài khoản của bạn</p>
-          </div>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {error && (
-              <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-400 rounded-md" role="alert">
-                {error}
-              </div>
-            )}
-            {message && (
-              <div className="p-3 text-sm text-green-700 bg-green-100 border border-green-400 rounded-md" role="alert">
-                {message}
-              </div>
-            )}
-            <div className="relative">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 text-left mb-1">
-                Mật khẩu mới
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  {...register("password")}
-                  placeholder="Nhập mật khẩu mới"
-                  disabled={loading}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10 ${
-                    errors.password ? "border-red-500 focus:ring-red-500" : "border-blue-300 hover:border-blue-500 focus:ring-blue-500"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onMouseDown={() => setShowPassword(true)}
-                  onMouseUp={() => setShowPassword(false)}
-                  onMouseLeave={() => setShowPassword(false)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  <img
-                    src={showPassword ? "/icons/eye-open.svg" : "/icons/eye-closed.svg"}
-                    alt="toggle password visibility"
-                    className="w-5 h-5 cursor-pointer"
-                  />
-                </button>
-              </div>
-              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message as string}</p>}
-            </div>
-            <div className="relative">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 text-left mb-1">
-                Xác nhận mật khẩu
-              </label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  id="confirmPassword"
-                  {...register("confirmPassword")}
-                  placeholder="Nhập lại mật khẩu mới"
-                  disabled={loading}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10 ${
-                    errors.confirmPassword ? "border-red-500 focus:ring-red-500" : "border-blue-300 hover:border-blue-500 focus:ring-blue-500"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onMouseDown={() => setShowConfirmPassword(true)}
-                  onMouseUp={() => setShowConfirmPassword(false)}
-                  onMouseLeave={() => setShowConfirmPassword(false)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  <img
-                    src={showConfirmPassword ? "/icons/eye-open.svg" : "/icons/eye-closed.svg"}
-                    alt="toggle password visibility"
-                    className="w-5 h-5 cursor-pointer"
-                  />
-                </button>
-              </div>
-              {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message as string}</p>}
-            </div>
-            <NavigateButton to="/" text="Đổi mật khẩu" className="w-full bg-red-600 text-red py-2 rounded-md hover:bg-red-700 transition-colors" />
 
-            <div className="text-center mt-4">
-              <NavigateButton text="Quay lại đăng nhập" to="/login" className="text-sm text-red-600 hover:underline mx-auto" />
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        
+        <AnimatedContent
+          distance={230}
+          direction="horizontal"
+          duration={3}
+          ease="power3.out"
+          delay={0.8}
+          scale={0}
+          initialOpacity={0.1}
+          animateOpacity={true}
+          threshold={0.1}
+        >
+          <div className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-8 border border-white/30">
+            <div className="text-center mb-6">
+              <div className="inline-block">
+                
+                <Logo className="w-20 h-12 mx-auto" altText="F-Cinema Logo" logoText="" />
+              
+              </div>
             </div>
-          </form>
-          <ToastContainer />
-        </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+              <FormField name="password" label="Mật khẩu mới" type="password" control={control} errors={errors} />
+              <FormField name="confirmPassword" label="Xác nhận mật khẩu" type="password" control={control} errors={errors} />{" "}
+              
+              <AnimatedButton
+                type="submit"
+                text="Đổi mật khẩu"
+                loadingText="Đang đổi mật khẩu..."
+                loading={loading}
+                disabled={loading}
+                className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-all duration-300 disabled:opacity-50"
+              />
+
+              <div className="text-center mt-4">
+
+                <NavigateButton
+                  text="Quay lại đăng nhập"
+                  to={ROUTES.AUTH.LOGIN}
+                  className="text-sm text-red-600 hover:text-red-800 hover:underline"
+                />
+
+              </div>
+            </form>
+          </div>
+
+        </AnimatedContent>
+        <ToastContainer />
       </div>
-    </animated.div>
+    </div>
   );
 };
 

@@ -1,13 +1,15 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AnimatedContent from "../../../Reactbits/AnimatedContent/AnimatedContent";
 import Beams from "../../../Reactbits/Beams/Beams";
 import CheckboxForm from "../../components/forms/CheckboxForm";
 import FormField from "../../components/forms/FormFields";
+import AnimatedButton from "../../components/shared/AnimatedButton";
+import NavigateButton from "../../components/shared/NavigateButton";
 import { useAuth } from "../../hooks/useAuth";
 import type { Role } from "../../interfaces/roles.interface";
 import type { LoginDTO } from "../../interfaces/users.interface";
@@ -98,36 +100,41 @@ const Login: React.FC = () => {
               <div className="inline-block">
                 <Logo className="w-20 h-12 mx-auto" altText="F-Cinema Logo" logoText="" />
               </div>
-            </div>{" "}
+            </div>
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <h3 className="text-2xl font-semibold text-gray-900 text-center mb-6">Đăng Nhập</h3>
-
               <FormField name="email" label="Email" type="email" control={control} errors={errors} />
-              <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
-
+              <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />{" "}
               <div className="flex justify-between items-center">
-                <Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm text-red-600 hover:text-red-800 hover:underline">
-                  Quên mật khẩu?
-                </Link>
-                <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
-              </div>
 
-              <button
+                <NavigateButton
+                  to={ROUTES.AUTH.FORGOT_PASSWORD}
+                  text="Quên mật khẩu?"
+                  className="text-sm text-red-600 hover:text-red-800 hover:underline"
+                />
+
+                <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
+
+              </div>{" "}
+
+              <AnimatedButton
                 type="submit"
-                className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-all duration-300 disabled:opacity-50"
+                text="Đăng nhập"
+                loadingText="Đang đăng nhập..."
+                loading={isLoading}
                 disabled={isLoading}
-              >
-                {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
-              </button>
+                className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-all duration-300 disabled:opacity-50"
+              />
 
               <div className="text-center mt-4">
+
                 <span className="text-sm text-brown-600">Chưa có tài khoản? </span>
-                <Link to={ROUTES.AUTH.REGISTER} className="text-sm text-red-600 hover:text-red-800 hover:underline">
-                  Đăng ký ngay
-                </Link>
+                <NavigateButton to={ROUTES.AUTH.REGISTER} text="Đăng ký ngay" className="text-sm text-red-600 hover:text-red-800 hover:underline" />
+
               </div>
             </form>
           </div>
+          
         </AnimatedContent>
         <ToastContainer />
       </div>

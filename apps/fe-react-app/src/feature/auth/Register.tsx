@@ -2,12 +2,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import React, { useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AnimatedContent from "../../../Reactbits/AnimatedContent/AnimatedContent";
 import Beams from "../../../Reactbits/Beams/Beams";
 import FormField from "../../components/forms/FormFields";
+import AnimatedButton from "../../components/shared/AnimatedButton";
+import NavigateButton from "../../components/shared/NavigateButton";
 import { API_URL } from "../../config/environments/endpoints";
 import { ROUTES } from "../../routes/route.constants";
 import { registerValidationSchema } from "../../utils/validation.utils";
@@ -59,7 +61,7 @@ const Register: React.FC = () => {
       }
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        toast.error(err.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
+        toast.error(err.response?.data?.message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
       } else {
         toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
       }
@@ -94,31 +96,26 @@ const Register: React.FC = () => {
               </div>
             </div>{" "}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
               <div className="grid grid-cols-2 gap-4">
                 <FormField name="fullName" label="Họ và tên" type="text" control={control} errors={errors} />
                 <FormField name="dateOfBirth" label="Ngày sinh" type="date" control={control} errors={errors} isRequired={false} />
               </div>
-
               <FormField name="email" label="Email" type="email" control={control} errors={errors} />
-
               <div className="grid grid-cols-2 gap-4">
                 <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
                 <FormField name="confirmPassword" label="Xác nhận mật khẩu" type="password" control={control} errors={errors} />
-              </div>
-
-              <button
+              </div>{" "}
+              <AnimatedButton
                 type="submit"
+                text="Đăng ký"
+                loadingText="Đang đăng ký..."
+                loading={loading}
                 disabled={loading}
                 className="w-full bg-red-600 text-white/95 py-2 rounded-md hover:bg-red-700 transition-all duration-300 disabled:opacity-50"
-              >
-                {loading ? "Đang đăng ký..." : "Đăng ký"}
-              </button>
+              />{" "}
               <div className="text-center mt-4">
                 <span className="text-sm text-gray-600">Đã có tài khoản? </span>
-                <Link to={ROUTES.AUTH.LOGIN} className="text-sm text-red-600 hover:text-red-800 hover:underline">
-                  Đăng nhập ngay
-                </Link>
+                <NavigateButton to={ROUTES.AUTH.LOGIN} text="Đăng nhập ngay" className="text-sm text-red-600 hover:text-red-800 hover:underline" />
               </div>
             </form>
           </div>
