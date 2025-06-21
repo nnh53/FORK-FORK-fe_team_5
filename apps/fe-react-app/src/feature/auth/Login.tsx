@@ -83,7 +83,7 @@ const Login: React.FC = () => {
     <div className="relative w-full h-screen overflow-hidden">
       {/* Beams Background - Full Screen */}
       <div className="absolute inset-0 z-0" style={{ width: "100%", height: "100vh" }}>
-        <Beams beamWidth={3} beamHeight={25} beamNumber={30} lightColor="#F52E2E" speed={3} noiseIntensity={1.3} scale={0.2} rotation={90} />
+        <Beams beamWidth={3} beamHeight={50} beamNumber={50} lightColor="#F52E2E" speed={3} noiseIntensity={1.3} scale={0.2} rotation={90} />
       </div>
 
       {/* Login Form Overlay with Animation */}
