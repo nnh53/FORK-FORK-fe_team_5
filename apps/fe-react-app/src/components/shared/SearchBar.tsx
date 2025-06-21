@@ -44,15 +44,18 @@ function SearchBar({
   const handleGlobalSearchChange = (value: string) => {
     setGlobalSearch(value);
 
-    // Chỉ gửi global search criteria khi có global search và không có specific search
     if (showGlobalSearch && value.trim()) {
+      // Không map qua tất cả searchOptions, mà tạo 1 criteria duy nhất với field = "GLOBAL"
+      const globalCriteria = [
+        {
+          field: "GLOBAL",
+          value,
+          label: "Tìm kiếm tổng quát",
+        },
+      ];
+
+      // Nếu chưa có specific search thì gửi global
       if (searchCriteria.length === 0 || !searchCriteria.some((c) => c.value.trim())) {
-        // Global search: tạo một criteria đặc biệt để FoodManagement biết đây là global search
-        const globalCriteria = searchOptions.map((option) => ({
-          field: option.value,
-          value: value,
-          label: option.label,
-        }));
         onSearchChange(globalCriteria);
       } else {
         // Nếu có specific search, chỉ gửi specific search
@@ -60,7 +63,7 @@ function SearchBar({
         onSearchChange(validSpecificCriteria);
       }
     } else {
-      // Nếu không có global search, chỉ gửi specific search
+      // Không có global search => chỉ gửi specific search
       const validSpecificCriteria = searchCriteria.filter((c) => c.value.trim() !== "");
       onSearchChange(validSpecificCriteria);
     }
