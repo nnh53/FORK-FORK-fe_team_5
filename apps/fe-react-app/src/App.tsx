@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import "./App.css";
-import PageTransition from "./components/shared/PageTransition";
+import ConditionalPageTransition from "./components/shared/ConditionalPageTransition";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { AppRoutes } from "./routes/route.index";
 
@@ -11,10 +11,10 @@ function App() {
     <AuthProvider>
       <div data-theme="caramellatte">
         <title>{TITLE}</title>
-        <PageTransition>
+        <ConditionalPageTransition>
           <Toaster />
           <AppRoutes />
-        </PageTransition>
+        </ConditionalPageTransition>
       </div>
     </AuthProvider>
   );

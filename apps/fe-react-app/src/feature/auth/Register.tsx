@@ -87,22 +87,24 @@ const Register: React.FC = () => {
           animateOpacity={true}
           threshold={0.1}
         >
-          <div className="w-full max-w-2xl bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-8 border border-white/30">
+          <div className="w-full max-w-lg bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-8 border border-white/30">
             <div className="text-center mb-6">
               <div className="inline-block">
                 <Logo className="w-20 h-12 mx-auto" altText="F-Cinema Logo" logoText="" />
               </div>
             </div>{" "}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <h3 className="text-2xl font-semibold text-gray-900 text-center mb-6">Đăng Ký</h3>
-
+              <h3 className="text-2xl font-semibold text-gray-900 text-center mb-6">Đăng Ký</h3>              {/* Row 1: Full Name & Date of Birth */}
               <div className="grid grid-cols-2 gap-4">
                 <FormField name="fullName" label="Họ và tên" type="text" control={control} errors={errors} />
                 <FormField name="dateOfBirth" label="Ngày sinh" type="date" control={control} errors={errors} isRequired={false} />
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <FormField name="email" label="Email" type="email" control={control} errors={errors} />
+              {/* Row 2: Email (full width) */}
+              <FormField name="email" label="Email" type="email" control={control} errors={errors} />
+
+              {/* Row 3: Password & Confirm Password */}
+              <div className="grid grid-cols-2 gap-4">
                 <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
                 <FormField name="confirmPassword" label="Xác nhận mật khẩu" type="password" control={control} errors={errors} />
               </div>

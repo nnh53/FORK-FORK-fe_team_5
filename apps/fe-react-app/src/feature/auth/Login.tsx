@@ -106,10 +106,10 @@ const Login: React.FC = () => {
               <div className="inline-block">
                 <Logo className="w-20 h-12 mx-auto" altText="F-Cinema Logo" logoText="" />
               </div>
-            </div>
-
-            {/* Login Form */}
+            </div>            {/* Login Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <h3 className="text-2xl font-semibold text-gray-900 text-center mb-6">Đăng Nhập</h3>
+              
               <FormField name="email" label="Email" type="email" control={control} errors={errors} />
               <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
 
