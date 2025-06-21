@@ -44,14 +44,25 @@ function SearchBar({
   const handleGlobalSearchChange = (value: string) => {
     setGlobalSearch(value);
 
-    if (showGlobalSearch) {
-      // Tìm kiếm trên tất cả các trường có sẵn
-      const newCriteria = searchOptions.map((option) => ({
-        field: option.value,
-        value: value,
-        label: option.label,
-      }));
-      onSearchChange(newCriteria);
+    // Chỉ gửi global search criteria khi có global search và không có specific search
+    if (showGlobalSearch && value.trim()) {
+      if (searchCriteria.length === 0 || !searchCriteria.some((c) => c.value.trim())) {
+        // Global search: tạo một criteria đặc biệt để FoodManagement biết đây là global search
+        const globalCriteria = searchOptions.map((option) => ({
+          field: option.value,
+          value: value,
+          label: option.label,
+        }));
+        onSearchChange(globalCriteria);
+      } else {
+        // Nếu có specific search, chỉ gửi specific search
+        const validSpecificCriteria = searchCriteria.filter((c) => c.value.trim() !== "");
+        onSearchChange(validSpecificCriteria);
+      }
+    } else {
+      // Nếu không có global search, chỉ gửi specific search
+      const validSpecificCriteria = searchCriteria.filter((c) => c.value.trim() !== "");
+      onSearchChange(validSpecificCriteria);
     }
   };
 
@@ -60,40 +71,48 @@ function SearchBar({
     newCriteria[index].value = value;
     setSearchCriteria(newCriteria);
 
-    // Kết hợp global search và specific search
-    const allCriteria =
-      showGlobalSearch && globalSearch
-        ? [
-            ...searchOptions.map((option) => ({
-              field: option.value,
-              value: globalSearch,
-              label: option.label,
-            })),
-            ...newCriteria.filter((c) => c.value.trim() !== ""),
-          ]
-        : newCriteria.filter((c) => c.value.trim() !== "");
+    // Khi có specific search, ưu tiên specific search hơn global search
+    const validSpecificCriteria = newCriteria.filter((c) => c.value.trim() !== "");
 
-    onSearchChange(allCriteria);
+    if (validSpecificCriteria.length > 0) {
+      // Có specific search: chỉ gửi specific search, bỏ qua global search
+      onSearchChange(validSpecificCriteria);
+    } else if (showGlobalSearch && globalSearch.trim()) {
+      // Không có specific search nhưng có global search: gửi global search
+      const globalCriteria = searchOptions.map((option) => ({
+        field: option.value,
+        value: globalSearch,
+        label: option.label,
+      }));
+      onSearchChange(globalCriteria);
+    } else {
+      // Không có gì: gửi array rỗng
+      onSearchChange([]);
+    }
   };
 
   const handleRemoveSearchField = (index: number) => {
     const newCriteria = searchCriteria.filter((_, i) => i !== index);
     setSearchCriteria(newCriteria);
 
-    // Kết hợp global search và specific search
-    const allCriteria =
-      showGlobalSearch && globalSearch
-        ? [
-            ...searchOptions.map((option) => ({
-              field: option.value,
-              value: globalSearch,
-              label: option.label,
-            })),
-            ...newCriteria.filter((c) => c.value.trim() !== ""),
-          ]
-        : newCriteria.filter((c) => c.value.trim() !== "");
+    // Sau khi xóa specific search
+    const validSpecificCriteria = newCriteria.filter((c) => c.value.trim() !== "");
 
-    onSearchChange(allCriteria);
+    if (validSpecificCriteria.length > 0) {
+      // Vẫn còn specific search: gửi specific search
+      onSearchChange(validSpecificCriteria);
+    } else if (showGlobalSearch && globalSearch.trim()) {
+      // Không còn specific search nhưng có global search: gửi global search
+      const globalCriteria = searchOptions.map((option) => ({
+        field: option.value,
+        value: globalSearch,
+        label: option.label,
+      }));
+      onSearchChange(globalCriteria);
+    } else {
+      // Không có gì: gửi array rỗng
+      onSearchChange([]);
+    }
   };
 
   const handleToggleSpecificSearch = (option: SearchOption) => {
@@ -114,25 +133,27 @@ function SearchBar({
           },
         ];
         setSearchCriteria(newCriteria);
+
+        // Không gửi onChange ngay lập tức vì value còn rỗng
+        // Sẽ gửi khi user nhập giá trị trong handleValueChange
       }
     }
-    // Không đóng dropdown sau khi toggle
   };
 
   const handleClearAllSpecificSearch = () => {
     setSearchCriteria([]);
 
-    // Chỉ giữ lại global search nếu có
-    const allCriteria =
-      showGlobalSearch && globalSearch
-        ? searchOptions.map((option) => ({
-            field: option.value,
-            value: globalSearch,
-            label: option.label,
-          }))
-        : [];
-
-    onSearchChange(allCriteria);
+    // Sau khi xóa specific search, nếu có global search thì gửi global search
+    if (showGlobalSearch && globalSearch.trim()) {
+      const globalCriteria = searchOptions.map((option) => ({
+        field: option.value,
+        value: globalSearch,
+        label: option.label,
+      }));
+      onSearchChange(globalCriteria);
+    } else {
+      onSearchChange([]);
+    }
   };
 
   const handleClearAll = () => {
@@ -147,6 +168,7 @@ function SearchBar({
 
   const hasActiveSearch = globalSearch || searchCriteria.some((c) => c.value.trim() !== "");
   const hasSpecificSearches = searchCriteria.length > 0;
+  const hasValidSpecificSearches = searchCriteria.some((c) => c.value.trim() !== "");
 
   return (
     <div className={cn("space-y-3", className)}>
@@ -162,7 +184,13 @@ function SearchBar({
               value={globalSearch}
               onChange={(e) => handleGlobalSearchChange(e.target.value)}
               className="pl-10"
+              disabled={hasValidSpecificSearches} // Disable khi có specific search active
             />
+            {hasValidSpecificSearches && (
+              <div className="absolute inset-0 bg-muted/50 rounded-md flex items-center justify-center">
+                <span className="text-xs text-muted-foreground font-medium">Tìm kiếm cụ thể đang hoạt động</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -201,12 +229,12 @@ function SearchBar({
         {hasSpecificSearches && (
           <Button variant="outline" size="sm" onClick={handleClearAllSpecificSearch} className="gap-2">
             <X className="h-4 w-4" />
-            Xóa tất cả
+            Xóa tìm cụ thể
           </Button>
         )}
 
-        {/* Clear all button - chỉ hiện khi có global search */}
-        {globalSearch && (
+        {/* Clear all button - chỉ hiện khi có global search và không có specific search */}
+        {globalSearch && !hasValidSpecificSearches && (
           <Button variant="outline" size="sm" onClick={handleClearAll} className="gap-2">
             <X className="h-4 w-4" />
             Xóa toàn bộ
@@ -217,7 +245,10 @@ function SearchBar({
       {/* Specific search inputs */}
       {searchCriteria.length > 0 && (
         <div className="space-y-2">
-          <div className="text-xs text-muted-foreground font-medium">Tìm kiếm theo trường cụ thể:</div>
+          <div className="text-xs text-muted-foreground font-medium">
+            Tìm kiếm theo trường cụ thể:
+            {hasValidSpecificSearches && <span className="text-orange-600 font-semibold ml-1">(Tìm kiếm tổng quát đã bị tắt)</span>}
+          </div>
           {searchCriteria.map((criteria, index) => (
             <div key={`${criteria.field}-${index}`} className="flex items-center gap-2">
               <Badge variant="secondary" className="shrink-0 min-w-fit">
@@ -251,10 +282,13 @@ function SearchBar({
       {/* Search summary */}
       {hasActiveSearch && (
         <div className="text-xs text-muted-foreground">
-          {globalSearch && showGlobalSearch && <span>Tìm kiếm toàn bộ: "{globalSearch}"</span>}
-          {globalSearch && showGlobalSearch && searchCriteria.some((c) => c.value.trim() !== "") && <span> • </span>}
-          {searchCriteria.filter((c) => c.value.trim() !== "").length > 0 && (
-            <span>Tìm kiếm cụ thể: {searchCriteria.filter((c) => c.value.trim() !== "").length} trường</span>
+          {!hasValidSpecificSearches && globalSearch && showGlobalSearch && (
+            <span className="text-blue-600">Tìm kiếm tổng quát: "{globalSearch}"</span>
+          )}
+          {hasValidSpecificSearches && (
+            <span className="text-green-600">
+              Tìm kiếm cụ thể: {searchCriteria.filter((c) => c.value.trim() !== "").length} trường đang hoạt động
+            </span>
           )}
         </div>
       )}
