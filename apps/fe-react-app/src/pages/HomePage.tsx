@@ -1,7 +1,6 @@
 import { ROUTES } from "@/routes/route.constants";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import hotBadge from "../../../assets/hotBadge.png";
 import CardSwap, { Card } from "../../Reactbits/CardSwap/CardSwap";
 import ClickSpark from "../../Reactbits/ClickSpark/ClickSpark";
 import type { MovieData } from "../feature/booking/components/CarouselSection/CarouselSection";
@@ -10,7 +9,7 @@ import FrequentlyAsk from "../feature/booking/components/FrequentlyAsk";
 import WelcomePanel from "../feature/booking/components/WelcomePanel/WelcomePanel";
 import { useHomePageAnimations } from "../hooks/useHomePageAnimations";
 import UserLayout from "../layouts/user/UserLayout";
-import "./HomePage.css";
+import "./styles/HomePage.css";
 
 const HomePage = () => {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -249,7 +248,7 @@ const HomePage = () => {
             <div className="movies-container">
               {[1, 2, 3, 4].map((movie) => (
                 <div className="movie-card" key={movie}>
-                  <div className="movie-poster">{movie === 1 && <img src={hotBadge} alt="Hot" className="hot-badge" />}</div>
+                  <div className="movie-poster">{movie === 1}</div>
                   <div className="movie-details">
                     <h3>Movie Title {movie}</h3>
                     <p>Genre • Duration</p>
@@ -417,43 +416,43 @@ const HomePage = () => {
                       textAlign: "center",
                     }}
                   >
-                    Premium Chair
+                    Premium Chairz
                   </div>
-                </div>
 
-                <div
-                  style={{
-                    position: "relative",
-                    borderRadius: "15px",
-                    overflow: "hidden",
-                    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
-                    transition: "transform 0.3s ease",
-                  }}
-                >
-                  <img
-                    src="../images/couple-chair.png"
-                    alt="Couple Chair"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
                   <div
                     style={{
-                      position: "absolute",
-                      bottom: "0",
-                      left: "0",
-                      right: "0",
-                      background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
-                      color: "white",
-                      padding: "15px 10px 10px",
-                      fontSize: "14px",
-                      fontWeight: "600",
-                      textAlign: "center",
+                      position: "relative",
+                      borderRadius: "15px",
+                      overflow: "hidden",
+                      boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                      transition: "transform 0.3s ease",
                     }}
                   >
-                    Couple Chair
+                    <img
+                      src="../images/couple-chair.png"
+                      alt="Couple Chair"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: "0",
+                        left: "0",
+                        right: "0",
+                        background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                        color: "white",
+                        padding: "15px 10px 10px",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textAlign: "center",
+                      }}
+                    >
+                      Couple Chair
+                    </div>
                   </div>
                 </div>
               </div>
