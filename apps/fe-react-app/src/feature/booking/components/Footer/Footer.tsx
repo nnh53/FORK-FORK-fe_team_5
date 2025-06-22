@@ -7,9 +7,7 @@ const Footer = () => {
   const { footerRef, flowingMenuRef } = useFooterAnimations();
 
   const handleNewsletterSubscribe = (email: string) => {
-    // Handle newsletter subscription
     console.log("Newsletter subscription:", email);
-    // You can implement actual subscription logic here
   };
 
   return (

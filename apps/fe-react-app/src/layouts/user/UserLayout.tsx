@@ -1,5 +1,5 @@
 import React from "react";
-import Footer from "../../feature/booking/components/FooterTest/Footer";
+import Footer from "../../feature/booking/components/Footer/Footer";
 import Header from "../../feature/booking/components/Header/Header";
 
 interface UserLayoutProps {
