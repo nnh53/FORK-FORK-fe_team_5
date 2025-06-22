@@ -1,15 +1,15 @@
 import { ROUTES } from "@/routes/route.constants";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import CardSwap, { Card } from "../../../../Reactbits/CardSwap/CardSwap";
-import ClickSpark from "../../../../Reactbits/ClickSpark/ClickSpark";
 import hotBadge from "../../../assets/hotBadge.png";
-import { useHomePageAnimations } from "../../../hooks/useHomePageAnimations";
-import UserLayout from "../../../layouts/user/UserLayout";
-import type { MovieData } from "../components/CarouselSection/CarouselSection";
-import CarouselSection from "../components/CarouselSection/CarouselSection";
-import FrequentlyAsk from "../components/FrequentlyAsk";
-import WelcomePanel from "../components/WelcomePanel/WelcomePanel";
+import CardSwap, { Card } from "../../Reactbits/CardSwap/CardSwap";
+import ClickSpark from "../../Reactbits/ClickSpark/ClickSpark";
+import type { MovieData } from "../feature/booking/components/CarouselSection/CarouselSection";
+import CarouselSection from "../feature/booking/components/CarouselSection/CarouselSection";
+import FrequentlyAsk from "../feature/booking/components/FrequentlyAsk";
+import WelcomePanel from "../feature/booking/components/WelcomePanel/WelcomePanel";
+import { useHomePageAnimations } from "../hooks/useHomePageAnimations";
+import UserLayout from "../layouts/user/UserLayout";
 import "./HomePage.css";
 
 const HomePage = () => {

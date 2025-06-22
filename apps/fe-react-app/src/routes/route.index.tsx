@@ -3,9 +3,7 @@ import NotFoundError from "@/components/error/NotFoundError";
 import Loading from "@/components/shared/Loading";
 import { Test } from "@/components/shared/Test";
 import ForgotPassword from "@/feature/auth/ForgotPassword";
-import Login from "@/feature/auth/Login";
 import LogVIAReg from "@/feature/auth/LogVIAReg";
-import Register from "@/feature/auth/Register";
 import Unauthorized from "@/feature/auth/unauth/Unauthor";
 import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
 import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccessPage.tsx";
@@ -14,7 +12,6 @@ import CarouselTest from "@/feature/booking/components/CarouselSection/CarouselT
 import FrequentlyAsk from "@/feature/booking/components/FrequentlyAsk";
 import Header from "@/feature/booking/components/Header/Header";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
-import HomePage from "@/feature/booking/home-page/HomePage.tsx";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
 import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
@@ -27,6 +24,9 @@ import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import UserLayout from "@/layouts/user/UserLayout";
+import HomePage from "@/pages/HomePage";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
 
