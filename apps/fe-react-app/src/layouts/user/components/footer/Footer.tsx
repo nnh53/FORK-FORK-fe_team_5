@@ -1,7 +1,7 @@
 import React from "react";
 import type { SocialLink } from "../../type/userLayout.ts";
-import FooterColumns, { type FooterColumnData } from "./components/FooterColumns";
-import SocialLinks from "./components/SocialLinks";
+import FooterColumns, { type FooterColumnData } from "./components/FooterColumns.tsx";
+import SocialLinks from "./components/SocialLinks.tsx";
 
 interface FooterProps {
   logoSrc: string;

@@ -1,284 +1,546 @@
-import { useEffect, useState } from "react";
+import { ROUTES } from "@/routes/route.constants";
+import { useRef } from "react";
+import { Link } from "react-router-dom";
+import CardSwap, { Card } from "../../../../Reactbits/CardSwap/CardSwap";
+import ClickSpark from "../../../../Reactbits/ClickSpark/ClickSpark";
+import hotBadge from "../../../assets/hotBadge.png";
+import { useHomePageAnimations } from "../../../hooks/useHomePageAnimations";
+import UserLayout from "../../../layouts/user/UserLayout";
+import type { MovieData } from "../components/CarouselSection/CarouselSection";
+import CarouselSection from "../components/CarouselSection/CarouselSection";
+import FrequentlyAsk from "../components/FrequentlyAsk";
+import WelcomePanel from "../components/WelcomePanel/WelcomePanel";
+import "./HomePage.css";
 
-import MovieList from "../../../components/movie/MovieList/MovieList.tsx";
-import MovieSearch from "../../../components/MovieSearch.tsx";
-import Carousel from "../../../components/shared/Carousel/Carousel.tsx";
-import UserLayout from "../../../layouts/userLayout/UserLayout.tsx";
-import ShowtimesModal from "../components/ShowtimesModal/ShowtimesModal.tsx";
-import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmModal.tsx";
+const HomePage = () => {
+  const heroRef = useRef<HTMLElement | null>(null);
+  const carouselRef = useRef<HTMLElement | null>(null);
+  const cardSwapRef = useRef<HTMLElement | null>(null);
+  const featuredMoviesRef = useRef<HTMLElement | null>(null);
+  const experienceRef = useRef<HTMLElement | null>(null);
+  const faqRef = useRef<HTMLElement | null>(null);
+  const parallaxRef = useRef<HTMLElement | null>(null);
 
-import nowShowing from "@/assets/nowShowingText.png";
-import upcoming from "@/assets/upComingText.png";
-import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
-import { useNavigate } from "react-router-dom";
-import type { Movie } from "../../../../../mockapi-express-app/src/movies.mockapi";
-import type { MovieCardProps } from "../../../components/movie/MovieCard/MovieCard.tsx";
-import { movieService } from "../../../services/movieService";
-import { showtimeService } from "../../../services/showtimeService";
-import { convertMoviesToMovieCards } from "../../../utils/movieUtils";
-import { convertShowtimesToSchedulePerDay } from "../../../utils/showtimeUtils";
-import type { SchedulePerDay } from "../components/ShowtimesModal/ShowtimesModal.tsx";
+  //Animation using hooks
+  useHomePageAnimations({
+    heroRef,
+    carouselRef,
+    cardSwapRef,
+    featuredMoviesRef,
+    experienceRef,
+    faqRef,
+    parallaxRef,
+  });
 
-// 1. MOCK DATA PHIM
-interface FinalSelection {
-  date: string;
-  time: string;
-  format: string;
-}
-
-function HomePage() {
-  const navigate = useNavigate();
-  // State for movies from API
-  const [movies, setMovies] = useState<MovieCardProps[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // State for showtimes
-  const [showtimes, setShowtimes] = useState<SchedulePerDay[]>([]);
-  const [showtimesLoading, setShowtimesLoading] = useState(false);
-  const [showtimesError, setShowtimesError] = useState<string | null>(null);
-
-  const movieBaner: string[] = [
-    "https://weliveentertainment.com/wp-content/uploads/2025/04/minecraft-movie-banner.png",
-    "https://files.betacorp.vn/media/images/2025/06/04/1702x621-13-104719-040625-85.png",
+  //Movie cardswap mock data tạm thời
+  const recentMovies: MovieData[] = [
+    {
+      title: "The Marvels",
+      description: "Carol Danvers teams up with Monica Rambeau and Kamala Khan in this cosmic adventure.",
+      id: 1,
+      icon: "tabler:movie",
+    },
+    {
+      title: "Dune: Part Two",
+      description: "Paul Atreides unites with Chani and the Fremen while seeking revenge against those who destroyed his family.",
+      id: 2,
+      icon: "tabler:wind",
+    },
+    {
+      title: "Oppenheimer",
+      description: "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.",
+      id: 3,
+      icon: "tabler:atom",
+    },
+    {
+      title: "Mission: Impossible - Dead Reckoning",
+      description: "Ethan Hunt and his IMF team embark on their most dangerous mission yet.",
+      id: 4,
+      icon: "tabler:run",
+    },
+    {
+      title: "Poor Things",
+      description: "A young woman brought back to life by an unorthodox scientist embarks on a journey of self-discovery.",
+      id: 5,
+      icon: "tabler:heart",
+    },
   ];
-
-  const [isShowtimesModalOpen, setIsShowtimesModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<MovieCardProps | null>(null);
-  const [finalSelection, setFinalSelection] = useState<FinalSelection | null>(null);
-  const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
-  const [selectedTrailerUrl, setSelectedTrailerUrl] = useState("");
-
-  // Fetch movies from API when component mounts
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        setLoading(true);
-        const moviesData = await movieService.getAllMovies();
-        const movieCards = convertMoviesToMovieCards(moviesData);
-        setMovies(movieCards);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching movies:", err);
-        setError("Failed to load movies. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovies();
-  }, []);
-  const handleBuyTicketClick = async (movie: MovieCardProps) => {
-    setSelectedMovie(movie);
-    setIsShowtimesModalOpen(true);
-
-    // Fetch showtimes for the selected movie
-    try {
-      setShowtimesLoading(true);
-      setShowtimesError(null);
-
-      const showtimesData = await showtimeService.getShowtimesByMovieId(movie.id.toString());
-      const scheduleData = convertShowtimesToSchedulePerDay(showtimesData);
-      setShowtimes(scheduleData);
-    } catch (err) {
-      console.error("Error fetching showtimes:", err);
-      setShowtimesError("Failed to load showtimes. Please try again later.");
-      // Keep empty array if API fails
-      setShowtimes([]);
-    } finally {
-      setShowtimesLoading(false);
-    }
-  };
-
-  const handlePosterClick = (movie: MovieCardProps) => {
-    setSelectedMovie(movie);
-    setSelectedTrailerUrl(movie.trailerUrl);
-    setIsTrailerModalOpen(true);
-    console.log(movie.trailerUrl);
-  };
-  const handleTitleClick = (movie: MovieCardProps) => {
-    navigate(`/movie/${movie.id}`, {
-      state: {
-        movie: {
-          id: movie.id,
-          title: movie.title,
-          poster: movie.posterUrl,
-          genres: movie.genres.map((g) => ({ id: g, name: g })), // Convert to expected format
-          genre: movie.genres[0] || "",
-          director: "Đang cập nhật", // Default values since not available in MovieCardProps
-          actors: "Đang cập nhật",
-          releaseYear: new Date().getFullYear(),
-          productionCompany: "Đang cập nhật",
-          duration: parseInt(movie.duration.replace(" phút", "")),
-          rating: 8.0,
-          description: "Thông tin chi tiết về phim sẽ được cập nhật.",
-          trailerUrl: movie.trailerUrl,
-          startShowingDate: new Date().toISOString().split("T")[0],
-          endShowingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-          status: "active",
-          version: "2D",
-          showtimes: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      },
-    });
-  };
-  const handleCloseShowtimesModal = () => {
-    setIsShowtimesModalOpen(false);
-    setSelectedMovie(null);
-    // Reset showtimes state
-    setShowtimes([]);
-    setShowtimesError(null);
-  };
-
-  const handleFinalShowtimeSelect = (selected: FinalSelection) => {
-    setFinalSelection(selected);
-    setIsShowtimesModalOpen(false);
-    setIsConfirmModalOpen(true);
-  };
-
-  const handleConfirmBooking = () => {
-    setIsConfirmModalOpen(false);
-    navigate("/booking", {
-      state: {
-        movie: selectedMovie,
-        selection: finalSelection,
-        cinemaName: "F-CINEMA",
-      },
-    });
-    setSelectedMovie(null);
-    setFinalSelection(null);
-  };
-  const handleMovieSearchSelect = (movie: Movie) => {
-    // Navigate to movie detail page with movie ID in URL
-    navigate(`/movie/${movie.id}`, {
-      state: {
-        movie: {
-          id: movie.id,
-          title: movie.title,
-          poster: movie.poster,
-          genres: movie.genre.split(",").map((g) => ({ id: g.trim(), name: g.trim() })),
-          genre: movie.genre,
-          director: movie.director,
-          actors: movie.actors,
-          releaseYear: movie.releaseYear,
-          productionCompany: movie.productionCompany,
-          duration: movie.duration,
-          rating: movie.rating,
-          description: movie.description,
-          trailerUrl: movie.trailerUrl,
-          startShowingDate: movie.startShowingDate,
-          endShowingDate: movie.endShowingDate,
-          status: movie.status,
-          version: movie.version,
-          showtimes: [],
-          createdAt: movie.createdAt,
-          updatedAt: movie.updatedAt,
-        },
-      },
-    });
-  };
-
   return (
-    <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
-      <Carousel autoplayInterval={2000} images={movieBaner} height={"600px"} />
-      {/* Movie Search Section */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-white mb-2">Tìm Kiếm Phim</h2>
-          <p className="text-gray-300">Tìm kiếm và đặt vé phim nhanh chóng</p>
+    <UserLayout>
+      <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
+        <div className="test-home-page">
+          {/* Hero Section */}
+          <section className="hero-section panel" ref={heroRef}>
+            <div className="hero-bg"></div>
+            <div className="hero-content">
+              <WelcomePanel />
+              <button className="cta-button">
+                <Link to={ROUTES.BOOKING}>Book Now</Link>
+              </button>
+            </div>{" "}
+          </section>
+          {/* New Releases Carousel Section */}
+          <CarouselSection ref={carouselRef} movies={recentMovies} />
+          {/* Card Swap Section */}
+          <section className="card-swap-section" ref={cardSwapRef} id="trending-movies">
+            <div className="section-title">
+              <h2
+                style={{
+                  background: "linear-gradient(to right, #946b38, #392819)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  color: "transparent",
+                  fontWeight: "800",
+                }}
+              >
+                Trending Movies
+              </h2>
+              <div
+                className="section-line"
+                style={{
+                  background: "linear-gradient(to right, #946b38, #392819)",
+                  height: "3px",
+                }}
+              ></div>
+            </div>
+
+            <div
+              className="trending-content"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "4rem",
+                maxWidth: "1400px",
+                margin: "0 auto",
+                padding: "2rem 1rem",
+              }}
+            >
+              {/* Left Side - Text Content */}
+              <div
+                className="trending-text"
+                style={{
+                  flex: "1",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  padding: "2rem",
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: "2.5rem",
+                    fontWeight: "bold",
+                    marginBottom: "1.5rem",
+                    background: "linear-gradient(to right, #946b38, #392819)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent",
+                    lineHeight: "1.2",
+                  }}
+                >
+                  Elevate your viewing.
+                </h3>
+                <p
+                  style={{
+                    fontSize: "1.2rem",
+                    color: "#666",
+                    lineHeight: "1.6",
+                    marginBottom: "2rem",
+                  }}
+                >
+                  Explosive emotions, exclusively on the grand screen
+                </p>
+                <button
+                  style={{
+                    backgroundColor: "#946b38",
+                    color: "white",
+                    padding: "1rem 2rem",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontSize: "1rem",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    alignSelf: "flex-start",
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  Explore More
+                </button>
+              </div>
+
+              {/* Right Side - CardSwap */}
+              <div
+                className="card-swap-wrapper"
+                style={{
+                  flex: "1",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <CardSwap
+                  width={650}
+                  height={500}
+                  cardDistance={20}
+                  verticalDistance={20}
+                  delay={3000}
+                  pauseOnHover={true}
+                  skewAmount={5}
+                  easing="elastic"
+                >
+                  <Card>
+                    <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                      <h3>Avengers: Endgame</h3>
+                      <p>Action • Adventure • 3h 2m</p>
+                      <button className="card-button">View Details</button>
+                    </div>
+                  </Card>
+                  <Card>
+                    <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                      <h3>The Batman</h3>
+                      <p>Action • Crime • 2h 56m</p>
+                      <button className="card-button">View Details</button>
+                    </div>
+                  </Card>
+                  <Card>
+                    <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                      <h3>Dune</h3>
+                      <p>Sci-Fi • Adventure • 2h 35m</p>
+                      <button className="card-button">View Details</button>
+                    </div>
+                  </Card>
+                  <Card>
+                    <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                      <h3>No Time to Die</h3>
+                      <p>Action • Thriller • 2h 43m</p>
+                      <button className="card-button">View Details</button>
+                    </div>
+                  </Card>{" "}
+                </CardSwap>
+              </div>
+            </div>
+          </section>{" "}
+          {/* Featured Movies */}
+          <section className="featured-section" ref={featuredMoviesRef}>
+            <div className="section-header">
+              <h2
+                className="now-showing-title"
+                style={{
+                  background: "linear-gradient(to right, #946b38, #392819)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  color: "transparent",
+                  fontWeight: "800",
+                  fontSize: "2.5rem",
+                  marginBottom: "2rem",
+                }}
+              >
+                Now Showing
+              </h2>
+              <div
+                className="section-line"
+                style={{
+                  background: "linear-gradient(to right, #946b38, #392819)",
+                  height: "3px",
+                }}
+              ></div>
+            </div>
+            <div className="movies-container">
+              {[1, 2, 3, 4].map((movie) => (
+                <div className="movie-card" key={movie}>
+                  <div className="movie-poster">{movie === 1 && <img src={hotBadge} alt="Hot" className="hot-badge" />}</div>
+                  <div className="movie-details">
+                    <h3>Movie Title {movie}</h3>
+                    <p>Genre • Duration</p>
+                    <button className="ticket-button">Get Tickets</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+          {/* Parallax Section */}
+          <section className="parallax-section" ref={parallaxRef}>
+            <div className="parallax-layer" data-depth="0.1"></div>
+            <div className="parallax-layer" data-depth="0.2"></div>
+            <div className="parallax-layer" data-depth="0.3"></div>{" "}
+            <div className="parallax-content">
+              <h2
+                style={{
+                  background: "linear-gradient(to right, #946b38, #392819)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  color: "transparent",
+                  fontWeight: "800",
+                }}
+              >
+                The Ultimate Movie Experience
+              </h2>
+              <p>Feel the magic of cinema</p>
+            </div>
+          </section>
+          {/* Cinema Experience */}
+          <section className="experience-section" ref={experienceRef}>
+            <div className="experience-content">
+              {" "}
+              <div className="experience-text">
+                <h2
+                  style={{
+                    background: "linear-gradient(to right, #946b38, #392819)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent",
+                    fontWeight: "800",
+                  }}
+                >
+                  Premium Cinema Experience
+                </h2>
+                <p>
+                  Luxury seating, state-of-the-art sound systems, and crystal-clear projection technology. Our theaters are designed to provide the
+                  ultimate movie-watching experience.
+                </p>
+                <button className="learn-button">Learn More</button>
+              </div>
+              <div
+                className="experience-images"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gridTemplateRows: "1fr 1fr",
+                  gap: "20px",
+                  width: "100%",
+                  maxWidth: "500px",
+                  height: "400px",
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    borderRadius: "15px",
+                    overflow: "hidden",
+                    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                    transition: "transform 0.3s ease",
+                  }}
+                >
+                  <img
+                    src="../images/normal-chair.png"
+                    alt="Normal Chair"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "0",
+                      left: "0",
+                      right: "0",
+                      background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                      color: "white",
+                      padding: "15px 10px 10px",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      textAlign: "center",
+                    }}
+                  >
+                    Normal Chair
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    position: "relative",
+                    borderRadius: "15px",
+                    overflow: "hidden",
+                    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                    transition: "transform 0.3s ease",
+                  }}
+                >
+                  <img
+                    src="../images/vip-chair.png"
+                    alt="VIP Chair"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "0",
+                      left: "0",
+                      right: "0",
+                      background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                      color: "white",
+                      padding: "15px 10px 10px",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      textAlign: "center",
+                    }}
+                  >
+                    VIP Chair
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    position: "relative",
+                    borderRadius: "15px",
+                    overflow: "hidden",
+                    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                    transition: "transform 0.3s ease",
+                  }}
+                >
+                  <img
+                    src="../images/premium-chair.png"
+                    alt="Premium Chair"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "0",
+                      left: "0",
+                      right: "0",
+                      background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                      color: "white",
+                      padding: "15px 10px 10px",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      textAlign: "center",
+                    }}
+                  >
+                    Premium Chair
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    position: "relative",
+                    borderRadius: "15px",
+                    overflow: "hidden",
+                    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                    transition: "transform 0.3s ease",
+                  }}
+                >
+                  <img
+                    src="../images/couple-chair.png"
+                    alt="Couple Chair"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "0",
+                      left: "0",
+                      right: "0",
+                      background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                      color: "white",
+                      padding: "15px 10px 10px",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      textAlign: "center",
+                    }}
+                  >
+                    Couple Chair
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>{" "}
+          {/* FAQ Section */}
+          <section className="faq-section" ref={faqRef}>
+            <div className="section-header">
+              <h2
+                className="faq-title"
+                style={{
+                  background: "linear-gradient(to right, #946b38, #392819)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  color: "transparent",
+                  fontWeight: "800",
+                  fontSize: "2.5rem",
+                  marginBottom: "2rem",
+                }}
+              >
+                Frequently Asked Questions
+              </h2>
+              <div
+                className="section-line"
+                style={{
+                  background: "linear-gradient(to right, #946b38, #392819)",
+                  height: "3px",
+                }}
+              ></div>
+            </div>
+
+            <div
+              className="faq-content"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "4rem",
+                maxWidth: "1400px",
+                margin: "0 auto",
+                padding: "2rem 1rem",
+              }}
+            >
+              {/* Left Side - Image */}
+              <div
+                className="faq-image"
+                style={{
+                  flex: "1",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: "2rem",
+                }}
+              >
+                <img
+                  src="../images/faq.png"
+                  alt="Customer Support"
+                  style={{
+                    width: "100%",
+                    maxWidth: "500px",
+                    height: "400px",
+                    objectFit: "cover",
+                    borderRadius: "15px",
+                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)",
+                    transition: "transform 0.3s ease",
+                  }}
+                />
+              </div>
+
+              {/* Right Side - FrequentlyAsk */}
+              <div
+                className="faq-component"
+                style={{
+                  flex: "1",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <FrequentlyAsk />{" "}
+              </div>
+            </div>
+          </section>{" "}
         </div>
-        <MovieSearch onMovieSelect={handleMovieSearchSelect} placeholder="Nhập tên phim để tìm kiếm..." className="max-w-md mx-auto" />
-      </div>
-      <div
-        className="
-          flex items-center justify-center
-          p-2 h-48
-          bg-gradient-to-r from-black/40 via-transparent to-black/40
-        "
-        id="now-showing"
-      >
-        <img src={nowShowing} className="h-24" alt="Phim sắp chiếu" />
-      </div>
-      {/* Loading state */}
-      {loading && (
-        <div className="flex justify-center items-center py-12">
-          <div className="text-white text-lg">Đang tải phim...</div>
-        </div>
-      )}
-      {/* Error state */}
-      {error && (
-        <div className="flex justify-center items-center py-12">
-          <div className="text-red-500 text-lg">{error}</div>
-        </div>
-      )}
-      {/* Movies list */}
-      {!loading && !error && (
-        <MovieList
-          horizontal={true}
-          movies={movies}
-          cardsPerRow={4}
-          onPosterClick={handlePosterClick}
-          onTitleClick={handleTitleClick}
-          onMovieBuyTicketClick={handleBuyTicketClick}
-        />
-      )}
-      <div
-        className="
-          flex items-center justify-center
-          p-2 h-48
-          bg-gradient-to-r from-black/40 via-transparent to-black/40
-        "
-        id="coming-soon"
-      >
-        <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
-      </div>
-      {/* Upcoming movies - for now, show same movies but could be filtered differently */}
-      {!loading && !error && (
-        <MovieList
-          horizontal={true}
-          movies={movies.slice(0, 6)} // Show first 6 movies as upcoming
-          cardsPerRow={4}
-          onPosterClick={handlePosterClick}
-          onTitleClick={handleTitleClick}
-          onMovieBuyTicketClick={handleBuyTicketClick}
-        />
-      )}{" "}
-      {selectedMovie && (
-        <ShowtimesModal
-          isOpen={isShowtimesModalOpen}
-          onClose={handleCloseShowtimesModal}
-          movieTitle={selectedMovie.title}
-          cinemaName="F-CINEMA"
-          scheduleData={showtimes}
-          onSelectShowtime={handleFinalShowtimeSelect}
-          loading={showtimesLoading}
-          error={showtimesError}
-        />
-      )}
-      {selectedMovie && finalSelection && (
-        <TicketConfirmModal
-          isOpen={isConfirmModalOpen}
-          onClose={() => setIsConfirmModalOpen(false)}
-          onConfirm={handleConfirmBooking}
-          movieTitle={selectedMovie.title}
-          cinemaName="F-CINEMA"
-          selectedDate={finalSelection.date}
-          selectedTime={finalSelection.time}
-        />
-      )}
-      {selectedTrailerUrl && (
-        <TrailerModal
-          isOpen={isTrailerModalOpen}
-          onClose={() => setIsTrailerModalOpen(false)}
-          movieTitle={selectedMovie?.title || ""}
-          trailerUrl={selectedTrailerUrl}
-        />
-      )}
+      </ClickSpark>
     </UserLayout>
   );
-}
+};
 
 export default HomePage;

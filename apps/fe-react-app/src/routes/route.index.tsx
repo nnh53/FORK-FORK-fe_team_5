@@ -12,9 +12,8 @@ import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccess
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
 import CarouselTest from "@/feature/booking/components/CarouselSection/CarouselTest";
 import FrequentlyAsk from "@/feature/booking/components/FrequentlyAsk";
+import HeaderTest from "@/feature/booking/components/HeaderTest/HeaderTest";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
-import HomePage from "@/feature/booking/home-page/HomePage.tsx";
-import HomePageTest from "@/feature/booking/home-page/TestHomePage.tsx";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
 import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
@@ -24,12 +23,12 @@ import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
 import TermOfService from "@/feature/static/TermOfService";
 import Welcome from "@/feature/theme/Welcome";
 import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
-import AdminLayout from "@/layouts/adminLayout/AdminLayout.tsx";
-import StaffLayout from "@/layouts/staffLayout/StaffLayout.tsx";
-import UserLayout from "@/layouts/userLayout/UserLayout";
+import AdminLayout from "@/layouts/admin/AdminLayout";
+import StaffLayout from "@/layouts/staff/StaffLayout";
+import UserLayout from "@/layouts/user/UserLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import HeaderTest from "@/feature/booking/components/HeaderTest/HeaderTest";
+import HomePage from "@/feature/booking/home-page/HomePage.tsx";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -39,17 +38,10 @@ export const AppRoutes = () => (
     <Route index element={<Navigate to={ROUTES.HOME} replace />} />
     {/* Public Routes */}
     <Route path={ROUTES.HOME} element={<HomePage />} />
-    <Route path={ROUTES.HOME_TEST} element={<HomePageTest />} />
-    <Route path={ROUTES.FREQUENTLY_ASK} element={<FrequentlyAsk />} />
-    <Route index element={<Navigate to={ROUTES.HOME} replace />} />
     <Route path={ROUTES.BOOKING} element={<BookingPage />} />
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
-    <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} /> 
-    {/* Viewing Test Route */}
-    <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />
-    <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
-    <Route path={ROUTES.HEADER_TEST} element={<HeaderTest />} />
+    <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
     {/* Static Routes */}
     <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
     <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
@@ -95,5 +87,10 @@ export const AppRoutes = () => (
     <Route path={ROUTES.INTERNAL_SERVER_ERROR} element={<InternalServerError />} />
     <Route path={ROUTES.TEST} element={<Test />} />
     <Route path="*" element={<NotFoundError />} />
+    {/* Viewing Test Route */}
+    <Route path={ROUTES.FREQUENTLY_ASK} element={<FrequentlyAsk />} />
+    <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />
+    <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
+    <Route path={ROUTES.HEADER_TEST} element={<HeaderTest />} />
   </Routes>
 );

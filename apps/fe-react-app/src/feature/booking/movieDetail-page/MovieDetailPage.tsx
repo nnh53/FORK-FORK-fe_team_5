@@ -4,7 +4,7 @@ import pTagImage from "@/assets/pTag.png";
 import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/ShowDateSelector";
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
-import UserLayout from "@/layouts/userLayout/UserLayout";
+import UserLayout from "@/layouts/user/UserLayout";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Movie } from "../../../../../mockapi-express-app/src/movies.mockapi";

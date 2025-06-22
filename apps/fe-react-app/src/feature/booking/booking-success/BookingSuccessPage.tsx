@@ -3,7 +3,7 @@ import { CheckCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import UserLayout from "../../../layouts/userLayout/UserLayout";
+import UserLayout from "../../../layouts/user/UserLayout";
 import { bookingService, type Booking } from "../../../services/bookingService";
 
 const BookingSuccessPage: React.FC = () => {

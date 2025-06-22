@@ -3,8 +3,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import type { User } from "../../type/userLayout.ts";
 import "./Header.scss"; // File SCSS vẫn giữ nguyên cho các style tùy chỉnh
-import AuthSection from "./components/AuthSection";
-import NavigationBar, { type NavItemData } from "./components/NavigationBar";
+import AuthSection from "./components/AuthSection.tsx";
+import NavigationBar, { type NavItemData } from "./components/NavigationBar.tsx";
 
 // Props của Header bây giờ rất linh động
 interface HeaderProps {
