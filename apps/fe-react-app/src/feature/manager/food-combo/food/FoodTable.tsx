@@ -26,11 +26,14 @@ interface FoodTableProps {
 }
 
 const FoodTable: React.FC<FoodTableProps> = ({ foods, onEdit, onDelete }) => {
+  // Lọc bỏ combo
+  const filteredFoods = foods.filter((food) => food.category !== "combo");
+
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [pageSize, setPageSize] = useState(8);
 
   // Sorting
-  const { sortedData, getSortProps } = useSortable<Food>(foods);
+  const { sortedData, getSortProps } = useSortable<Food>(filteredFoods);
 
   // Pagination
   const pagination = usePagination({
@@ -78,7 +81,7 @@ const FoodTable: React.FC<FoodTableProps> = ({ foods, onEdit, onDelete }) => {
       {/* Header Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-semibold">Danh sách thực phẩm ({foods.length})</h2>
+          <h2 className="text-xl font-semibold">Danh sách thực phẩm </h2>
         </div>
 
         <div className="flex items-center gap-3">
