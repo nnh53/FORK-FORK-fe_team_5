@@ -17,7 +17,7 @@ interface FoodFormProps {
 }
 
 const formSchema = z.object({
-  comboId: z.number().min(1, "Combo ID is required"),
+  comboId: z.number().min(0),
   img: z.string().min(1, "Image URL is required"),
   name: z.string().min(1, "Food name is required"),
   category: z.enum(["drink", "food", "combo"], { required_error: "Category is required" }),
@@ -34,21 +34,21 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      comboId: 0,
+      comboId: 0, // Mặc định là 0 -> "Không"
       img: "",
       name: "",
-      category: undefined, // Không có giá trị mặc định
-      size: undefined, // Không có giá trị mặc định
+      category: undefined,
+      size: undefined,
       flavor: "",
       price: 0,
       quantity: 0,
-      status: "available" as const,
+      status: "available",
     },
   });
 
   useEffect(() => {
     if (food) {
-      // Sử dụng setTimeout để đảm bảo form được reset sau khi render
+      // Nếu có food -> chỉnh sửa
       setTimeout(() => {
         form.reset({
           comboId: food.comboId,
@@ -63,7 +63,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
         });
       }, 0);
     } else {
-      // Reset về giá trị mặc định khi tạo mới
+      // Thêm mới -> mặc định comboId = 0 ("Không")
       form.reset({
         comboId: 0,
         img: "",
@@ -73,7 +73,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
         flavor: "",
         price: 0,
         quantity: 0,
-        status: "available" as const,
+        status: "available",
       });
     }
   }, [food, form]);
@@ -117,13 +117,15 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
   };
 
   const currentImage = form.watch("img");
+  const currentComboId = form.watch("comboId");
 
   return (
     <div className="w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+          {/* Khu vực upload hình và form */}
           <div className="grid grid-cols-5 gap-8">
-            {/* Cột trái - Upload & Preview ảnh (2/5 width) */}
+            {/* Upload ảnh (2/5 width) */}
             <div className="col-span-2">
               <Card className="border-2 border-dashed border-gray-300 hover:border-primary transition-colors h-full">
                 <CardHeader className="pb-3">
@@ -133,7 +135,6 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 h-full flex flex-col">
-                  {/* Combined Upload/Preview Area */}
                   <div
                     className={`relative border-2 border-dashed rounded-lg transition-all duration-200 overflow-hidden flex-1 ${
                       dragActive ? "border-primary bg-primary/5" : "border-gray-300 hover:border-primary"
@@ -145,7 +146,6 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
                     onDrop={handleDrop}
                   >
                     {currentImage ? (
-                      // Preview Mode
                       <div className="relative w-full h-full group">
                         <img
                           src={currentImage}
@@ -155,7 +155,6 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
                             form.setError("img", { message: "Invalid image URL" });
                           }}
                         />
-                        {/* Overlay on hover */}
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                           <div className="text-white text-center space-y-2">
                             <Upload className="mx-auto h-5 w-5" />
@@ -163,7 +162,6 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
                             <p className="text-xs">hoặc click chọn file</p>
                           </div>
                         </div>
-                        {/* Delete button */}
                         <Button
                           type="button"
                           variant="destructive"
@@ -173,7 +171,6 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
                         >
                           <X className="h-3 w-3" />
                         </Button>
-                        {/* Hidden file input */}
                         <input
                           type="file"
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -182,7 +179,6 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
                         />
                       </div>
                     ) : (
-                      // Upload Mode
                       <div className="w-full h-full flex items-center justify-center p-4">
                         <div className="text-center">
                           <Upload className="mx-auto h-8 w-8 text-gray-400 mb-3" />
@@ -199,8 +195,6 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
                       </div>
                     )}
                   </div>
-
-                  {/* URL Input */}
                   <FormField
                     control={form.control}
                     name="img"
@@ -218,29 +212,116 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
               </Card>
             </div>
 
-            {/* Cột phải - Form thông tin (3/5 width) */}
-            <div className="col-span-3">
+            {/* Form chính (3/5 width) */}
+            <div className="col-span-3 h-full">
               <Card className="h-full">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    {food ? "Nhập thông tin cần chỉnh sửa" : "Nhập thông tin đồ ăn mới"}
+                  </CardTitle>
+                </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Row 1: Tên đồ ăn */}
-                  <div className="gap-4">
+                  {/* Hàng 1 (3:1): Tên đồ ăn, Combo ID */}
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="col-span-3">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tên đồ ăn*</FormLabel>
+                            <FormControl>
+                              <Input placeholder="VD: Pizza Hải Sản Deluxe" {...field} className="h-11" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      {/* Ẩn input comboId, quản lý qua UI riêng */}
+                      <input type="hidden" {...form.register("comboId")} />
+                      <FormItem>
+                        <FormLabel>Combo ID</FormLabel>
+                        <div className="h-11 flex items-center px-3 border rounded-md bg-gray-50">
+                          {currentComboId === 0 ? (
+                            <span className="text-sm text-gray-500">Không</span>
+                          ) : (
+                            <div className="flex items-center gap-2 text-sm">
+                              <span>{currentComboId}</span>
+                              <Button type="button" variant="destructive" size="icon" onClick={() => form.setValue("comboId", 0)}>
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </FormItem>
+                    </div>
+                  </div>
+
+                  {/* Hàng 2 (1): Hương vị */}
+                  <FormField
+                    control={form.control}
+                    name="flavor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Hương vị*</FormLabel>
+                        <FormControl>
+                          <Input placeholder="VD: Cay nhẹ, Ngọt thanh..." {...field} className="h-11" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Hàng 3 (1:1:1): Danh mục, Kích thước, Trạng thái */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <FormField
                       control={form.control}
-                      name="name"
+                      name="category"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Tên đồ ăn*</FormLabel>
-                          <FormControl>
-                            <Input placeholder="VD: Pizza Hải Sản Deluxe" {...field} className="h-11" />
-                          </FormControl>
+                          <FormLabel>Danh mục*</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value || ""} defaultValue="">
+                            <FormControl>
+                              <SelectTrigger className="h-11">
+                                <SelectValue placeholder="Chọn danh mục" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="food">🍽️ Thức ăn</SelectItem>
+                              <SelectItem value="drink">🥤 Đồ uống</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
 
-                  {/* Row 2: Trạng thái và Combo ID */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="size"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Kích thước*</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value || ""} defaultValue="">
+                            <FormControl>
+                              <SelectTrigger className="h-11">
+                                <SelectValue placeholder="Chọn kích thước" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="S">S - Nhỏ</SelectItem>
+                              <SelectItem value="M">M - Vừa</SelectItem>
+                              <SelectItem value="L">L - Lớn</SelectItem>
+                              <SelectItem value="XL">XL - Siêu lớn</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     <FormField
                       control={form.control}
                       name="status"
@@ -272,96 +353,9 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
                         </FormItem>
                       )}
                     />
-
-                    <FormField
-                      control={form.control}
-                      name="comboId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Combo ID*</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="VD: 1001"
-                              {...field}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
-                              className="h-11"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                   </div>
 
-                  {/* Row 3: Danh mục và Kích thước */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="category"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Danh mục*</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || ""} defaultValue="">
-                            <FormControl>
-                              <SelectTrigger className="h-11">
-                                <SelectValue placeholder="Chọn danh mục" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="food">🍽️ Thức ăn</SelectItem>
-                              <SelectItem value="drink">🥤 Đồ uống</SelectItem>
-                              <SelectItem value="combo">🍕 Combo</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="size"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Kích thước*</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || ""} defaultValue="">
-                            <FormControl>
-                              <SelectTrigger className="h-11">
-                                <SelectValue placeholder="Chọn kích thước" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="S">S - Nhỏ</SelectItem>
-                              <SelectItem value="M">M - Vừa</SelectItem>
-                              <SelectItem value="L">L - Lớn</SelectItem>
-                              <SelectItem value="XL">XL - Siêu lớn</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Row 4: Hương vị */}
-                  <div className="">
-                    <FormField
-                      control={form.control}
-                      name="flavor"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Hương vị*</FormLabel>
-                          <FormControl>
-                            <Input placeholder="VD: Cay nhẹ, Ngọt thanh..." {...field} className="h-11" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Row 5: Giá bán và Số lượng tồn kho */}
+                  {/* Hàng 4 (1:1): Giá bán (VNĐ), Số lượng tồn kho */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -385,7 +379,6 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="quantity"
@@ -411,7 +404,7 @@ const FoodForm: React.FC<FoodFormProps> = ({ food, onSubmit, onCancel }) => {
             </div>
           </div>
 
-          {/* Submit Buttons */}
+          {/* Nút hành động */}
           <div className="flex justify-end space-x-4 pt-4 border-t">
             <Button variant="outline" onClick={onCancel} className="px-8 py-2">
               Hủy bỏ
