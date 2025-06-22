@@ -26,6 +26,6 @@ export default tseslint.config(
       "sonarjs/no-commented-code": "warn",
       "sonarjs/no-nested-functions": "warn",
     },
-    ignores: ["src/components/ui/*", "*.d.ts"],
+    ignores: ["src/components/Shadcn/**/*", "src/components/Reactbits/**/*", "*.d.ts"],
   },
 );

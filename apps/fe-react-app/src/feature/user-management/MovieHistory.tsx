@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/Shadcn/ui/button";
+import { Calendar } from "@/components/Shadcn/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CustomTable, type TableColumns } from "../../components/Table";
 import type { MovieHistory } from "../../interfaces/movies.interface";
-import { CustomTable, type TableColumns } from "../../utils/Table";
 import { formatDateTime } from "../../utils/validation.utils";
 
 export const MyMovieHistory: React.FC = () => {

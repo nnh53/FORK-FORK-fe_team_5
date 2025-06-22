@@ -1,7 +1,7 @@
 import FCinemeLogo from "@/assets/FCinema_Logo.png";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/Shadcn/ui/button";
+import { Separator } from "@/components/Shadcn/ui/separator";
+import { SidebarTrigger } from "@/components/Shadcn/ui/sidebar";
 
 export function SiteHeader() {
   return (

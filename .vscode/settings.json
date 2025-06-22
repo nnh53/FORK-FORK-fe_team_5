@@ -1,8 +1,5 @@
 {
-  "conventionalCommits.scopes": [
-    "be",
-    "fe",
-  ],
+  "conventionalCommits.scopes": ["be", "fe"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.guides.bracketPairs": true,
@@ -50,11 +47,13 @@
     "primeicons",
     "primereact",
     "ptag",
+    "reactbit",
+    "Reactbits",
     "shadcn",
     "Showtimes",
-    "sonner",
+    "sonar",
     "sonarjs",
-    "sonar"
+    "sonner"
   ],
   "chat.mcp.serverSampling": {
     "fe_team_5/.cursor/mcp.json: nx-mcp": {

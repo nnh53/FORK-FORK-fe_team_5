@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/Shadcn/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
+import { Input } from "@/components/Shadcn/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import type { Food } from "@/interfaces/foodAndCombo.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageIcon, Upload, X } from "lucide-react";

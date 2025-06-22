@@ -3,10 +3,10 @@
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/Shadcn/ui/chart";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/Shadcn/ui/toggle-group";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export const description = "An interactive area chart";

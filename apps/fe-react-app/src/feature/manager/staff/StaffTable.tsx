@@ -1,5 +1,4 @@
-import { SortButton } from "@/components/shared/SortButton";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/Shadcn/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -8,8 +7,9 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+} from "@/components/Shadcn/ui/pagination";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
+import { SortButton } from "@/components/shared/SortButton";
 import { getPageInfo, usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { Staff } from "@/interfaces/staff.interface";

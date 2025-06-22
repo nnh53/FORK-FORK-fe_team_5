@@ -1,5 +1,5 @@
+import ScrollVelocity from "@/components/Reactbits/reactbit-text-animations/ScrollVelocity/ScrollVelocity";
 import { useState } from "react";
-import ScrollVelocity from "../../../../../Reactbits/ScrollVelocity/ScrollVelocity";
 
 const ScrollVelocityTest = () => {
   const [velocity, setVelocity] = useState(100);
@@ -78,4 +78,3 @@ const ScrollVelocityTest = () => {
 };
 
 export default ScrollVelocityTest;
-

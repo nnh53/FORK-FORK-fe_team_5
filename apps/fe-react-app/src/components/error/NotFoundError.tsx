@@ -1,5 +1,5 @@
-import FuzzyText from "../../../Reactbits/FuzzyText/FuzzyText";
 import NavigateButton from "../../components/shared/NavigateButton";
+import FuzzyText from "../Reactbits/reactbit-text-animations/FuzzyText/FuzzyText";
 
 const NotFoundError = () => {
   return (

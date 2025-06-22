@@ -15,3 +15,5 @@ export const AnimatedSection = forwardRef<HTMLElement, AnimatedSectionProps>(({ 
 });
 
 AnimatedSection.displayName = "AnimatedSection";
+
+export default AnimatedSection;

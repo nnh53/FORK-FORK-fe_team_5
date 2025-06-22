@@ -2,8 +2,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { DataTable } from "@/components/data-table";
 import { SectionCards } from "@/components/section-cards";
+import { SidebarInset, SidebarProvider } from "@/components/Shadcn/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import CinemaRoomAdd from "@/feature/manager/cinema-room/CinemaRoomAdd";
 import CinemaRoomDetail from "@/feature/manager/cinema-room/CinemaRoomDetail";
 import CinemaRoomEdit from "@/feature/manager/cinema-room/CinemaRoomEdit";
@@ -16,7 +16,7 @@ import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import { PromotionManagement } from "@/feature/promotion-management/PromotionManagement";
 import type { ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
-import data from "./data.json";
+import dataMock from "./data.admin-layout.json";
 
 type AdminLayoutProps = {
   children?: ReactNode;
@@ -46,7 +46,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
                     <div className="px-4 lg:px-6">
                       <ChartAreaInteractive />
                     </div>
-                    <DataTable data={data} />
+                    <DataTable data={dataMock} />
                   </div>
                 </div>
               </div>

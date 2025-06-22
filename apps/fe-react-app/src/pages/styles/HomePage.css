@@ -182,19 +182,19 @@ body {
 }
 
 .movie-card:nth-child(1) .movie-poster {
-  background-image: url("../../../assets/bg-top.png");
+  background-image: url("../../assets/bg-top.png");
 }
 
 .movie-card:nth-child(2) .movie-poster {
-  background-image: url("../../../assets/brickWall.jpg");
+  background-image: url("../../assets/brickWall.jpg");
 }
 
 .movie-card:nth-child(3) .movie-poster {
-  background-image: url("../../../assets/bg-top.png");
+  background-image: url("../../assets/bg-top.png");
 }
 
 .movie-card:nth-child(4) .movie-poster {
-  background-image: url("../../../assets/brickWall.jpg");
+  background-image: url("../../assets/brickWall.jpg");
 }
 
 .hot-badge {
@@ -261,7 +261,7 @@ body {
 
 .parallax-layer:nth-child(1) {
   opacity: 0.4;
-  background-image: url("../../../assets/brickWall.jpg");
+  background-image: url("../../assets/brickWall.jpg");
   background-position: center;
   background-size: cover;
 }
@@ -360,7 +360,7 @@ body {
   flex: 1;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
-  background-image: url("../../../assets/brickWall.jpg");
+  background-image: url("../../assets/brickWall.jpg");
   background-position: center;
   background-size: cover;
   height: 500px;
@@ -385,7 +385,7 @@ body {
 
 .coming-soon-image {
   flex: 1;
-  background-image: url("../../../assets/bg-top.png");
+  background-image: url("../../assets/bg-top.png");
   background-position: center;
   background-size: cover;
   height: 400px;

@@ -1,5 +1,5 @@
+import ScrollVelocity from "@/components/Reactbits/reactbit-text-animations/ScrollVelocity/ScrollVelocity";
 import { useState } from "react";
-import ScrollVelocity from "../../../../../../Reactbits/ScrollVelocity/ScrollVelocity";
 
 const ScrollVelocityRedTest = () => {
   const [velocity, setVelocity] = useState(100);
@@ -31,9 +31,9 @@ const ScrollVelocityRedTest = () => {
 
         {/* ScrollVelocity Component - Single Word */}
         <div className="w-full overflow-hidden">
-          <ScrollVelocity 
-            texts={["CINEMA"]} 
-            velocity={velocity} 
+          <ScrollVelocity
+            texts={["CINEMA"]}
+            velocity={velocity}
             className="text-6xl font-bold text-white"
             numCopies={10}
             parallaxClassName="parallax w-full overflow-hidden whitespace-nowrap"

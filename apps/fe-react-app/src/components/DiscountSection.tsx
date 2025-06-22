@@ -1,8 +1,8 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/Shadcn/ui/badge";
+import { Button } from "@/components/Shadcn/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Input } from "@/components/Shadcn/ui/input";
+import { Label } from "@/components/Shadcn/ui/label";
 import { Check, Coins, Gift, Loader2, Ticket, X } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";

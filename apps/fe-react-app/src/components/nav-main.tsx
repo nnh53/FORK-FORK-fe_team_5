@@ -1,8 +1,8 @@
 import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
-import { Button } from "@/components/ui/button";
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { Button } from "@/components/Shadcn/ui/button";
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/Shadcn/ui/sidebar";
 
 export function NavMain({
   items,

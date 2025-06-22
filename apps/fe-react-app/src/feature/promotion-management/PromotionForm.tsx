@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/Shadcn/ui/button";
 import type { Promotion } from "@/interfaces/promotion.interface.";
 import { promotionValidationSchema } from "@/utils/validation.utils";
 import { ErrorMessage, Field, Form, Formik } from "formik";

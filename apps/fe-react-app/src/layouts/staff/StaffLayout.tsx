@@ -1,6 +1,6 @@
+import { SidebarInset, SidebarProvider } from "@/components/Shadcn/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { StaffSidebar } from "@/components/staff-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import StaffBookingManagement from "@/feature/staff/booking/StaffBookingManagement";
 import StaffCheckinManagement from "@/feature/staff/checkin/StaffCheckinManagement";
 import StaffDashboard from "@/feature/staff/dashboard/StaffDashboard";

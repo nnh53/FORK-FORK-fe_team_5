@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/Shadcn/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Input } from "@/components/Shadcn/ui/input";
+import { Label } from "@/components/Shadcn/ui/label";
+import { Separator } from "@/components/Shadcn/ui/separator";
 import { Clock, CreditCard, Film, Minus, Plus, ShoppingCart, Ticket, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";

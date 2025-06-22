@@ -1,4 +1,4 @@
-import ScrollVelocity from "../../../../../Reactbits/ScrollVelocity/ScrollVelocity";
+import ScrollVelocity from "@/components/Reactbits/reactbit-text-animations/ScrollVelocity/ScrollVelocity";
 
 interface ScrollBannerProps {
   scrollVelocityProps: {

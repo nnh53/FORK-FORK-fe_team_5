@@ -3,10 +3,10 @@
 import { Check, ChevronDown, SearchIcon, X } from "lucide-react";
 import { useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/Shadcn/ui/badge";
+import { Button } from "@/components/Shadcn/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/Shadcn/ui/dropdown-menu";
+import { Input } from "@/components/Shadcn/ui/input";
 import { cn } from "@/lib/utils";
 
 interface SearchOption {

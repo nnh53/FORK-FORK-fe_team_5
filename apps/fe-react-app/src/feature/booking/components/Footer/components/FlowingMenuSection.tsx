@@ -1,5 +1,5 @@
+import FlowingMenu from "@/components/Reactbits/reactbit-components/FlowingMenu/FlowingMenu";
 import React from "react";
-import FlowingMenu from "../../../../../../Reactbits/FlowingMenu/FlowingMenu";
 
 interface MenuItem {
   link: string;

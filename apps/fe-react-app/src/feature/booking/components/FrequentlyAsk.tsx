@@ -1,5 +1,5 @@
+import Folder from "@/components/Reactbits/reactbit-components/Folder/Folder";
 import { useEffect, useRef, useState } from "react";
-import Folder from "../../../../Reactbits/Folder/Folder";
 
 interface FaqData {
   id: string;

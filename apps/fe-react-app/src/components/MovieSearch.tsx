@@ -1,7 +1,7 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/Shadcn/ui/badge";
+import { Button } from "@/components/Shadcn/ui/button";
+import { Card, CardContent } from "@/components/Shadcn/ui/card";
+import { Input } from "@/components/Shadcn/ui/input";
 import { Calendar, Clock, Search, Star, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import type { Movie } from "../../../mockapi-express-app/src/movies.mockapi";

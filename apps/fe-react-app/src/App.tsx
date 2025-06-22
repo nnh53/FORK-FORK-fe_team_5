@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/Shadcn/ui/sonner";
 import "./App.css";
 import ConditionalPageTransition from "./components/shared/ConditionalPageTransition";
 import { AuthProvider } from "./contexts/AuthProvider";

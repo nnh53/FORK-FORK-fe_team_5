@@ -1,9 +1,9 @@
-import { CardContent, Card as ShadcnCard } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Aurora from "@/components/Reactbits/reactbit-backgrounds/Aurora/Aurora";
+import { CardContent, Card as ShadcnCard } from "@/components/Shadcn/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/Shadcn/ui/carousel";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { forwardRef, useEffect } from "react";
-import Aurora from "../../../../../Reactbits/Aurora/Aurora";
 import "./CarouselSection.css";
 
 interface MovieData {

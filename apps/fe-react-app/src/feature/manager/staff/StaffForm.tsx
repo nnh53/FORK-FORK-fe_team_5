@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker"; // Import DatePicker
-import { DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/Shadcn/ui/button";
+import { DatePicker } from "@/components/Shadcn/ui/date-picker"; // Import DatePicker
+import { DialogFooter } from "@/components/Shadcn/ui/dialog";
+import { Input } from "@/components/Shadcn/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import type { Staff, StaffFormData } from "@/interfaces/staff.interface";
 import { StaffStatus } from "@/interfaces/staff.interface";
 import { Eye, EyeOff } from "lucide-react";

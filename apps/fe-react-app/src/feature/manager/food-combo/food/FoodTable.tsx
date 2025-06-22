@@ -1,7 +1,6 @@
 // filepath: c:\Users\Hii\Desktop\OJT\fe_team_5\apps\fe-react-app\src\feature\manager\food-combo\food\FoodTable.tsx
-import { SortButton } from "@/components/shared/SortButton";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/Shadcn/ui/button";
+import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import {
   Pagination,
   PaginationContent,
@@ -10,8 +9,9 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+} from "@/components/Shadcn/ui/pagination";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import { SortButton } from "@/components/shared/SortButton";
 import { getPageInfo, usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { Food } from "@/interfaces/foodAndCombo.interface";

@@ -20,7 +20,7 @@ interface SeatMapData {
   seats: SeatType[];
 }
 
-const SeatSelectionPage: React.FC = () => {
+const BookingPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -191,4 +191,4 @@ const SeatSelectionPage: React.FC = () => {
   );
 };
 
-export default SeatSelectionPage;
+export default BookingPage;

@@ -1,11 +1,11 @@
+import AnimatedContent from "@/components/Reactbits/reactbit-animations/AnimatedContent/AnimatedContent";
+import Beams from "@/components/Reactbits/reactbit-backgrounds/Beams/Beams";
 import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import AnimatedContent from "../../Reactbits/AnimatedContent/AnimatedContent";
-import Beams from "../../Reactbits/Beams/Beams";
 import CheckboxForm from "../components/forms/CheckboxForm";
 import FormField from "../components/forms/FormFields";
 import AnimatedButton from "../components/shared/AnimatedButton";

@@ -1,8 +1,8 @@
-import { DatePicker } from "@/utils/DatePicker";
+import { DatePicker } from "@/components/shared/DatePicker";
 import { formatDateTime } from "@/utils/validation.utils";
 import { useEffect, useState } from "react";
+import { CustomTable, type TableColumns } from "../../components/Table";
 import type { MyPoint, MyPointHistory } from "../../interfaces/users.interface";
-import { CustomTable, type TableColumns } from "../../utils/Table";
 export const MyPointManagement: React.FC = () => {
   const tableColumns: TableColumns[] = [
     {

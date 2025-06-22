@@ -1,5 +1,5 @@
-import BlurText from "../../../Reactbits/BlurText/BlurText";
-import NavigateButton from "../../components/shared/NavigateButton";
+import BlurText from "@/components/Reactbits/reactbit-text-animations/BlurText/BlurText";
+import NavigateButton from "@/components/shared/NavigateButton";
 
 const handleAnimationComplete = () => {
   console.log("Animation completed!");

@@ -1,8 +1,10 @@
+import bgTop from "@/assets/bg-top.png";
+import brickWall from "@/assets/brickWall.jpg";
+import ClickSpark from "@/components/Reactbits/reactbit-animations/ClickSpark/ClickSpark";
+import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardSwap/CardSwap";
 import { ROUTES } from "@/routes/route.constants";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import CardSwap, { Card } from "../../Reactbits/CardSwap/CardSwap";
-import ClickSpark from "../../Reactbits/ClickSpark/ClickSpark";
 import type { MovieData } from "../feature/booking/components/CarouselSection/CarouselSection";
 import CarouselSection from "../feature/booking/components/CarouselSection/CarouselSection";
 import FrequentlyAsk from "../feature/booking/components/FrequentlyAsk";
@@ -189,28 +191,28 @@ const HomePage = () => {
                   easing="elastic"
                 >
                   <Card>
-                    <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                    <div className="card-content" style={{ backgroundImage: `url(${bgTop})` }}>
                       <h3>Avengers: Endgame</h3>
                       <p>Action • Adventure • 3h 2m</p>
                       <button className="card-button">View Details</button>
                     </div>
                   </Card>
                   <Card>
-                    <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                    <div className="card-content" style={{ backgroundImage: `url(${brickWall})` }}>
                       <h3>The Batman</h3>
                       <p>Action • Crime • 2h 56m</p>
                       <button className="card-button">View Details</button>
                     </div>
                   </Card>
                   <Card>
-                    <div className="card-content" style={{ backgroundImage: "url(../../../assets/bg-top.png)" }}>
+                    <div className="card-content" style={{ backgroundImage: `url(${bgTop})` }}>
                       <h3>Dune</h3>
                       <p>Sci-Fi • Adventure • 2h 35m</p>
                       <button className="card-button">View Details</button>
                     </div>
                   </Card>
                   <Card>
-                    <div className="card-content" style={{ backgroundImage: "url(../../../assets/brickWall.jpg)" }}>
+                    <div className="card-content" style={{ backgroundImage: `url(${brickWall})` }}>
                       <h3>No Time to Die</h3>
                       <p>Action • Thriller • 2h 43m</p>
                       <button className="card-button">View Details</button>

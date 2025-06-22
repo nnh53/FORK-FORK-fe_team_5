@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/Shadcn/ui/button";
+import { Calendar } from "@/components/Shadcn/ui/calendar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
+import { type TableColumns } from "@/components/Table";
 import type { Promotion } from "@/interfaces/promotion.interface.";
-import { type TableColumns } from "@/utils/Table";
 import { ChevronDownIcon, Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { PromotionDialog } from "./PromotionDialog";
