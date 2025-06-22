@@ -2,7 +2,7 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { Edit, Eye, Trash } from "lucide-react";
-import type { TableColumns } from "./Table";
+import type { TableColumns } from "./CustomTable";
 
 interface AdminTableProps<T extends object> {
   tableColumn: TableColumns[];

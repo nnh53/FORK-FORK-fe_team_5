@@ -20,10 +20,10 @@ import {
 import * as React from "react";
 import { Link } from "react-router-dom";
 
-import { NavDocuments } from "@/components/nav-documents";
-import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
+import { NavDocuments } from "@/components/Shadcn/nav-documents";
+import { NavMain } from "@/components/Shadcn/nav-main";
+import { NavSecondary } from "@/components/Shadcn/nav-secondary";
+import { NavUser } from "@/components/Shadcn/nav-user";
 import {
   Sidebar,
   SidebarContent,

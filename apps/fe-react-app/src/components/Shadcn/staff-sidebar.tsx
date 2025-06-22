@@ -1,9 +1,9 @@
 import { IconCalendar, IconCheckbox, IconHome, IconLifebuoy, IconSend, IconTicket } from "@tabler/icons-react";
 
 import FCinemaLogo from "@/assets/FCinema_Logo.png";
-import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
+import { NavMain } from "@/components/Shadcn/nav-main";
+import { NavSecondary } from "@/components/Shadcn/nav-secondary";
+import { NavUser } from "@/components/Shadcn/nav-user";
 import {
   Sidebar,
   SidebarContent,

@@ -1,6 +1,6 @@
 import { DatePicker } from "@/components/shared/DatePicker";
 import { useEffect, useState } from "react";
-import { CustomTable, type TableColumns } from "../../components/Table";
+import { CustomTable, type TableColumns } from "../../components/CustomTable";
 import type { MyVoucher, MyVoucherHistory } from "../../interfaces/voucher.interface";
 import { formatDateTime } from "../../utils/validation.utils";
 

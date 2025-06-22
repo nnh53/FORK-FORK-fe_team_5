@@ -1,9 +1,9 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
-import { DataTable } from "@/components/data-table";
-import { SectionCards } from "@/components/section-cards";
+import { AppSidebar } from "@/components/Shadcn/app-sidebar";
+import { ChartAreaInteractive } from "@/components/Shadcn/chart-area-interactive";
+import { DataTable } from "@/components/Shadcn/data-table";
+import { SectionCards } from "@/components/Shadcn/section-cards";
+import { SiteHeader } from "@/components/Shadcn/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/Shadcn/ui/sidebar";
-import { SiteHeader } from "@/components/site-header";
 import CinemaRoomAdd from "@/feature/manager/cinema-room/CinemaRoomAdd";
 import CinemaRoomDetail from "@/feature/manager/cinema-room/CinemaRoomDetail";
 import CinemaRoomEdit from "@/feature/manager/cinema-room/CinemaRoomEdit";

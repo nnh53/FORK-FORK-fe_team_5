@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CustomTable, type TableColumns } from "../../components/Table";
+import { CustomTable, type TableColumns } from "../../components/CustomTable";
 import type { MyMembershipData } from "../../interfaces/users.interface";
 
 export const MyMembership: React.FC = () => {
