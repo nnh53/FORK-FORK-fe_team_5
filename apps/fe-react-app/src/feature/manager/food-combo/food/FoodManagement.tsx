@@ -132,7 +132,6 @@ const FoodManagement: React.FC = () => {
       selectOptions: [
         { value: "drink", label: "Đồ uống" },
         { value: "food", label: "Thức ăn" },
-        { value: "combo", label: "Combo" },
       ],
       placeholder: "Chọn loại sản phẩm",
     },
@@ -157,6 +156,16 @@ const FoodManagement: React.FC = () => {
         { value: "sold", label: "Đã bán hết" },
       ],
       placeholder: "Chọn trạng thái",
+    },
+    {
+      label: "Loại",
+      value: "combo_filter",
+      type: "select" as const,
+      selectOptions: [
+        { value: "single", label: "Đồ ăn lẻ" },
+        { value: "combo", label: "Đồ ăn combo" },
+      ],
+      placeholder: "Chọn loại",
     },
   ];
 
@@ -213,6 +222,13 @@ const FoodManagement: React.FC = () => {
             }
             case "status": {
               return filterByStatus(food, criteria.value as string);
+            }
+            case "combo_filter": {
+              if (criteria.value === "single") {
+                return food.comboId === 0;
+              } else {
+                return food.comboId !== 0;
+              }
             }
             default:
               return true;
@@ -337,7 +353,7 @@ const FoodManagement: React.FC = () => {
           if (!open) handleCancel();
         }}
       >
-        <DialogContent className="sm:max-w-3xl">
+        <DialogContent className="sm:max-w-220">
           <DialogHeader>
             <DialogTitle>{selectedFood ? "Chỉnh sửa thực phẩm" : "Thêm thực phẩm mới"}</DialogTitle>
           </DialogHeader>
