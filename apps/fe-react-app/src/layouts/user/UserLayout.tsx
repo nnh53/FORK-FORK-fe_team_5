@@ -1,6 +1,6 @@
 import React from "react";
-import FooterTest from "../../feature/booking/components/FooterTest/FooterTest";
-import HeaderTest from "../../feature/booking/components/HeaderTest/HeaderTest";
+import Footer from "../../feature/booking/components/FooterTest/Footer";
+import Header from "../../feature/booking/components/Header/Header";
 
 interface UserLayoutProps {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ interface UserLayoutProps {
 const UserLayout = ({ children, background }: UserLayoutProps) => {
   return (
     <div className="flex flex-col min-h-screen bg-amber-50">
-      <HeaderTest />
+      <Header />
 
       <div className="h-10"></div>
 
@@ -28,7 +28,7 @@ const UserLayout = ({ children, background }: UserLayoutProps) => {
         {children}
       </main>
 
-      <FooterTest />
+      <Footer />
     </div>
   );
 };

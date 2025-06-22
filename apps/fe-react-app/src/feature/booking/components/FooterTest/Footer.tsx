@@ -1,9 +1,9 @@
 import { FlowingMenuSection, FooterBottom, FooterLinks, FooterLogo, NewsletterSubscription } from "./components";
 import { quickLinks, supportLinks } from "./constants/footerData";
-import "./FooterTest.css";
+import "./Footer.css";
 import { useFooterAnimations } from "./hooks/useFooterAnimations";
 
-const FooterTest = () => {
+const Footer = () => {
   const { footerRef, flowingMenuRef } = useFooterAnimations();
 
   const handleNewsletterSubscribe = (email: string) => {
@@ -31,4 +31,4 @@ const FooterTest = () => {
   );
 };
 
-export default FooterTest;
+export default Footer;

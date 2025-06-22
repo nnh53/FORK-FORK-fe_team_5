@@ -1,8 +1,8 @@
+import { AuthSection, HeaderContainer, Logo, Navigation, ScrollBanner } from ".";
 import { useHeader } from "../../../../hooks";
-import { AuthSection, HeaderContainer, Logo, Navigation, ScrollBanner } from "./";
-import "./HeaderTest.css";
+import "./Header.css";
 
-const HeaderTest = () => {
+const Header = () => {
   // Use combined header hook
   const { isMenuOpen, scrolled, scrollVelocityProps } = useHeader({
     logoSelector: ".logo",
@@ -28,4 +28,4 @@ const HeaderTest = () => {
   );
 };
 
-export default HeaderTest;
+export default Header;

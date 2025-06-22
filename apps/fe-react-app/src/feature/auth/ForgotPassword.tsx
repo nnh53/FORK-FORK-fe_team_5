@@ -11,7 +11,7 @@ import AnimatedButton from "../../components/shared/AnimatedButton";
 import NavigateButton from "../../components/shared/NavigateButton";
 import { ROUTES } from "../../routes/route.constants";
 import { forgotPasswordValidationSchema } from "../../utils/validation.utils";
-import { Logo } from "../booking/components/HeaderTest";
+import { Logo } from "../booking/components/Header";
 
 interface ForgotPasswordFormData {
   password: string;
@@ -49,7 +49,6 @@ const ForgotPassword: React.FC = () => {
       </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-        
         <AnimatedContent
           distance={230}
           direction="horizontal"
@@ -64,18 +63,14 @@ const ForgotPassword: React.FC = () => {
           <div className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-8 border border-white/30">
             <div className="text-center mb-6">
               <div className="inline-block">
-                
                 <Logo className="w-20 h-12 mx-auto" altText="F-Cinema Logo" logoText="" />
-              
               </div>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
               <FormField name="password" label="Mật khẩu mới" type="password" control={control} errors={errors} />
               <FormField name="confirmPassword" label="Xác nhận mật khẩu" type="password" control={control} errors={errors} />{" "}
-              
               <AnimatedButton
                 type="submit"
                 text="Đổi mật khẩu"
@@ -84,19 +79,15 @@ const ForgotPassword: React.FC = () => {
                 disabled={loading}
                 className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-all duration-300 disabled:opacity-50"
               />
-
               <div className="text-center mt-4">
-
                 <NavigateButton
                   text="Quay lại đăng nhập"
                   to={ROUTES.AUTH.LOGIN}
                   className="text-sm text-red-600 hover:text-red-800 hover:underline"
                 />
-
               </div>
             </form>
           </div>
-
         </AnimatedContent>
         <ToastContainer />
       </div>

@@ -12,8 +12,9 @@ import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccess
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
 import CarouselTest from "@/feature/booking/components/CarouselSection/CarouselTest";
 import FrequentlyAsk from "@/feature/booking/components/FrequentlyAsk";
-import HeaderTest from "@/feature/booking/components/HeaderTest/HeaderTest";
+import Header from "@/feature/booking/components/Header/Header";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
+import HomePage from "@/feature/booking/home-page/HomePage.tsx";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
 import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
@@ -28,7 +29,6 @@ import StaffLayout from "@/layouts/staff/StaffLayout";
 import UserLayout from "@/layouts/user/UserLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import HomePage from "@/feature/booking/home-page/HomePage.tsx";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -91,6 +91,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.FREQUENTLY_ASK} element={<FrequentlyAsk />} />
     <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />
     <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
-    <Route path={ROUTES.HEADER_TEST} element={<HeaderTest />} />
+    <Route path={ROUTES.HEADER_TEST} element={<Header />} />
   </Routes>
 );

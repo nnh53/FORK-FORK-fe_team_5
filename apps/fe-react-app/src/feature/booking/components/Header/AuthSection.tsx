@@ -37,4 +37,3 @@ const AuthSection = ({
 };
 
 export default AuthSection;
-

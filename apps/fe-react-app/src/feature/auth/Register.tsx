@@ -13,7 +13,7 @@ import NavigateButton from "../../components/shared/NavigateButton";
 import { API_URL } from "../../config/environments/endpoints";
 import { ROUTES } from "../../routes/route.constants";
 import { registerValidationSchema } from "../../utils/validation.utils";
-import { Logo } from "../booking/components/HeaderTest";
+import { Logo } from "../booking/components/Header";
 
 interface RegisterFormData {
   fullName: string;

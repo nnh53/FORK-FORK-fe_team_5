@@ -15,7 +15,7 @@ import type { Role } from "../../interfaces/roles.interface";
 import type { LoginDTO } from "../../interfaces/users.interface";
 import { ROUTES } from "../../routes/route.constants";
 import { loginValidationSchema } from "../../utils/validation.utils";
-import { Logo } from "../booking/components/HeaderTest";
+import { Logo } from "../booking/components/Header";
 import { RoleRouteToEachPage } from "./RoleRoute";
 
 // Mock user data for direct login
@@ -106,7 +106,6 @@ const Login: React.FC = () => {
               <FormField name="email" label="Email" type="email" control={control} errors={errors} />
               <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />{" "}
               <div className="flex justify-between items-center">
-
                 <NavigateButton
                   to={ROUTES.AUTH.FORGOT_PASSWORD}
                   text="Quên mật khẩu?"
@@ -114,9 +113,7 @@ const Login: React.FC = () => {
                 />
 
                 <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
-
               </div>{" "}
-
               <AnimatedButton
                 type="submit"
                 text="Đăng nhập"
@@ -125,16 +122,12 @@ const Login: React.FC = () => {
                 disabled={isLoading}
                 className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-all duration-300 disabled:opacity-50"
               />
-
               <div className="text-center mt-4">
-
                 <span className="text-sm text-brown-600">Chưa có tài khoản? </span>
                 <NavigateButton to={ROUTES.AUTH.REGISTER} text="Đăng ký ngay" className="text-sm text-red-600 hover:text-red-800 hover:underline" />
-
               </div>
             </form>
           </div>
-          
         </AnimatedContent>
         <ToastContainer />
       </div>
