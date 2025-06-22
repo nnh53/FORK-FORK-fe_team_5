@@ -22,7 +22,6 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, onEdit, onDelete, viewMode = 
     const categoryMap = {
       food: { label: "🍽️ Thức ăn", className: "bg-blue-100 text-blue-800" },
       drink: { label: "🥤 Đồ uống", className: "bg-green-100 text-green-800" },
-      combo: { label: "🍕 Combo", className: "bg-purple-100 text-purple-800" },
     };
     return categoryMap[category as keyof typeof categoryMap] || { label: category, className: "bg-gray-100 text-gray-800" };
   };
@@ -179,14 +178,21 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, onEdit, onDelete, viewMode = 
     </div>
   );
 
+  // Thêm hàm hiển thị comboId
+  const getComboIdDisplay = (comboId: number) => {
+    return comboId === 0 ? "Không" : `#${comboId}`;
+  };
+
   // Grid View
   if (viewMode === "grid") {
+    const comboIdValue = getComboIdDisplay(food.comboId);
+
     return (
       <Card
         className={cn(
           "w-full max-w-md transition-all duration-200 hover:shadow-lg",
           isOutOfStock && "opacity-75 border-destructive/30",
-          isLowStock && !isOutOfStock && "border-orange-200 bg-orange-50/30",
+          isLowStock && !isOutOfStock && "border-orange-900 bg-orange-50/30",
         )}
       >
         <CardHeader className="">
@@ -227,7 +233,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, onEdit, onDelete, viewMode = 
           <div className="grid grid-cols-3 gap-2 text-xs p-3 bg-muted/30 rounded-lg">
             <div className="text-center">
               <span className="text-muted-foreground block">Combo ID</span>
-              <span className="font-medium truncate block">#{food.comboId}</span>
+              <span className="font-medium truncate block">{comboIdValue}</span>
             </div>
             <div className="text-center">
               <span className="text-muted-foreground block">Kích cỡ</span>
@@ -250,11 +256,11 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, onEdit, onDelete, viewMode = 
     );
   }
 
-  // List View
+  // List View: thêm comboId
   return (
     <Card className="hover:shadow-md transition-shadow duration-200">
       <CardContent className="p-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {/* Image với tỷ lệ 5:4 */}
           <ListImageComponent />
 
@@ -269,6 +275,12 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, onEdit, onDelete, viewMode = 
               </div>
             </div>
 
+            {/* Combo ID */}
+            <div className="col-span-1 text-sm">
+              <div className="text-muted-foreground text-xs">Combo ID</div>
+              <div className="font-medium">{getComboIdDisplay(food.comboId)}</div>
+            </div>
+
             {/* Size */}
             <div className="col-span-1 text-sm">
               <div className="text-muted-foreground text-xs">Kích thước</div>
@@ -276,7 +288,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, onEdit, onDelete, viewMode = 
             </div>
 
             {/* Flavor */}
-            <div className="col-span-2 text-sm">
+            <div className="col-span-1 text-sm">
               <div className="text-muted-foreground text-xs">Hương vị</div>
               <div className="font-medium line-clamp-1">{food.flavor}</div>
             </div>
