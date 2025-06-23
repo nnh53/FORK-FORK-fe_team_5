@@ -1,22 +1,19 @@
-import AnimatedContent from "@/components/Reactbits/reactbit-animations/AnimatedContent/AnimatedContent";
-import Beams from "@/components/Reactbits/reactbit-backgrounds/Beams/Beams";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { animated, useSpring } from "@react-spring/web";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import CheckboxForm from "../../components/forms/CheckboxForm";
 import FormField from "../../components/forms/FormFields";
-import AnimatedButton from "../../components/shared/AnimatedButton";
-import NavigateButton from "../../components/shared/NavigateButton";
-import { RoleRouteToEachPage } from "../../feature/auth/RoleRoute";
-import { Logo } from "../../feature/booking/components/Header";
+import { Logo } from "../../components/logo/Logo";
+import BannerTransition from "../../components/shared/BannerTransition";
 import { useAuth } from "../../hooks/useAuth";
 import type { Role } from "../../interfaces/roles.interface";
 import type { LoginDTO } from "../../interfaces/users.interface";
-import { ROUTES } from "../../routes/route.constants";
 import { loginValidationSchema } from "../../utils/validation.utils";
+import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
+
 
 // Mock user data for direct login
 const mockUserData = {
@@ -50,9 +47,12 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginDTO) => {
     setIsLoading(true);
     try {
+      // Mock login - check if email is guest@example.com
       if (data.email === "guest@example.com") {
+        // Simulate API delay
         await new Promise((resolve) => setTimeout(resolve, 500));
 
+        // Use mock data instead of API call
         const userData = mockUserData.guest;
 
         authLogin({
@@ -68,6 +68,7 @@ const Login: React.FC = () => {
           navigate(RoleRouteToEachPage(userData.roles[0]));
         }, 1000);
       } else {
+        // For any other email, show error
         toast.error("Invalid email or password");
       }
     } catch (error) {
@@ -77,61 +78,65 @@ const Login: React.FC = () => {
       setIsLoading(false);
     }
   };
-  return (
-    <div className="relative w-full h-screen overflow-hidden">
-      <div className="absolute inset-0 z-0" style={{ width: "100%", height: "100vh" }}>
-        <Beams beamWidth={3} beamHeight={50} beamNumber={50} lightColor="#F52E2E" speed={3} noiseIntensity={1.3} scale={0.2} rotation={90} />
-      </div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <AnimatedContent
-          distance={230}
-          direction="horizontal"
-          duration={3}
-          ease="power3.out"
-          delay={0.8}
-          scale={0}
-          initialOpacity={0.1}
-          animateOpacity={true}
-          threshold={0.1}
-        >
-          <div className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-8 border border-white/30">
-            <div className="text-center mb-6">
-              <div className="inline-block">
-                <Logo className="w-20 h-12 mx-auto" altText="F-Cinema Logo" logoText="" />
-              </div>
+  const pageAnimation = useSpring({
+    from: {
+      opacity: 0,
+      transform: "translateX(50px)",
+    },
+    to: {
+      opacity: 1,
+      transform: "translateX(0px)",
+    },
+    config: {
+      tension: 280,
+      friction: 20,
+    },
+  });
+
+  return (
+    <animated.div style={pageAnimation} className="flex h-screen">
+      <BannerTransition>
+        <h2 className="text-3xl font-bold">Chào mừng trở lại</h2>
+        <p className="text-lg">Trải nghiệm những bộ phim tuyệt vời nhất tại rạp chiếu phim hiện đại</p>
+      </BannerTransition>
+
+      {/*right banner*/}
+      <div className="w-1/2 flex items-center justify-center p-12">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <Logo className="mx-auto mb-4" />
+            <h3 className="text-2xl font-semibold">Đăng Nhập</h3>
+            <p className="text-gray-600">Tạo tài khoản mới để trải nghiệm dịch vụ tốt nhất</p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <FormField name="email" label="Email" type="email" control={control} errors={errors} />
+            <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
+
+            <div className="flex justify-between items-center">
+              <a href="/forgot-password">Quên mật khẩu?</a>
+              <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <FormField name="email" label="Email" type="email" control={control} errors={errors} />
-              <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />{" "}
-              <div className="flex justify-between items-center">
-                <NavigateButton
-                  to={ROUTES.AUTH.FORGOT_PASSWORD}
-                  text="Quên mật khẩu?"
-                  className="text-sm text-red-600 hover:text-red-800 hover:underline"
-                />
+            <button
+              type="submit"
+              className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
+              disabled={isLoading}
+            >
+              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+            </button>
 
-                <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
-              </div>{" "}
-              <AnimatedButton
-                type="submit"
-                text="Đăng nhập"
-                loadingText="Đang đăng nhập..."
-                loading={isLoading}
-                disabled={isLoading}
-                className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-all duration-300 disabled:opacity-50"
-              />
-              <div className="text-center mt-4">
-                <span className="text-sm text-brown-600">Chưa có tài khoản? </span>
-                <NavigateButton to={ROUTES.AUTH.REGISTER} text="Đăng ký ngay" className="text-sm text-red-600 hover:text-red-800 hover:underline" />
-              </div>
-            </form>
-          </div>
-        </AnimatedContent>
-        <ToastContainer />
+            <div className="text-center mt-4">
+              <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
+              <a href="/register" className="text-sm text-red-600 hover:underline">
+                Đăng ký ngay
+              </a>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </animated.div>
   );
 };
 
