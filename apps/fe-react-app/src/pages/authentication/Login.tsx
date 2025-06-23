@@ -1,3 +1,4 @@
+import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { animated, useSpring } from "@react-spring/web";
 import React, { useState } from "react";
@@ -6,14 +7,12 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import CheckboxForm from "../../components/forms/CheckboxForm";
 import FormField from "../../components/forms/FormFields";
-import { Logo } from "../../components/logo/Logo";
 import BannerTransition from "../../components/shared/BannerTransition";
+import { Logo } from "../../feature/booking/components/Header";
 import { useAuth } from "../../hooks/useAuth";
 import type { Role } from "../../interfaces/roles.interface";
 import type { LoginDTO } from "../../interfaces/users.interface";
 import { loginValidationSchema } from "../../utils/validation.utils";
-import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
-
 
 // Mock user data for direct login
 const mockUserData = {

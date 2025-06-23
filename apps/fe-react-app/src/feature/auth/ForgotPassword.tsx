@@ -5,10 +5,9 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Logo } from "../../components/logo/Logo";
 import NavigateButton from "../../components/shared/NavigateButton";
-
 import { forgotPasswordValidationSchema } from "../../utils/validation.utils";
+import { Logo } from "../booking/components/Header";
 
 const slides = [
   "photo-1524985069026-dd778a71c7b4",
