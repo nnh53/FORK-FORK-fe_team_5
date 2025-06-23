@@ -5,12 +5,12 @@ import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardS
 import { ROUTES } from "@/routes/route.constants";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import type { MovieData } from "../feature/booking/components/CarouselSection/CarouselSection";
-import CarouselSection from "../feature/booking/components/CarouselSection/CarouselSection";
-import FrequentlyAsk from "../feature/booking/components/FrequentlyAsk";
-import WelcomePanel from "../feature/booking/components/WelcomePanel/WelcomePanel";
-import { useHomePageAnimations } from "../hooks/useHomePageAnimations";
-import UserLayout from "../layouts/user/UserLayout";
+import type { MovieData } from "../../feature/booking/components/CarouselSection/CarouselSection";
+import CarouselSection from "../../feature/booking/components/CarouselSection/CarouselSection";
+import WelcomePanel from "../../feature/booking/components/WelcomePanel/WelcomePanel";
+import FrequentlyAsk from "../../feature/static/FrequentlyAsk";
+import { useHomePageAnimations } from "../../hooks/useHomePageAnimations";
+import UserLayout from "../../layouts/user/UserLayout";
 import "./styles/HomePage.css";
 
 const HomePage = () => {

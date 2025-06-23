@@ -182,19 +182,19 @@ body {
 }
 
 .movie-card:nth-child(1) .movie-poster {
-  background-image: url("../../assets/bg-top.png");
+  background-image: url("");
 }
 
 .movie-card:nth-child(2) .movie-poster {
-  background-image: url("../../assets/brickWall.jpg");
+  background-image: url("");
 }
 
 .movie-card:nth-child(3) .movie-poster {
-  background-image: url("../../assets/bg-top.png");
+  background-image: url("");
 }
 
 .movie-card:nth-child(4) .movie-poster {
-  background-image: url("../../assets/brickWall.jpg");
+  background-image: url("");
 }
 
 .hot-badge {
@@ -261,7 +261,7 @@ body {
 
 .parallax-layer:nth-child(1) {
   opacity: 0.4;
-  background-image: url("../../assets/brickWall.jpg");
+  background-image: url("");
   background-position: center;
   background-size: cover;
 }

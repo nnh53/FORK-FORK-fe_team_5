@@ -7,13 +7,13 @@ import { useForm, type Resolver } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import FormField from "../components/forms/FormFields";
-import AnimatedButton from "../components/shared/AnimatedButton";
-import NavigateButton from "../components/shared/NavigateButton";
-import { API_URL } from "../config/environments/endpoints";
-import { Logo } from "../feature/booking/components/Header";
-import { ROUTES } from "../routes/route.constants";
-import { registerValidationSchema } from "../utils/validation.utils";
+import FormField from "../../components/forms/FormFields";
+import AnimatedButton from "../../components/shared/AnimatedButton";
+import NavigateButton from "../../components/shared/NavigateButton";
+import { API_URL } from "../../config/environments/endpoints";
+import { Logo } from "../../feature/booking/components/Header";
+import { ROUTES } from "../../routes/route.constants";
+import { registerValidationSchema } from "../../utils/validation.utils";
 
 interface RegisterFormData {
   fullName: string;
