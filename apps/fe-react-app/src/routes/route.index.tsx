@@ -9,6 +9,7 @@ import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
 import CarouselTest from "@/feature/booking/components/CarouselSection/CarouselTest";
 import Header from "@/feature/booking/components/Header/Header";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
+import OldHomePage from "@/feature/booking/home-page/OldHomePage";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
 import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
@@ -38,6 +39,7 @@ export const AppRoutes = () => (
     <Route index element={<Navigate to={ROUTES.HOME} replace />} />
     {/* Public Routes */}
     <Route path={ROUTES.HOME} element={<HomePage />} />
+    <Route path={ROUTES.HOME_TEST} element={<OldHomePage />} />
     <Route path={ROUTES.BOOKING} element={<BookingPage />} />
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />

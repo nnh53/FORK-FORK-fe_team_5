@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import BookingBreadcrumb from "../../../components/booking/BookingBreadcrumb.tsx";
+import BookingBreadcrumb from "../../../components/BookingBreadcrumb.tsx";
 import UserLayout from "../../../layouts/user/UserLayout.tsx";
 import { bookingService, type BookingCreateRequest, type Combo } from "../../../services/bookingService";
 import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";

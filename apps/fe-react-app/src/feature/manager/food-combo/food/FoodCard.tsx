@@ -3,7 +3,7 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Food } from "@/interfaces/foodAndCombo.interface";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import { AlertTriangle, Edit, Package, Trash, Utensils } from "lucide-react";
 
 interface FoodCardProps {

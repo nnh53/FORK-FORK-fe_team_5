@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 
 interface DatePickerProps {
   date?: Date;

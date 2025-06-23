@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import BookingBreadcrumb from "../../../components/booking/BookingBreadcrumb.tsx";
+import BookingBreadcrumb from "../../../components/BookingBreadcrumb.tsx";
 import UserLayout from "../../../layouts/user/UserLayout.tsx";
 import BookingFooter from "../components/BookingFooter/BookingFooter.tsx";
 import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";

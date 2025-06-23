@@ -7,7 +7,7 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/Shadcn/ui/dropdown-menu";
 import { Input } from "@/components/Shadcn/ui/input";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 
 interface SearchOption {
   value: string;

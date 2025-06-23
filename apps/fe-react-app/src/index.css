@@ -3,6 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*  start Shadcn UI css mặc định */
 /* @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -141,6 +142,9 @@
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 } */
 
+/* end Shadcn UI css mặc định */
+
+/* start @theme này chỉ kéo một số từ style của ShadcnUI ở trên để DaisyUI override */
 @theme inline {
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -151,7 +155,6 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -160,9 +163,9 @@
     @apply bg-background text-foreground;
   }
 }
+/* end @theme này chỉ kéo một số từ style của ShadcnUI ở trên để DaisyUI override */
 
-/* aaaa */
-
+/* start mapping style từ DaisyUI -> Shadcn UI */
 @theme {
   --color-border: var(--color-base-content);
   --color-input: var(--color-base-content);
@@ -215,7 +218,9 @@
   }
 }
 
-/* end aaaa */
+/* end mapping style từ DaisyUI -> Shadcn UI */
+
+/* Dưới này là thuần style của DaisyUI */
 
 @plugin "daisyui" {
   themes: false;

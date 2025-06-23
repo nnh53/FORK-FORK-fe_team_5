@@ -1,23 +1,21 @@
-import { useEffect, useState } from "react";
-
-import MovieList from "../../../components/movie/MovieList/MovieList.tsx";
-import MovieSearch from "../../../components/MovieSearch.tsx";
-import Carousel from "../../../components/shared/Carousel/Carousel.tsx";
-import UserLayout from "../../../layouts/user/UserLayout.tsx";
-import ShowtimesModal from "../components/ShowtimesModal/ShowtimesModal.tsx";
-import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmModal.tsx";
-
 import nowShowing from "@/assets/nowShowingText.png";
 import upcoming from "@/assets/upComingText.png";
+import type { MovieCardProps } from "@/components/movie/MovieCard/MovieCard.tsx";
+import MovieList from "@/components/movie/MovieList/MovieList.tsx";
+import MovieSearch from "@/components/MovieSearch.tsx";
+import Carousel from "@/components/shared/Carousel/Carousel.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
+import UserLayout from "@/layouts/user/UserLayout.tsx";
+import { movieService } from "@/services/movieService.ts";
+import { showtimeService } from "@/services/showtimeService.ts";
+import { convertMoviesToMovieCards } from "@/utils/movieUtils.ts";
+import { convertShowtimesToSchedulePerDay } from "@/utils/showtimeUtils.ts";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Movie } from "../../../../../mockapi-express-app/src/movies.mockapi.ts";
-import type { MovieCardProps } from "../../../components/movie/MovieCard/MovieCard.tsx";
-import { movieService } from "../../../services/movieService.ts";
-import { showtimeService } from "../../../services/showtimeService.ts";
-import { convertMoviesToMovieCards } from "../../../utils/movieUtils.ts";
-import { convertShowtimesToSchedulePerDay } from "../../../utils/showtimeUtils.ts";
 import type { SchedulePerDay } from "../components/ShowtimesModal/ShowtimesModal.tsx";
+import ShowtimesModal from "../components/ShowtimesModal/ShowtimesModal.tsx";
+import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmModal.tsx";
 
 // 1. MOCK DATA PHIM
 interface FinalSelection {

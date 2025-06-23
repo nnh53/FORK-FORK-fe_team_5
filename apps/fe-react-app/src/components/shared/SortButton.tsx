@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/Shadcn/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import * as React from "react";
 
-export type SortDirection = "asc" | "desc" | "none";
+type SortDirection = "asc" | "desc" | "none";
 
-export interface SortButtonProps extends Omit<React.ComponentProps<typeof Button>, "onChange"> {
+interface SortButtonProps extends Omit<React.ComponentProps<typeof Button>, "onChange"> {
   onChange?: (direction: SortDirection) => void;
   direction?: SortDirection;
   label?: string;
