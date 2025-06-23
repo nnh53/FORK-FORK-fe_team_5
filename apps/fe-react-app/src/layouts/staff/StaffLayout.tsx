@@ -1,9 +1,9 @@
 import { SiteHeader } from "@/components/Shadcn/site-header";
 import { StaffSidebar } from "@/components/Shadcn/staff-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/Shadcn/ui/sidebar";
-import StaffBookingManagement from "@/feature/staff/booking/StaffBookingManagement";
-import StaffCheckinManagement from "@/feature/staff/checkin/StaffCheckinManagement";
-import StaffDashboard from "@/feature/staff/dashboard/StaffDashboard";
+// import StaffBookingManagement from "@/feature/staff/booking/StaffBookingManagement";
+// import StaffCheckinManagement from "@/feature/staff/checkin/StaffCheckinManagement";
+// import StaffDashboard from "@/feature/staff/dashboard/StaffDashboard";
 import StaffTicketSales from "@/feature/staff/sales/StaffTicketSales";
 import type { ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
@@ -27,10 +27,10 @@ export default function StaffLayout({ children }: Readonly<StaffLayoutProps>) {
         <SiteHeader />{" "}
         <Routes>
           {" "}
-          <Route path="/dashboard" element={<StaffDashboard />} />
-          <Route path="/booking" element={<StaffBookingManagement />} />
+          {/* <Route path="/dashboard" element={<StaffDashboard />} />
+          <Route path="/booking" element={<StaffBookingManagement />} /> */}
           <Route path="/sales" element={<StaffTicketSales />} />
-          <Route path="/checkin" element={<StaffCheckinManagement />} />
+          {/* <Route path="/checkin" element={<StaffCheckinManagement />} /> */}
           {/* If children are provided, render them */}
           {children && <Route path="*" element={children} />}
         </Routes>

@@ -1,70 +1,74 @@
-// Members mock API
-export interface Member {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  membershipLevel: "Silver" | "Gold" | "Platinum";
-  currentPoints: number;
-  totalSpent: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import { PointTransaction } from "@interfaces/member.interface.ts";
+import { UserBase } from "@interfaces/users.interface.ts";
 
-export interface PointTransaction {
-  id: string;
-  memberId: string;
-  type: "earn" | "redeem";
-  points: number;
-  description: string;
-  createdAt: string;
-}
-
-// Mock data
-export const membersMockData: Member[] = [
+export const membersMockData: UserBase[] = [
   {
     id: "M001",
-    name: "Nguyễn Văn A",
-    phone: "0123456789",
+    full_name: "Nguyễn Văn A",
+    date_of_birth: "2000-01-01",
     email: "a.nguyen@email.com",
-    membershipLevel: "Gold",
-    currentPoints: 1250,
+    password: "123456",
+    is_active: 1,
+    is_subscription: 1,
+    role_name: "MEMBER",
+    status_name: "ACTIVE",
+    avatar_url: "https://via.placeholder.com/150",
+    loyalty_point: 1000,
     totalSpent: 2500000,
     createdAt: "2024-01-15T00:00:00Z",
     updatedAt: "2025-06-18T00:00:00Z",
+    membershipLevel: "Platinum",
   },
   {
     id: "M002",
-    name: "Trần Thị B",
-    phone: "0987654321",
+    full_name: "Trần Thị B",
+    date_of_birth: "2000-01-01",
     email: "b.tran@email.com",
-    membershipLevel: "Silver",
-    currentPoints: 850,
+    password: "123456",
+    is_active: 1,
+    is_subscription: 1,
+    role_name: "MEMBER",
+    status_name: "ACTIVE",
+    avatar_url: "https://via.placeholder.com/150",
+    loyalty_point: 1000,
     totalSpent: 1200000,
     createdAt: "2024-03-20T00:00:00Z",
     updatedAt: "2025-06-18T00:00:00Z",
+    membershipLevel: "Silver",
   },
   {
     id: "M003",
-    name: "Lê Văn C",
-    phone: "0555123456",
+    full_name: "Lê Văn C",
+    date_of_birth: "2000-01-01",
     email: "c.le@email.com",
-    membershipLevel: "Platinum",
-    currentPoints: 2100,
+    password: "123456",
+    is_active: 1,
+    is_subscription: 1,
+    role_name: "MEMBER",
+    status_name: "ACTIVE",
+    avatar_url: "https://via.placeholder.com/150",
+    loyalty_point: 1000,
     totalSpent: 5000000,
     createdAt: "2023-11-10T00:00:00Z",
     updatedAt: "2025-06-18T00:00:00Z",
+    membershipLevel: "Gold",
   },
   {
     id: "M004",
-    name: "Tran Tan Phat",
-    phone: "0555123456",
+    full_name: "Tran Tan Phat",
+    date_of_birth: "2000-01-01",
     email: "xxxxx@email.com",
-    membershipLevel: "Platinum",
-    currentPoints: 2100,
+    password: "123456",
+    is_active: 1,
+    is_subscription: 1,
+    role_name: "MEMBER",
+    status_name: "ACTIVE",
+    avatar_url: "https://via.placeholder.com/150",
+    loyalty_point: 1000,
     totalSpent: 5000000,
     createdAt: "2023-11-10T00:00:00Z",
     updatedAt: "2025-06-18T00:00:00Z",
+    membershipLevel: "Diamond",
   },
 ];
 
@@ -97,20 +101,20 @@ export const pointTransactionsMockData: PointTransaction[] = [
 
 // Members API
 export const membersAPI = {
-  getAll: (): Member[] => {
+  getAll: (): UserBase[] => {
     return membersMockData;
   },
 
-  getById: (id: string): Member | null => {
+  getById: (id: string): UserBase | null => {
     return membersMockData.find((member) => member.id === id) || null;
   },
 
-  getByPhone: (phone: string): Member | null => {
-    return membersMockData.find((member) => member.phone === phone) || null;
+  getByEmail: (email: string): UserBase | null => {
+    return membersMockData.find((member) => member.email === email) || null;
   },
 
-  create: (memberData: Omit<Member, "id" | "createdAt" | "updatedAt">): Member => {
-    const newMember: Member = {
+  create: (memberData: Omit<UserBase, "id" | "createdAt" | "updatedAt">): UserBase => {
+    const newMember: UserBase = {
       ...memberData,
       id: `M${String(membersMockData.length + 1).padStart(3, "0")}`,
       createdAt: new Date().toISOString(),
@@ -120,7 +124,7 @@ export const membersAPI = {
     return newMember;
   },
 
-  update: (id: string, updateData: Partial<Member>): Member | null => {
+  update: (id: string, updateData: Partial<UserBase>): UserBase | null => {
     const index = membersMockData.findIndex((member) => member.id === id);
     if (index === -1) return null;
 
@@ -132,12 +136,12 @@ export const membersAPI = {
     return membersMockData[index];
   },
 
-  updatePoints: (id: string, points: number, type: "earn" | "redeem", description: string): Member | null => {
+  updatePoints: (id: string, points: number, type: "earn" | "redeem", description: string): UserBase | null => {
     const member = membersAPI.getById(id);
     if (!member) return null;
 
     const pointChange = type === "earn" ? points : -points;
-    const newPoints = Math.max(0, member.currentPoints + pointChange);
+    const newPoints = Math.max(0, member.loyalty_point + pointChange);
 
     // Create transaction record
     const transaction: PointTransaction = {
@@ -151,14 +155,14 @@ export const membersAPI = {
     pointTransactionsMockData.push(transaction);
 
     // Update member points
-    return membersAPI.update(id, { currentPoints: newPoints });
+    return membersAPI.update(id, { loyalty_point: newPoints });
   },
 
   getTransactions: (memberId: string): PointTransaction[] => {
     return pointTransactionsMockData.filter((transaction) => transaction.memberId === memberId);
   },
 
-  delete: (id: string): Member | null => {
+  delete: (id: string): UserBase | null => {
     const index = membersMockData.findIndex((member) => member.id === id);
     if (index === -1) return null;
 

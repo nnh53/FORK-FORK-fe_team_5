@@ -3,7 +3,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
-import type { Promotion } from "@/interfaces/promotion.interface.";
+import type { Promotion } from "@/interfaces/promotion.interface";
 import { ChevronDownIcon, Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { PromotionDialog } from "./PromotionDialog";

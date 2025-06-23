@@ -2,10 +2,10 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Input } from "@/components/Shadcn/ui/input";
+import type { Movie, MovieSearchParams } from "@/interfaces/movies.interface";
 import { Calendar, Clock, Search, Star, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import type { Movie } from "../../../mockapi-express-app/src/movies.mockapi";
-import { movieService, type MovieSearchParams } from "../services/movieService";
+import { movieService } from "../services/movieService";
 
 interface MovieSearchProps {
   onMovieSelect?: (movie: Movie) => void;

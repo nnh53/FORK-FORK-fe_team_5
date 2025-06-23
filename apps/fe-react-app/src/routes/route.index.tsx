@@ -11,9 +11,9 @@ import Header from "@/feature/booking/components/Header/Header";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
 import OldHomePage from "@/feature/booking/home-page/OldHomePage";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
-import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
+// import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
-import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
+// import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
 import About from "@/feature/static/About";
 import FrequentlyAsk from "@/feature/static/FrequentlyAsk";
 import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
@@ -79,8 +79,8 @@ export const AppRoutes = () => (
     <Route path={ROUTES.STAFF.ROOT + "/*"} element={<StaffLayout />} />
     {/* Legacy Management Routes (should eventually be moved to admin) */}
     <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
-    <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
-    <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} />
+    {/* <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} /> */}
+    {/* <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} /> */}
     {/* Utility Routes */}
     <Route path={ROUTES.WELCOME} element={<Welcome />} />
     <Route path={ROUTES.LOADING} element={<Loading />} />

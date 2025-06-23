@@ -1,5 +1,5 @@
 import pTagImage from "@/assets/pTag.png";
-import type { Movie } from "../../../mockapi-express-app/src/movies.mockapi";
+import type { Movie } from "@/interfaces/movies.interface";
 import type { MovieCardProps } from "../components/movie/MovieCard/MovieCard";
 
 /**

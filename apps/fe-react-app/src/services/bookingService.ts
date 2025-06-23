@@ -1,68 +1,7 @@
+import type { Booking, BookingCreateRequest, Combo } from "@/interfaces/booking.interface";
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3000";
-
-export interface BookingCreateRequest {
-  userId?: string;
-  movieId: string;
-  showtimeId: string;
-  cinemaRoomId: string;
-  seats: string[];
-  customerInfo: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  paymentMethod: "cash" | "card" | "momo" | "banking";
-  combos?: {
-    id: string;
-    quantity: number;
-  }[];
-  usePoints?: number;
-  memberId?: string;
-  voucherCode?: string;
-  isStaffBooking?: boolean; // New field to identify staff bookings
-}
-
-export interface Booking {
-  id: string;
-  userId: string;
-  movieId: string;
-  showtimeId: string;
-  cinemaRoomId: string;
-  seats: string[];
-  totalAmount: number;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
-  paymentStatus: "pending" | "paid" | "failed" | "refunded";
-  paymentMethod: "cash" | "card" | "momo" | "banking";
-  bookingDate: Date;
-  customerInfo: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  combos?: {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-  }[];
-  discount?: {
-    type: "points" | "voucher" | "promotion";
-    amount: number;
-    description: string;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Combo {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-}
 
 export const bookingService = {
   // Get all bookings or by user ID

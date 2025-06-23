@@ -1,6 +1,6 @@
 export interface CinemaRoom {
-  room_id: string;
-  room_number: number;
+  id: string;
+  roomNumber: number;
   type: string;
   fee: number;
   capacity: number;
@@ -10,8 +10,8 @@ export interface CinemaRoom {
 }
 
 export interface Seat {
-  seat_id: string;
-  room_id: string;
+  id: string;
+  roomId: string;
   row: string;
   number: number;
   type: string;

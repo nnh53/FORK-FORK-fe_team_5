@@ -1,12 +1,5 @@
+import type { Combo } from "@/interfaces/booking.interface";
 import React from "react";
-
-export interface Combo {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-}
 
 interface ComboItemProps {
   combo: Combo;

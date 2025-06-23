@@ -1,17 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog.tsx";
+import type { Showtime } from "@/interfaces/movies.interface.ts";
 import React, { useEffect, useMemo, useState } from "react";
 import ShowDateSelector from "../ShowDateSelector/ShowDateSelector.tsx";
 import ShowtimesGroup from "../ShowtimesGroup/ShowtimesGroup";
-
-export interface Showtime {
-  time: string;
-  availableSeats: number;
-  format: string;
-  price?: number;
-  showtimeId?: string;
-  cinemaRoomId?: string;
-  endTime?: string;
-}
 
 export interface SchedulePerDay {
   date: string;

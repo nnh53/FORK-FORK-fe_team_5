@@ -3,11 +3,13 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
+import type { Member } from "@/interfaces/member.interface";
+import type { VoucherValidationResult } from "@/interfaces/voucher.interface";
 import { Check, Coins, Gift, Loader2, Ticket, X } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { memberService, type Member } from "../services/memberService";
-import { voucherService, type VoucherValidationResult } from "../services/voucherService";
+import { memberService } from "../services/memberService";
+import { voucherService } from "../services/voucherService";
 
 interface DiscountSectionProps {
   orderAmount: number;

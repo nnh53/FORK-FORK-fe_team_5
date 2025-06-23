@@ -1,57 +1,8 @@
-enum Status {
-  ACTIVE = "active",
-  INACTIVE = "inactive",
-}
-
-enum Version {
-  TWO_D = "2D",
-  THREE_D = "3D",
-  IMAX = "IMAX",
-  FOUR_DX = "4DX",
-}
-
-interface Genre {
-  id: string;
-  name: string;
-}
-
-interface CinemaRoom {
-  id: string;
-  name: string;
-}
-
-interface Showtime {
-  id: string;
-  cinemaRoomId: string;
-  startTime: string;
-  endTime: string;
-}
-
-export interface Movie {
-  id: string;
-  title: string;
-  genre: string;
-  genres?: Genre[]; // For multiple genres (checkbox)
-  director: string;
-  actors?: string;
-  releaseYear: number;
-  startShowingDate?: string;
-  endShowingDate?: string;
-  productionCompany: string;
-  duration: number; // in minutes
-  rating: number; // 1-10
-  description: string;
-  poster: string;
-  trailerUrl?: string;
-  status: Status;
-  version: Version;
-  showtimes?: Showtime[];
-  createdAt: string;
-  updatedAt: string;
-}
+import { CinemaRoom } from "@interfaces/cinemarooms.interface.ts";
+import { Movie, MovieGenre, MovieStatus, MovieVersion } from "@interfaces/movies.interface.ts";
 
 // Mock data for genres
-export const genresMockData: Genre[] = [
+export const genresMockData: MovieGenre[] = [
   { id: "1", name: "Action" },
   { id: "2", name: "Comedy" },
   { id: "3", name: "Drama" },
@@ -65,11 +16,11 @@ export const genresMockData: Genre[] = [
 
 // Mock data for cinema rooms
 export const cinemaRoomsMockData: CinemaRoom[] = [
-  { id: "1", name: "Room A" },
-  { id: "2", name: "Room B" },
-  { id: "3", name: "Room C" },
-  { id: "4", name: "Room D" },
-  { id: "5", name: "VIP Room" },
+  { id: "1", roomNumber: 101, type: "Standard", fee: 50000, capacity: 100, status: "ACTIVE", width: 10, length: 10 },
+  { id: "2", roomNumber: 102, type: "VIP", fee: 80000, capacity: 80, status: "ACTIVE", width: 8, length: 10 },
+  { id: "3", roomNumber: 103, type: "Premium", fee: 100000, capacity: 60, status: "MAINTENANCE", width: 8, length: 8 },
+  { id: "4", roomNumber: 104, type: "Standard", fee: 50000, capacity: 100, status: "CLOSED", width: 10, length: 10 },
+  { id: "5", roomNumber: 105, type: "VIP", fee: 120000, capacity: 40, status: "ACTIVE", width: 8, length: 8 },
 ];
 
 export const moviesMockData: Movie[] = [
@@ -94,12 +45,42 @@ export const moviesMockData: Movie[] = [
       "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. Once a familiar threat returns to finish what was previously started, Jake must work with Neytiri and the army of the Na'vi race to protect their home.",
     poster: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=d9MyW72ELq0",
-    status: Status.ACTIVE,
-    version: Version.THREE_D,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.THREE_D,
     showtimes: [
-      { id: "1", cinemaRoomId: "4", startTime: "2025-06-16T10:00:00Z", endTime: "2025-06-16T13:12:00Z" },
-      { id: "2", cinemaRoomId: "5", startTime: "2025-06-16T14:30:00Z", endTime: "2025-06-16T17:42:00Z" },
-      { id: "3", cinemaRoomId: "4", startTime: "2025-06-16T19:00:00Z", endTime: "2025-06-16T22:12:00Z" },
+      {
+        id: "1",
+        movieId: "1",
+        cinemaRoomId: "4",
+        date: "2025-06-16",
+        startTime: "2025-06-16T10:00:00Z",
+        endTime: "2025-06-16T13:12:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
+      {
+        id: "2",
+        movieId: "1",
+        cinemaRoomId: "5",
+        date: "2025-06-16",
+        startTime: "2025-06-16T14:30:00Z",
+        endTime: "2025-06-16T17:42:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 30,
+        price: 150000,
+      },
+      {
+        id: "3",
+        movieId: "1",
+        cinemaRoomId: "4",
+        date: "2025-06-16",
+        startTime: "2025-06-16T19:00:00Z",
+        endTime: "2025-06-16T22:12:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 45,
+        price: 120000,
+      },
     ],
     createdAt: "2025-06-01T10:00:00Z",
     updatedAt: "2025-06-15T10:00:00Z",
@@ -124,12 +105,42 @@ export const moviesMockData: Movie[] = [
       "After thirty years, Maverick is still pushing the envelope as a top naval aviator, but must confront ghosts of his past when he leads TOP GUN's elite graduates on a mission that demands the ultimate sacrifice from those chosen to fly it.",
     poster: "https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=qSqVVswa420",
-    status: Status.ACTIVE,
-    version: Version.IMAX,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.IMAX,
     showtimes: [
-      { id: "4", cinemaRoomId: "1", startTime: "2025-06-16T11:00:00Z", endTime: "2025-06-16T13:11:00Z" },
-      { id: "5", cinemaRoomId: "2", startTime: "2025-06-16T15:00:00Z", endTime: "2025-06-16T17:11:00Z" },
-      { id: "6", cinemaRoomId: "3", startTime: "2025-06-16T20:00:00Z", endTime: "2025-06-16T22:11:00Z" },
+      {
+        id: "4",
+        movieId: "2",
+        cinemaRoomId: "1",
+        date: "2025-06-16",
+        startTime: "2025-06-16T11:00:00Z",
+        endTime: "2025-06-16T13:11:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
+      {
+        id: "5",
+        movieId: "2",
+        cinemaRoomId: "2",
+        date: "2025-06-16",
+        startTime: "2025-06-16T15:00:00Z",
+        endTime: "2025-06-16T17:11:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 30,
+        price: 150000,
+      },
+      {
+        id: "6",
+        movieId: "2",
+        cinemaRoomId: "3",
+        date: "2025-06-16",
+        startTime: "2025-06-16T20:00:00Z",
+        endTime: "2025-06-16T22:11:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 45,
+        price: 120000,
+      },
     ],
     createdAt: "2025-06-01T11:00:00Z",
     updatedAt: "2025-06-15T11:00:00Z",
@@ -155,11 +166,31 @@ export const moviesMockData: Movie[] = [
       "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the universe, he must prevent a terrible future only he can foresee.",
     poster: "https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w",
-    status: Status.ACTIVE,
-    version: Version.IMAX,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.IMAX,
     showtimes: [
-      { id: "7", cinemaRoomId: "4", startTime: "2025-06-16T13:30:00Z", endTime: "2025-06-16T16:16:00Z" },
-      { id: "8", cinemaRoomId: "5", startTime: "2025-06-16T18:00:00Z", endTime: "2025-06-16T20:46:00Z" },
+      {
+        id: "7",
+        movieId: "3",
+        cinemaRoomId: "4",
+        date: "2025-06-16",
+        startTime: "2025-06-16T13:30:00Z",
+        endTime: "2025-06-16T16:16:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
+      {
+        id: "8",
+        movieId: "3",
+        cinemaRoomId: "5",
+        date: "2025-06-16",
+        startTime: "2025-06-16T18:00:00Z",
+        endTime: "2025-06-16T20:46:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 30,
+        price: 150000,
+      },
     ],
     createdAt: "2025-06-10T12:00:00Z",
     updatedAt: "2025-06-15T12:00:00Z",
@@ -185,11 +216,31 @@ export const moviesMockData: Movie[] = [
       "With Spider-Man's identity now revealed, Peter asks Doctor Strange for help. When a spell goes wrong, dangerous foes from other worlds start to appear, forcing Peter to discover what it truly means to be Spider-Man.",
     poster: "https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=JfVOs4VSpmA",
-    status: Status.ACTIVE,
-    version: Version.THREE_D,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.THREE_D,
     showtimes: [
-      { id: "9", cinemaRoomId: "1", startTime: "2025-06-16T16:00:00Z", endTime: "2025-06-16T18:28:00Z" },
-      { id: "10", cinemaRoomId: "2", startTime: "2025-06-16T19:30:00Z", endTime: "2025-06-16T21:58:00Z" },
+      {
+        id: "9",
+        movieId: "4",
+        cinemaRoomId: "1",
+        date: "2025-06-16",
+        startTime: "2025-06-16T16:00:00Z",
+        endTime: "2025-06-16T18:28:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
+      {
+        id: "10",
+        movieId: "4",
+        cinemaRoomId: "2",
+        date: "2025-06-16",
+        startTime: "2025-06-16T19:30:00Z",
+        endTime: "2025-06-16T21:58:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 30,
+        price: 150000,
+      },
     ],
     createdAt: "2025-06-05T13:00:00Z",
     updatedAt: "2025-06-15T13:00:00Z",
@@ -215,11 +266,31 @@ export const moviesMockData: Movie[] = [
       "When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate the city's hidden corruption and question his family's involvement.",
     poster: "https://image.tmdb.org/t/p/w500/b0PlSFdDwbyK0cf5RxwDpaOJQvQ.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=mqqft2x_Aa4",
-    status: Status.ACTIVE,
-    version: Version.IMAX,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.IMAX,
     showtimes: [
-      { id: "11", cinemaRoomId: "3", startTime: "2025-06-16T12:00:00Z", endTime: "2025-06-16T14:56:00Z" },
-      { id: "12", cinemaRoomId: "4", startTime: "2025-06-16T17:00:00Z", endTime: "2025-06-16T19:56:00Z" },
+      {
+        id: "11",
+        movieId: "5",
+        cinemaRoomId: "3",
+        date: "2025-06-16",
+        startTime: "2025-06-16T12:00:00Z",
+        endTime: "2025-06-16T14:56:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
+      {
+        id: "12",
+        movieId: "5",
+        cinemaRoomId: "4",
+        date: "2025-06-16",
+        startTime: "2025-06-16T17:00:00Z",
+        endTime: "2025-06-16T19:56:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 30,
+        price: 150000,
+      },
     ],
     createdAt: "2025-06-08T14:00:00Z",
     updatedAt: "2025-06-15T14:00:00Z",
@@ -244,11 +315,31 @@ export const moviesMockData: Movie[] = [
     description: "The people of Wakanda fight to protect their home from intervening world powers as they mourn the death of King T'Challa.",
     poster: "https://image.tmdb.org/t/p/w500/sv1xJUazXeYqALzczSZ3O6nkH75.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=_Z3QKkl1WyM",
-    status: Status.ACTIVE,
-    version: Version.FOUR_DX,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.FOUR_DX,
     showtimes: [
-      { id: "13", cinemaRoomId: "5", startTime: "2025-06-16T14:00:00Z", endTime: "2025-06-16T16:41:00Z" },
-      { id: "14", cinemaRoomId: "1", startTime: "2025-06-16T21:00:00Z", endTime: "2025-06-16T23:41:00Z" },
+      {
+        id: "13",
+        movieId: "6",
+        cinemaRoomId: "5",
+        date: "2025-06-16",
+        startTime: "2025-06-16T14:00:00Z",
+        endTime: "2025-06-16T16:41:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
+      {
+        id: "14",
+        movieId: "6",
+        cinemaRoomId: "1",
+        date: "2025-06-16",
+        startTime: "2025-06-16T21:00:00Z",
+        endTime: "2025-06-16T23:41:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 30,
+        price: 150000,
+      },
     ],
     createdAt: "2025-06-12T15:00:00Z",
     updatedAt: "2025-06-15T15:00:00Z",
@@ -275,11 +366,31 @@ export const moviesMockData: Movie[] = [
       "Doctor Strange teams up with a mysterious young teenager who has the ability to travel across multiverses, to battle other-universe versions of himself and threaten to wipe out millions across the multiverse.",
     poster: "https://image.tmdb.org/t/p/w500/9Gtg2DzBhmYamXBS1hKAhiwbBKS.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=aWzlQ2N6qqg",
-    status: Status.ACTIVE,
-    version: Version.THREE_D,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.THREE_D,
     showtimes: [
-      { id: "15", cinemaRoomId: "2", startTime: "2025-06-16T10:30:00Z", endTime: "2025-06-16T12:36:00Z" },
-      { id: "16", cinemaRoomId: "3", startTime: "2025-06-16T18:30:00Z", endTime: "2025-06-16T20:36:00Z" },
+      {
+        id: "15",
+        movieId: "7",
+        cinemaRoomId: "2",
+        date: "2025-06-16",
+        startTime: "2025-06-16T10:30:00Z",
+        endTime: "2025-06-16T12:36:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
+      {
+        id: "16",
+        movieId: "7",
+        cinemaRoomId: "3",
+        date: "2025-06-16",
+        startTime: "2025-06-16T18:30:00Z",
+        endTime: "2025-06-16T20:36:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 30,
+        price: 150000,
+      },
     ],
     createdAt: "2025-06-15T16:00:00Z",
     updatedAt: "2025-06-15T16:00:00Z",
@@ -305,11 +416,31 @@ export const moviesMockData: Movie[] = [
       "Four years after the destruction of Isla Nublar, dinosaurs now live and hunt alongside humans all over the world. This fragile balance will reshape the future and determine, once and for all, whether human beings are to remain the apex predators on a planet they now share with history's most fearsome creatures.",
     poster: "https://image.tmdb.org/t/p/w500/kAVRgw7GgK1CfYEJq8ME6EvRIgU.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=fb5ELWi-ekk",
-    status: Status.ACTIVE,
-    version: Version.FOUR_DX,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.FOUR_DX,
     showtimes: [
-      { id: "17", cinemaRoomId: "1", startTime: "2025-06-16T13:00:00Z", endTime: "2025-06-16T15:27:00Z" },
-      { id: "18", cinemaRoomId: "4", startTime: "2025-06-16T20:30:00Z", endTime: "2025-06-16T22:57:00Z" },
+      {
+        id: "17",
+        movieId: "8",
+        cinemaRoomId: "1",
+        date: "2025-06-16",
+        startTime: "2025-06-16T13:00:00Z",
+        endTime: "2025-06-16T15:27:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
+      {
+        id: "18",
+        movieId: "8",
+        cinemaRoomId: "4",
+        date: "2025-06-16",
+        startTime: "2025-06-16T20:30:00Z",
+        endTime: "2025-06-16T22:57:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 30,
+        price: 150000,
+      },
     ],
     createdAt: "2025-06-01T17:00:00Z",
     updatedAt: "2025-06-15T17:00:00Z",
@@ -333,12 +464,20 @@ export const moviesMockData: Movie[] = [
     description: "The untold story of one twelve-year-old's dream to become the world's greatest supervillain.",
     poster: "https://image.tmdb.org/t/p/w500/wKiOkZTN9lUUUNZLmtnwubZYONg.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=BUIgZd8w2yc",
-    status: Status.ACTIVE,
-    version: Version.TWO_D,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.TWO_D,
     showtimes: [
-      { id: "19", cinemaRoomId: "2", startTime: "2025-06-16T09:00:00Z", endTime: "2025-06-16T10:27:00Z" },
-      { id: "20", cinemaRoomId: "3", startTime: "2025-06-16T15:30:00Z", endTime: "2025-06-16T16:57:00Z" },
-      { id: "21", cinemaRoomId: "5", startTime: "2025-06-16T17:30:00Z", endTime: "2025-06-16T18:57:00Z" },
+      {
+        id: "19",
+        movieId: "9",
+        cinemaRoomId: "2",
+        date: "2025-06-16",
+        startTime: "2025-06-16T09:00:00Z",
+        endTime: "2025-06-16T10:27:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
     ],
     createdAt: "2025-06-05T18:00:00Z",
     updatedAt: "2025-06-15T18:00:00Z",
@@ -363,11 +502,31 @@ export const moviesMockData: Movie[] = [
     description: "The story of Buzz Lightyear and his adventures to infinity and beyond.",
     poster: "https://image.tmdb.org/t/p/w500/ox4goZd956BxqJH6iLwhWPL9ct4.jpg",
     trailerUrl: "https://www.youtube.com/watch?v=BwPL0Md_QFQ",
-    status: Status.ACTIVE,
-    version: Version.THREE_D,
+    status: MovieStatus.ACTIVE,
+    version: MovieVersion.THREE_D,
     showtimes: [
-      { id: "22", cinemaRoomId: "1", startTime: "2025-06-16T08:30:00Z", endTime: "2025-06-16T10:15:00Z" },
-      { id: "23", cinemaRoomId: "4", startTime: "2025-06-16T15:00:00Z", endTime: "2025-06-16T16:45:00Z" },
+      {
+        id: "22",
+        movieId: "10",
+        cinemaRoomId: "1",
+        date: "2025-06-16",
+        startTime: "2025-06-16T08:30:00Z",
+        endTime: "2025-06-16T10:15:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 50,
+        price: 120000,
+      },
+      {
+        id: "23",
+        movieId: "10",
+        cinemaRoomId: "4",
+        date: "2025-06-16",
+        startTime: "2025-06-16T15:00:00Z",
+        endTime: "2025-06-16T16:45:00Z",
+        format: "3D Phụ đề",
+        availableSeats: 30,
+        price: 150000,
+      },
     ],
     createdAt: "2025-06-08T19:00:00Z",
     updatedAt: "2025-06-15T19:00:00Z",

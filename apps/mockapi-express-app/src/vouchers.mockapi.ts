@@ -1,29 +1,4 @@
-// Vouchers mock API
-export interface Voucher {
-  id: string;
-  code: string;
-  title: string;
-  description: string;
-  discountType: "percentage" | "fixed";
-  discountValue: number;
-  minOrderAmount: number;
-  maxDiscountAmount?: number;
-  startDate: string;
-  endDate: string;
-  usageLimit: number;
-  usedCount: number;
-  isActive: boolean;
-  applicableMovies?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface VoucherValidationResult {
-  isValid: boolean;
-  voucher?: Voucher;
-  discount: number;
-  message: string;
-}
+import { Voucher, VoucherValidationResult } from "@interfaces/voucher.interface.ts";
 
 // Mock data
 export const vouchersMockData: Voucher[] = [

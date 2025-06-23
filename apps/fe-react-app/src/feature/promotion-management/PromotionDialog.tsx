@@ -3,7 +3,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import React from "react";
 // import { PromotionForm } from "./PromotionForm";
-import type { Promotion } from "@/interfaces/promotion.interface.";
+import type { Promotion } from "@/interfaces/promotion.interface";
 import { PromotionForm } from "./PromotionForm";
 
 interface PromotionDialogProps {

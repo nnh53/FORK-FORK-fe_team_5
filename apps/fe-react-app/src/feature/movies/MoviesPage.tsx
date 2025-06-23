@@ -12,12 +12,12 @@ import {
   PaginationPrevious,
 } from "@/components/Shadcn/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import type { Movie, MovieSearchParams, MovieSearchResponse } from "@/interfaces/movies.interface.ts";
 import { Calendar, Clock, Filter, Play, Search, Star } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import type { Movie } from "../../../../mockapi-express-app/src/movies.mockapi";
-import { movieService, type MovieSearchParams, type MovieSearchResponse } from "../../services/movieService";
+import { movieService } from "../../services/movieService";
 
 const MoviesPage: React.FC = () => {
   const navigate = useNavigate();

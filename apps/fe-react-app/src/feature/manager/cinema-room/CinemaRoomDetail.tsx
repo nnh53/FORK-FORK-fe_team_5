@@ -135,7 +135,7 @@ export default function CinemaRoomDetail() {
             </Button>
             {/* show list */}
             <CardTitle>
-              Cinema Room {room.room_number} - {room.type}
+              Cinema Room {room.roomNumber} - {room.type}
             </CardTitle>
           </div>
           <div className="flex items-center gap-2">
@@ -180,7 +180,7 @@ export default function CinemaRoomDetail() {
                 const number = (index % columns) + 1;
                 const seatId = `${roomId}-${row}${number}`;
 
-                const seat = seats.find((s) => s.seat_id === seatId);
+                const seat = seats.find((s) => s.id === seatId);
                 const isSelected = selectedSeats.includes(seatId);
 
                 if (!seat)

@@ -1,14 +1,13 @@
 import { type Role } from "./roles.interface";
 
-export type Member = UserBase;
-export type Staff = UserBase;
-
 export type USER_STATUS = "ACTIVE" | "UNVERIFY" | "BAN";
 
 export type UserDetailsResponse = UserBase & {
   created_at: string | null;
   updated_at: string | null;
 };
+
+export type MEMBERSHIP_LEVEL = "Silver" | "Gold" | "Platinum" | "Diamond" | null;
 
 export interface UserBase {
   id: string;
@@ -22,6 +21,10 @@ export interface UserBase {
   status_name: USER_STATUS;
   avatar_url: string;
   loyalty_point: number;
+  createdAt: string;
+  updatedAt: string;
+  totalSpent: number;
+  membershipLevel: MEMBERSHIP_LEVEL;
 }
 
 export type LoginDTO = {

@@ -1,4 +1,4 @@
-import type { Showtime } from "../../../mockapi-express-app/src/showtimes.mockapi";
+import type { Showtime } from "@/interfaces/movies.interface";
 import type { SchedulePerDay } from "../feature/booking/components/ShowtimesModal/ShowtimesModal";
 
 /**
@@ -38,11 +38,18 @@ export const convertShowtimesToSchedulePerDay = (showtimes: Showtime[]): Schedul
       }>
     >,
   );
-
   // Convert to SchedulePerDay format
   return Object.entries(groupedByDate).map(([date, showtimes]) => ({
     date,
-    showtimes: showtimes.sort((a, b) => a.time.localeCompare(b.time)), // Sort by time
+    showtimes: showtimes
+      .sort((a, b) => a.time.localeCompare(b.time))
+      .map((showtime) => ({
+        ...showtime,
+        id: showtime.showtimeId,
+        movieId: "", // This needs to be provided from the original showtime
+        date,
+        startTime: showtime.time,
+      })),
   }));
 };
 

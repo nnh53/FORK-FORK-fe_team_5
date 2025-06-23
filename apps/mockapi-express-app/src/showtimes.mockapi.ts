@@ -1,14 +1,4 @@
-export interface Showtime {
-  id: string;
-  movieId: string;
-  cinemaRoomId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  format: string;
-  availableSeats: number;
-  price: number;
-}
+import { Showtime } from "@interfaces/movies.interface.ts";
 
 export const showtimesMockData: Showtime[] = [
   // Avatar: The Way of Water (movie id: "1")

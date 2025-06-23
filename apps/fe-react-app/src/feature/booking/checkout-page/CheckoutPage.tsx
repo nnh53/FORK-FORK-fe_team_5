@@ -1,13 +1,13 @@
+import { PaymentMethod, type BookingCreateRequest, type Combo } from "@/interfaces/booking.interface.ts";
+import type { Member } from "@/interfaces/member.interface.ts";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import BookingBreadcrumb from "../../../components/BookingBreadcrumb.tsx";
-import UserLayout from "../../../layouts/user/UserLayout.tsx";
-import { bookingService, type BookingCreateRequest, type Combo } from "../../../services/bookingService";
-import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
-
 import DiscountSection from "../../../components/DiscountSection.tsx";
-import { type Member } from "../../../services/memberService";
+import UserLayout from "../../../layouts/user/UserLayout.tsx";
+import { bookingService } from "../../../services/bookingService";
+import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
 import ComboList from "../components/ComboList/ComboList.tsx";
 import PaymentInfo from "../components/PaymentInfo/PaymentInfo.tsx";
 import PaymentMethodSelector from "../components/PaymentMethodSelector/PaymentMethodSelector.tsx";
@@ -58,7 +58,7 @@ const CheckoutPage: React.FC = () => {
   });
   const [selectedCombos, setSelectedCombos] = useState<Record<string, number>>({});
   const [combos, setCombos] = useState<Combo[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "momo" | "banking">("momo");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.MOMO);
   const [isCreatingBooking, setIsCreatingBooking] = useState(false);
   const [usePoints, setUsePoints] = useState(0);
   const [pointsDiscount, setPointsDiscount] = useState(0);
@@ -251,10 +251,7 @@ const CheckoutPage: React.FC = () => {
               voucherDiscount={voucherDiscount}
               totalCost={finalTotalCost}
             />{" "}
-            <PaymentMethodSelector
-              selectedMethod={paymentMethod}
-              onMethodChange={(method) => setPaymentMethod(method as "cash" | "card" | "momo" | "banking")}
-            />
+            <PaymentMethodSelector selectedMethod={paymentMethod} onMethodChange={(method) => setPaymentMethod(method as PaymentMethod)} />
             {/* Booking Button */}
             <div className="flex justify-center pt-4">
               <button

@@ -6,12 +6,13 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/Shadcn/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
+import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { MovieStatus, MovieVersion, type CinemaRoom, type Movie, type MovieFormData, type MovieGenre } from "../../../interfaces/movies.interface";
+import { MovieStatus, MovieVersion, type Movie, type MovieFormData, type MovieGenre } from "../../../interfaces/movies.interface";
 
 interface MovieDetailProps {
   movie?: Movie;
@@ -499,7 +500,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                   const room = cinemaRooms.find((r) => r.id === showtime.cinemaRoomId);
                   return (
                     <div key={showtime.id || index} className="grid grid-cols-3 gap-2 items-center py-1 border-t">
-                      <div>{room?.name || showtime.cinemaRoomId}</div>
+                      <div>{room?.roomNumber || showtime.cinemaRoomId}</div>
                       <div>{new Date(showtime.startTime).toLocaleString()}</div>
                       <div className="flex items-center justify-between">
                         <span>{new Date(showtime.endTime).toLocaleString()}</span>
@@ -540,7 +541,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                 <SelectContent>
                   {cinemaRooms.map((room) => (
                     <SelectItem key={room.id} value={room.id}>
-                      {room.name}
+                      {room.roomNumber}
                     </SelectItem>
                   ))}
                 </SelectContent>

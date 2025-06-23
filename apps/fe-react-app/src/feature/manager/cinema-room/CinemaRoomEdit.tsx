@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
-  room_number: z.number().min(100, "Room number must be at least 100").max(999, "Room number must be at most 999"),
+  roomNumber: z.number().min(100, "Room number must be at least 100").max(999, "Room number must be at most 999"),
   type: z.string().min(1, "Type is required"),
   fee: z.number().min(10000, "Fee must be at least 10,000"),
   capacity: z.number().min(20, "Capacity must be at least 20 seats"),
@@ -34,7 +34,7 @@ export default function CinemaRoomEdit() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      room_number: 100,
+      roomNumber: 100,
       type: "Standard",
       fee: 50000,
       capacity: 100,
@@ -61,7 +61,7 @@ export default function CinemaRoomEdit() {
 
         // Update form values
         form.reset({
-          room_number: data.room_number,
+          roomNumber: data.roomNumber,
           type: data.type,
           fee: data.fee,
           capacity: data.capacity,
@@ -149,7 +149,7 @@ export default function CinemaRoomEdit() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="room_number"
+                  name="roomNumber"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Room Number*</FormLabel>

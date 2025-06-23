@@ -1,34 +1,7 @@
+import type { Member, MemberCreateRequest, PointTransaction } from "@/interfaces/member.interface";
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3000";
-
-export interface Member {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  membershipLevel: "Silver" | "Gold" | "Platinum";
-  currentPoints: number;
-  totalSpent: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MemberCreateRequest {
-  name: string;
-  phone: string;
-  email: string;
-  membershipLevel?: "Silver" | "Gold" | "Platinum";
-}
-
-export interface PointTransaction {
-  id: string;
-  memberId: string;
-  type: "earn" | "redeem";
-  points: number;
-  description: string;
-  createdAt: string;
-}
 
 export const memberService = {
   // Get member by phone

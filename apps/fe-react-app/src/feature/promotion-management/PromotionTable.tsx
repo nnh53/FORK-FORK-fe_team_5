@@ -1,6 +1,6 @@
 import { AdminTable } from "@/components/AdminTable";
 import type { TableColumns } from "@/components/CustomTable";
-import type { Promotion } from "@/interfaces/promotion.interface.";
+import type { Promotion } from "@/interfaces/promotion.interface";
 import { formatDateTime } from "@/utils/validation.utils";
 import React from "react";
 

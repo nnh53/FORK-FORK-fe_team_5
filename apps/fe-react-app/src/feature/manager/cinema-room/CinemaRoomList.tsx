@@ -48,7 +48,7 @@ export default function CinemaRoomList({ searchQuery, onRefresh }: CinemaRoomLis
   const filteredRooms = cinemaRooms.filter((room) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
-    return room.room_id.toLowerCase().includes(query) || room.room_number.toString().includes(query) || room.type.toLowerCase().includes(query);
+    return room.id.toLowerCase().includes(query) || room.roomNumber.toString().includes(query) || room.type.toLowerCase().includes(query);
   });
 
   const handleViewDetails = (roomId: string) => {
@@ -69,7 +69,7 @@ export default function CinemaRoomList({ searchQuery, onRefresh }: CinemaRoomLis
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/cinema-rooms/${roomToDelete.room_id}`, {
+      const response = await fetch(`http://localhost:3000/cinema-rooms/${roomToDelete.id}`, {
         method: "DELETE",
       });
 
@@ -123,9 +123,9 @@ export default function CinemaRoomList({ searchQuery, onRefresh }: CinemaRoomLis
           </TableHeader>
           <TableBody>
             {filteredRooms.map((room) => (
-              <TableRow key={room.room_id}>
-                <TableCell>{room.room_id}</TableCell>
-                <TableCell>{room.room_number}</TableCell>
+              <TableRow key={room.id}>
+                <TableCell>{room.id}</TableCell>
+                <TableCell>{room.roomNumber}</TableCell>
                 <TableCell>{room.type}</TableCell>
                 <TableCell>{room.capacity}</TableCell>
                 <TableCell>
@@ -133,10 +133,10 @@ export default function CinemaRoomList({ searchQuery, onRefresh }: CinemaRoomLis
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
-                    <Button variant="outline" size="icon" onClick={() => handleViewDetails(room.room_id)}>
+                    <Button variant="outline" size="icon" onClick={() => handleViewDetails(room.id)}>
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="icon" onClick={() => handleEditRoom(room.room_id)}>
+                    <Button variant="outline" size="icon" onClick={() => handleEditRoom(room.id)}>
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button variant="outline" size="icon" onClick={() => handleDeleteClick(room)}>
@@ -156,7 +156,7 @@ export default function CinemaRoomList({ searchQuery, onRefresh }: CinemaRoomLis
           <DialogHeader>
             <DialogTitle>Delete Cinema Room</DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to delete cinema room {roomToDelete?.room_number}? This action cannot be undone.</p>
+          <p>Are you sure you want to delete cinema room {roomToDelete?.roomNumber}? This action cannot be undone.</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Cancel

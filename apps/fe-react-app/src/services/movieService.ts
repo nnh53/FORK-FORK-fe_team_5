@@ -1,22 +1,7 @@
+import type { Movie, MovieSearchParams, MovieSearchResponse } from "@/interfaces/movies.interface";
 import axios from "axios";
-import type { Movie } from "../../../mockapi-express-app/src/movies.mockapi";
 
 const API_BASE_URL = "http://localhost:3000";
-
-export interface MovieSearchParams {
-  search?: string;
-  genre?: string;
-  status?: "now-showing" | "coming-soon" | "all";
-  page?: number;
-  limit?: number;
-}
-
-export interface MovieSearchResponse {
-  movies: Movie[];
-  totalPages: number;
-  totalCount: number;
-  currentPage: number;
-}
 
 export const movieService = {
   getAllMovies: async (): Promise<Movie[]> => {

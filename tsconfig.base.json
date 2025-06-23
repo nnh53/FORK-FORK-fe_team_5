@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "composite": true,
+    "composite": false,
+    "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": true,
     "importHelpers": true,
     "isolatedModules": true,
     "lib": ["es2022"],
@@ -17,6 +19,11 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["development"]
+    "customConditions": ["development"],
+    "baseUrl": "./",
+    "paths": {
+      "@interfaces/*": ["apps/fe-react-app/src/interfaces/*"],
+      "@interfaces": ["apps/fe-react-app/src/interfaces/index.interface.ts"]
+    }
   }
 }

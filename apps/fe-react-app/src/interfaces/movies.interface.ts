@@ -15,16 +15,16 @@ export interface MovieGenre {
   name: string;
 }
 
-export interface CinemaRoom {
-  id: string;
-  name: string;
-}
-
 export interface Showtime {
   id: string;
+  movieId: string;
   cinemaRoomId: string;
+  date: string;
   startTime: string;
   endTime: string;
+  format: string;
+  availableSeats: number;
+  price: number;
 }
 
 export interface Movie {
@@ -62,4 +62,19 @@ export interface MovieHistory {
   movieSlot: string;
   seats: string[];
   points: number;
+}
+
+export interface MovieSearchParams {
+  search?: string;
+  genre?: string;
+  status?: "now-showing" | "coming-soon" | "all";
+  page?: number;
+  limit?: number;
+}
+
+export interface MovieSearchResponse {
+  movies: Movie[];
+  totalPages: number;
+  totalCount: number;
+  currentPage: number;
 }

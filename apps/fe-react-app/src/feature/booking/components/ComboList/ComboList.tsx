@@ -1,5 +1,6 @@
+import type { Combo } from "@/interfaces/booking.interface.ts";
 import React from "react";
-import ComboItem, { type Combo } from "../ComboItem/ComboItem.tsx";
+import ComboItem from "../ComboItem/ComboItem.tsx";
 
 interface ComboListProps {
   combos: Combo[];

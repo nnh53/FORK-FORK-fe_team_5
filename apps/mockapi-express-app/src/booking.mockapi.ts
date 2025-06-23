@@ -1,59 +1,6 @@
-import { membersAPI } from "./members.mockapi";
-import { vouchersAPI } from "./vouchers.mockapi";
-
-export interface Booking {
-  id: string;
-  userId: string;
-  movieId: string;
-  showtimeId: string;
-  cinemaRoomId: string;
-  seats: string[]; // Array of seat IDs like ["A1", "A2"]
-  totalAmount: number;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
-  paymentStatus: "pending" | "paid" | "failed" | "refunded";
-  paymentMethod: "cash" | "card" | "momo" | "banking";
-  bookingDate: Date;
-  customerInfo: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  combos?: {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-  }[];
-  discount?: {
-    type: "points" | "voucher" | "promotion";
-    amount: number;
-    description: string;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface BookingCreateRequest {
-  userId?: string;
-  movieId: string;
-  showtimeId: string;
-  cinemaRoomId: string;
-  seats: string[];
-  customerInfo: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  paymentMethod: "cash" | "card" | "momo" | "banking";
-  combos?: {
-    id: string;
-    quantity: number;
-  }[];
-  usePoints?: number;
-  memberId?: string;
-  voucherCode?: string;
-  isStaffBooking?: boolean;
-}
+import { Booking, BookingCreateRequest, PaymentMethod } from "@interfaces/booking.interface.ts";
+import { membersAPI } from "./members.mockapi.ts";
+import { vouchersAPI } from "./vouchers.mockapi.ts";
 
 // Mock data
 let bookings: Booking[] = [
@@ -67,7 +14,7 @@ let bookings: Booking[] = [
     totalAmount: 200000,
     status: "confirmed",
     paymentStatus: "paid",
-    paymentMethod: "momo",
+    paymentMethod: PaymentMethod.MOMO,
     bookingDate: new Date("2025-06-16T19:00:00"),
     customerInfo: {
       name: "Nguyễn Văn A",
@@ -95,7 +42,7 @@ let bookings: Booking[] = [
     totalAmount: 120000,
     status: "pending",
     paymentStatus: "pending",
-    paymentMethod: "cash",
+    paymentMethod: PaymentMethod.CASH,
     bookingDate: new Date("2025-06-17T15:30:00"),
     customerInfo: {
       name: "Trần Thị B",
@@ -116,7 +63,7 @@ let bookings: Booking[] = [
     totalAmount: 180000,
     status: "confirmed",
     paymentStatus: "pending", // Need payment
-    paymentMethod: "cash",
+    paymentMethod: PaymentMethod.CASH,
     bookingDate: new Date("2025-06-19T20:00:00"),
     customerInfo: {
       name: "Lê Văn C",
@@ -144,7 +91,7 @@ let bookings: Booking[] = [
     totalAmount: 100000,
     status: "confirmed",
     paymentStatus: "paid",
-    paymentMethod: "momo",
+    paymentMethod: PaymentMethod.MOMO,
     bookingDate: new Date("2025-06-19T18:30:00"),
     customerInfo: {
       name: "Phạm Thị D",
@@ -200,7 +147,7 @@ export const bookingAPI = {
       seats: data.seats,
       totalAmount: calculateTotalAmount(data),
       status: data.isStaffBooking ? "confirmed" : "pending", // Staff bookings are auto-confirmed
-      paymentStatus: data.paymentMethod === "cash" ? "pending" : "paid",
+      paymentStatus: data.paymentMethod === PaymentMethod.CASH ? "pending" : "paid",
       paymentMethod: data.paymentMethod,
       bookingDate: new Date(),
       customerInfo: data.customerInfo,

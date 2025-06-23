@@ -3,23 +3,19 @@
  * This is only a minimal backend to get started.
  */
 
+import { UserBase } from "@interfaces/users.interface.ts";
 import cors from "cors";
 import express from "express";
-import { blogsMockData } from "./blogs.mockapi";
-import { availableCombos, bookingAPI } from "./booking.mockapi";
-import { cinemaRoomsAPI, seatsAPI } from "./cinema-room.mockapi";
-import { healthMetricListMockData } from "./health-metric.mockapi";
-import { membersAPI } from "./members.mockapi";
-import { genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi";
-import { User } from "./myInfo.mockapi";
-import { myMembership } from "./myMembership";
-import { getAllMovieHistoryFiltered, myMovieHistory } from "./myMovieHistory";
-import { myPoint } from "./mypoint";
-import { promotionsAPI } from "./promotions.mockapi";
-import { showtimesAPI } from "./showtimes.mockapi";
-import { loginMock } from "./users.mockapi";
-import { mockVoucherHistory, mockVouchers } from "./voucher.mockapi";
-import { vouchersAPI } from "./vouchers.mockapi";
+import { availableCombos, bookingAPI } from "./booking.mockapi.ts";
+import { cinemaRoomsAPI, seatsAPI } from "./cinema-room.mockapi.ts";
+import { membersAPI } from "./members.mockapi.ts";
+import { genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi.ts";
+import { promotionsAPI } from "./promotions.mockapi.ts";
+import { showtimesAPI } from "./showtimes.mockapi.ts";
+import { loginMock } from "./users.mockapi.ts";
+import { mockVoucherHistory, mockVouchers } from "./voucher.mockapi.ts";
+import { vouchersAPI } from "./vouchers.mockapi.ts";
+
 const app = express();
 const corsOptions = {
   origin: ["http://localhost:4222", "http://localhost:5173"],
@@ -35,27 +31,24 @@ app.get("/api", (req, res) => {
   res.send({ message: "Welcome to mockapi-express!" });
 });
 
-// http://localhost:3000/metrics
-app.get("/metrics", (req, res) => {
-  res.send(healthMetricListMockData);
-});
-
-// http://localhost:3000/blogs
-app.get("/blogs", (req, res) => {
-  res.send(blogsMockData);
-});
-
-export let user: User = {
+export let user: UserBase = {
   id: "asdasfasd",
-  name: "Lucian Nguyen",
-  phone: "0292920322",
-  dob: new Date("2000-02-21"),
+  full_name: "Lucian Nguyen",
+  date_of_birth: "2000-02-21",
   email: "lucianNguyen@gmail.com",
-  city: null,
-  district: null,
-  address: null,
-  img: "https://smilemedia.vn/wp-content/uploads/2022/09/cach-chup-hinh-the-dep.jpeg",
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  is_active: 1,
+  is_subscription: 1,
+  role_name: "user",
+  status_name: "ACTIVE",
+  password: "123456",
+  avatar_url: "https://smilemedia.vn/wp-content/uploads/2022/09/cach-chup-hinh-the-dep.jpeg",
+  loyalty_point: 1,
+  totalSpent: 1,
+  membershipLevel: "Silver",
 };
+
 app.get("/myInfo", (req, res) => {
   res.send(user);
 });
@@ -84,20 +77,6 @@ app.get("/myInfo", (req, res) => {
 //     });
 //   }
 // });
-
-app.get("/myMembership", (req, res) => {
-  res.send(myMembership);
-});
-
-// Movie history endpoint with optional from/to date filtering
-app.get("/myMovieHistory", (req, res) => {
-  const { from, to } = req.query;
-  const filtered = getAllMovieHistoryFiltered(myMovieHistory, typeof from === "string" ? from : undefined, typeof to === "string" ? to : undefined);
-  res.send(filtered);
-});
-app.get("/myPoint", (req, res) => {
-  res.send(myPoint);
-});
 
 app.get("/myVoucher", (req, res) => {
   res.send(mockVouchers);
@@ -495,16 +474,6 @@ app.get("/members/:id", (req, res) => {
   }
 });
 
-// Get member by phone
-app.get("/members/phone/:phone", (req, res) => {
-  const member = membersAPI.getByPhone(req.params.phone);
-  if (member) {
-    res.send(member);
-  } else {
-    res.status(404).send({ error: "Member not found" });
-  }
-});
-
 // Create new member
 app.post("/members", (req, res) => {
   const member = membersAPI.create(req.body);
@@ -548,7 +517,7 @@ app.post("/members/:id/redeem", (req, res) => {
     return;
   }
 
-  if (points > member.currentPoints) {
+  if (points > member.loyalty_point) {
     res.status(400).send({ error: "Insufficient points" });
     return;
   }
@@ -560,7 +529,7 @@ app.post("/members/:id/redeem", (req, res) => {
   if (updatedMember) {
     res.send({
       discount,
-      newPoints: updatedMember.currentPoints,
+      newPoints: updatedMember.loyalty_point,
     });
   } else {
     res.status(500).send({ error: "Failed to redeem points" });

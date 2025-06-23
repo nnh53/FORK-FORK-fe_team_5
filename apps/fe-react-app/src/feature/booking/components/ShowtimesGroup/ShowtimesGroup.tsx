@@ -1,7 +1,8 @@
 // File: src/components/showtimesGroup/ShowtimesGroup.tsx
 
+import type { Showtime } from "@/interfaces/movies.interface.ts";
 import React, { useMemo } from "react";
-import type { SchedulePerDay, Showtime } from "../ShowtimesModal/ShowtimesModal";
+import type { SchedulePerDay } from "../ShowtimesModal/ShowtimesModal";
 
 interface ShowtimesGroupProps {
   scheduleForDay?: SchedulePerDay;
@@ -37,14 +38,14 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
           <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
             {showtimes.map((showtime) => (
               <button
-                key={showtime.time}
-                onClick={() => onSelectShowtime({ time: showtime.time, format })}
+                key={showtime.startTime}
+                onClick={() => onSelectShowtime({ time: showtime.startTime, format })}
                 // CẬP NHẬT: Toàn bộ style của button suất chiếu
                 className="border border-gray-300 bg-gray-50 rounded-md p-2 text-center transition-all duration-200 hover:border-red-500 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={showtime.availableSeats === 0} // Thêm: disable nút nếu hết ghế
               >
                 {/* CẬP NHẬT: Style lại text bên trong */}
-                <p className="font-bold text-base text-gray-900">{showtime.time}</p>
+                <p className="font-bold text-base text-gray-900">{showtime.startTime}</p>
                 <p className="text-xs text-gray-500">{showtime.availableSeats > 0 ? `${showtime.availableSeats} ghế trống` : "Hết vé"}</p>
               </button>
             ))}

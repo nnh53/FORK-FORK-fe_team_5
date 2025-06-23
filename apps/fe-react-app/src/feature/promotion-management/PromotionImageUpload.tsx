@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Promotion } from "@/interfaces/promotion.interface.";
+import type { Promotion } from "@/interfaces/promotion.interface";
 import React from "react";
 
 interface PromotionImageUploadProps {

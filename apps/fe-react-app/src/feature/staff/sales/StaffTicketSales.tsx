@@ -3,20 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui
 import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
 import { Separator } from "@/components/Shadcn/ui/separator";
+import type { BookingCreateRequest, Combo } from "@/interfaces/booking.interface";
+import { PaymentMethod } from "@/interfaces/booking.interface";
+import type { Member } from "@/interfaces/member.interface";
+import type { Movie, Showtime } from "@/interfaces/movies.interface";
 import { Clock, CreditCard, Film, Minus, Plus, ShoppingCart, Ticket, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import MovieSearch from "../../../components/MovieSearch";
-import { bookingService, type BookingCreateRequest, type Combo } from "../../../services/bookingService";
-import { memberService, type Member } from "../../../services/memberService";
+import { bookingService } from "../../../services/bookingService";
+import { memberService } from "../../../services/memberService";
 import { movieService } from "../../../services/movieService";
 import { showtimeService } from "../../../services/showtimeService";
 
-// Import types from mockapi
-import type { Movie } from "../../../../../mockapi-express-app/src/movies.mockapi";
-import type { Showtime } from "../../../../../mockapi-express-app/src/showtimes.mockapi";
-
-// Local interfaces for seat management
 interface Seat {
   id: string;
   row: string;
@@ -58,7 +57,7 @@ const StaffTicketSales: React.FC = () => {
     email: "",
   });
   // State for payment
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "momo" | "banking">("cash");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.CASH);
   const [usePoints, setUsePoints] = useState(0);
   const [memberPhone, setMemberPhone] = useState("");
   const [memberInfo, setMemberInfo] = useState<Member | null>(null);
@@ -790,14 +789,14 @@ const StaffTicketSales: React.FC = () => {
                   <h3 className="font-semibold mb-3">Phương Thức Thanh Toán</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                      { id: "cash", name: "Tiền mặt" },
-                      { id: "card", name: "Thẻ" },
-                      { id: "momo", name: "MoMo" },
-                      { id: "banking", name: "Banking" },
+                      { id: PaymentMethod.CASH, name: "Tiền mặt" },
+                      { id: PaymentMethod.CARD, name: "Thẻ" },
+                      { id: PaymentMethod.MOMO, name: "MoMo" },
+                      { id: PaymentMethod.BANKING, name: "Banking" },
                     ].map((method) => (
                       <button
                         key={method.id}
-                        onClick={() => setPaymentMethod(method.id as "cash" | "card" | "momo" | "banking")}
+                        onClick={() => setPaymentMethod(method.id as PaymentMethod)}
                         className={`p-3 border rounded-lg text-center transition-colors ${
                           paymentMethod === method.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
                         }`}

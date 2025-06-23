@@ -1,5 +1,5 @@
+import type { Showtime } from "@/interfaces/movies.interface";
 import axios from "axios";
-import type { Showtime } from "../../../mockapi-express-app/src/showtimes.mockapi";
 
 const API_BASE_URL = "http://localhost:3000";
 

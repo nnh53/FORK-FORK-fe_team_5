@@ -1,5 +1,5 @@
 {
-  "name": "fe-react-app",
+  "name": "@fcinema-workspace/fe-react-app",
   "version": "0.0.0",
   "private": true,
   "type": "module",
