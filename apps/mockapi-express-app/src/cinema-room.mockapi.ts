@@ -1,4 +1,4 @@
-import { CinemaRoom, Seat } from "./interfaces/cinemarooms.interface.ts";
+import { CinemaRoom, Seat } from "@/interfaces/cinemarooms.interface.ts";
 
 export const cinemaRoomsMockData: CinemaRoom[] = [
   {

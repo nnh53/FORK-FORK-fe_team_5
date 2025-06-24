@@ -1,5 +1,4 @@
 {
-  "extends": "../../tsconfig.base.json",
   "files": [],
   "references": [
     {
@@ -10,6 +9,7 @@
     }
   ],
   "compilerOptions": {
+    "composite": true,
     "baseUrl": ".",
     "noUncheckedIndexedAccess": true,
     "paths": {

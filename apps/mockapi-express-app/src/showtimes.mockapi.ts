@@ -1,4 +1,4 @@
-import { Showtime } from "./interfaces/movies.interface.ts";
+import { Showtime } from "@/interfaces/movies.interface.ts";
 
 export const showtimesMockData: Showtime[] = [
   // Avatar: The Way of Water (movie id: "1")

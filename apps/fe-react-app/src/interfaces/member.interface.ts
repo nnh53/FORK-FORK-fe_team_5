@@ -1,4 +1,4 @@
-import type { MEMBERSHIP_LEVEL } from "./users.interface";
+import type { MEMBERSHIP_LEVEL } from "./users.interface.ts";
 
 export enum MemberStatus {
   ACTIVE = "ACTIVE",
@@ -34,13 +34,4 @@ export interface Member {
   totalSpent: number;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface PointTransaction {
-  id: string;
-  memberId: string;
-  type: "earn" | "redeem";
-  points: number;
-  description: string;
-  createdAt: string;
 }

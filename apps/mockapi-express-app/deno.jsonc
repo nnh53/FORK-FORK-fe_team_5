@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@/interfaces/": "../../apps/fe-react-app/src/interfaces/",
+    "@/interfaces": "../../apps/fe-react-app/src/interfaces/index.interface.ts",
+  },
+}

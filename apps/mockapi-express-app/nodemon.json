@@ -1,5 +1,6 @@
 {
-  "watch": ["src"],
+  "watch": ["src", "../../apps/fe-react-app/src/interfaces/**/*"],
   "ext": "ts",
-  "exec": "ts-node ./src/main.ts"
+  "ignore": ["src/**/*.spec.ts"],
+  "exec": "deno run --allow-env --allow-net ./src/main.ts "
 }

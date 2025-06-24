@@ -4,6 +4,7 @@ export enum PaymentMethod {
   MOMO = "momo",
   BANKING = "banking",
 }
+
 export interface Booking {
   id: string;
   userId: string;
@@ -35,6 +36,7 @@ export interface Booking {
   createdAt: Date;
   updatedAt: Date;
 }
+
 export interface BookingCreateRequest {
   userId?: string;
   movieId: string;
@@ -56,6 +58,7 @@ export interface BookingCreateRequest {
   voucherCode?: string;
   isStaffBooking?: boolean; // New field to identify staff bookings
 }
+
 export interface Combo {
   id: string;
   name: string;

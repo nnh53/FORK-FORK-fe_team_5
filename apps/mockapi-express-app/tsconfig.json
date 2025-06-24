@@ -1,10 +1,45 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "files": [],
-  "include": [],
+  // "files": [],
+  "include": ["src/**/*.ts", "../../apps/fe-react-app/src/interfaces/**/*.ts"],
   "references": [
+    // {
+    //   "path": "./tsconfig.app.json",
+    // },
     {
-      "path": "./tsconfig.app.json"
+      "path": "../../apps/fe-react-app/tsconfig.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "outDir": "dist",
+    "types": ["node"],
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "composite": false,
+    // "declarationMap": true,
+    // "emitDeclarationOnly": true,
+    // "importHelpers": true,
+    "lib": ["ES2022"],
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2020",
+    "noEmitOnError": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    /* Bundler mode */
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/interfaces/*": ["../../apps/fe-react-app/src/interfaces/*"],
+      "@/interfaces": ["../../apps/fe-react-app/src/interfaces/index.interface.ts"]
+    }
+  }
 }

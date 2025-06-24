@@ -1,4 +1,4 @@
-import { Voucher, VoucherValidationResult } from "./interfaces/voucher.interface.ts";
+import { Voucher, VoucherValidationResult } from "@/interfaces/voucher.interface.ts";
 
 // Mock data
 export const vouchersMockData: Voucher[] = [

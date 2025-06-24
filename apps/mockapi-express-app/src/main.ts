@@ -3,7 +3,7 @@
  * This is only a minimal backend to get started.
  */
 
-import { UserBase } from "./interfaces/users.interface.ts";
+import { UserBase } from "@/interfaces/users.interface.ts";
 import cors from "cors";
 import express from "express";
 import { availableCombos, bookingAPI } from "./booking.mockapi.ts";

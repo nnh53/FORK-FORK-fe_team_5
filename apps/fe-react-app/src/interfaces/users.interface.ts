@@ -1,4 +1,4 @@
-import { type Role } from "./roles.interface";
+import { type Role } from "./roles.interface.ts";
 
 export type USER_STATUS = "ACTIVE" | "UNVERIFY" | "BAN";
 
@@ -100,6 +100,7 @@ export interface MyPointHistory {
   points: string;
   description: string;
 }
+
 export interface MyPoint {
   accumulatePoints: number;
   usedPoints: number;
