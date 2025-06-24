@@ -4,7 +4,6 @@ export enum PaymentMethod {
   MOMO = "momo",
   BANKING = "banking",
 }
-
 export interface Booking {
   id: string;
   userId: string;
@@ -36,7 +35,6 @@ export interface Booking {
   createdAt: Date;
   updatedAt: Date;
 }
-
 export interface BookingCreateRequest {
   userId?: string;
   movieId: string;
@@ -58,39 +56,6 @@ export interface BookingCreateRequest {
   voucherCode?: string;
   isStaffBooking?: boolean; // New field to identify staff bookings
 }
-
-export interface Booking {
-  id: string;
-  userId: string;
-  movieId: string;
-  showtimeId: string;
-  cinemaRoomId: string;
-  seats: string[];
-  totalAmount: number;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
-  paymentStatus: "pending" | "paid" | "failed" | "refunded";
-  paymentMethod: PaymentMethod;
-  bookingDate: Date;
-  customerInfo: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  combos?: {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-  }[];
-  discount?: {
-    type: "points" | "voucher" | "promotion";
-    amount: number;
-    description: string;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface Combo {
   id: string;
   name: string;
