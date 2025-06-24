@@ -1,16 +1,11 @@
 import { useEffect } from "react";
 
-export const useClickOutside = (
-  expandedFolder: string | null,
-  setExpandedFolder: (folder: string | null) => void
-) => {
+export const useClickOutside = (expandedFolder: string | null, setExpandedFolder: (folder: string | null) => void) => {
   useEffect(() => {
     const handleClickAnywhere = (event: MouseEvent) => {
       if (expandedFolder) {
         const target = event.target as HTMLElement;
-        const isClickOnExpandedPaper = 
-          target.closest(".paper-expanded") || 
-          target.closest('[data-expanded="true"]');
+        const isClickOnExpandedPaper = target.closest(".paper-expanded") || target.closest('[data-expanded="true"]');
         if (!isClickOnExpandedPaper) {
           setExpandedFolder(null);
         }

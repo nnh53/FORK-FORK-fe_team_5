@@ -9,10 +9,10 @@ import type { MovieData } from "../../feature/views/CarouselSection/CarouselSect
 import CarouselSection from "../../feature/views/CarouselSection/CarouselSection";
 import WelcomePanel from "../../feature/views/WelcomePanel/WelcomePanel";
 
+import { FAQ } from "@/feature/views/FAQ";
 import { useHomePageAnimations } from "../../hooks/useHomePageAnimations";
 import UserLayout from "../../layouts/user/UserLayout";
 import "./styles/HomePage.css";
-import { FAQ } from "@/feature/views/FAQ";
 
 const HomePage = () => {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -460,7 +460,8 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
-          </section>{" "}          {/* FAQ Section */}
+          </section>{" "}
+          {/* FAQ Section */}
           <FAQ ref={faqRef} />
         </div>
       </ClickSpark>

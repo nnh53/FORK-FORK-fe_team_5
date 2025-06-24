@@ -1,7 +1,7 @@
 import React, { forwardRef, useRef, useState } from "react";
+import { FaqFolderGroup } from "./components/FaqFolderGroup";
 import { FAQ_DATA } from "./data/faqData";
 import { useClickOutside } from "./hooks/useClickOutside";
-import { FaqFolderGroup } from "./components/FaqFolderGroup";
 import "./styles/faq.css";
 
 interface FAQProps {
@@ -77,31 +77,21 @@ const FAQ = forwardRef<HTMLElement, FAQProps>(({ className }, ref) => {
               position: "relative",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           >
             <div style={{ textAlign: "center" }}>
-              <p style={{ marginBottom: "100px", color: "#666" }}>
-                Click each folder to explore different questions
-              </p>
+              <p style={{ marginBottom: "100px", color: "#666" }}>Click each folder to explore different questions</p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "40px", alignItems: "center" }}>
                 {/* First Row */}
                 <div style={{ display: "flex", gap: "60px", justifyContent: "center", alignItems: "center" }}>
-                  <FaqFolderGroup
-                    faqItems={firstRowFaqs}
-                    expandedFolder={expandedFolder}
-                    onItemClick={handlePaperClick}
-                  />
+                  <FaqFolderGroup faqItems={firstRowFaqs} expandedFolder={expandedFolder} onItemClick={handlePaperClick} />
                 </div>
 
                 {/* Second Row */}
                 <div style={{ display: "flex", gap: "40px", justifyContent: "center", alignItems: "center" }}>
-                  <FaqFolderGroup
-                    faqItems={secondRowFaqs}
-                    expandedFolder={expandedFolder}
-                    onItemClick={handlePaperClick}
-                  />
+                  <FaqFolderGroup faqItems={secondRowFaqs} expandedFolder={expandedFolder} onItemClick={handlePaperClick} />
                 </div>
               </div>
             </div>

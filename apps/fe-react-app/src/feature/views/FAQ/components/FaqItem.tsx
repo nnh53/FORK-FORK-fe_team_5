@@ -20,10 +20,7 @@ export const FaqItem: React.FC<FaqItemProps> = ({ faqData, isExpanded, onItemCli
         transition: "all 0.3s ease",
       }}
     >
-      <strong 
-        style={{ cursor: "pointer" }} 
-        onClick={(event) => onItemClick(faqData.id, event)}
-      >
+      <strong style={{ cursor: "pointer" }} onClick={(event) => onItemClick(faqData.id, event)}>
         {faqData.title}
       </strong>
       <br />

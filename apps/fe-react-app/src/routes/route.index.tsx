@@ -5,11 +5,11 @@ import Unauthorized from "@/feature/auth/unauth/Unauthor";
 import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
 import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccessPage.tsx";
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
-import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
-import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
 import OldHomePage from "@/feature/booking/home-page/OldHomePage";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
+import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
+import ForgotPassword from "@/pages/authentication/ForgotPassword";
 // import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
 // import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
@@ -18,6 +18,7 @@ import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
 import TermOfService from "@/feature/static/TermOfService";
 import Welcome from "@/feature/theme/Welcome";
 import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
+import FAQ from "@/feature/views/FAQ/FAQ";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
@@ -29,7 +30,6 @@ import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import FAQ from "@/feature/views/FAQ/FAQ";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
