@@ -1,0 +1,33 @@
+/* CSS Variables for Cinema Experience Component */
+:root {
+  --color-base-100: oklch(98% 0.016 73.684);
+  --color-base-200: oklch(95% 0.038 75.164);
+  --color-base-content: oklch(40% 0.123 38.172);
+  --color-secondary: oklch(22.45% 0.075 37.85);
+  --color-accent: oklch(46.44% 0.111 37.85);
+  --color-accent-content: oklch(90% 0.076 70.697);
+}
+
+/* Cinema Experience Section */
+.experience-section {
+  position: relative;
+  background-color: var(--color-base-200);
+  padding: 150px 5%;
+  overflow: hidden;
+}
+
+.experience-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+/* Media Queries */
+@media (max-width: 992px) {
+  .experience-content {
+    flex-direction: column;
+  }
+}
+

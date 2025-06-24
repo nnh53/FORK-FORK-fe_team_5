@@ -1,0 +1,11 @@
+/* Chair Grid Component Styles */
+.chair-grid {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+  max-width: 500px;
+  height: 400px;
+}
+

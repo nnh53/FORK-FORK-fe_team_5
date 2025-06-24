@@ -20,4 +20,3 @@ const CinemaExperience = forwardRef<HTMLElement, CinemaExperienceProps>(({ class
 CinemaExperience.displayName = "CinemaExperience";
 
 export default CinemaExperience;
-

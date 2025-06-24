@@ -1,0 +1,55 @@
+/* Experience Text Component Styles */
+.experience-text {
+  flex: 1;
+  padding-right: 50px;
+}
+
+.experience-title {
+  margin-bottom: 30px;
+  background: linear-gradient(to right, #946b38, #392819);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+  font-size: 3rem;
+}
+
+.experience-description {
+  margin-bottom: 30px;
+  color: var(--color-base-content);
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.learn-button {
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+  cursor: pointer;
+  border: 2px solid var(--color-accent);
+  border-radius: 25px;
+  background: transparent;
+  padding: 10px 25px;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.learn-button:hover {
+  background-color: var(--color-accent);
+  color: var(--color-accent-content);
+}
+
+/* Media Queries */
+@media (max-width: 992px) {
+  .experience-text {
+    padding-right: 0;
+    padding-bottom: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .experience-title {
+    font-size: 2.5rem;
+  }
+}
+

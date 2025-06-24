@@ -18,6 +18,7 @@ import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
 import TermOfService from "@/feature/static/TermOfService";
 import Welcome from "@/feature/theme/Welcome";
 import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
+import CinemaExperience from "@/feature/views/CinemaExperience";
 import FAQ from "@/feature/views/FAQ/FAQ";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
@@ -30,7 +31,6 @@ import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import CinemaExperience from "@/feature/views/CinemaExperience";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
