@@ -8,10 +8,10 @@ import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
 import OldHomePage from "@/feature/booking/home-page/OldHomePage";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
+import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
+import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import ForgotPassword from "@/pages/authentication/ForgotPassword";
-// import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
-import MovieManagement from "@/feature/manager/movie/MovieManagement";
 // import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
 import About from "@/feature/static/About";
 import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
@@ -80,7 +80,7 @@ export const AppRoutes = () => (
     <Route path={ROUTES.STAFF.ROOT + "/*"} element={<StaffLayout />} />
     {/* Legacy Management Routes (should eventually be moved to admin) */}
     <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
-    {/* <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} /> */}
+    <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
     {/* <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} /> */}
     {/* Utility Routes */}
     <Route path={ROUTES.WELCOME} element={<Welcome />} />
