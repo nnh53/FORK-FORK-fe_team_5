@@ -22,6 +22,7 @@ import Welcome from "@/feature/theme/Welcome";
 import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
+import { Header } from "@/layouts/user/components/Header";
 import UserLayout from "@/layouts/user/UserLayout";
 import Login from "@/pages/authentication/Login";
 import Register from "@/pages/authentication/Register";
@@ -30,7 +31,6 @@ import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import { Header } from "@/layouts/user/components/Header";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
