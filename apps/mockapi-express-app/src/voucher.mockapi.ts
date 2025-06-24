@@ -1,4 +1,4 @@
-import { MyVoucher, MyVoucherHistory } from "@interfaces/voucher.interface.ts";
+import { MyVoucher, MyVoucherHistory } from "./interfaces/voucher.interface.ts";
 
 export const mockVouchers: MyVoucher[] = [
   {

@@ -1,6 +1,6 @@
 // Define the types locally to avoid import issues
 
-import { UserLoginResponse } from "@interfaces/users.interface.ts";
+import { UserLoginResponse } from "./interfaces/users.interface.ts";
 
 export const usersMockData: Record<string, UserLoginResponse> = {
   "guest@example.com": {

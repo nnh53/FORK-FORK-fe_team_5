@@ -1,9 +1,9 @@
-import { CinemaRoom, Seat } from "@interfaces/cinemarooms.interface.ts";
+import { CinemaRoom, Seat } from "./interfaces/cinemarooms.interface.ts";
 
 export const cinemaRoomsMockData: CinemaRoom[] = [
   {
-    room_id: "1",
-    room_number: 101,
+    id: "1",
+    roomNumber: 101,
     type: "Standard",
     fee: 50000,
     capacity: 100,
@@ -12,8 +12,8 @@ export const cinemaRoomsMockData: CinemaRoom[] = [
     length: 10,
   },
   {
-    room_id: "2",
-    room_number: 102,
+    id: "2",
+    roomNumber: 102,
     type: "VIP",
     fee: 80000,
     capacity: 80,
@@ -22,8 +22,8 @@ export const cinemaRoomsMockData: CinemaRoom[] = [
     length: 10,
   },
   {
-    room_id: "3",
-    room_number: 103,
+    id: "3",
+    roomNumber: 103,
     type: "Premium",
     fee: 100000,
     capacity: 60,
@@ -32,8 +32,8 @@ export const cinemaRoomsMockData: CinemaRoom[] = [
     length: 8,
   },
   {
-    room_id: "4",
-    room_number: 104,
+    id: "4",
+    roomNumber: 104,
     type: "Standard",
     fee: 50000,
     capacity: 100,
@@ -51,8 +51,8 @@ export const seatsMockData: Seat[] = [
       const row = String.fromCharCode(65 + Math.floor(index / 10));
       const number = (index % 10) + 1;
       return {
-        seat_id: `1-${row}${number}`,
-        room_id: "1",
+        id: `1-${row}${number}`,
+        roomId: "1",
         row,
         number,
         type: row < "C" ? "VIP" : "STANDARD",
@@ -66,8 +66,8 @@ export const seatsMockData: Seat[] = [
       const row = String.fromCharCode(65 + Math.floor(index / 8));
       const number = (index % 8) + 1;
       return {
-        seat_id: `2-${row}${number}`,
-        room_id: "2",
+        id: `2-${row}${number}`,
+        roomId: "2",
         row,
         number,
         type: row < "D" ? "VIP" : "STANDARD",
@@ -81,8 +81,8 @@ export const seatsMockData: Seat[] = [
       const row = String.fromCharCode(65 + Math.floor(index / 8));
       const number = (index % 8) + 1;
       return {
-        seat_id: `3-${row}${number}`,
-        room_id: "3",
+        id: `3-${row}${number}`,
+        roomId: "3",
         row,
         number,
         type: row < "C" ? "PREMIUM" : row < "F" ? "VIP" : "STANDARD",
@@ -96,8 +96,8 @@ export const seatsMockData: Seat[] = [
       const row = String.fromCharCode(65 + Math.floor(index / 10));
       const number = (index % 10) + 1;
       return {
-        seat_id: `4-${row}${number}`,
-        room_id: "4",
+        id: `4-${row}${number}`,
+        roomId: "4",
         row,
         number,
         type: "STANDARD",
@@ -108,17 +108,17 @@ export const seatsMockData: Seat[] = [
 
 export const cinemaRoomsAPI = {
   getAll: () => cinemaRoomsMockData,
-  getById: (id: string) => cinemaRoomsMockData.find((room) => room.room_id === id),
-  create: (data: Omit<CinemaRoom, "room_id">) => {
+  getById: (id: string) => cinemaRoomsMockData.find((room) => room.id === id),
+  create: (data: Omit<CinemaRoom, "id">) => {
     const newRoom = {
       ...data,
-      room_id: Math.max(...cinemaRoomsMockData.map((room) => parseInt(room.room_id))) + 1 + "",
+      id: Math.max(...cinemaRoomsMockData.map((room) => parseInt(room.id))) + 1 + "",
     } as CinemaRoom;
     cinemaRoomsMockData.push(newRoom);
     return newRoom;
   },
   update: (id: string, data: Partial<CinemaRoom>) => {
-    const index = cinemaRoomsMockData.findIndex((room) => room.room_id === id);
+    const index = cinemaRoomsMockData.findIndex((room) => room.id === id);
     if (index !== -1) {
       cinemaRoomsMockData[index] = { ...cinemaRoomsMockData[index], ...data };
       return cinemaRoomsMockData[index];
@@ -126,7 +126,7 @@ export const cinemaRoomsAPI = {
     return null;
   },
   delete: (id: string) => {
-    const index = cinemaRoomsMockData.findIndex((room) => room.room_id === id);
+    const index = cinemaRoomsMockData.findIndex((room) => room.id === id);
     if (index !== -1) {
       const deleted = cinemaRoomsMockData[index];
       cinemaRoomsMockData.splice(index, 1);
@@ -137,9 +137,9 @@ export const cinemaRoomsAPI = {
 };
 
 export const seatsAPI = {
-  getByRoomId: (roomId: string) => seatsMockData.filter((seat) => seat.room_id === roomId),
+  getByRoomId: (roomId: string) => seatsMockData.filter((seat) => seat.roomId === roomId),
   updateSeat: (seatId: string, data: Partial<Seat>) => {
-    const index = seatsMockData.findIndex((seat) => seat.seat_id === seatId);
+    const index = seatsMockData.findIndex((seat) => seat.id === seatId);
     if (index !== -1) {
       seatsMockData[index] = { ...seatsMockData[index], ...data };
       return seatsMockData[index];

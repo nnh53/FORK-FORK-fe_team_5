@@ -1,5 +1,5 @@
-import { CinemaRoom } from "@interfaces/cinemarooms.interface.ts";
-import { Movie, MovieGenre, MovieStatus, MovieVersion } from "@interfaces/movies.interface.ts";
+import { CinemaRoom } from "./interfaces/cinemarooms.interface.ts";
+import { Movie, MovieGenre, MovieStatus, MovieVersion } from "./interfaces/movies.interface.ts";
 
 // Mock data for genres
 export const genresMockData: MovieGenre[] = [

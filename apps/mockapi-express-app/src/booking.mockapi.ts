@@ -1,4 +1,4 @@
-import { Booking, BookingCreateRequest, PaymentMethod } from "@interfaces/booking.interface.ts";
+import { Booking, BookingCreateRequest, PaymentMethod } from "./interfaces/booking.interface.ts";
 import { membersAPI } from "./members.mockapi.ts";
 import { vouchersAPI } from "./vouchers.mockapi.ts";
 

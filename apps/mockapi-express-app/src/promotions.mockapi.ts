@@ -1,4 +1,4 @@
-import { Promotion } from "@interfaces/promotion.interface.ts";
+import { Promotion } from "./interfaces/promotion.interface.ts";
 
 export let promotions = [
   {

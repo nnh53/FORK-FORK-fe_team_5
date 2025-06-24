@@ -1,4 +1,4 @@
-import { Receipt } from "@interfaces/movie-history.interface.ts";
+import { Receipt } from "./interfaces/movie-history.interface.ts";
 
 export const myMovieHistory: Receipt[] = [
   {

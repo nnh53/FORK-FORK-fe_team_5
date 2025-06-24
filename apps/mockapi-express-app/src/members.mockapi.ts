@@ -1,5 +1,5 @@
-import { PointTransaction } from "@interfaces/member.interface.ts";
-import { UserBase } from "@interfaces/users.interface.ts";
+import { PointTransaction } from "./interfaces/member.interface.ts";
+import { UserBase } from "./interfaces/users.interface.ts";
 
 export const membersMockData: UserBase[] = [
   {
