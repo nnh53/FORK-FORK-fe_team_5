@@ -301,71 +301,6 @@ body {
   text-transform: uppercase;
 }
 
-/* Experience Section */
-.experience-section {
-  position: relative;
-  background-color: var(--color-base-200);
-  padding: 150px 5%;
-  overflow: hidden;
-}
-
-.experience-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0 auto;
-  max-width: 1200px;
-}
-
-.experience-text {
-  flex: 1;
-  padding-right: 50px;
-}
-
-.experience-text h2 {
-  margin-bottom: 30px;
-  background: linear-gradient(to right, var(--color-accent), var(--color-secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-size: 3rem;
-}
-
-.experience-text p {
-  margin-bottom: 30px;
-  color: var(--color-base-content);
-  font-size: 1.2rem;
-  line-height: 1.6;
-}
-
-.learn-button {
-  transition:
-    background-color 0.3s,
-    color 0.3s;
-  cursor: pointer;
-  border: 2px solid var(--color-accent);
-  border-radius: 25px;
-  background: transparent;
-  padding: 10px 25px;
-  color: var(--color-accent);
-  font-weight: 600;
-}
-
-.learn-button:hover {
-  background-color: var(--color-accent);
-  color: var(--color-accent-content);
-}
-
-.experience-image {
-  flex: 1;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  border-radius: 15px;
-  background-image: url("../../assets/brickWall.jpg");
-  background-position: center;
-  background-size: cover;
-  height: 500px;
-}
-
 /* Coming Soon Section */
 .coming-soon-section {
   background-color: var(--color-base-100);
@@ -448,15 +383,6 @@ body {
     font-size: 3rem;
   }
 
-  .experience-content {
-    flex-direction: column;
-  }
-
-  .experience-text {
-    padding-right: 0;
-    padding-bottom: 50px;
-  }
-
   .coming-soon-content {
     flex-direction: column;
   }
@@ -486,13 +412,8 @@ body {
   .section-header h2 {
     font-size: 2.5rem;
   }
-
   .section-header img {
     max-width: 200px;
-  }
-
-  .experience-text h2 {
-    font-size: 2.5rem;
   }
 
   .coming-soon-details h3 {

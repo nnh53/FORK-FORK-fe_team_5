@@ -14,6 +14,7 @@ export const ROUTES = {
   SCROLL_VELOCITY: "/scroll-velocity",
   HEADER_TEST: "/header-test",
   FAQ: "/faq",
+  CINEMA_EXPERIENCE: "/cinema-experience",
 
   //Static Routes
   TERM_OF_SERVICE: "/term-of-service",

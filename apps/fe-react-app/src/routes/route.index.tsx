@@ -30,6 +30,7 @@ import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import CinemaExperience from "@/feature/views/CinemaExperience";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -94,5 +95,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />
     <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
     <Route path={ROUTES.HEADER_TEST} element={<Header />} />
+    <Route path={ROUTES.CINEMA_EXPERIENCE} element={<CinemaExperience />} />
   </Routes>
 );
