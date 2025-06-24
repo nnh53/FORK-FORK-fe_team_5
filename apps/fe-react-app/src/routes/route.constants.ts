@@ -1,10 +1,9 @@
 // Route constants for better maintainability and type safety
 export const ROUTES = {
   // Root
-  ROOT: "/", // Public Routes
+  ROOT: "/",
   HOME: "/home",
   HOME_TEST: "/home-test",
-  FREQUENTLY_ASK: "/frequently-ask",
   BOOKING: "/booking",
   CHECKOUT: "/checkout",
   BOOKING_SUCCESS: "/booking-success",
@@ -14,11 +13,11 @@ export const ROUTES = {
   CAROUSEL_SECTION: "/carousel-section",
   SCROLL_VELOCITY: "/scroll-velocity",
   HEADER_TEST: "/header-test",
+  FAQ: "/faq",
 
   //Static Routes
   TERM_OF_SERVICE: "/term-of-service",
   PRIVACY_POLICY: "/privacy-policy",
-  FAQ: "/faq",
   ABOUT: "/about",
   HELP: "/help",
   SEARCH: "/search",

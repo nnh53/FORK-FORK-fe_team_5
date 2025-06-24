@@ -1,13 +1,12 @@
 import Loading from "@/components/shared/Loading";
 import { Test } from "@/components/shared/Test";
-import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import LogVIAReg from "@/feature/auth/LogVIAReg";
 import Unauthorized from "@/feature/auth/unauth/Unauthor";
 import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
 import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccessPage.tsx";
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
-import CarouselTest from "@/feature/booking/components/CarouselSection/CarouselTest";
-
+import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
+import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
 import OldHomePage from "@/feature/booking/home-page/OldHomePage";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
@@ -15,7 +14,6 @@ import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
 // import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
 import About from "@/feature/static/About";
-import FrequentlyAsk from "@/feature/static/FrequentlyAsk";
 import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
 import TermOfService from "@/feature/static/TermOfService";
 import Welcome from "@/feature/theme/Welcome";
@@ -31,6 +29,7 @@ import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import FAQ from "@/feature/views/FAQ/FAQ";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -91,7 +90,7 @@ export const AppRoutes = () => (
     <Route path={ROUTES.TEST} element={<Test />} />
     <Route path="*" element={<NotFoundError />} />
     {/* Viewing Test Route */}
-    <Route path={ROUTES.FREQUENTLY_ASK} element={<FrequentlyAsk />} />
+    <Route path={ROUTES.FAQ} element={<FAQ />} />
     <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />
     <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
     <Route path={ROUTES.HEADER_TEST} element={<Header />} />

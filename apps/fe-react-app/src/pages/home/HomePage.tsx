@@ -5,13 +5,14 @@ import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardS
 import { ROUTES } from "@/routes/route.constants";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import type { MovieData } from "../../feature/booking/components/CarouselSection/CarouselSection";
-import CarouselSection from "../../feature/booking/components/CarouselSection/CarouselSection";
-import WelcomePanel from "../../feature/booking/components/WelcomePanel/WelcomePanel";
-import FrequentlyAsk from "../../feature/static/FrequentlyAsk";
+import type { MovieData } from "../../feature/views/CarouselSection/CarouselSection";
+import CarouselSection from "../../feature/views/CarouselSection/CarouselSection";
+import WelcomePanel from "../../feature/views/WelcomePanel/WelcomePanel";
+
 import { useHomePageAnimations } from "../../hooks/useHomePageAnimations";
 import UserLayout from "../../layouts/user/UserLayout";
 import "./styles/HomePage.css";
+import { FAQ } from "@/feature/views/FAQ";
 
 const HomePage = () => {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -459,85 +460,8 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
-          </section>{" "}
-          {/* FAQ Section */}
-          <section className="faq-section" ref={faqRef}>
-            <div className="section-header">
-              <h2
-                className="faq-title"
-                style={{
-                  background: "linear-gradient(to right, #946b38, #392819)",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  color: "transparent",
-                  fontWeight: "800",
-                  fontSize: "2.5rem",
-                  marginBottom: "2rem",
-                }}
-              >
-                Frequently Asked Questions
-              </h2>
-              <div
-                className="section-line"
-                style={{
-                  background: "linear-gradient(to right, #946b38, #392819)",
-                  height: "3px",
-                }}
-              ></div>
-            </div>
-
-            <div
-              className="faq-content"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "4rem",
-                maxWidth: "1400px",
-                margin: "0 auto",
-                padding: "2rem 1rem",
-              }}
-            >
-              {/* Left Side - Image */}
-              <div
-                className="faq-image"
-                style={{
-                  flex: "1",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  padding: "2rem",
-                }}
-              >
-                <img
-                  src="../images/faq.png"
-                  alt="Customer Support"
-                  style={{
-                    width: "100%",
-                    maxWidth: "500px",
-                    height: "400px",
-                    objectFit: "cover",
-                    borderRadius: "15px",
-                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)",
-                    transition: "transform 0.3s ease",
-                  }}
-                />
-              </div>
-
-              {/* Right Side - FrequentlyAsk */}
-              <div
-                className="faq-component"
-                style={{
-                  flex: "1",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <FrequentlyAsk />{" "}
-              </div>
-            </div>
-          </section>{" "}
+          </section>{" "}          {/* FAQ Section */}
+          <FAQ ref={faqRef} />
         </div>
       </ClickSpark>
     </UserLayout>
