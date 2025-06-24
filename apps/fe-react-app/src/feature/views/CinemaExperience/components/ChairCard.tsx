@@ -18,4 +18,3 @@ const ChairCard: React.FC<ChairCardProps> = ({ imageSrc, alt, title, className }
 };
 
 export default ChairCard;
-

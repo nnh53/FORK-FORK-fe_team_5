@@ -28,4 +28,3 @@ const ExperienceText: React.FC<ExperienceTextProps> = ({
 };
 
 export default ExperienceText;
-

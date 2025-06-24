@@ -47,4 +47,3 @@ const ChairGrid: React.FC<ChairGridProps> = ({ chairs = defaultChairs, className
 };
 
 export default ChairGrid;
-
