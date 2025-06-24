@@ -5,14 +5,14 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import CheckboxForm from "../../components/forms/CheckboxForm";
-import FormField from "../../components/forms/FormFields";
-import BannerTransition from "../../components/shared/BannerTransition";
-import { Logo } from "../../feature/booking/components/Header";
-import { useAuth } from "../../hooks/useAuth";
-import type { Role } from "../../interfaces/roles.interface";
-import type { LoginDTO } from "../../interfaces/users.interface";
-import { loginValidationSchema } from "../../utils/validation.utils";
+import CheckboxForm from "@/components/forms/CheckboxForm";
+import FormField from "@/components/forms/FormFields";
+import BannerTransition from "@/components/shared/BannerTransition";
+import { useAuth } from "@/hooks/useAuth";
+import type { Role } from "@/interfaces/roles.interface";
+import type { LoginDTO } from "@/interfaces/users.interface";
+import { loginValidationSchema } from "@/utils/validation.utils";
+import { Logo } from "@/layouts/user/components/Header";
 
 // Mock user data for direct login
 const mockUserData = {

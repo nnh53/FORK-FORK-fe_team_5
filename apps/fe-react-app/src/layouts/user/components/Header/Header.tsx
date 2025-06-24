@@ -1,6 +1,6 @@
 import { AuthSection, HeaderContainer, Logo, Navigation } from ".";
 import { useHeader } from "../../../../hooks";
-import "./Header.css";
+import "./css/Header.css";
 
 const Header = () => {
   // Use combined header hook

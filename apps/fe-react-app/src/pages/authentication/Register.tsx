@@ -4,12 +4,11 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import FormField from "../../components/forms/FormFields";
-
+import FormField from "@/components/forms/FormFields";
 import BannerTransition from "@/components/shared/BannerTransition";
-import { API_URL } from "../../config/environments/endpoints";
-import { Logo } from "../../feature/booking/components/Header";
-import { registerValidationSchema } from "../../utils/validation.utils";
+import { API_URL } from "@/config/environments/endpoints";
+import { registerValidationSchema } from "@/utils/validation.utils";
+import { Logo } from "@/layouts/user/components/Header";
 
 interface RegisterFormData {
   fullName: string;

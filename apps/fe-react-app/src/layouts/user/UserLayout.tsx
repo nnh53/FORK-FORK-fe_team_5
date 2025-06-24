@@ -1,6 +1,7 @@
 import React from "react";
-import Footer from "../../feature/booking/components/Footer/Footer";
-import Header from "../../feature/booking/components/Header/Header";
+import { Header } from "./components/Header";
+import Footer from "./components/Footer/Footer";
+
 
 interface UserLayoutProps {
   children: React.ReactNode;

@@ -7,7 +7,7 @@ import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
 import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccessPage.tsx";
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
 import CarouselTest from "@/feature/booking/components/CarouselSection/CarouselTest";
-import Header from "@/feature/booking/components/Header/Header";
+
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
 import OldHomePage from "@/feature/booking/home-page/OldHomePage";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
@@ -30,6 +30,7 @@ import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import { Header } from "@/layouts/user/components/Header";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (

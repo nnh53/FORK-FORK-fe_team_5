@@ -1,6 +1,6 @@
-import { FlowingMenuSection, FooterBottom, FooterLinks, FooterLogo, NewsletterSubscription } from "./components";
+import { FlowingMenuSection, FooterBottom, FooterLinks, FooterLogo, NewsletterSubscription } from ".";
 import { quickLinks, supportLinks } from "./constants/footerData";
-import "./Footer.css";
+import "./css/Footer.css";
 import { useFooterAnimations } from "./hooks/useFooterAnimations";
 
 const Footer = () => {
