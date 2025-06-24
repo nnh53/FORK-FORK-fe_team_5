@@ -1,22 +1,26 @@
-import FormField from "@/components/forms/FormFields";
+import { Button } from "@/components/Shadcn/ui/button";
+import { Calendar } from "@/components/Shadcn/ui/calendar";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
+import { Input } from "@/components/Shadcn/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import BannerTransition from "@/components/shared/BannerTransition";
-import { API_URL } from "@/config/environments/endpoints";
+import { ROLE_TYPE } from "@/interfaces/roles.interface";
 import { Logo } from "@/layouts/user/components/Header";
-import { registerValidationSchema } from "@/utils/validation.utils";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { ROUTES } from "@/routes/route.constants";
+import { $api } from "@/utils/api";
+import { cn } from "@/utils/utils";
+import { registerFormSchema } from "@/utils/validation.utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { animated, useSpring } from "@react-spring/web";
-import axios from "axios";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import React, { useState } from "react";
-import { useForm, type Resolver } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { z } from "zod";
 
-interface RegisterFormData {
-  fullName: string;
-  dateOfBirth: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+type RegisterFormSchemaType = z.infer<typeof registerFormSchema>;
 
 // Cinema-related images for background transition
 const slides = [
@@ -27,55 +31,12 @@ const slides = [
 ];
 
 const Register: React.FC = () => {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm<RegisterFormData>({
-    resolver: yupResolver(registerValidationSchema) as Resolver<RegisterFormData>,
-  });
-
-  const onSubmit = async (data: RegisterFormData) => {
-    setError(null);
-    setMessage(null);
-    setLoading(true);
-    if (data.password !== data.confirmPassword) {
-      setError("Passwords do not match.");
-      setLoading(false);
-      return;
-    }
-    try {
-      // Using our mock API instead of Supabase
-      const response = await axios.post(`${API_URL}/users/register`, {
-        email: data.email,
-        password: data.password,
-        full_name: data.fullName,
-        date_of_birth: data.dateOfBirth,
-      });
-
-      if (response.status === 200) {
-        setMessage("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
-        reset();
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
-      }
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
-      } else {
-        setError("Có lỗi xảy ra. Vui lòng thử lại.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Move the mutation to component level
+  const registerMutation = $api.useMutation("post", "/users");
 
   // Page entrance animation
   const pageAnimation = useSpring({
@@ -93,6 +54,57 @@ const Register: React.FC = () => {
     },
   });
 
+  const form = useForm<RegisterFormSchemaType>({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      fullName: "",
+      dateOfBirth: undefined,
+      email: "",
+      password: "",
+      confirmPassword: "",
+      phone: "",
+    },
+  });
+
+  const onSubmit = (data: RegisterFormSchemaType) => {
+    setError(null);
+    setMessage(null);
+
+    console.log(data);
+    const dateOfBirthSimpleFormat = data.dateOfBirth?.toISOString().split("T")[0];
+    console.log(dateOfBirthSimpleFormat);
+
+    if (data.password !== data.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    registerMutation.mutate({
+      body: {
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+        role: ROLE_TYPE.MEMBER,
+        dateOfBirth: dateOfBirthSimpleFormat,
+        phone: data.phone,
+      },
+    });
+
+    console.log(registerMutation.status);
+
+    if (registerMutation.isSuccess) {
+      setMessage("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
+      toast.success("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
+      form.reset();
+      setTimeout(() => {
+        navigate(ROUTES.AUTH.LOGIN);
+      }, 2000);
+    } else if (registerMutation.isError) {
+      setError(registerMutation.error?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
+      toast.error(registerMutation.error?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
+    }
+  };
+
   return (
     <animated.div style={pageAnimation} className="flex h-screen">
       {/* Left Banner*/}
@@ -104,43 +116,133 @@ const Register: React.FC = () => {
             <p className="text-gray-600">Tạo tài khoản mới để trải nghiệm dịch vụ tốt nhất</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {error && (
-              <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-400 rounded-md" role="alert">
-                {error}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {error && (
+                <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-400 rounded-md" role="alert">
+                  {error}
+                </div>
+              )}
+
+              {message && (
+                <div className="p-3 text-sm text-green-700 bg-green-100 border border-green-400 rounded-md" role="alert">
+                  {message}
+                </div>
+              )}
+
+              <FormField
+                control={form.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Họ và tên</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nhập họ và tên" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dateOfBirth"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Ngày sinh</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                            {field.value ? format(field.value, "dd/MM/yyyy") : <span>Chọn ngày sinh</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormDescription>Ngày sinh được sử dụng để tính tuổi của bạn.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="Nhập email của bạn" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Số điện thoại</FormLabel>
+                    <FormControl>
+                      <Input type="tel" placeholder="Nhập số điện thoại" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mật khẩu</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Nhập mật khẩu" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Xác nhận mật khẩu</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Nhập lại mật khẩu" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" disabled={registerMutation.isPending} className="w-full bg-red-600 hover:bg-red-700">
+                {registerMutation.isPending ? "Đang đăng ký..." : "Đăng ký"}
+              </Button>
+
+              <div className="text-center mt-4">
+                <span className="text-sm text-gray-600">Đã có tài khoản? </span>
+                <Link to={ROUTES.AUTH.LOGIN} className="text-red-600 hover:underline">
+                  Đăng nhập ngay
+                </Link>
               </div>
-            )}
-            {message && (
-              <div className="p-3 text-sm text-green-700 bg-green-100 border border-green-400 rounded-md" role="alert">
-                {message}
-              </div>
-            )}
-
-            <FormField name="fullName" label="Họ và tên" type="text" control={control} errors={errors} />
-
-            <FormField name="dateOfBirth" label="Ngày sinh" type="date" control={control} errors={errors} isRequired={false} />
-
-            <FormField name="email" label="Email" type="email" control={control} errors={errors} />
-
-            <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
-
-            <FormField name="confirmPassword" label="Xác nhận mật khẩu" type="password" control={control} errors={errors} />
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
-            >
-              {loading ? "Đang đăng ký..." : "Đăng ký"}
-            </button>
-
-            <div className="text-center mt-4">
-              <span className="text-sm text-gray-600">Đã có tài khoản? </span>
-              <a href="/login" className="text-red-600 hover:underline">
-                Đăng nhập ngay
-              </a>
-            </div>
-          </form>
+            </form>
+          </Form>
         </div>
       </div>
 

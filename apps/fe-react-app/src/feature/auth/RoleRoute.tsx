@@ -1,17 +1,17 @@
+import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import type { Role } from "../../interfaces/roles.interface";
 
-export function RoleRouteToEachPage(roleName: Role): string {
+export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
   switch (roleName) {
-    case "ROLE_MANAGER":
+    case "MANAGER":
       return "/managers";
-    case "ROLE_STAFF":
+    case "STAFF":
       return "/staffs";
-    case "ROLE_MEMBER":
+    case "MEMBER":
       return "/members";
-    case "ROLE_GUEST":
+    case "GUEST":
       return "/welcome";
     default:
       return "/";
@@ -19,7 +19,7 @@ export function RoleRouteToEachPage(roleName: Role): string {
 }
 
 interface RoleRouteProps {
-  allowedRoles: Role[];
+  allowedRoles: ROLE_TYPE[];
   redirectPath: string;
 }
 

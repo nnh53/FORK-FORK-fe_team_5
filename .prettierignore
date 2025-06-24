@@ -7,3 +7,4 @@
 .nx
 .next
 .husky
+*.d.ts

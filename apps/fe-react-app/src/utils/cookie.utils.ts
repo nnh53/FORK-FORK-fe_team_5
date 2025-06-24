@@ -1,4 +1,4 @@
-import type { Role } from "../interfaces/roles.interface";
+import type { ROLE_TYPE } from "../interfaces/roles.interface";
 
 export function setCookie(name: string, value: string, days: number) {
   const date = new Date();
@@ -29,12 +29,12 @@ export function eraseCookie(name: string) {
   document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict";
 }
 
-export function parseRoles(rolesString: string | null): Role[] {
+export function parseRoles(rolesString: string | null): ROLE_TYPE[] {
   if (!rolesString) return [];
   try {
     const parsedRoles = JSON.parse(rolesString);
     if (Array.isArray(parsedRoles)) {
-      return parsedRoles.filter((role): role is Role => ["ROLE_MEMBER", "ROLE_STAFF", "ROLE_MANAGER", "ROLE_GUEST"].includes(role));
+      return parsedRoles.filter((role): role is ROLE_TYPE => ["ROLE_MEMBER", "ROLE_STAFF", "ROLE_MANAGER", "ROLE_GUEST"].includes(role));
     }
     return [];
   } catch (error) {

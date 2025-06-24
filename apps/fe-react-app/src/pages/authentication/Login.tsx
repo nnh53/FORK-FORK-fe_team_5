@@ -3,7 +3,7 @@ import FormField from "@/components/forms/FormFields";
 import BannerTransition from "@/components/shared/BannerTransition";
 import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
 import { useAuth } from "@/hooks/useAuth";
-import type { Role } from "@/interfaces/roles.interface";
+import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import type { LoginDTO } from "@/interfaces/users.interface";
 import { Logo } from "@/layouts/user/components/Header";
 import { loginValidationSchema } from "@/utils/validation.utils";
@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 const mockUserData = {
   guest: {
     token: "mock-jwt-token-for-guest-user",
-    roles: ["ROLE_GUEST" as Role],
+    roles: ["GUEST" as ROLE_TYPE],
     id: 1,
     username: "Guest User",
     refresh_token: "mock-refresh-token-for-guest-user",

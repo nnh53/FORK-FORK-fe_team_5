@@ -1,4 +1,4 @@
-import { type Role } from "./roles.interface.ts";
+import { type ROLE_TYPE } from "./roles.interface.ts";
 
 export type USER_STATUS = "ACTIVE" | "UNVERIFY" | "BAN";
 
@@ -37,7 +37,7 @@ export type UserLoginResponse = {
   tokenType: string;
   id: number;
   username: string;
-  roles: Role[];
+  roles: ROLE_TYPE[];
   message: string;
   token: string;
   refresh_token: string;

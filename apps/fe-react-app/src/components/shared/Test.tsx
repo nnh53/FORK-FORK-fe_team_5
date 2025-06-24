@@ -247,5 +247,5 @@ export const Test = () => {
   if (!data || isLoading) return "Loading...";
   if (error) return `An error occurred: ${error}`;
 
-  return <div>{data.result?.map((item) => item.fullName)}</div>;
+  // return <div>{data.result?.map((item) => item.fullName)}</div>;
 };
