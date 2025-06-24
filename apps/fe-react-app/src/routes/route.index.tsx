@@ -1,6 +1,6 @@
 import Loading from "@/components/shared/Loading";
 import { Test } from "@/components/shared/Test";
-import ForgotPassword from "@/feature/auth/ForgotPassword";
+import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import LogVIAReg from "@/feature/auth/LogVIAReg";
 import Unauthorized from "@/feature/auth/unauth/Unauthor";
 import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
