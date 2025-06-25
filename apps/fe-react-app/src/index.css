@@ -144,60 +144,38 @@
 
 /* end Shadcn UI css mặc định */
 
-/* start @theme này chỉ kéo một số từ style của ShadcnUI ở trên để DaisyUI override */
-@theme inline {
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-/* end @theme này chỉ kéo một số từ style của ShadcnUI ở trên để DaisyUI override */
-
 /* start mapping style từ DaisyUI -> Shadcn UI */
-@theme {
-  --color-border: var(--color-base-content);
-  --color-input: var(--color-base-content);
-  --color-ring: var(--color-base-content);
+@theme inline {
+  --radius-sm: calc(var(--radius-box) - 4px);
+  --radius-md: calc(var(--radius-box) - 2px);
+  --radius-lg: calc(var(--radius-box) - 0px);
+  --radius-xl: calc(var(--radius-box) + 4px);
   --color-background: var(--color-base-100);
   --color-foreground: var(--color-base-content);
-
   --color-card: var(--color-base-100);
   --color-card-foreground: var(--color-base-content);
-
   --color-popover: var(--color-base-100);
   --color-popover-foreground: var(--color-base-content);
-
-  /** --color-primary (xxx-primary) is already defined in DaisyUI theme */
+  --color-primary: var(--color-primary);
   --color-primary-foreground: var(--color-primary-content);
+  --color-secondary: var(--color-secondary);
   --color-secondary-foreground: var(--color-secondary-content);
-  --color-accent-foreground: var(--color-accent-content);
-
   --color-muted: var(--color-base-300);
   /** example of interpolate colors, this one adds transparency, see https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color-mix#adding_transparency  */
   --color-muted-foreground: color-mix(in oklch, var(--color-base-content) 60%, transparent);
-
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-content);
   --color-destructive: var(--color-error);
   --color-destructive-foreground: var(--color-error-content);
-
+  --color-border: var(--color-base-content);
+  --color-input: var(--color-base-content);
+  --color-ring: var(--color-base-content);
   /** chart values taken from shadcn/ui template */
   --color-chart-1: hsl(12 76% 61%);
   --color-chart-2: hsl(173 58% 39%);
   --color-chart-3: hsl(197 37% 24%);
   --color-chart-4: hsl(43 74% 66%);
   --color-chart-5: hsl(27 87% 67%);
-
   --color-sidebar: color-mix(in oklch, var(--color-base-200) 20%, transparent);
   --color-sidebar-foreground: var(--color-base-content);
   --color-sidebar-primary: var(--color-primary);
@@ -207,6 +185,18 @@
   --color-sidebar-border: var(--color-border);
   --color-sidebar-ring: var(--color-ring);
 }
+@layer base {
+  * {
+    @apply border-border outline-ring;
+    .border-border {
+      border: 5px solid #ee0202;
+    }
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
 /** border color, see https://tailwindcss.com/docs/v4-beta#default-border-color-change */
 @layer base {
   *,
@@ -222,20 +212,19 @@
 
 /* Dưới này là thuần style của DaisyUI */
 
-@plugin "daisyui" {
-  themes: false;
-}
+@plugin "daisyui";
+
 @plugin "daisyui/theme" {
-  name: "caramellatte";
+  name: "aaaaaa";
   default: true;
   prefersdark: false;
-  color-scheme: "light";
+  color-scheme: light;
   --color-base-100: oklch(98% 0.016 73.684);
   --color-base-200: oklch(95% 0.038 75.164);
   --color-base-300: oklch(90% 0.076 70.697);
   --color-base-content: oklch(40% 0.123 38.172);
-  --color-primary: oklch(0% 0 0);
-  --color-primary-content: oklch(100% 0 0);
+  --color-primary: oklch(0.6029 0.2099 31.62);
+  --color-primary-content: oklch(93% 0.032 17.717);
   --color-secondary: oklch(22.45% 0.075 37.85);
   --color-secondary-content: oklch(90% 0.076 70.697);
   --color-accent: oklch(46.44% 0.111 37.85);
@@ -252,96 +241,10 @@
   --color-error-content: oklch(39% 0.141 25.723);
   --radius-selector: 2rem;
   --radius-field: 0.5rem;
-  --radius-box: 0.5rem;
+  --radius-box: 1rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 2px;
   --depth: 1;
   --noise: 1;
-}
-
-@plugin "daisyui/theme" {
-  name: "valentine";
-  prefersdark: false;
-  color-scheme: "light";
-  --color-base-100: oklch(99% 0.02 0);
-  --color-base-200: oklch(97% 0.04 0);
-  --color-base-300: oklch(95% 0.06 0);
-  --color-base-content: oklch(25% 0.06 0);
-  --color-primary: oklch(75% 0.25 350);
-  --color-primary-content: oklch(99% 0.02 0);
-  --color-secondary: oklch(65% 0.25 350);
-  --color-secondary-content: oklch(99% 0.02 0);
-  --color-accent: oklch(85% 0.25 350);
-  --color-accent-content: oklch(99% 0.02 0);
-  --color-neutral: oklch(35% 0.06 0);
-  --color-neutral-content: oklch(99% 0.02 0);
-  --color-info: oklch(65% 0.2 250);
-  --color-info-content: oklch(99% 0.02 0);
-  --color-success: oklch(65% 0.2 150);
-  --color-success-content: oklch(99% 0.02 0);
-  --color-warning: oklch(75% 0.2 80);
-  --color-warning-content: oklch(25% 0.06 0);
-  --color-error: oklch(75% 0.25 30);
-  --color-error-content: oklch(99% 0.02 0);
-}
-
-@plugin "daisyui/theme" {
-  name: "retro";
-  prefersdark: false;
-  color-scheme: "light";
-  --color-base-100: oklch(98% 0.025 100);
-  --color-base-200: oklch(95% 0.05 100);
-  --color-base-300: oklch(90% 0.075 100);
-  --color-base-content: oklch(25% 0.075 100);
-  --color-primary: oklch(70% 0.175 100);
-  --color-primary-content: oklch(25% 0.075 100);
-  --color-secondary: oklch(55% 0.075 100);
-  --color-secondary-content: oklch(98% 0.025 100);
-  --color-accent: oklch(65% 0.15 40);
-  --color-accent-content: oklch(98% 0.025 100);
-  --color-neutral: oklch(45% 0.075 100);
-  --color-neutral-content: oklch(98% 0.025 100);
-  --color-info: oklch(65% 0.15 220);
-  --color-info-content: oklch(98% 0.025 100);
-  --color-success: oklch(65% 0.15 150);
-  --color-success-content: oklch(98% 0.025 100);
-  --color-warning: oklch(75% 0.15 80);
-  --color-warning-content: oklch(25% 0.075 100);
-  --color-error: oklch(75% 0.15 30);
-  --color-error-content: oklch(98% 0.025 100);
-  --radius-selector: 0.4rem;
-  --radius-field: 0.4rem;
-  --radius-box: 0.4rem;
-  --size-selector: 0.5rem;
-  --size-field: 0.5rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
-}
-
-@plugin "daisyui/theme" {
-  name: "lemonade";
-  prefersdark: false;
-  color-scheme: "light";
-  --color-base-100: oklch(97% 0.02 120);
-  --color-base-200: oklch(95% 0.04 120);
-  --color-base-300: oklch(90% 0.06 120);
-  --color-base-content: oklch(25% 0.06 120);
-  --color-primary: oklch(65% 0.15 120);
-  --color-primary-content: oklch(97% 0.02 120);
-  --color-secondary: oklch(80% 0.15 80);
-  --color-secondary-content: oklch(25% 0.06 120);
-  --color-accent: oklch(80% 0.15 40);
-  --color-accent-content: oklch(25% 0.06 120);
-  --color-neutral: oklch(35% 0.06 120);
-  --color-neutral-content: oklch(97% 0.02 120);
-  --color-info: oklch(65% 0.15 220);
-  --color-info-content: oklch(97% 0.02 120);
-  --color-success: oklch(65% 0.15 150);
-  --color-success-content: oklch(97% 0.02 120);
-  --color-warning: oklch(75% 0.15 80);
-  --color-warning-content: oklch(25% 0.06 120);
-  --color-error: oklch(75% 0.15 30);
-  --color-error-content: oklch(97% 0.02 120);
 }

@@ -5,6 +5,7 @@ onlyBuiltDependencies:
   - "@nestjs/core"
   - "@swc/core"
   - "@tailwindcss/oxide"
+  - deno-bin
   - esbuild
   - nx
   - sharp

@@ -1,4 +1,4 @@
-import { DatePicker } from "@/components/shared/DatePicker";
+import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { useEffect, useState } from "react";
 import { CustomTable, type TableColumns } from "../../components/CustomTable";
 import type { MyVoucher, MyVoucherHistory } from "../../interfaces/voucher.interface";
@@ -109,8 +109,8 @@ export const MyVoucherManagement: React.FC = () => {
 
       <h2 className="text-2xl font-bold text-[#E52226] uppercase mb-5 mt-20">Lịch sử sử dụng Voucher</h2>
       <div className="mb-4 flex gap-4">
-        <DatePicker value={from} setValue={setFrom} label="From date" />
-        <DatePicker value={to} setValue={setTo} label="To date" />
+        <DatePicker date={from} setDate={setFrom} placeholder="From date" />
+        <DatePicker date={to} setDate={setTo} placeholder="To date" />
       </div>
       <CustomTable tableColumns={voucherHistoryColumns} tableData={myVoucherHistory} />
     </>

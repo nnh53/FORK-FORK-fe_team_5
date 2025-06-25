@@ -1,4 +1,4 @@
-import { DatePicker } from "@/components/shared/DatePicker";
+import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { formatDateTime } from "@/utils/validation.utils";
 import { useEffect, useState } from "react";
 import { CustomTable, type TableColumns } from "../../components/CustomTable";
@@ -86,8 +86,8 @@ export const MyPointManagement: React.FC = () => {
       </div>
       <h2 className="text-2xl font-bold text-[#E52226] uppercase mb-5">Lịch sử điểm</h2>
       <div className="mb-4 flex gap-4">
-        <DatePicker value={from} setValue={setFrom} label="From date" />
-        <DatePicker value={to} setValue={setTo} label="To date" />
+        <DatePicker date={from} setDate={setFrom} placeholder="From date" />
+        <DatePicker date={to} setDate={setTo} placeholder="To date" />
       </div>
       <CustomTable tableColumns={tableColumns} tableData={tableData} />{" "}
     </>

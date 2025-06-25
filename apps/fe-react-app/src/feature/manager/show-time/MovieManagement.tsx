@@ -1,9 +1,9 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
-import { DatePicker } from "@/components/shared/DatePicker";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -183,8 +183,8 @@ const MovieManagement = () => {
                 className="mr-2 w-1/3"
               />
               <div className="mb-4 flex gap-4">
-                <DatePicker value={from} setValue={setFrom} label="From date" />
-                <DatePicker value={to} setValue={setTo} label="To date" />
+                <DatePicker date={from} setDate={setFrom} placeholder="From date" />
+                <DatePicker date={to} setDate={setTo} placeholder="To date" />
                 <Select>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="fetch the category here" />

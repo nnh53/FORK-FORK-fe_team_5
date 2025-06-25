@@ -9,7 +9,7 @@ const TITLE = "FCinema";
 function App() {
   return (
     <AuthProvider>
-      <div data-theme="caramellatte">
+      <div data-theme="aaaaaa">
         <title>{TITLE}</title>
         <ConditionalPageTransition>
           <Toaster />
