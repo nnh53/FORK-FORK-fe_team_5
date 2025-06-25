@@ -1,17 +1,13 @@
-import bgTop from "@/assets/bg-top.png";
-import brickWall from "@/assets/brickWall.jpg";
 import ClickSpark from "@/components/Reactbits/reactbit-animations/ClickSpark/ClickSpark";
-import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardSwap/CardSwap";
+import { recentMoviesData } from "@/feature/views/CarouselSection/data/movies.data";
 import { useRef } from "react";
-import type { MovieData } from "../../feature/views/CarouselSection/CarouselSection";
-import CarouselSection from "../../feature/views/CarouselSection/CarouselSection";
-import HeroSection from "../../feature/views/HeroSection/HeroSection";
-
+import CarouselSection from "@/feature/views/CarouselSection/CarouselSection";
+import HeroSection from "@/feature/views/HeroSection/HeroSection";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import { FAQ } from "@/feature/views/FAQ";
 import NowShowing from "@/feature/views/NowShowing/NowShowing";
-import { useHomePageAnimations } from "../../hooks/useHomePageAnimations";
-import UserLayout from "../../layouts/user/UserLayout";
+import UserLayout from "@/layouts/user/UserLayout";
+import { useHomePageAnimations } from "@/hooks/useHomePageAnimations";
 import "./styles/HomePage.css";
 
 const HomePage = () => {
@@ -34,39 +30,6 @@ const HomePage = () => {
     parallaxRef,
   });
 
-  //Movie mock data tạm thời
-  const recentMovies: MovieData[] = [
-    {
-      title: "The Marvels",
-      description: "Carol Danvers teams up with Monica Rambeau and Kamala Khan in this cosmic adventure.",
-      id: 1,
-      icon: "tabler:movie",
-    },
-    {
-      title: "Dune: Part Two",
-      description: "Paul Atreides unites with Chani and the Fremen while seeking revenge against those who destroyed his family.",
-      id: 2,
-      icon: "tabler:wind",
-    },
-    {
-      title: "Oppenheimer",
-      description: "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.",
-      id: 3,
-      icon: "tabler:atom",
-    },
-    {
-      title: "Mission: Impossible - Dead Reckoning",
-      description: "Ethan Hunt and his IMF team embark on their most dangerous mission yet.",
-      id: 4,
-      icon: "tabler:run",
-    },
-    {
-      title: "Poor Things",
-      description: "A young woman brought back to life by an unorthodox scientist embarks on a journey of self-discovery.",
-      id: 5,
-      icon: "tabler:heart",
-    },
-  ];
   return (
     <UserLayout>
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
@@ -74,7 +37,7 @@ const HomePage = () => {
           {/* Hero Section */}
           <HeroSection ref={heroRef} />
           {/* New Releases Carousel Section */}
-          <CarouselSection ref={carouselRef} movies={recentMovies} />
+          <CarouselSection ref={carouselRef} movies={recentMoviesData} />
           {/* Card Swap Section */}
           <section className="card-swap-section" ref={cardSwapRef} id="trending-movies">
             <div className="section-title">
@@ -172,47 +135,7 @@ const HomePage = () => {
                   justifyContent: "center",
                   alignItems: "center",
                 }}
-              >
-                <CardSwap
-                  width={650}
-                  height={500}
-                  cardDistance={20}
-                  verticalDistance={20}
-                  delay={3000}
-                  pauseOnHover={true}
-                  skewAmount={5}
-                  easing="elastic"
-                >
-                  <Card>
-                    <div className="card-content" style={{ backgroundImage: `url(${bgTop})` }}>
-                      <h3>Avengers: Endgame</h3>
-                      <p>Action • Adventure • 3h 2m</p>
-                      <button className="card-button">View Details</button>
-                    </div>
-                  </Card>
-                  <Card>
-                    <div className="card-content" style={{ backgroundImage: `url(${brickWall})` }}>
-                      <h3>The Batman</h3>
-                      <p>Action • Crime • 2h 56m</p>
-                      <button className="card-button">View Details</button>
-                    </div>
-                  </Card>
-                  <Card>
-                    <div className="card-content" style={{ backgroundImage: `url(${bgTop})` }}>
-                      <h3>Dune</h3>
-                      <p>Sci-Fi • Adventure • 2h 35m</p>
-                      <button className="card-button">View Details</button>
-                    </div>
-                  </Card>
-                  <Card>
-                    <div className="card-content" style={{ backgroundImage: `url(${brickWall})` }}>
-                      <h3>No Time to Die</h3>
-                      <p>Action • Thriller • 2h 43m</p>
-                      <button className="card-button">View Details</button>
-                    </div>
-                  </Card>{" "}
-                </CardSwap>
-              </div>
+              ></div>
             </div>
           </section>{" "}
           {/* Featured Movies */}
