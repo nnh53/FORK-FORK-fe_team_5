@@ -1,5 +1,5 @@
+import AuthLogo from "@/components/auth/AuthLogo";
 import NavigateButton from "@/components/shared/NavigateButton";
-import { Logo } from "@/layouts/user/components/Header";
 import { forgotPasswordValidationSchema } from "@/utils/validation.utils";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { animated, useSpring, useTransition } from "@react-spring/web";
@@ -117,7 +117,7 @@ const ForgotPassword: React.FC = () => {
       <div className="w-1/2 flex items-center justify-center p-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <Logo className="mx-auto mb-4" />
+            <AuthLogo />
             <h3 className="text-2xl font-semibold">Tạo mật khẩu mới</h3>
             <p className="text-gray-600">Nhập mật khẩu mới cho tài khoản của bạn</p>
           </div>

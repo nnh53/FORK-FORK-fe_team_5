@@ -1,3 +1,4 @@
+import AuthLogo from "@/components/auth/AuthLogo";
 import CheckboxForm from "@/components/forms/CheckboxForm";
 import FormField from "@/components/forms/FormFields";
 import BannerTransition from "@/components/shared/BannerTransition";
@@ -5,7 +6,6 @@ import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
 import { useAuth } from "@/hooks/useAuth";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import type { LoginDTO } from "@/interfaces/users.interface";
-import { Logo } from "@/layouts/user/components/Header";
 import { loginValidationSchema } from "@/utils/validation.utils";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { animated, useSpring } from "@react-spring/web";
@@ -104,7 +104,7 @@ const Login: React.FC = () => {
       <div className="w-1/2 flex items-center justify-center p-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <Logo className="mx-auto mb-4" />
+            <AuthLogo />
             <h3 className="text-2xl font-semibold">Đăng Nhập</h3>
             <p className="text-gray-600">Tạo tài khoản mới để trải nghiệm dịch vụ tốt nhất</p>
           </div>
