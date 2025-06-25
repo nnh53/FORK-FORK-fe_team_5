@@ -1,6 +1,6 @@
 import type { StaffRegisterDTO, UserBase } from "@/interfaces/users.interface";
 
-const API_URL = "https://67b28b81bc0165def8cdc590.mockapi.io/member"; // Thay bằng URL API thực tế của bạn
+const API_URL = "https://67b28b81bc0165def8cdc590.mockapi.io/users"; // Thay bằng URL API thực tế của bạn
 
 export const getMembers = async (): Promise<UserBase[]> => {
   const response = await fetch(API_URL);
