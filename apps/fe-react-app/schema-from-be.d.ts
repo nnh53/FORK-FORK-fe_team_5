@@ -384,100 +384,24 @@ export interface components {
             role?: string;
             active?: boolean;
         };
-        AuthenticationResponse: {
-            token?: string;
-        };
-        CinemaRoomResponse: {
+        ApiResponseVoid: {
             /** Format: int32 */
-            id?: number;
-            /** Format: int32 */
-            roomNumber?: number;
-            type?: string;
-            /** Format: double */
-            fee?: number;
-            /** Format: int32 */
-            capacity?: number;
-            status?: string;
-            /** Format: int32 */
-            width?: number;
-            /** Format: int32 */
-            length?: number;
-            seats?: components["schemas"]["SeatResponse"][];
-        };
-        CustomAPIResponse: {
-            /**
-             * Format: int32
-             * @example 200
-             */
             code?: number;
-            /** @example Here is your message */
             message?: string;
-            /** @description Result data containing the API response payload. This can be any of the response types defined in the application. */
-            result?: components["schemas"]["UserResponse"] | components["schemas"]["CinemaRoomResponse"] | components["schemas"]["SeatResponse"] | components["schemas"]["PageResponse"] | components["schemas"]["PromotionResponse"] | components["schemas"]["ShowtimeResponse"] | components["schemas"]["MovieResponse"] | components["schemas"]["IntrospectResponse"] | components["schemas"]["AuthenticationResponse"] | unknown;
+            result?: unknown;
         };
-        IntrospectResponse: {
-            valid?: boolean;
-        };
-        MovieResponse: {
-            /** Format: int32 */
-            id?: number;
-            name?: string;
-            /** Format: int32 */
-            ageRestrict?: number;
-            fromDate?: string;
-            toDate?: string;
-            actor?: string;
-            studio?: string;
-            director?: string;
-            /** Format: int32 */
-            duration?: number;
-            version?: string;
-            trailer?: string;
-            type?: string;
-            description?: string;
-            status?: string;
-            poster?: string;
-            showtimes?: components["schemas"]["ShowtimeResponse"][];
-        };
-        PageResponse: {
-            content?: unknown[];
-            /** Format: int32 */
-            pageNo?: number;
-            /** Format: int32 */
-            pageSize?: number;
-            /** Format: int64 */
-            totalElements?: number;
-            /** Format: int32 */
-            totalPages?: number;
-            last?: boolean;
-        };
-        PromotionResponse: {
-            /** Format: int64 */
-            id?: number;
-            image?: string;
-            title?: string;
-            type?: string;
-            /** Format: double */
-            minPurchase?: number;
-            /** Format: double */
-            discountValue?: number;
+        ShowtimeUpdateRequest: {
             /** Format: date-time */
-            startTime?: string;
+            showDateTime?: string;
             /** Format: date-time */
-            endTime?: string;
-            description?: string;
+            endDateTime?: string;
             status?: string;
         };
-        SeatResponse: {
+        ApiResponseShowtimeResponse: {
             /** Format: int32 */
-            id?: number;
-            /** Format: int32 */
-            roomId?: number;
-            row?: string;
-            column?: string;
-            name?: string;
-            type?: string;
-            status?: string;
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["ShowtimeResponse"];
         };
         ShowtimeResponse: {
             /** Format: int32 */
@@ -492,24 +416,30 @@ export interface components {
             endDateTime?: string;
             status?: string;
         };
-        UserResponse: {
-            id?: string;
-            email?: string;
-            fullName?: string;
-            phone?: string;
-            address?: string;
-            avatar?: string;
-            role?: string;
-            active?: boolean;
-        };
-        ShowtimeUpdateRequest: {
+        PromotionUpdateRequest: {
+            image?: string;
+            title?: string;
+            type?: string;
+            /** Format: double */
+            minPurchase?: number;
+            /** Format: double */
+            discountValue?: number;
             /** Format: date-time */
-            showDateTime?: string;
+            startTime?: string;
             /** Format: date-time */
-            endDateTime?: string;
+            endTime?: string;
+            description?: string;
             status?: string;
         };
-        PromotionUpdateRequest: {
+        ApiResponsePromotionResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["PromotionResponse"];
+        };
+        PromotionResponse: {
+            /** Format: int64 */
+            id?: number;
             image?: string;
             title?: string;
             type?: string;
@@ -544,6 +474,33 @@ export interface components {
             status?: string;
             poster?: string;
         };
+        ApiResponseMovieResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["MovieResponse"];
+        };
+        MovieResponse: {
+            /** Format: int32 */
+            id?: number;
+            name?: string;
+            /** Format: int32 */
+            ageRestrict?: number;
+            fromDate?: string;
+            toDate?: string;
+            actor?: string;
+            studio?: string;
+            director?: string;
+            /** Format: int32 */
+            duration?: number;
+            version?: string;
+            trailer?: string;
+            type?: string;
+            description?: string;
+            status?: string;
+            poster?: string;
+            showtimes?: components["schemas"]["ShowtimeResponse"][];
+        };
         CinemaRoomUpdateRequest: {
             /** Format: int32 */
             roomNumber?: number;
@@ -557,6 +514,40 @@ export interface components {
             width?: number;
             /** Format: int32 */
             length?: number;
+        };
+        ApiResponseCinemaRoomResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["CinemaRoomResponse"];
+        };
+        CinemaRoomResponse: {
+            /** Format: int32 */
+            id?: number;
+            /** Format: int32 */
+            roomNumber?: number;
+            type?: string;
+            /** Format: double */
+            fee?: number;
+            /** Format: int32 */
+            capacity?: number;
+            status?: string;
+            /** Format: int32 */
+            width?: number;
+            /** Format: int32 */
+            length?: number;
+            seats?: components["schemas"]["SeatResponse"][];
+        };
+        SeatResponse: {
+            /** Format: int32 */
+            id?: number;
+            /** Format: int32 */
+            roomId?: number;
+            row?: string;
+            column?: string;
+            name?: string;
+            type?: string;
+            status?: string;
         };
         Snack: {
             /** Format: int32 */
@@ -579,6 +570,12 @@ export interface components {
             type?: string;
             status?: string;
         };
+        ApiResponseSeatResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["SeatResponse"];
+        };
         ComboDetail: {
             /** Format: int32 */
             id?: number;
@@ -595,6 +592,22 @@ export interface components {
             role?: string;
             /** Format: date */
             dateOfBirth?: string;
+        };
+        ApiResponseUserResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["UserResponse"];
+        };
+        UserResponse: {
+            id?: string;
+            email?: string;
+            fullName?: string;
+            phone?: string;
+            address?: string;
+            avatar?: string;
+            role?: string;
+            active?: boolean;
         };
         ShowtimeRequest: {
             /** Format: int32 */
@@ -657,9 +670,103 @@ export interface components {
         IntrospectRequest: {
             token?: string;
         };
+        ApiResponseIntrospectResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["IntrospectResponse"];
+        };
+        IntrospectResponse: {
+            valid?: boolean;
+        };
         AuthenticationRequest: {
             email: string;
             password: string;
+        };
+        ApiResponseAuthenticationResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["AuthenticationResponse"];
+        };
+        AuthenticationResponse: {
+            token?: string;
+            /** @enum {string} */
+            roles?: "ADMIN" | "MANAGER" | "STAFF" | "MEMBER" | "GUEST";
+            fullName?: string;
+            id?: string;
+        };
+        ApiResponseListUserResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["UserResponse"][];
+        };
+        ApiResponseListShowtimeResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["ShowtimeResponse"][];
+        };
+        ApiResponsePageResponseShowtimeResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["PageResponseShowtimeResponse"];
+        };
+        PageResponseShowtimeResponse: {
+            content?: components["schemas"]["ShowtimeResponse"][];
+            /** Format: int32 */
+            pageNo?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            last?: boolean;
+        };
+        ApiResponseListPromotionResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["PromotionResponse"][];
+        };
+        ApiResponseListMovieResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["MovieResponse"][];
+        };
+        ApiResponsePageResponseMovieResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["PageResponseMovieResponse"];
+        };
+        PageResponseMovieResponse: {
+            content?: components["schemas"]["MovieResponse"][];
+            /** Format: int32 */
+            pageNo?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            last?: boolean;
+        };
+        ApiResponseListCinemaRoomResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["CinemaRoomResponse"][];
+        };
+        ApiResponseListSeatResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["SeatResponse"][];
         };
     };
     responses: never;
@@ -687,7 +794,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseUserResponse"];
                 };
             };
         };
@@ -713,7 +820,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -735,7 +842,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -757,7 +864,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseShowtimeResponse"];
                 };
             };
         };
@@ -783,7 +890,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseShowtimeResponse"];
                 };
             };
         };
@@ -805,7 +912,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -827,7 +934,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponsePromotionResponse"];
                 };
             };
         };
@@ -853,7 +960,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponsePromotionResponse"];
                 };
             };
         };
@@ -875,7 +982,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -897,7 +1004,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseMovieResponse"];
                 };
             };
         };
@@ -923,7 +1030,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseMovieResponse"];
                 };
             };
         };
@@ -945,7 +1052,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -967,7 +1074,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseCinemaRoomResponse"];
                 };
             };
         };
@@ -993,7 +1100,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseCinemaRoomResponse"];
                 };
             };
         };
@@ -1015,7 +1122,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -1105,7 +1212,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseSeatResponse"];
                 };
             };
         };
@@ -1131,7 +1238,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseSeatResponse"];
                 };
             };
         };
@@ -1219,7 +1326,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseListUserResponse"];
                 };
             };
         };
@@ -1243,7 +1350,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseUserResponse"];
                 };
             };
         };
@@ -1263,7 +1370,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseListShowtimeResponse"];
                 };
             };
         };
@@ -1287,7 +1394,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseShowtimeResponse"];
                 };
             };
         };
@@ -1307,7 +1414,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseListPromotionResponse"];
                 };
             };
         };
@@ -1331,7 +1438,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponsePromotionResponse"];
                 };
             };
         };
@@ -1351,7 +1458,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseListMovieResponse"];
                 };
             };
         };
@@ -1375,7 +1482,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseMovieResponse"];
                 };
             };
         };
@@ -1395,7 +1502,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseListCinemaRoomResponse"];
                 };
             };
         };
@@ -1419,7 +1526,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseCinemaRoomResponse"];
                 };
             };
         };
@@ -1443,7 +1550,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseIntrospectResponse"];
                 };
             };
         };
@@ -1467,7 +1574,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseAuthenticationResponse"];
                 };
             };
         };
@@ -1583,7 +1690,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponsePageResponseShowtimeResponse"];
                 };
             };
         };
@@ -1605,7 +1712,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseListShowtimeResponse"];
                 };
             };
         };
@@ -1627,7 +1734,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseListShowtimeResponse"];
                 };
             };
         };
@@ -1654,7 +1761,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponsePageResponseMovieResponse"];
                 };
             };
         };
@@ -1674,7 +1781,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseListSeatResponse"];
                 };
             };
         };
@@ -1696,7 +1803,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CustomAPIResponse"];
+                    "application/json": components["schemas"]["ApiResponseListSeatResponse"];
                 };
             };
         };

@@ -1,5 +1,5 @@
-import { PasswordInput } from "@/components/Shadcn/password-input";
 import AuthLogo from "@/components/auth/AuthLogo";
+import { PasswordInput } from "@/components/Shadcn/password-input";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
@@ -7,7 +7,7 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import BannerTransition from "@/components/shared/BannerTransition";
 import { ROLE_TYPE } from "@/interfaces/roles.interface";
-import { Logo } from "@/layouts/user/components/Header";
+
 import { ROUTES } from "@/routes/route.constants";
 import type { CustomAPIResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
@@ -209,7 +209,7 @@ const Register: React.FC = () => {
                     <FormItem>
                       <FormLabel>Mật khẩu</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Nhập mật khẩu" {...field} />
+                        <PasswordInput id="password" placeholder="Nhập mật khẩu" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -223,7 +223,7 @@ const Register: React.FC = () => {
                     <FormItem>
                       <FormLabel>Xác nhận mật khẩu</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Nhập lại mật khẩu" {...field} />
+                        <PasswordInput id="confirmPassword" placeholder="Nhập lại mật khẩu" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -231,8 +231,8 @@ const Register: React.FC = () => {
                 />
               </div>
 
-              <Button type="submit" disabled={registerMutation.isPending} className="w-full bg-red-600 hover:bg-red-700">
-                {registerMutation.isPending ? "Đang đăng ký..." : "Đăng ký"}
+              <Button type="submit" disabled={registerQuery.isPending} className="w-full bg-red-600 hover:bg-red-700">
+                {registerQuery.isPending ? "Đang đăng ký..." : "Đăng ký"}
               </Button>
 
               <div className="text-center mt-4">

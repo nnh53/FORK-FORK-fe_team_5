@@ -1,10 +1,12 @@
+import AuthLogo from "@/components/auth/AuthLogo";
 import { PasswordInput } from "@/components/Shadcn/password-input";
 import { Button } from "@/components/Shadcn/ui/button";
-import AuthLogo from "@/components/auth/AuthLogo";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import BannerTransition from "@/components/shared/BannerTransition";
-import { Logo } from "@/layouts/user/components/Header";
+import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
+import { useAuth } from "@/hooks/useAuth";
+import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import { ROUTES } from "@/routes/route.constants";
 import type { CustomAPIResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
@@ -28,7 +30,7 @@ const slides = [
 ];
 
 const Login: React.FC = () => {
-  // const { authLogin } = useAuth();
+  const { authLogin } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -54,20 +56,24 @@ const Login: React.FC = () => {
       password: "",
     },
   });
+
   const onSubmit = async (data: LoginFormSchemaType) => {
     setError(null);
     setMessage(null);
 
-    // chỗ này hàm login
-    // login()
+    loginQuery.mutate({
+      body: {
+        email: data.email,
+        password: data.password,
+      },
+    });
 
-    // authLogin({
-    //   token: userData.token,
-    //   roles: userData.roles,
-    //   id: userData.id,
-    //   fullName: userData.fullName,
-    //   refresh_token: userData.refresh_token,
-    // });
+    authLogin({
+      token: loginQuery.data?.result?.token,
+      roles: loginQuery.data?.result?.roles as unknown as ROLE_TYPE[],
+      id: loginQuery.data?.result?.id as unknown as number,
+      fullName: loginQuery.data?.result?.fullName as unknown as string,
+    });
   };
 
   useEffect(() => {
@@ -77,13 +83,13 @@ const Login: React.FC = () => {
       toast.success("Đăng nhập thành công!");
       form.reset();
       setTimeout(() => {
-        // navigate(RoleRouteToEachPage(loginMutationQuery.data?.roles));
+        navigate(RoleRouteToEachPage(loginQuery.data?.result?.roles as unknown as ROLE_TYPE));
       }, 1000);
     } else if (loginQuery.isError) {
       setError((loginQuery.error as CustomAPIResponse).message || "Có lỗi xảy ra. Vui lòng thử lại.");
       toast.error((loginQuery.error as CustomAPIResponse).message || "Có lỗi xảy ra. Vui lòng thử lại.");
     }
-  }, [form, navigate, loginQuery.error, loginQuery.isError, loginQuery.isSuccess, loginQuery.status]);
+  }, [form, navigate, loginQuery.error, loginQuery.isError, loginQuery.isSuccess, loginQuery.status, loginQuery.data?.result?.roles]);
 
   return (
     <animated.div style={pageAnimation} className="flex h-screen">
