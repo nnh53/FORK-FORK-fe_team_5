@@ -1,12 +1,13 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
-import { Filter, type FilterCriteria } from "@/components/shared/Filter";
+import { Filter, type FilterCriteria, type FilterGroup } from "@/components/shared/Filter";
 import { SearchBar, type SearchCriteria } from "@/components/shared/SearchBar";
 import type { StaffRegisterDTO, UserBase } from "@/interfaces/users.interface";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import MemberDetail from "./MemberDetail";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 import { createMember, deleteMember, getMembers, updateMember } from "./services/memberApi";
@@ -14,13 +15,17 @@ import { createMember, deleteMember, getMembers, updateMember } from "./services
 // Helper functions để giảm complexity
 const filterBySearch = (member: UserBase, criteria: SearchCriteria): boolean => {
   if (!criteria.value) return true;
+  const searchValue = criteria.value.toLowerCase();
+
   switch (criteria.field) {
     case "id":
-      return member.id.toString().includes(criteria.value);
+      return member.id.toString().includes(searchValue);
     case "name":
-      return member.full_name.toLowerCase().includes(criteria.value.toLowerCase());
+      return member.full_name.toLowerCase().includes(searchValue);
     case "email":
-      return member.email.toLowerCase().includes(criteria.value.toLowerCase());
+      return member.email.toLowerCase().includes(searchValue);
+    case "membership":
+      return member.membershipLevel?.toLowerCase().includes(searchValue) || (!member.membershipLevel && searchValue === "không có");
     default:
       return true;
   }
@@ -31,23 +36,176 @@ const filterByGlobalSearch = (member: UserBase, searchValue: string): boolean =>
   return (
     member.id.toString().includes(searchValue) ||
     member.full_name.toLowerCase().includes(lowerSearchValue) ||
-    member.email.toLowerCase().includes(lowerSearchValue)
+    member.email.toLowerCase().includes(lowerSearchValue) ||
+    member.membershipLevel?.toLowerCase().includes(lowerSearchValue) ||
+    false
   );
 };
 
-const filterByDateRange = (member: UserBase, range: { from: Date | undefined; to: Date | undefined }): boolean => {
+const filterByDateRange = (member: UserBase, field: string, range: { from: Date | undefined; to: Date | undefined }): boolean => {
   if (!range.from && !range.to) return true;
 
-  const memberBirthDate = member.date_of_birth ? new Date(member.date_of_birth) : null;
-  if (!memberBirthDate) return false;
+  let dateValue;
+  switch (field) {
+    case "birth_date_range":
+      dateValue = member.date_of_birth ? new Date(member.date_of_birth) : null;
+      break;
+    case "created_date_range":
+      dateValue = member.createdAt ? new Date(member.createdAt) : null;
+      break;
+    case "updated_date_range":
+      dateValue = member.updatedAt ? new Date(member.updatedAt) : null;
+      break;
+    default:
+      return true;
+  }
+
+  if (!dateValue) return false;
 
   // Sửa logic để bao gồm cả ngày from và to (inclusive)
-  return !(range.from && memberBirthDate < range.from) && !(range.to && memberBirthDate > range.to);
+  return !(range.from && dateValue < range.from) && !(range.to && dateValue > range.to);
 };
 
 const filterByStatus = (member: UserBase, status: string): boolean => {
   return member.status_name.toLowerCase() === status.toLowerCase();
 };
+
+const filterByMembership = (member: UserBase, level: string): boolean => {
+  if (level === "none") return member.membershipLevel === null;
+  return member.membershipLevel === level;
+};
+
+const filterByActive = (member: UserBase, active: string): boolean => {
+  return member.is_active === parseInt(active);
+};
+
+const filterBySubscription = (member: UserBase, subscription: string): boolean => {
+  return member.is_subscription === parseInt(subscription);
+};
+
+const filterByNumberRange = (member: UserBase, field: string, range: { min?: number; max?: number }): boolean => {
+  if (!range.min && !range.max) return true;
+
+  let value;
+  switch (field) {
+    case "loyalty_point_range":
+      value = member.loyalty_point;
+      break;
+    case "total_spent_range":
+      value = member.totalSpent;
+      break;
+    default:
+      return true;
+  }
+
+  return (range.min === undefined || value >= range.min) && (range.max === undefined || value <= range.max);
+};
+
+// Cập nhật định nghĩa nhóm filter
+const filterGroups: FilterGroup[] = [
+  {
+    name: "dates",
+    label: "Ngày tháng",
+    options: [
+      {
+        label: "Ngày sinh",
+        value: "birth_date_range",
+        type: "dateRange" as const,
+      },
+      {
+        label: "Ngày tạo",
+        value: "created_date_range",
+        type: "dateRange" as const,
+      },
+      {
+        label: "Ngày cập nhật",
+        value: "updated_date_range",
+        type: "dateRange" as const,
+      },
+    ],
+  },
+  {
+    name: "status",
+    label: "Trạng thái",
+    options: [
+      {
+        label: "Trạng thái",
+        value: "status",
+        type: "select" as const,
+        selectOptions: [
+          { value: "ACTIVE", label: "Đã xác minh" },
+          { value: "BAN", label: "Bị cấm" },
+          { value: "UNVERIFY", label: "Chưa xác minh" },
+        ],
+        placeholder: "Chọn trạng thái",
+      },
+      {
+        label: "Kích hoạt",
+        value: "active",
+        type: "select" as const,
+        selectOptions: [
+          { value: "1", label: "Đã kích hoạt" },
+          { value: "0", label: "Chưa kích hoạt" },
+        ],
+        placeholder: "Chọn trạng thái kích hoạt",
+      },
+      {
+        label: "Đăng ký thông báo",
+        value: "subscription",
+        type: "select" as const,
+        selectOptions: [
+          { value: "1", label: "Đã đăng ký" },
+          { value: "0", label: "Chưa đăng ký" },
+        ],
+        placeholder: "Chọn trạng thái đăng ký",
+      },
+    ],
+  },
+  {
+    name: "membership",
+    label: "Thành viên",
+    options: [
+      {
+        label: "Hạng thành viên",
+        value: "membership",
+        type: "select" as const,
+        selectOptions: [
+          { value: "none", label: "Không có" },
+          { value: "Silver", label: "Silver" },
+          { value: "Gold", label: "Gold" },
+          { value: "Platinum", label: "Platinum" },
+          { value: "Diamond", label: "Diamond" },
+        ],
+        placeholder: "Chọn hạng thành viên",
+      },
+      {
+        label: "Điểm tích lũy",
+        value: "loyalty_point_range",
+        type: "numberRange" as const,
+        numberRangeConfig: {
+          min: 0,
+          max: 1000,
+          step: 50,
+          fromPlaceholder: "Từ điểm",
+          toPlaceholder: "Đến điểm",
+        },
+      },
+      {
+        label: "Tổng chi tiêu",
+        value: "total_spent_range",
+        type: "numberRange" as const,
+        numberRangeConfig: {
+          min: 0,
+          max: 5000000,
+          step: 100000,
+          fromPlaceholder: "Từ số tiền",
+          toPlaceholder: "Đến số tiền",
+          suffix: " đ",
+        },
+      },
+    ],
+  },
+];
 
 const MemberManagement = () => {
   const [members, setMembers] = useState<UserBase[]>([]);
@@ -58,39 +216,23 @@ const MemberManagement = () => {
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<UserBase | null>(null);
+  const [viewDetailOpen, setViewDetailOpen] = useState(false);
+  const [memberToView, setMemberToView] = useState<UserBase | null>(null);
 
-  // Search options
+  // Search options - đã xóa tùy chọn tìm kiếm hạng thành viên
   const searchOptions = [
     { label: "ID", value: "id" },
     { label: "Tên", value: "name" },
     { label: "Email", value: "email" },
   ];
 
-  // Filter options - bỏ date cụ thể, chỉ giữ dateRange và select
-  const filterOptions = [
-    {
-      label: "Khoảng ngày sinh",
-      value: "birth_date_range",
-      type: "dateRange" as const,
-    },
-    {
-      label: "Trạng thái",
-      value: "status",
-      type: "select" as const,
-      selectOptions: [
-        { value: "ACTIVE", label: "Đã xác minh" },
-        { value: "BAN", label: "Bị cấm" },
-        { value: "UNVERIFY", label: "Chưa xác minh" },
-      ],
-      placeholder: "Chọn trạng thái",
-    },
-  ];
-
   const fetchMembers = async () => {
     setLoading(true);
     try {
       const data = await getMembers();
-      setMembers(data);
+      // Filter to only show members with role_name "Member"
+      const memberData = data.filter((member) => member.role_name === "Member");
+      setMembers(memberData);
     } catch (err) {
       toast.error("Lỗi khi tải danh sách thành viên");
       console.error(err);
@@ -127,12 +269,28 @@ const MemberManagement = () => {
       result = result.filter((member) => {
         return filterCriteria.every((criteria) => {
           switch (criteria.field) {
-            case "birth_date_range": {
+            case "birth_date_range":
+            case "created_date_range":
+            case "updated_date_range": {
               const range = criteria.value as { from: Date | undefined; to: Date | undefined };
-              return filterByDateRange(member, range);
+              return filterByDateRange(member, criteria.field, range);
             }
             case "status": {
               return filterByStatus(member, criteria.value as string);
+            }
+            case "membership": {
+              return filterByMembership(member, criteria.value as string);
+            }
+            case "active": {
+              return filterByActive(member, criteria.value as string);
+            }
+            case "subscription": {
+              return filterBySubscription(member, criteria.value as string);
+            }
+            case "loyalty_point_range":
+            case "total_spent_range": {
+              const range = criteria.value as { min?: number; max?: number };
+              return filterByNumberRange(member, criteria.field, range);
             }
             default:
               return true;
@@ -159,13 +317,24 @@ const MemberManagement = () => {
     setSelectedMember(undefined);
   };
 
+  const handleView = (member: UserBase) => {
+    setMemberToView(member);
+    setViewDetailOpen(true);
+  };
+
   const handleSubmit = async (values: StaffRegisterDTO | UserBase) => {
     try {
+      // Ensure role_name is always "Member"
+      const memberData = {
+        ...values,
+        role_name: "Member",
+      };
+
       if (selectedMember) {
-        await updateMember({ ...selectedMember, ...values } as UserBase);
+        await updateMember({ ...selectedMember, ...memberData } as UserBase);
         toast.success("Cập nhật thành viên thành công");
       } else {
-        await createMember(values as StaffRegisterDTO);
+        await createMember(memberData as StaffRegisterDTO);
         toast.success("Thêm thành viên thành công");
       }
       setIsModalOpen(false);
@@ -224,17 +393,18 @@ const MemberManagement = () => {
 
               {/* Filter - Right */}
               <div className="shrink-0">
-                <Filter filterOptions={filterOptions} onFilterChange={setFilterCriteria} />
+                <Filter filterOptions={filterGroups} onFilterChange={setFilterCriteria} groupMode={true} />
               </div>
             </div>
           </CardHeader>
 
           <CardContent>
-            <MemberTable members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} />
+            <MemberTable members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} onView={handleView} />
           </CardContent>
         </Card>
       </div>
 
+      {/* Form Dialog */}
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => {
@@ -249,6 +419,7 @@ const MemberManagement = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -265,6 +436,13 @@ const MemberManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Member Detail Dialog - using the new component */}
+      {memberToView && (
+        <Dialog open={viewDetailOpen} onOpenChange={setViewDetailOpen}>
+          <MemberDetail member={memberToView} />
+        </Dialog>
+      )}
     </>
   );
 };
