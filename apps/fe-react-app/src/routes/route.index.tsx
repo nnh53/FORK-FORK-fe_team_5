@@ -14,11 +14,11 @@ import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
 import About from "@/feature/static/About";
 import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
 import TermOfService from "@/feature/static/TermOfService";
-import Welcome from "@/feature/theme/Welcome";
 import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import FAQ from "@/feature/views/FAQ/FAQ";
+import HeroSection from "@/feature/views/HeroSection/HeroSection";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
@@ -83,7 +83,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
     <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} />
     {/* Utility Routes */}
-    <Route path={ROUTES.WELCOME} element={<Welcome />} />
     <Route path={ROUTES.LOADING} element={<Loading />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
     <Route path={ROUTES.ERROR} element={<NotFoundError />} />
@@ -96,5 +95,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
     <Route path={ROUTES.HEADER_TEST} element={<Header />} />
     <Route path={ROUTES.CINEMA_EXPERIENCE} element={<CinemaExperience />} />
+    <Route path={ROUTES.HERO_SECTION} element={<HeroSection />} />
   </Routes>
 );

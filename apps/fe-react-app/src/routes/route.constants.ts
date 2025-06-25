@@ -15,6 +15,7 @@ export const ROUTES = {
   HEADER_TEST: "/header-test",
   FAQ: "/faq",
   CINEMA_EXPERIENCE: "/cinema-experience",
+  HERO_SECTION: "/welcome",
 
   //Static Routes
   TERM_OF_SERVICE: "/term-of-service",
@@ -82,7 +83,6 @@ export const ROUTES = {
   },
 
   // Utility Routes
-  WELCOME: "/welcome",
   LOADING: "/loading",
   UNAUTHORIZED: "/unauthorized",
   ERROR: "/error",
@@ -124,7 +124,7 @@ export const ADMIN_ROUTES = [
   ROUTES.ADMIN.SEARCH,
 ] as const;
 
-export const UTILITY_ROUTES = [ROUTES.WELCOME, ROUTES.LOADING, ROUTES.UNAUTHORIZED, ROUTES.ERROR, ROUTES.INTERNAL_SERVER_ERROR, ROUTES.TEST] as const;
+export const UTILITY_ROUTES = [ROUTES.LOADING, ROUTES.UNAUTHORIZED, ROUTES.ERROR, ROUTES.INTERNAL_SERVER_ERROR, ROUTES.TEST] as const;
 
 // cái này cái cũ của bảo
 export const ROUTING_PATH = {

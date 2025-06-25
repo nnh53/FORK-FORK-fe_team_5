@@ -2,12 +2,10 @@ import bgTop from "@/assets/bg-top.png";
 import brickWall from "@/assets/brickWall.jpg";
 import ClickSpark from "@/components/Reactbits/reactbit-animations/ClickSpark/ClickSpark";
 import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardSwap/CardSwap";
-import { ROUTES } from "@/routes/route.constants";
 import { useRef } from "react";
-import { Link } from "react-router-dom";
 import type { MovieData } from "../../feature/views/CarouselSection/CarouselSection";
 import CarouselSection from "../../feature/views/CarouselSection/CarouselSection";
-import WelcomePanel from "../../feature/views/WelcomePanel/WelcomePanel";
+import HeroSection from "../../feature/views/HeroSection/HeroSection";
 
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import { FAQ } from "@/feature/views/FAQ";
@@ -73,15 +71,7 @@ const HomePage = () => {
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="test-home-page">
           {/* Hero Section */}
-          <section className="hero-section panel" ref={heroRef}>
-            <div className="hero-bg"></div>
-            <div className="hero-content">
-              <WelcomePanel />
-              <button className="cta-button">
-                <Link to={ROUTES.BOOKING}>Book Now</Link>
-              </button>
-            </div>{" "}
-          </section>
+          <HeroSection ref={heroRef} />
           {/* New Releases Carousel Section */}
           <CarouselSection ref={carouselRef} movies={recentMovies} />
           {/* Card Swap Section */}

@@ -45,7 +45,6 @@ export const useAppNavigation = () => {
     goToAdminSettings: () => navigate(ROUTES.ADMIN.SETTINGS),
 
     // Utility routes
-    goToWelcome: () => navigate(ROUTES.WELCOME),
     goToLoading: () => navigate(ROUTES.LOADING),
     goToUnauthorized: () => navigate(ROUTES.UNAUTHORIZED),
     goToError: () => navigate(ROUTES.ERROR),
@@ -63,7 +62,7 @@ export const useAppNavigation = () => {
         case "ROLE_MEMBER":
           return navigate(ROUTES.HOME);
         default:
-          return navigate(ROUTES.WELCOME);
+          return navigate(ROUTES.AUTH.LOGIN);
       }
     },
 
