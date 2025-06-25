@@ -19,6 +19,7 @@ import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import FAQ from "@/feature/views/FAQ/FAQ";
 import HeroSection from "@/feature/views/HeroSection/HeroSection";
+import NowShowing from "@/feature/views/NowShowing/NowShowing";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
@@ -31,7 +32,6 @@ import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import NowShowing from "@/feature/views/NowShowing/NowShowing";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (

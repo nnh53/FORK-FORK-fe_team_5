@@ -1,16 +1,16 @@
 import type { SpringOptions } from "framer-motion";
-import { useRef, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useRef, useState } from "react";
 import "./TiltedCard.css";
 
 interface TiltedCardProps {
   imageSrc: React.ComponentProps<"img">["src"];
   altText?: string;
   captionText?: string;
-  containerHeight?: React.CSSProperties['height'];
-  containerWidth?: React.CSSProperties['width'];
-  imageHeight?: React.CSSProperties['height'];
-  imageWidth?: React.CSSProperties['width'];
+  containerHeight?: React.CSSProperties["height"];
+  containerWidth?: React.CSSProperties["width"];
+  imageHeight?: React.CSSProperties["height"];
+  imageWidth?: React.CSSProperties["width"];
   scaleOnHover?: number;
   rotateAmplitude?: number;
   showMobileWarning?: boolean;
@@ -102,11 +102,7 @@ export default function TiltedCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {showMobileWarning && (
-        <div className="tilted-card-mobile-alert">
-          This effect is not optimized for mobile. Check on desktop.
-        </div>
-      )}
+      {showMobileWarning && <div className="tilted-card-mobile-alert">This effect is not optimized for mobile. Check on desktop.</div>}
 
       <motion.div
         className="tilted-card-inner"
@@ -128,13 +124,7 @@ export default function TiltedCard({
           }}
         />
 
-        {displayOverlayContent && overlayContent && (
-          <motion.div
-            className="tilted-card-overlay"
-          >
-            {overlayContent}
-          </motion.div>
-        )}
+        {displayOverlayContent && overlayContent && <motion.div className="tilted-card-overlay">{overlayContent}</motion.div>}
       </motion.div>
 
       {showTooltip && (

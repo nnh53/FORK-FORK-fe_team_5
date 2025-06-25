@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState, type CSSProperties } from "react";
 import { gsap } from "gsap";
+import React, { useEffect, useRef, useState, type CSSProperties } from "react";
 import "./PixelTransition.css";
 
 interface PixelTransitionProps {
@@ -30,10 +30,7 @@ const PixelTransition: React.FC<PixelTransitionProps> = ({
 
   const [isActive, setIsActive] = useState<boolean>(false);
 
-  const isTouchDevice =
-    "ontouchstart" in window ||
-    navigator.maxTouchPoints > 0 ||
-    window.matchMedia("(pointer: coarse)").matches;
+  const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches;
 
   useEffect(() => {
     const pixelGridEl = pixelGridRef.current;
@@ -64,9 +61,7 @@ const PixelTransition: React.FC<PixelTransitionProps> = ({
     const activeEl = activeRef.current;
     if (!pixelGridEl || !activeEl) return;
 
-    const pixels = pixelGridEl.querySelectorAll<HTMLDivElement>(
-      ".pixelated-image-card__pixel"
-    );
+    const pixels = pixelGridEl.querySelectorAll<HTMLDivElement>(".pixelated-image-card__pixel");
     if (!pixels.length) return;
 
     gsap.killTweensOf(pixels);
