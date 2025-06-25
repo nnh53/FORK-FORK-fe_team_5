@@ -15,15 +15,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = getCookie("access_token");
     const roles = parseRoles(getCookie("user_roles"));
     const id = getCookie("user_id");
-    const username = getCookie("username");
+    const fullName = getCookie("fullName");
 
-    if (token && roles.length > 0 && id && username) {
+    if (token && roles.length > 0 && id && fullName) {
       setIsLoggedIn(true);
       setUser({
         token,
         roles,
         id: parseInt(id, 10),
-        username,
+        fullName,
       });
     }
   }, []);
@@ -39,13 +39,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       token: userData.token,
       roles: userData.roles,
       id: userData.id || 0,
-      username: userData.username || "",
+      fullName: userData.fullName || "",
     };
     setUser(authData);
     setCookie("access_token", userData.token, 1); // Set to expire in 1 day
     setCookie("user_roles", JSON.stringify(userData.roles), 1);
     if (userData.id) setCookie("user_id", userData.id.toString(), 1);
-    if (userData.username) setCookie("username", userData.username, 1);
+    if (userData.fullName) setCookie("fullName", userData.fullName, 1);
     // if (userData.refresh_token) setCookie("refresh_token", userData.refresh_token, 7); // Set refresh token to expire in 7 days
   };
 
@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     eraseCookie("access_token");
     eraseCookie("user_roles");
     eraseCookie("user_id");
-    eraseCookie("username");
+    eraseCookie("fullName");
     eraseCookie("refresh_token");
     navigate("/");
   };

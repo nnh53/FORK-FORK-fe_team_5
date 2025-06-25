@@ -102,8 +102,7 @@ export type LoginDTO = {
 
 export type UserLoginResponse = {
   id: number;
-  username: string;
+  fullName: string;
   roles: ROLE_TYPE[];
-  message: string;
   token: string;
 };

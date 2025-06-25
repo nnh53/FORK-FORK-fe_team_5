@@ -24,7 +24,7 @@ const Welcome = () => {
   return (
     <div className="container p-4 mx-auto">
       <div className="p-6 bg-white rounded-lg shadow-md">
-        <h1 className="mb-4 text-2xl font-semibold text-gray-800">Welcome, {user.username}!</h1>
+        <h1 className="mb-4 text-2xl font-semibold text-gray-800">Welcome, {user.fullName}!</h1>
         <p className="mb-2 text-gray-600">User ID: {user.id}</p>
         <p className="mb-2 text-gray-600">Role: {user.roles.join(", ")}</p>
         <button

@@ -4,7 +4,6 @@ import AuthLogo from "@/components/auth/AuthLogo";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import BannerTransition from "@/components/shared/BannerTransition";
-import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import { Logo } from "@/layouts/user/components/Header";
 import { ROUTES } from "@/routes/route.constants";
 import type { CustomAPIResponse } from "@/type-from-be";
@@ -19,17 +18,6 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 type LoginFormSchemaType = z.infer<typeof loginFormSchema>;
-
-// Mock user data for direct login
-const mockUserData = {
-  guest: {
-    token: "mock-jwt-token-for-guest-user",
-    roles: ["GUEST" as ROLE_TYPE],
-    id: 1,
-    username: "Guest User",
-    refresh_token: "mock-refresh-token-for-guest-user",
-  },
-};
 
 // Cinema-related images for background transition
 const slides = [
@@ -77,7 +65,7 @@ const Login: React.FC = () => {
     //   token: userData.token,
     //   roles: userData.roles,
     //   id: userData.id,
-    //   username: userData.username,
+    //   fullName: userData.fullName,
     //   refresh_token: userData.refresh_token,
     // });
   };
