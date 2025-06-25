@@ -27,22 +27,6 @@ export interface UserBase {
   membershipLevel: MEMBERSHIP_LEVEL;
 }
 
-export type LoginDTO = {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-};
-
-export type UserLoginResponse = {
-  tokenType: string;
-  id: number;
-  username: string;
-  roles: ROLE_TYPE[];
-  message: string;
-  token: string;
-  refresh_token: string;
-};
-
 export type UserRegisterBase = {
   full_name: string;
   date_of_birth?: string;
@@ -108,3 +92,18 @@ export interface MyPoint {
   nearExpiringPoints: number;
   pointHistory: MyPointHistory[];
 }
+
+// của login
+
+export type LoginDTO = {
+  email: string;
+  password: string;
+};
+
+export type UserLoginResponse = {
+  id: number;
+  username: string;
+  roles: ROLE_TYPE[];
+  message: string;
+  token: string;
+};

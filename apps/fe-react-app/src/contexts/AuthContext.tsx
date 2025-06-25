@@ -1,6 +1,6 @@
+import type { AuthLoginData } from "@/interfaces/auth.interface";
+import type { UserLoginResponse } from "@/interfaces/users.interface";
 import { createContext } from "react";
-import type { AuthLoginData } from "../interfaces/auth.interface";
-import type { UserLoginResponse } from "../interfaces/users.interface";
 
 interface AuthContextType {
   isLoggedIn: boolean;

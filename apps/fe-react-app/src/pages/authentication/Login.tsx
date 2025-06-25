@@ -69,12 +69,10 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginFormSchemaType) => {
     setError(null);
     setMessage(null);
-    loginQuery.mutate({
-      body: {
-        email: data.email,
-        password: data.password,
-      },
-    });
+
+    // chỗ này hàm login
+    // login()
+
     // authLogin({
     //   token: userData.token,
     //   roles: userData.roles,

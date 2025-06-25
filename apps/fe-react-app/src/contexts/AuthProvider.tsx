@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCookie("user_roles", JSON.stringify(userData.roles), 1);
     if (userData.id) setCookie("user_id", userData.id.toString(), 1);
     if (userData.username) setCookie("username", userData.username, 1);
-    if (userData.refresh_token) setCookie("refresh_token", userData.refresh_token, 7); // Set refresh token to expire in 7 days
+    // if (userData.refresh_token) setCookie("refresh_token", userData.refresh_token, 7); // Set refresh token to expire in 7 days
   };
 
   const authLogout = async () => {
