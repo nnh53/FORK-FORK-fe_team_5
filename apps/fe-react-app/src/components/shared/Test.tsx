@@ -235,12 +235,14 @@ const columns: ColumnDef<Payment>[] = [
 //   );
 // }
 
+import type { UserResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
 
 export const Test = () => {
   const { data, error, isLoading } = $api.useQuery("get", "/users", {});
 
-  console.log(data);
+  console.log(data?.result as UserResponse);
+  console.log();
   console.log(error);
   console.log(isLoading);
 

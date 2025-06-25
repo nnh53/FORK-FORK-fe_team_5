@@ -1,12 +1,15 @@
+import { PasswordInput } from "@/components/Shadcn/password-input";
+import AuthLogo from "@/components/auth/AuthLogo";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
-import AuthLogo from "@/components/auth/AuthLogo";
 import BannerTransition from "@/components/shared/BannerTransition";
 import { ROLE_TYPE } from "@/interfaces/roles.interface";
+import { Logo } from "@/layouts/user/components/Header";
 import { ROUTES } from "@/routes/route.constants";
+import type { CustomAPIResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
 import { cn } from "@/utils/utils";
 import { registerFormSchema } from "@/utils/validation.utils";
@@ -14,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { animated, useSpring } from "@react-spring/web";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -34,11 +37,7 @@ const Register: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
-
-  // Move the mutation to component level
-  const registerMutation = $api.useMutation("post", "/users");
-
-  // Page entrance animation
+  const registerQuery = $api.useMutation("post", "/users");
   const pageAnimation = useSpring({
     from: {
       opacity: 0,
@@ -53,7 +52,6 @@ const Register: React.FC = () => {
       friction: 20,
     },
   });
-
   const form = useForm<RegisterFormSchemaType>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -69,17 +67,13 @@ const Register: React.FC = () => {
   const onSubmit = (data: RegisterFormSchemaType) => {
     setError(null);
     setMessage(null);
-
-    console.log(data);
     const dateOfBirthSimpleFormat = data.dateOfBirth?.toISOString().split("T")[0];
     console.log(dateOfBirthSimpleFormat);
-
     if (data.password !== data.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
-    registerMutation.mutate({
+    registerQuery.mutate({
       body: {
         email: data.email,
         password: data.password,
@@ -89,21 +83,22 @@ const Register: React.FC = () => {
         phone: data.phone,
       },
     });
+  };
 
-    console.log(registerMutation.status);
-
-    if (registerMutation.isSuccess) {
+  useEffect(() => {
+    console.log(registerQuery.status);
+    if (registerQuery.isSuccess) {
       setMessage("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
       toast.success("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
       form.reset();
       setTimeout(() => {
         navigate(ROUTES.AUTH.LOGIN);
       }, 2000);
-    } else if (registerMutation.isError) {
-      setError(registerMutation.error?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
-      toast.error(registerMutation.error?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
+    } else if (registerQuery.isError) {
+      setError((registerQuery.error as CustomAPIResponse).message || "Có lỗi xảy ra. Vui lòng thử lại.");
+      toast.error((registerQuery.error as CustomAPIResponse).message || "Có lỗi xảy ra. Vui lòng thử lại.");
     }
-  };
+  }, [form, navigate, registerQuery.error, registerQuery.isError, registerQuery.isSuccess, registerQuery.status]);
 
   return (
     <animated.div style={pageAnimation} className="flex h-screen">

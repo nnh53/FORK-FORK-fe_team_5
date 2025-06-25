@@ -24,7 +24,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@/assets/*": ["./src/assets/*"]
+      "@/assets/*": ["./src/assets/*"],
+      "@/schema-from-be": ["./schema-from-be.d.ts"],
+      "@/type-from-be": ["./type-from-be.d.ts"]
     }
   },
   "include": ["src"]

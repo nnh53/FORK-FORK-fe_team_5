@@ -1,18 +1,24 @@
+import { PasswordInput } from "@/components/Shadcn/password-input";
+import { Button } from "@/components/Shadcn/ui/button";
 import AuthLogo from "@/components/auth/AuthLogo";
-import CheckboxForm from "@/components/forms/CheckboxForm";
-import FormField from "@/components/forms/FormFields";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
+import { Input } from "@/components/Shadcn/ui/input";
 import BannerTransition from "@/components/shared/BannerTransition";
-import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
-import { useAuth } from "@/hooks/useAuth";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
-import type { LoginDTO } from "@/interfaces/users.interface";
-import { loginValidationSchema } from "@/utils/validation.utils";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { Logo } from "@/layouts/user/components/Header";
+import { ROUTES } from "@/routes/route.constants";
+import type { CustomAPIResponse } from "@/type-from-be";
+import { $api } from "@/utils/api";
+import { loginFormSchema } from "@/utils/validation.utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { animated, useSpring } from "@react-spring/web";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import * as z from "zod";
+
+type LoginFormSchemaType = z.infer<typeof loginFormSchema>;
 
 // Mock user data for direct login
 const mockUserData = {
@@ -25,59 +31,20 @@ const mockUserData = {
   },
 };
 
+// Cinema-related images for background transition
+const slides = [
+  "photo-1524985069026-dd778a71c7b4",
+  "photo-1489599849927-2ee91cede3ba",
+  "photo-1536440136628-1c6cb5a2a869",
+  "photo-1542204637-e9f12f144cca",
+];
+
 const Login: React.FC = () => {
-  const { authLogin } = useAuth();
+  // const { authLogin } = useAuth();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(loginValidationSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      rememberMe: true,
-    },
-  });
-
-  const onSubmit = async (data: LoginDTO) => {
-    setIsLoading(true);
-    try {
-      // Mock login - check if email is guest@example.com
-      if (data.email === "guest@example.com") {
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Use mock data instead of API call
-        const userData = mockUserData.guest;
-
-        authLogin({
-          token: userData.token,
-          roles: userData.roles,
-          id: userData.id,
-          username: userData.username,
-          refresh_token: userData.refresh_token,
-        });
-
-        toast.success("Login successfully!");
-        setTimeout(() => {
-          navigate(RoleRouteToEachPage(userData.roles[0]));
-        }, 1000);
-      } else {
-        // For any other email, show error
-        toast.error("Invalid email or password");
-      }
-    } catch (error) {
-      const errorMessage = (error as Error).message || "An error occurred during login";
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const loginQuery = $api.useMutation("post", "/auth/authenticate");
   const pageAnimation = useSpring({
     from: {
       opacity: 0,
@@ -92,47 +59,123 @@ const Login: React.FC = () => {
       friction: 20,
     },
   });
+  const form = useForm<LoginFormSchemaType>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  const onSubmit = async (data: LoginFormSchemaType) => {
+    setError(null);
+    setMessage(null);
+    loginQuery.mutate({
+      body: {
+        email: data.email,
+        password: data.password,
+      },
+    });
+    // authLogin({
+    //   token: userData.token,
+    //   roles: userData.roles,
+    //   id: userData.id,
+    //   username: userData.username,
+    //   refresh_token: userData.refresh_token,
+    // });
+  };
+
+  useEffect(() => {
+    console.log(loginQuery.status);
+    if (loginQuery.isSuccess) {
+      setMessage("Đăng nhập thành công!");
+      toast.success("Đăng nhập thành công!");
+      form.reset();
+      setTimeout(() => {
+        // navigate(RoleRouteToEachPage(loginMutationQuery.data?.roles));
+      }, 1000);
+    } else if (loginQuery.isError) {
+      setError((loginQuery.error as CustomAPIResponse).message || "Có lỗi xảy ra. Vui lòng thử lại.");
+      toast.error((loginQuery.error as CustomAPIResponse).message || "Có lỗi xảy ra. Vui lòng thử lại.");
+    }
+  }, [form, navigate, loginQuery.error, loginQuery.isError, loginQuery.isSuccess, loginQuery.status]);
 
   return (
     <animated.div style={pageAnimation} className="flex h-screen">
-      <BannerTransition>
+      {/* Left Banner with Animated Background */}
+      <BannerTransition slides={slides}>
         <h2 className="text-3xl font-bold">Chào mừng trở lại</h2>
         <p className="text-lg">Trải nghiệm những bộ phim tuyệt vời nhất tại rạp chiếu phim hiện đại</p>
       </BannerTransition>
 
-      {/*right banner*/}
+      {/* Right Form */}
       <div className="w-1/2 flex items-center justify-center p-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <AuthLogo />
             <h3 className="text-2xl font-semibold">Đăng Nhập</h3>
-            <p className="text-gray-600">Tạo tài khoản mới để trải nghiệm dịch vụ tốt nhất</p>
+            <p className="text-gray-600">Đăng nhập để trải nghiệm dịch vụ tốt nhất</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <FormField name="email" label="Email" type="email" control={control} errors={errors} />
-            <FormField name="password" label="Mật khẩu" type="password" control={control} errors={errors} />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {error && (
+                <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-400 rounded-md" role="alert">
+                  {error}
+                </div>
+              )}
 
-            <div className="flex justify-between items-center">
-              <a href="/forgot-password">Quên mật khẩu?</a>
-              <CheckboxForm name="rememberMe" label="Ghi nhớ tôi" control={control} errors={errors} />
-            </div>
+              {message && (
+                <div className="p-3 text-sm text-green-700 bg-green-100 border border-green-400 rounded-md" role="alert">
+                  {message}
+                </div>
+              )}
 
-            <button
-              type="submit"
-              className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors justify-center"
-              disabled={isLoading}
-            >
-              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
-            </button>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="Nhập email của bạn" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="text-center mt-4">
-              <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
-              <a href="/register" className="text-sm text-red-600 hover:underline">
-                Đăng ký ngay
-              </a>
-            </div>
-          </form>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mật khẩu</FormLabel>
+                    <FormControl>
+                      <PasswordInput id="password" placeholder="Nhập mật khẩu" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-between items-center">
+                <Link to={ROUTES.AUTH.FORGOT_PASSWORD || "/forgot-password"} className="text-sm text-red-600 hover:underline">
+                  Quên mật khẩu?
+                </Link>
+              </div>
+
+              <Button type="submit" disabled={loginQuery.isPending} className="w-full bg-red-600 hover:bg-red-700">
+                {loginQuery.isPending ? "Đang đăng nhập..." : "Đăng nhập"}
+              </Button>
+
+              <div className="text-center mt-4">
+                <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
+                <Link to={ROUTES.AUTH.REGISTER || "/register"} className="text-red-600 hover:underline">
+                  Đăng ký ngay
+                </Link>
+              </div>
+            </form>
+          </Form>
         </div>
       </div>
     </animated.div>

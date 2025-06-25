@@ -1,6 +1,9 @@
 {
   "conventionalCommits.scopes": ["be", "fe"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "editor.formatOnSave": true,
   "editor.guides.bracketPairs": true,
   "editor.inlineSuggest.syntaxHighlightingEnabled": true,
@@ -74,9 +77,6 @@
         "github.copilot-chat/o4-mini"
       ]
     }
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
   },
   "json.schemaDownload.enable": true,
   "typescript.tsdk": "node_modules\\typescript\\lib"
