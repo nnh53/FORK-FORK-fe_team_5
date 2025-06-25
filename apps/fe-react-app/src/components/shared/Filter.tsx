@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, Filter as FilterIcon, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
@@ -9,6 +9,7 @@ import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import { cn } from "@/utils/utils";
 
 interface FilterOption {
@@ -34,20 +35,41 @@ interface FilterCriteria {
   type: "select" | "dateRange" | "numberRange";
 }
 
+// Tạo cấu trúc nhóm Filter
+interface FilterGroup {
+  name: string;
+  label: string;
+  options: FilterOption[];
+}
+
 interface FilterProps {
-  filterOptions: FilterOption[];
+  filterOptions: FilterOption[] | FilterGroup[];
   onFilterChange: (criteria: FilterCriteria[]) => void;
   className?: string;
   showActiveFilters?: boolean;
+  groupMode?: boolean; // Thêm flag để kiểm tra có dùng groupMode không
 }
 
 // Type for temp values
 type TempFilterValue = string | { from: Date | undefined; to: Date | undefined } | { from: number | undefined; to: number | undefined } | undefined;
 
-function Filter({ filterOptions, onFilterChange, className, showActiveFilters = true }: FilterProps) {
+function Filter({ filterOptions, onFilterChange, className, showActiveFilters = true, groupMode = false }: FilterProps) {
   const [appliedFilters, setAppliedFilters] = useState<FilterCriteria[]>([]);
   const [tempValues, setTempValues] = useState<Record<string, TempFilterValue>>({});
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("");
+
+  // Kiểm tra nếu options được phân nhóm
+  const isGrouped = groupMode && filterOptions.length > 0 && "name" in filterOptions[0];
+  const filterGroups = isGrouped ? (filterOptions as FilterGroup[]) : [];
+  const flatOptions = isGrouped ? filterGroups.flatMap((group) => group.options) : (filterOptions as FilterOption[]);
+
+  // Tạo defaultTab nếu dùng groupMode
+  useEffect(() => {
+    if (isGrouped && filterGroups.length > 0) {
+      setActiveTab(filterGroups[0].name);
+    }
+  }, [isGrouped, filterGroups]);
 
   const handleOpenChange = (open: boolean) => {
     if (open) {
@@ -82,11 +104,13 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
     return Boolean(value && value !== "");
   };
 
+  // Sửa hàm handleApplyFilters để xử lý đúng flatOptions thay vì filterOptions
   const handleApplyFilters = () => {
     // Tạo danh sách filters từ các giá trị đã nhập
     const validFilters: FilterCriteria[] = [];
 
-    filterOptions.forEach((option) => {
+    // Sử dụng flatOptions thay vì filterOptions để chỉ làm việc với FilterOption
+    flatOptions.forEach((option) => {
       const value = tempValues[option.value];
 
       if (isValidFilter(option, value)) {
@@ -239,6 +263,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
     return "";
   };
 
+  // Sửa hàm formatFilterValue để xử lý đúng với flatOptions
   const formatFilterValue = (filter: FilterCriteria): string => {
     switch (filter.type) {
       case "dateRange": {
@@ -247,7 +272,8 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
       }
       case "numberRange": {
         const range = filter.value as { from: number | undefined; to: number | undefined };
-        const option = filterOptions.find((opt) => opt.value === filter.field);
+        // Tìm option tương ứng từ flatOptions thay vì filterOptions
+        const option = flatOptions.find((opt) => opt.value === filter.field);
         const suffix = option?.numberRangeConfig?.suffix || "";
         return formatNumberRange(range, suffix);
       }
@@ -297,16 +323,40 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
                 )}
               </div>
 
-              {/* Filter inputs */}
-              <div className="space-y-4">
-                {filterOptions.map((option) => (
-                  <div key={option.value}>
-                    {option.type === "dateRange" && renderDateRangeFilter(option)}
-                    {option.type === "numberRange" && renderNumberRangeFilter(option)}
-                    {option.type === "select" && renderSelectFilter(option)}
-                  </div>
-                ))}
-              </div>
+              {/* Filter inputs - hiển thị theo nhóm hoặc không */}
+              {isGrouped ? (
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="w-full mb-4 grid" style={{ gridTemplateColumns: `repeat(${filterGroups.length}, 1fr)` }}>
+                    {filterGroups.map((group) => (
+                      <TabsTrigger key={group.name} value={group.name}>
+                        {group.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+
+                  {filterGroups.map((group) => (
+                    <TabsContent key={group.name} value={group.name} className="space-y-4 max-h-80 overflow-y-auto">
+                      {group.options.map((option) => (
+                        <div key={option.value}>
+                          {option.type === "dateRange" && renderDateRangeFilter(option)}
+                          {option.type === "numberRange" && renderNumberRangeFilter(option)}
+                          {option.type === "select" && renderSelectFilter(option)}
+                        </div>
+                      ))}
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              ) : (
+                <div className="space-y-4 max-h-80 overflow-y-auto">
+                  {flatOptions.map((option) => (
+                    <div key={option.value}>
+                      {option.type === "dateRange" && renderDateRangeFilter(option)}
+                      {option.type === "numberRange" && renderNumberRangeFilter(option)}
+                      {option.type === "select" && renderSelectFilter(option)}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Action buttons */}
               <div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t">
@@ -325,7 +375,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
       {/* Applied filters display */}
       {showActiveFilters && appliedFilters.length > 0 && (
         <div className="flex justify-end">
-          <div className="flex flex-wrap gap-2 justify-end">
+          <div className="flex flex-wrap gap-2 justify-end max-w-3xl">
             {appliedFilters.map((filter, index) => (
               <Badge key={`applied-${filter.field}-${index}`} variant="secondary" className="flex items-center gap-1">
                 <span className="text-xs">
@@ -344,4 +394,4 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
   );
 }
 
-export { Filter, type FilterCriteria, type FilterOption, type FilterProps };
+export { Filter, type FilterCriteria, type FilterGroup, type FilterOption, type FilterProps };
