@@ -1,7 +1,7 @@
 import { ROUTES } from "@/routes/route.constants";
 import { forwardRef } from "react";
 import { Link } from "react-router-dom";
-import WelcomePanel from "../WelcomePanel/WelcomePanel";
+import WelcomePanel from "./components/WelcomePanel";
 
 interface HeroSectionProps {
   className?: string;

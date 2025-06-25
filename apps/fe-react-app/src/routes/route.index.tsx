@@ -31,6 +31,7 @@ import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import NowShowing from "@/feature/views/NowShowing/NowShowing";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -96,5 +97,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.HEADER_TEST} element={<Header />} />
     <Route path={ROUTES.CINEMA_EXPERIENCE} element={<CinemaExperience />} />
     <Route path={ROUTES.HERO_SECTION} element={<HeroSection />} />
+    <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} />
   </Routes>
 );

@@ -1,0 +1,146 @@
+/* NowShowing Section Styles */
+.featured-section {
+  background-color: var(--color-base-200);
+  padding: 100px 5%;
+}
+
+.section-header {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.section-header h2 {
+  margin-bottom: 15px;
+  color: #5227ff;
+  font-weight: 700;
+  font-size: 2.5rem;
+}
+
+.section-header img {
+  margin-bottom: 20px;
+  max-width: 300px;
+}
+
+.section-line {
+  margin: 0 auto;
+  background: linear-gradient(to right, var(--color-accent), var(--color-secondary));
+  width: 100px;
+  height: 3px;
+}
+
+.movies-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  justify-items: center;
+  gap: 30px;
+}
+
+/* Movie Card Wrapper */
+.movie-card {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  width: 300px;
+  height: 300px;
+}
+
+/* TiltedCard Movie Overlay Content */
+.movie-overlay-content {
+  display: flex;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  border-radius: 0 0 15px 15px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 50%, transparent 100%);
+  padding: 15px 20px;
+  color: white;
+  text-align: center;
+}
+
+.movie-overlay-content h3 {
+  margin: 0 0 5px 0;
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.movie-overlay-content p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  line-height: 1.3;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 768px) {
+  .section-header h2 {
+    font-size: 2rem;
+  }
+
+  .section-header img {
+    max-width: 200px;
+  }
+
+  .movies-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .movie-card {
+    height: 350px;
+  }
+
+  .movie-overlay-content {
+    padding: 12px 15px;
+  }
+
+  .movie-overlay-content h3 {
+    font-size: 1.1rem;
+  }
+
+  .movie-overlay-content p {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .featured-section {
+    padding: 50px 3%;
+  }
+
+  .movies-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .movie-card {
+    height: 320px;
+  }
+
+  .movie-overlay-content {
+    padding: 10px 12px;
+  }
+
+  .movie-overlay-content h3 {
+    font-size: 1rem;
+  }
+
+  .movie-overlay-content p {
+    font-size: 0.75rem;
+  }
+}

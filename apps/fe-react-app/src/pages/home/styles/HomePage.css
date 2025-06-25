@@ -87,31 +87,6 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Featured Movies Section */
-.featured-section {
-  background-color: var(--color-base-200);
-  padding: 100px 5%;
-}
-
-.section-header {
-  position: relative;
-  z-index: 2;
-  margin-bottom: 40px;
-  text-align: center;
-}
-
-.section-header h2 {
-  margin-bottom: 15px;
-  color: #5227ff;
-  font-weight: 700;
-  font-size: 2.5rem;
-}
-
-.section-header img {
-  margin-bottom: 20px;
-  max-width: 300px;
-}
-
 /* General Section Title Styles */
 .section-title {
   position: relative;
@@ -132,89 +107,6 @@ body {
   background: linear-gradient(to right, var(--color-accent), var(--color-secondary));
   width: 100px;
   height: 3px;
-}
-
-.movies-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 30px;
-}
-
-.movie-card {
-  transition: transform 0.3s;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border-radius: 15px;
-  background-color: var(--color-base-100);
-  overflow: hidden;
-}
-
-.movie-card:hover {
-  transform: translateY(-10px);
-}
-
-.movie-poster {
-  position: relative;
-  background-position: center;
-  background-size: cover;
-  height: 350px;
-}
-
-.movie-card:nth-child(1) .movie-poster {
-  background-image: url("");
-}
-
-.movie-card:nth-child(2) .movie-poster {
-  background-image: url("");
-}
-
-.movie-card:nth-child(3) .movie-poster {
-  background-image: url("");
-}
-
-.movie-card:nth-child(4) .movie-poster {
-  background-image: url("");
-}
-
-.hot-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
-  width: 60px;
-  height: 60px;
-}
-
-.movie-details {
-  padding: 20px;
-}
-
-.movie-details h3 {
-  margin-bottom: 10px;
-  color: var(--color-base-content);
-  font-size: 1.5rem;
-}
-
-.movie-details p {
-  margin-bottom: 20px;
-  color: var(--color-neutral);
-}
-
-.ticket-button {
-  transition:
-    background-color 0.3s,
-    color 0.3s;
-  cursor: pointer;
-  border: 2px solid var(--color-accent);
-  border-radius: 20px;
-  background-color: transparent;
-  padding: 8px 20px;
-  color: var(--color-accent);
-  font-weight: 600;
-}
-
-.ticket-button:hover {
-  background-color: var(--color-accent);
-  color: var(--color-accent-content);
 }
 
 /* Parallax Section */
@@ -385,13 +277,6 @@ body {
 
   .hero-content p {
     font-size: 1.2rem;
-  }
-
-  .section-header h2 {
-    font-size: 2.5rem;
-  }
-  .section-header img {
-    max-width: 200px;
   }
 
   .coming-soon-details h3 {

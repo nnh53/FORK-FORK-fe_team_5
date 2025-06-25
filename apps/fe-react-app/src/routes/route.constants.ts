@@ -16,6 +16,7 @@ export const ROUTES = {
   FAQ: "/faq",
   CINEMA_EXPERIENCE: "/cinema-experience",
   HERO_SECTION: "/welcome",
+  NOW_SHOWING: "/now-showing",
 
   //Static Routes
   TERM_OF_SERVICE: "/term-of-service",

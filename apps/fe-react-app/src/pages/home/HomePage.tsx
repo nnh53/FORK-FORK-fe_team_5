@@ -9,6 +9,7 @@ import HeroSection from "../../feature/views/HeroSection/HeroSection";
 
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import { FAQ } from "@/feature/views/FAQ";
+import NowShowing from "@/feature/views/NowShowing/NowShowing";
 import { useHomePageAnimations } from "../../hooks/useHomePageAnimations";
 import UserLayout from "../../layouts/user/UserLayout";
 import "./styles/HomePage.css";
@@ -33,7 +34,7 @@ const HomePage = () => {
     parallaxRef,
   });
 
-  //Movie cardswap mock data tạm thời
+  //Movie mock data tạm thời
   const recentMovies: MovieData[] = [
     {
       title: "The Marvels",
@@ -215,43 +216,7 @@ const HomePage = () => {
             </div>
           </section>{" "}
           {/* Featured Movies */}
-          <section className="featured-section" ref={featuredMoviesRef}>
-            <div className="section-header">
-              <h2
-                className="now-showing-title"
-                style={{
-                  background: "linear-gradient(to right, #946b38, #392819)",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  color: "transparent",
-                  fontWeight: "800",
-                  fontSize: "2.5rem",
-                  marginBottom: "2rem",
-                }}
-              >
-                Now Showing
-              </h2>
-              <div
-                className="section-line"
-                style={{
-                  background: "linear-gradient(to right, #946b38, #392819)",
-                  height: "3px",
-                }}
-              ></div>
-            </div>
-            <div className="movies-container">
-              {[1, 2, 3, 4].map((movie) => (
-                <div className="movie-card" key={movie}>
-                  <div className="movie-poster">{movie === 1}</div>
-                  <div className="movie-details">
-                    <h3>Movie Title {movie}</h3>
-                    <p>Genre • Duration</p>
-                    <button className="ticket-button">Get Tickets</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+          <NowShowing ref={featuredMoviesRef} />
           {/* Parallax Section */}
           <section className="parallax-section" ref={parallaxRef}>
             <div className="parallax-layer" data-depth="0.1"></div>

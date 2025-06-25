@@ -6,8 +6,10 @@ const WelcomePanel = () => {
   const welcomeTextRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (welcomeTextRef.current) {
-      const welcomeLetters = welcomeTextRef.current.querySelectorAll(".letter");
+    const currentWelcomeTextRef = welcomeTextRef.current;
+
+    if (currentWelcomeTextRef) {
+      const welcomeLetters = currentWelcomeTextRef.querySelectorAll(".letter");
 
       // Clear any existing animations
       gsap.set(welcomeLetters, { autoAlpha: 0, y: 0, rotationX: 0 });
@@ -57,14 +59,14 @@ const WelcomePanel = () => {
       welcomeTl.fromTo(welcomeLetters[8], { autoAlpha: 0, y: -50 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, "+=0.1");
 
       // O - from bottom
-      welcomeTl.fromTo(welcomeLetters[9], { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, "-=0.3");
+      welcomeTl.fromTo(welcomeLetters[8], { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, "-=0.3");
 
       // Space
-      welcomeTl.fromTo(welcomeLetters[10], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 }, "-=0.1");
+      welcomeTl.fromTo(welcomeLetters[9], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 }, "-=0.1");
 
       // F - from left, flipping up (like W)
       welcomeTl.fromTo(
-        welcomeLetters[11],
+        welcomeLetters[10],
         { autoAlpha: 0, x: -50, rotationX: -90 },
         { autoAlpha: 1, x: 0, rotationX: 0, duration: 0.7, ease: "back.out" },
         "+=0.1",
@@ -72,31 +74,31 @@ const WelcomePanel = () => {
 
       // Hyphen - like F
       welcomeTl.fromTo(
-        welcomeLetters[12],
+        welcomeLetters[10],
         { autoAlpha: 0, x: -30, rotationX: -90 },
         { autoAlpha: 1, x: 0, rotationX: 0, duration: 0.5, ease: "back.out" },
         "-=0.4",
       );
 
       // C - fade in from right
-      welcomeTl.fromTo(welcomeLetters[13], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "+=0.1");
+      welcomeTl.fromTo(welcomeLetters[11], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "+=0.1");
 
       // I - fade in from right
-      welcomeTl.fromTo(welcomeLetters[14], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "-=0.2");
+      welcomeTl.fromTo(welcomeLetters[12], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "-=0.2");
 
       // N - fade in from right
-      welcomeTl.fromTo(welcomeLetters[15], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "-=0.2");
+      welcomeTl.fromTo(welcomeLetters[12], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "-=0.2");
 
       // E - fade in from right
-      welcomeTl.fromTo(welcomeLetters[16], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "-=0.2");
+      welcomeTl.fromTo(welcomeLetters[13], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "-=0.2");
 
       // M - fade in from right
-      welcomeTl.fromTo(welcomeLetters[17], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "-=0.2");
+      welcomeTl.fromTo(welcomeLetters[13], { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, "-=0.2");
 
       // A - special animation from large to normal size
       welcomeTl.fromTo(
-        welcomeLetters[18],
-        { autoAlpha: 0, scale: 20, transformOrigin: "center center" },
+        welcomeLetters[14],
+        { autoAlpha: 0, scale: 30, transformOrigin: "center center" },
         { autoAlpha: 1, scale: 1, duration: 3, ease: "power4.out" },
         "-=0.2",
       );
@@ -104,8 +106,8 @@ const WelcomePanel = () => {
 
     return () => {
       // Cleanup animation if component unmounts
-      if (welcomeTextRef.current) {
-        gsap.killTweensOf(welcomeTextRef.current.querySelectorAll(".letter"));
+      if (currentWelcomeTextRef) {
+        gsap.killTweensOf(currentWelcomeTextRef.querySelectorAll(".letter"));
       }
     };
   }, []);
