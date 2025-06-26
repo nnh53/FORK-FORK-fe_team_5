@@ -12,6 +12,7 @@ import ComboManagement from "@/feature/manager/food-combo/ComboManagement";
 import FoodManagement from "@/feature/manager/food-combo/food/FoodManagement";
 import MemberManagement from "@/feature/manager/member/MemberManagement";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
+import ShowtimeManagement from "@/feature/manager/show-time/ShowtimeManagement";
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import { PromotionManagement } from "@/feature/promotion-management/PromotionManagement";
 import type { ReactNode } from "react";
@@ -66,14 +67,6 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
           <Route path="/cinema-room/add" element={<CinemaRoomAdd />} />
           <Route path="/cinema-room/edit/:id" element={<CinemaRoomEdit />} />
           <Route
-            path="/showtime"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl font-bold">Show Time Management</h1>
-              </div>
-            }
-          />
-          <Route
             path="/seat"
             element={
               <div className="p-6">
@@ -91,9 +84,11 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
           />
           <Route path="/promotion" element={<PromotionManagement />} />
           <Route path="/members" element={<MemberManagement />} />
+          <Route path="/showtime" element={<ShowtimeManagement />} />
           <Route path="/staffs" element={<StaffManagement />} />
           <Route path="/combo" element={<ComboManagement />} />
           <Route path="/foods" element={<FoodManagement />} />
+
           <Route
             path="/settings"
             element={
