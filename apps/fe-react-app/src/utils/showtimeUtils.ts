@@ -12,45 +12,20 @@ export const convertShowtimesToSchedulePerDay = (showtimes: Showtime[]): Schedul
       if (!acc[date]) {
         acc[date] = [];
       }
-
-      acc[date].push({
-        time: showtime.startTime,
-        availableSeats: showtime.availableSeats,
-        format: showtime.format,
-        price: showtime.price,
-        showtimeId: showtime.id,
-        cinemaRoomId: showtime.cinemaRoomId,
-        endTime: showtime.endTime,
-      });
-
+      acc[date].push(showtime);
       return acc;
     },
-    {} as Record<
-      string,
-      Array<{
-        time: string;
-        availableSeats: number;
-        format: string;
-        price: number;
-        showtimeId: string;
-        cinemaRoomId: string;
-        endTime: string;
-      }>
-    >,
+    {} as Record<string, Showtime[]>,
   );
+
   // Convert to SchedulePerDay format
-  return Object.entries(groupedByDate).map(([date, showtimes]) => ({
-    date,
-    showtimes: showtimes
-      .sort((a, b) => a.time.localeCompare(b.time))
-      .map((showtime) => ({
-        ...showtime,
-        id: showtime.showtimeId,
-        movieId: "", // This needs to be provided from the original showtime
-        date,
-        startTime: showtime.time,
-      })),
-  }));
+  return Object.entries(groupedByDate).map(([date, showtimes]) => {
+    const sortedShowtimes = [...showtimes].sort((a, b) => a.startTime.localeCompare(b.startTime));
+    return {
+      date,
+      showtimes: sortedShowtimes,
+    };
+  });
 };
 
 /**
@@ -58,7 +33,7 @@ export const convertShowtimesToSchedulePerDay = (showtimes: Showtime[]): Schedul
  */
 export const getAvailableDatesFromShowtimes = (showtimes: Showtime[]): string[] => {
   const dates = [...new Set(showtimes.map((showtime) => showtime.date))];
-  return dates.sort();
+  return dates.sort((a, b) => a.localeCompare(b));
 };
 
 /**

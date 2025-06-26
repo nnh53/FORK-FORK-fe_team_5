@@ -1,23 +1,31 @@
 export enum MovieStatus {
-  ACTIVE = "active",
-  INACTIVE = "inactive",
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  UPCOMING = "UPCOMING",
 }
 
 export enum MovieVersion {
-  TWO_D = "2D",
-  THREE_D = "3D",
+  "2D" = "2D",
+  "3D" = "3D",
+  "4D" = "4D",
   IMAX = "IMAX",
-  FOUR_DX = "4DX",
 }
 
-export interface MovieGenre {
-  id: string;
-  name: string;
+export enum MovieGenre {
+  ACTION = "ACTION",
+  COMEDY = "COMEDY",
+  DRAMA = "DRAMA",
+  HORROR = "HORROR",
+  SCIENCE = "SCIENCE",
+  THRILLER = "THRILLER",
+  ROMANCE = "ROMANCE",
+  FANTASY = "FANTASY",
+  CRIME = "CRIME",
 }
 
 export interface Showtime {
   id: string;
-  movieId: string;
+  movieId: number;
   cinemaRoomId: string;
   date: string;
   startTime: string;
@@ -28,30 +36,25 @@ export interface Showtime {
 }
 
 export interface Movie {
-  id: string;
-  title: string;
-  genre: string;
-  genres?: MovieGenre[]; // For multiple genres (checkbox)
-  director: string;
-  actors?: string;
-  releaseYear: number;
-  startShowingDate?: string;
-  endShowingDate?: string;
-  productionCompany: string;
-  duration: number; // in minutes
-  rating: number; // 1-10
-  description: string;
-  poster: string;
-  trailerUrl?: string;
-  status: MovieStatus;
-  version: MovieVersion;
-  showtimes?: Showtime[];
-  createdAt: string;
-  updatedAt: string;
+  id?: number;
+  name?: string;
+  ageRestrict?: number; // Required: Must be between 13-18 (backend constraint)
+  fromDate?: string;
+  toDate?: string;
+  actor?: string;
+  studio?: string;
+  director?: string;
+  duration?: number;
+  version?: MovieVersion;
+  trailer?: string;
+  type?: MovieGenre;
+  description?: string;
+  status?: MovieStatus;
+  poster?: string;
+  showtimes?: Showtime[]; // Mảng rỗng, không null
 }
 
-export interface MovieFormData extends Omit<Movie, "id" | "createdAt" | "updatedAt"> {
-  id?: string;
+export interface MovieFormData extends Movie {
   posterFile?: File;
 }
 

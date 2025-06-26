@@ -4,38 +4,50 @@ import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
+import { MovieStatus } from "@/interfaces/movies.interface";
+import { transformMovieResponse, transformMovieToRequest, useCreateMovie, useMovies, useUpdateMovie } from "@/services/movieService";
+import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { type Movie, type MovieFormData } from "../../../interfaces/movies.interface";
 import MovieDetail from "./MovieDetail";
 import MovieList from "./MovieList";
 
 const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | undefined>();
-  const [movies, setMovies] = useState<Movie[]>([]);
   const [searchInput, setSearchInput] = useState<string>("");
   const [from, setFrom] = useState<Date | undefined>(undefined);
   const [to, setTo] = useState<Date | undefined>(undefined);
-  // Fetch movies for the initial load
-  const fetchMovies = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/movies");
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setMovies(data);
-    } catch (error) {
-      console.error("Error fetching movies:", error);
-      toast.error("Failed to fetch movies");
-    }
-  };
 
-  useEffect(() => {
-    fetchMovies();
-  }, []);
+  // Use React Query hooks
+  const moviesQuery = useMovies();
+  const createMovieMutation = useCreateMovie();
+  const updateMovieMutation = useUpdateMovie();
+
+  // Transform API response to Movie interface
+  const movies: Movie[] = moviesQuery.data?.result
+    ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
+    : [];
+
+  // Show loading state
+  if (moviesQuery.isLoading) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="text-center">Đang tải danh sách phim...</div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (moviesQuery.error) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="text-center text-red-500">Có lỗi xảy ra khi tải danh sách phim</div>
+      </div>
+    );
+  }
 
   const handleCreate = () => {
     setSelectedMovie(undefined);
@@ -55,24 +67,29 @@ const MovieManagement = () => {
   const validateMovieData = (values: MovieFormData): { isValid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
-    // Required fields validation
-    if (!values.title) errors.push("Movie Name is required");
+    // Required fields validation using new Movie interface
+    if (!values.name) errors.push("Movie Name is required");
     if (!values.director) errors.push("Director is required");
-    if (!values.productionCompany) errors.push("Production Company is required");
-    if (!values.genre) errors.push("Primary Genre is required");
+    if (!values.studio) errors.push("Studio is required");
+    if (!values.type) errors.push("Type/Genre is required");
     if (!values.description) errors.push("Description is required");
 
+    // Age restriction validation (must be between 13-18)
+    if (!values.ageRestrict) {
+      errors.push("Age restriction is required");
+    } else if (values.ageRestrict < 13 || values.ageRestrict > 18) {
+      errors.push("Age restriction must be between 13 and 18");
+    }
+
     // Numeric validations
-    if (!values.duration || values.duration <= 0) errors.push("Running Time must be a positive number");
-    if (!values.releaseYear || values.releaseYear < 1900) errors.push("Release Year must be at least 1900");
-    if (values.rating < 1 || values.rating > 10) errors.push("Rating must be between 1 and 10");
+    if (!values.duration || values.duration <= 0) errors.push("Duration must be a positive number");
 
     // Date validations
-    if (values.startShowingDate && values.endShowingDate) {
-      const startDate = new Date(values.startShowingDate);
-      const endDate = new Date(values.endShowingDate);
+    if (values.fromDate && values.toDate) {
+      const startDate = new Date(values.fromDate);
+      const endDate = new Date(values.toDate);
       if (endDate < startDate) {
-        errors.push("End showing date cannot be earlier than start showing date");
+        errors.push("End date cannot be earlier than start date");
       }
     }
 
@@ -89,8 +106,8 @@ const MovieManagement = () => {
       toast.error("Please fix the following errors:", {
         description: (
           <ul className="list-disc pl-4">
-            {validation.errors.map((error, index) => (
-              <li key={index}>{error}</li>
+            {validation.errors.map((error) => (
+              <li key={error}>{error}</li>
             ))}
           </ul>
         ),
@@ -106,46 +123,61 @@ const MovieManagement = () => {
         // For this mock, we'll just use a fake URL or the existing one
         posterUrl = URL.createObjectURL(values.posterFile);
         // Clean up the URL when no longer needed
-        URL.revokeObjectURL(posterUrl);
+        if (posterUrl) {
+          setTimeout(() => URL.revokeObjectURL(posterUrl!), 5000);
+        }
       }
 
-      // Prepare data for API
-      const movieData = {
+      // Use the transform function to convert to the correct API format
+      const movieRequestData = transformMovieToRequest({
         ...values,
-        poster: posterUrl || values.poster,
-      };
+        id: selectedMovie?.id,
+        poster: posterUrl ?? values.poster,
+        showtimes: values.showtimes ?? [],
+      });
 
-      // Remove the file object as it can't be serialized
-      delete movieData.posterFile;
-
-      if (selectedMovie) {
-        // Update existing movie
-        await fetch(`http://localhost:3000/movies/${selectedMovie.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
+      if (selectedMovie?.id) {
+        // Update existing movie using mutation
+        updateMovieMutation.mutate(
+          {
+            params: { path: { id: selectedMovie.id } },
+            body: movieRequestData,
           },
-          body: JSON.stringify(movieData),
-        });
-        toast.success("Movie updated successfully");
+          {
+            onSuccess: () => {
+              toast.success("Movie updated successfully");
+              setIsModalOpen(false);
+              setSelectedMovie(undefined);
+            },
+            onError: (error) => {
+              toast.error("Failed to update movie");
+              console.error("Movie update error:", error);
+            },
+          },
+        );
       } else {
-        // Create new movie
-        await fetch("http://localhost:3000/movies", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        // Create new movie using mutation
+        createMovieMutation.mutate(
+          {
+            body: movieRequestData,
           },
-          body: JSON.stringify(movieData),
-        });
-        toast.success("Movie created successfully");
+          {
+            onSuccess: () => {
+              toast.success("Movie created successfully");
+              setIsModalOpen(false);
+              setSelectedMovie(undefined);
+            },
+            onError: (error) => {
+              toast.error("Failed to create movie");
+              console.error("Movie create error:", error);
+            },
+          },
+        );
       }
-      setIsModalOpen(false);
-      setSelectedMovie(undefined);
-      // Refresh the movie list
-      fetchMovies();
     } catch (error) {
-      console.error("Error saving movie:", error);
-      toast.error("Failed to save movie");
+      const errorMessage = selectedMovie ? "Failed to update movie" : "Failed to create movie";
+      toast.error(errorMessage);
+      console.error("Movie operation error:", error);
     }
   };
 
@@ -166,11 +198,10 @@ const MovieManagement = () => {
             <div className="mb-6 flex gap-4">
               <Input
                 type="text"
-                placeholder="Search cinemas..."
+                placeholder="Search movies..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                // onKeyPress={handleKeyPress}
-                maxLength={28}
+                maxLength={50}
                 className="mr-2 w-1/3"
               />
               <div className="mb-4 flex gap-4">
@@ -178,18 +209,19 @@ const MovieManagement = () => {
                 <DatePicker date={to} setDate={setTo} placeholder="To date" />
                 <Select>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="fetch the category here" />
+                    <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="light">fetch the category here</SelectItem>
-                    <SelectItem value="dark">fetch the category here</SelectItem>
-                    <SelectItem value="system">fetch the category here</SelectItem>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value={MovieStatus.ACTIVE}>Active</SelectItem>
+                    <SelectItem value={MovieStatus.INACTIVE}>Inactive</SelectItem>
+                    <SelectItem value={MovieStatus.UPCOMING}>Upcoming</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <Button>Search</Button>
             </div>
-            <MovieList onEdit={handleEdit} movies={movies} onMoviesChange={fetchMovies} />
+            <MovieList onEdit={handleEdit} movies={movies} onMoviesChange={() => moviesQuery.refetch()} />
           </CardContent>
         </Card>
       </div>

@@ -7,13 +7,14 @@ import type { BookingCreateRequest, Combo } from "@/interfaces/booking.interface
 import { PaymentMethod } from "@/interfaces/booking.interface";
 import type { Member } from "@/interfaces/member.interface";
 import type { Movie, Showtime } from "@/interfaces/movies.interface";
+import { getMovieGenreLabel, transformMovieResponse, useMovies } from "@/services/movieService";
+import type { MovieResponse } from "@/type-from-be";
 import { Clock, CreditCard, Film, Minus, Plus, ShoppingCart, Ticket, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import MovieSearch from "../../../components/MovieSearch";
 import { bookingService } from "../../../services/bookingService";
 import { memberService } from "../../../services/memberService";
-import { movieService } from "../../../services/movieService";
 import { showtimeService } from "../../../services/showtimeService";
 
 interface Seat {
@@ -36,6 +37,9 @@ interface SnackItem {
 }
 
 const StaffTicketSales: React.FC = () => {
+  // Use React Query to fetch movies
+  const moviesQuery = useMovies();
+
   // State for data
   const [movies, setMovies] = useState<Movie[]>([]);
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
@@ -66,14 +70,21 @@ const StaffTicketSales: React.FC = () => {
   const [step, setStep] = useState<"movie" | "showtime" | "seats" | "snacks" | "customer" | "payment">("movie");
 
   useEffect(() => {
-    fetchMovies();
     fetchCombos();
     fetchSnackItems();
   }, []);
 
+  // Transform movies data when React Query data changes
+  useEffect(() => {
+    if (moviesQuery.data?.result) {
+      const transformedMovies = moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse));
+      setMovies(transformedMovies);
+    }
+  }, [moviesQuery.data]);
+
   useEffect(() => {
     if (selectedMovie) {
-      fetchShowtimes(selectedMovie.id);
+      fetchShowtimes(selectedMovie.id?.toString() ?? "");
     }
   }, [selectedMovie]);
 
@@ -82,15 +93,7 @@ const StaffTicketSales: React.FC = () => {
       fetchSeats(selectedShowtime.cinemaRoomId);
     }
   }, [selectedShowtime]);
-  const fetchMovies = async () => {
-    try {
-      const data = await movieService.getAllMovies();
-      setMovies(data);
-    } catch (error) {
-      console.error("Error fetching movies:", error);
-      toast.error("Không thể tải danh sách phim");
-    }
-  };
+
   const fetchShowtimes = async (movieId: string) => {
     try {
       const data = await showtimeService.getShowtimesByMovieId(movieId);
@@ -263,7 +266,7 @@ const StaffTicketSales: React.FC = () => {
     try {
       setLoading(true);
       const bookingData: BookingCreateRequest = {
-        movieId: selectedMovie.id,
+        movieId: selectedMovie.id?.toString() ?? "0",
         showtimeId: selectedShowtime.id,
         cinemaRoomId: selectedShowtime.cinemaRoomId,
         seats: selectedSeats.map((seat) => seat.id),
@@ -284,8 +287,8 @@ const StaffTicketSales: React.FC = () => {
               const snack = snackItems.find((s) => s.id === snackId);
               return {
                 id: snackId,
-                name: snack?.name || "",
-                price: snack?.price || 0,
+                name: snack?.name ?? "",
+                price: snack?.price ?? 0,
                 quantity,
               };
             }),
@@ -410,25 +413,30 @@ const StaffTicketSales: React.FC = () => {
                   <Label className="text-sm font-medium mb-4 block">Hoặc chọn từ danh sách</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {movies.map((movie) => (
-                      <div
+                      <button
                         key={movie.id}
                         onClick={() => {
                           setSelectedMovie(movie);
                           setStep("showtime");
                         }}
-                        className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+                        className={`border rounded-lg p-4 cursor-pointer transition-colors text-left w-full ${
                           selectedMovie?.id === movie.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
                         }`}
+                        type="button"
                       >
                         <div className="flex gap-4">
-                          <img src={movie.poster} alt={movie.title} className="w-16 h-20 object-cover rounded" />
+                          <img
+                            src={movie.poster ?? "/placeholder-movie.jpg"}
+                            alt={movie.name ?? "Movie"}
+                            className="w-16 h-20 object-cover rounded"
+                          />
                           <div>
-                            <h3 className="font-semibold">{movie.title}</h3>
-                            <p className="text-sm text-gray-500">{movie.genre}</p>
-                            <p className="text-sm text-gray-500">{movie.duration} phút</p>
+                            <h3 className="font-semibold">{movie.name ?? "Untitled"}</h3>
+                            <p className="text-sm text-gray-500">{movie.type ? getMovieGenreLabel(movie.type) : "N/A"}</p>
+                            <p className="text-sm text-gray-500">{movie.duration ? `${movie.duration} phút` : "N/A"}</p>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -441,21 +449,22 @@ const StaffTicketSales: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="h-5 w-5" />
-                  Chọn Suất Chiếu - {selectedMovie.title}
+                  Chọn Suất Chiếu - {selectedMovie.name ?? "Movie"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {showtimes.map((showtime) => (
-                    <div
+                    <button
                       key={showtime.id}
                       onClick={() => {
                         setSelectedShowtime(showtime);
                         setStep("seats");
                       }}
-                      className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+                      className={`border rounded-lg p-4 cursor-pointer transition-colors text-center ${
                         selectedShowtime?.id === showtime.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
                       }`}
+                      type="button"
                     >
                       <div className="text-center">
                         <div className="font-semibold text-lg">{showtime.startTime}</div>
@@ -463,7 +472,7 @@ const StaffTicketSales: React.FC = () => {
                         <div className="text-sm text-gray-500">Phòng {showtime.cinemaRoomId}</div>
                         <div className="text-sm text-green-600">{showtime.availableSeats} ghế trống</div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
                 <div className="mt-4">
@@ -796,7 +805,7 @@ const StaffTicketSales: React.FC = () => {
                     ].map((method) => (
                       <button
                         key={method.id}
-                        onClick={() => setPaymentMethod(method.id as PaymentMethod)}
+                        onClick={() => setPaymentMethod(method.id)}
                         className={`p-3 border rounded-lg text-center transition-colors ${
                           paymentMethod === method.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
                         }`}
@@ -830,7 +839,7 @@ const StaffTicketSales: React.FC = () => {
               {selectedMovie && (
                 <div>
                   <h4 className="font-semibold">Phim</h4>
-                  <p className="text-sm">{selectedMovie.title}</p>
+                  <p className="text-sm">{selectedMovie.name ?? "Movie"}</p>
                 </div>
               )}
               {selectedShowtime && (

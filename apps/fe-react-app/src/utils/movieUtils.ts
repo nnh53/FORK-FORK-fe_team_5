@@ -7,14 +7,14 @@ import type { MovieCardProps } from "../components/movie/MovieCard/MovieCard";
  */
 export const convertMovieToMovieCard = (movie: Movie): MovieCardProps => {
   return {
-    id: movie.id,
-    posterUrl: movie.poster,
-    title: movie.title,
-    genres: movie.genres ? movie.genres.map((g) => g.name) : [movie.genre],
-    duration: `${movie.duration} phút`,
-    isHot: movie.rating >= 8.0, // Consider movies with rating >= 8.0 as "hot"
-    ageBadgeUrl: pTagImage, // Using imported pTag image
-    trailerUrl: movie.trailerUrl || "",
+    id: movie.id ?? 0,
+    posterUrl: movie.poster ?? "",
+    title: movie.name ?? "Untitled",
+    genres: movie.type ? [movie.type] : ["Unknown"],
+    duration: movie.duration ? `${movie.duration} phút` : "N/A",
+    isHot: false, // Since we don't have rating in new Movie interface
+    ageBadgeUrl: pTagImage,
+    trailerUrl: movie.trailer ?? "",
     onPosterClick: undefined,
     onTitleClick: undefined,
     onBuyTicketClick: undefined,

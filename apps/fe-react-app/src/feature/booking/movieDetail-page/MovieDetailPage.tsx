@@ -4,11 +4,11 @@ import pTagImage from "@/assets/pTag.png";
 import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/ShowDateSelector";
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
-import type { Movie } from "@/interfaces/movies.interface.ts";
+import { MovieGenre } from "@/interfaces/movies.interface.ts";
 import UserLayout from "@/layouts/user/UserLayout";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { movieService } from "../../../services/movieService";
+import { getMovieGenreLabel, useMovie } from "../../../services/movieService";
 import { showtimeService } from "../../../services/showtimeService";
 import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "../../../utils/showtimeUtils";
 
@@ -21,35 +21,44 @@ const MovieInfoItem = ({ label, value }: { label: string; value: string | string
 
 const getYouTubeId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
+  const match = regExp.exec(url);
   return match && match[2].length === 11 ? match[2] : null;
+};
+
+// Helper to safely convert string to MovieGenre
+const safeMapToMovieGenre = (type?: string): MovieGenre | undefined => {
+  if (!type) return undefined;
+  const typeUpper = type.toUpperCase();
+  return Object.values(MovieGenre).find((genre) => genre === typeUpper);
 };
 
 const MovieDetailPage: React.FC = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const navigate = useNavigate();
-  // State for movie data and showtimes
-  const [movie, setMovie] = useState<Movie | null>(null);
+
+  // Use React Query to fetch movie data
+  const { data: movieResponse, isLoading, error } = useMovie(Number(movieId));
+
+  // Extract movie from response
+  const movie = movieResponse?.result;
+
+  // State for showtimes
   const [scheduleData, setScheduleData] = useState<SchedulePerDay[]>([]);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [showtimesLoading, setShowtimesLoading] = useState(true);
+  const [showtimesError, setShowtimesError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchMovieAndShowtimes = async () => {
+    const fetchShowtimes = async () => {
       if (!movieId) {
-        setError("Movie ID is required");
-        setLoading(false);
+        setShowtimesError("Movie ID is required");
+        setShowtimesLoading(false);
         return;
       }
 
       try {
-        setLoading(true);
-
-        // Always fetch movie data from API to ensure consistency
-        const movieData = await movieService.getMovieById(movieId);
-        setMovie(movieData);
+        setShowtimesLoading(true);
 
         // Fetch showtimes for this movie
         const showtimesData = await showtimeService.getShowtimesByMovieId(movieId);
@@ -67,15 +76,16 @@ const MovieDetailPage: React.FC = () => {
           setSelectedDate(dates[0]);
         }
 
-        setError(null);
+        setShowtimesError(null);
       } catch (err) {
-        console.error("Error fetching movie data:", err);
-        setError("Failed to load movie details. Please try again.");
+        console.error("Error fetching showtimes:", err);
+        setShowtimesError("Failed to load showtimes. Please try again.");
       } finally {
-        setLoading(false);
+        setShowtimesLoading(false);
       }
     };
-    fetchMovieAndShowtimes();
+
+    fetchShowtimes();
   }, [movieId]);
 
   const scheduleForSelectedDay = scheduleData.find((d) => d.date === selectedDate);
@@ -87,11 +97,11 @@ const MovieDetailPage: React.FC = () => {
           movie: {
             id: movie.id,
             posterUrl: movie.poster,
-            title: movie.title,
-            genres: movie.genres ? movie.genres.map((g) => g.name) : [movie.genre],
-            duration: `${movie.duration} phút`,
+            title: movie.name, // Use 'name' from new interface
+            genres: movie.type ? [getMovieGenreLabel(safeMapToMovieGenre(movie.type) ?? MovieGenre.ACTION)] : [],
+            duration: `${movie.duration ?? 0} phút`,
             ageBadgeUrl: pTagImage,
-            trailerUrl: movie.trailerUrl,
+            trailerUrl: movie.trailer, // Use 'trailer' from new interface
           },
           selection: {
             date: selectedDate,
@@ -105,7 +115,7 @@ const MovieDetailPage: React.FC = () => {
   };
 
   // Loading state
-  if (loading) {
+  if (isLoading || showtimesLoading) {
     return (
       <UserLayout>
         <div className="flex justify-center items-center py-20">
@@ -116,18 +126,17 @@ const MovieDetailPage: React.FC = () => {
   }
 
   // Error state
-  if (error || !movie) {
+  if (error || showtimesError || !movie) {
     return (
       <UserLayout>
         <div className="flex justify-center items-center py-20">
-          <div className="text-red-500 text-xl">{error || "Không tìm thấy thông tin phim"}</div>
+          <div className="text-red-500 text-xl">{showtimesError ?? "Không tìm thấy thông tin phim"}</div>
         </div>
       </UserLayout>
     );
   }
 
-  const embedUrl =
-    movie.trailerUrl && getYouTubeId(movie.trailerUrl) ? `https://www.youtube.com/embed/${getYouTubeId(movie.trailerUrl)}?autoplay=0` : "";
+  const embedUrl = movie.trailer && getYouTubeId(movie.trailer) ? `https://www.youtube.com/embed/${getYouTubeId(movie.trailer)}?autoplay=0` : "";
 
   return (
     <UserLayout>
@@ -137,30 +146,37 @@ const MovieDetailPage: React.FC = () => {
           <div className="text-sm breadcrumbs mb-6">
             <ul>
               <li>
-                <a onClick={() => navigate("/")} className="hover:underline cursor-pointer">
+                <button
+                  type="button"
+                  onClick={() => navigate("/")}
+                  className="hover:underline cursor-pointer bg-transparent border-none p-0 text-current"
+                >
                   Trang chủ
-                </a>
+                </button>
               </li>
-              <li className="font-semibold">{movie.title}</li>
+              <li className="font-semibold">{movie.name}</li>
             </ul>
           </div>
 
           {/* Movie Details */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
             <div className="md:col-span-3">
-              <img src={movie.poster} alt={movie.title} className="w-full h-auto rounded-lg shadow-lg" />
+              <img src={movie.poster} alt={movie.name ?? "Movie poster"} className="w-full h-auto rounded-lg shadow-lg" />
             </div>
             <div className="md:col-span-9">
-              <h1 className="text-3xl font-bold text-red-600 mb-4">{movie.title}</h1>
+              <h1 className="text-3xl font-bold text-red-600 mb-4">{movie.name}</h1>
               <div className="space-y-2">
-                <MovieInfoItem label="Đạo diễn" value={movie.director} />
-                <MovieInfoItem label="Diễn viên" value={movie.actors || "Đang cập nhật"} />
-                <MovieInfoItem label="Thể loại" value={movie.genres ? movie.genres.map((g) => g.name) : [movie.genre]} />
-                <MovieInfoItem label="Thời lượng" value={`${movie.duration} phút`} />
-                <MovieInfoItem label="Năm sản xuất" value={movie.releaseYear.toString()} />
-                <MovieInfoItem label="Đánh giá" value={`${movie.rating}/10`} />
+                <MovieInfoItem label="Đạo diễn" value={movie.director ?? "Đang cập nhật"} />
+                <MovieInfoItem label="Diễn viên" value={movie.actor ?? "Đang cập nhật"} />
+                <MovieInfoItem
+                  label="Thể loại"
+                  value={movie.type ? getMovieGenreLabel(safeMapToMovieGenre(movie.type) ?? MovieGenre.ACTION) : "Đang cập nhật"}
+                />
+                <MovieInfoItem label="Thời lượng" value={`${movie.duration ?? 0} phút`} />
+                <MovieInfoItem label="Studio" value={movie.studio ?? "Đang cập nhật"} />
+                <MovieInfoItem label="Giới hạn tuổi" value={movie.ageRestrict ? `${movie.ageRestrict}+` : "Đang cập nhật"} />
               </div>
-              <p className="mt-4 text-sm text-gray-700 leading-relaxed">{movie.description}</p>
+              <p className="mt-4 text-sm text-gray-700 leading-relaxed">{movie.description ?? "Chưa có mô tả"}</p>
             </div>
           </div>
 
@@ -178,7 +194,7 @@ const MovieDetailPage: React.FC = () => {
           </div>
 
           {/* Trailer Section */}
-          {movie.trailerUrl && (
+          {movie.trailer && (
             <div className="mt-12">
               <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">TRAILER</h2>
               <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
@@ -186,7 +202,7 @@ const MovieDetailPage: React.FC = () => {
                   <iframe
                     src={embedUrl}
                     title="Trailer"
-                    frameBorder="0"
+                    style={{ border: 0 }}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="w-full h-full"

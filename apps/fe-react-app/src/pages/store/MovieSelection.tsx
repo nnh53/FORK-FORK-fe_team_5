@@ -1,16 +1,16 @@
 import nowShowing from "@/assets/nowShowingText.png";
-import upcoming from "@/assets/upComingText.png";
+import upComingText from "@/assets/upComingText.png";
 import type { MovieCardProps } from "@/components/movie/MovieCard/MovieCard.tsx";
 import MovieList from "@/components/movie/MovieList/MovieList.tsx";
 import MovieSearch from "@/components/MovieSearch.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import type { Movie } from "@/interfaces/movies.interface.ts";
 import UserLayout from "@/layouts/user/UserLayout.tsx";
-import { movieService } from "@/services/movieService.ts";
+import { getMovieGenreLabel, transformMovieResponse, useMovies } from "@/services/movieService.ts";
 import { showtimeService } from "@/services/showtimeService.ts";
-import { convertMoviesToMovieCards } from "@/utils/movieUtils.ts";
+import type { MovieResponse } from "@/type-from-be";
 import { convertShowtimesToSchedulePerDay } from "@/utils/showtimeUtils.ts";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { SchedulePerDay } from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
 import ShowtimesModal from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
@@ -25,10 +25,12 @@ interface FinalSelection {
 
 function MovieSelection() {
   const navigate = useNavigate();
-  // State for movies from API
+
+  // Use React Query hook to fetch movies
+  const moviesQuery = useMovies();
+
+  // State for movies from API - now derived from React Query
   const [movies, setMovies] = useState<MovieCardProps[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // State for showtimes
   const [showtimes, setShowtimes] = useState<SchedulePerDay[]>([]);
@@ -41,25 +43,55 @@ function MovieSelection() {
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [selectedTrailerUrl, setSelectedTrailerUrl] = useState("");
 
-  // Fetch movies from API when component mounts
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        setLoading(true);
-        const moviesData = await movieService.getAllMovies();
-        const movieCards = convertMoviesToMovieCards(moviesData);
-        setMovies(movieCards);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching movies:", err);
-        setError("Failed to load movies. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovies();
+  // Helper function to validate age restriction (13-18 as per backend requirement)
+  const validateAgeRestriction = useCallback((ageRestrict?: number): boolean => {
+    if (!ageRestrict) return false; // Age restriction is required in backend
+    return ageRestrict >= 13 && ageRestrict <= 18;
   }, []);
+
+  // Helper function to get age badge URL based on age restriction
+  const getAgeBadgeUrl = useCallback(
+    (ageRestrict?: number): string => {
+      if (!ageRestrict || !validateAgeRestriction(ageRestrict)) {
+        return "/badges/unknown-age.png"; // Default for invalid ages
+      }
+
+      // Return appropriate badge based on age (13-18 range)
+      if (ageRestrict === 18) return "/badges/18+.png";
+      if (ageRestrict >= 16) return "/badges/16+.png";
+      if (ageRestrict >= 13) return "/badges/13+.png";
+
+      return "/badges/13+.png"; // Default fallback for valid range
+    },
+    [validateAgeRestriction],
+  );
+
+  // Helper function to convert Movie to MovieCardProps
+  const convertMovieToMovieCard = useCallback(
+    (movie: Movie): MovieCardProps => {
+      return {
+        id: movie.id ?? 0,
+        title: movie.name ?? "Untitled",
+        posterUrl: movie.poster ?? "",
+        genres: movie.type ? [getMovieGenreLabel(movie.type)] : [],
+        duration: movie.duration ? `${movie.duration} phút` : "N/A",
+        ageBadgeUrl: getAgeBadgeUrl(movie.ageRestrict),
+        trailerUrl: movie.trailer ?? "",
+      };
+    },
+    [getAgeBadgeUrl],
+  );
+
+  // Transform API data when moviesQuery data changes
+  useEffect(() => {
+    if (moviesQuery.data?.result) {
+      const transformedMovies = moviesQuery.data.result.map((movieResponse: MovieResponse) => {
+        const movie = transformMovieResponse(movieResponse);
+        return convertMovieToMovieCard(movie);
+      });
+      setMovies(transformedMovies);
+    }
+  }, [moviesQuery.data, convertMovieToMovieCard]);
   const handleBuyTicketClick = async (movie: MovieCardProps) => {
     setSelectedMovie(movie);
     setIsShowtimesModalOpen(true);
@@ -148,25 +180,21 @@ function MovieSelection() {
       state: {
         movie: {
           id: movie.id,
-          title: movie.title,
+          name: movie.name,
           poster: movie.poster,
-          genres: movie.genre.split(",").map((g) => ({ id: g.trim(), name: g.trim() })),
-          genre: movie.genre,
+          type: movie.type,
           director: movie.director,
-          actors: movie.actors,
-          releaseYear: movie.releaseYear,
-          productionCompany: movie.productionCompany,
+          actor: movie.actor,
+          studio: movie.studio,
           duration: movie.duration,
-          rating: movie.rating,
           description: movie.description,
-          trailerUrl: movie.trailerUrl,
-          startShowingDate: movie.startShowingDate,
-          endShowingDate: movie.endShowingDate,
+          trailer: movie.trailer,
+          fromDate: movie.fromDate,
+          toDate: movie.toDate,
           status: movie.status,
           version: movie.version,
-          showtimes: [],
-          createdAt: movie.createdAt,
-          updatedAt: movie.updatedAt,
+          ageRestrict: movie.ageRestrict,
+          showtimes: movie.showtimes ?? [],
         },
       },
     });
@@ -193,19 +221,19 @@ function MovieSelection() {
         <img src={nowShowing} className="h-24" alt="Phim sắp chiếu" />
       </div>
       {/* Loading state */}
-      {loading && (
+      {moviesQuery.isLoading && (
         <div className="flex justify-center items-center py-12">
           <div className="text-white text-lg">Đang tải phim...</div>
         </div>
       )}
       {/* Error state */}
-      {error && (
+      {moviesQuery.error && (
         <div className="flex justify-center items-center py-12">
-          <div className="text-red-500 text-lg">{error}</div>
+          <div className="text-red-500 text-lg">Có lỗi xảy ra khi tải danh sách phim</div>
         </div>
       )}
       {/* Movies list */}
-      {!loading && !error && (
+      {!moviesQuery.isLoading && !moviesQuery.error && (
         <MovieList
           horizontal={true}
           movies={movies}
@@ -223,10 +251,10 @@ function MovieSelection() {
         "
         id="coming-soon"
       >
-        <img src={upcoming} className="h-24" alt="Phim sắp chiếu" />
+        <img src={upComingText} className="h-24" alt="Phim sắp chiếu" />
       </div>
       {/* Upcoming movies - for now, show same movies but could be filtered differently */}
-      {!loading && !error && (
+      {!moviesQuery.isLoading && !moviesQuery.error && (
         <MovieList
           horizontal={true}
           movies={movies.slice(0, 6)} // Show first 6 movies as upcoming
@@ -263,7 +291,7 @@ function MovieSelection() {
         <TrailerModal
           isOpen={isTrailerModalOpen}
           onClose={() => setIsTrailerModalOpen(false)}
-          movieTitle={selectedMovie?.title || ""}
+          movieTitle={selectedMovie?.title ?? ""}
           trailerUrl={selectedTrailerUrl}
         />
       )}

@@ -1,10 +1,18 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
+import type { Movie } from "@/interfaces/movies.interface";
+import { MovieStatus } from "@/interfaces/movies.interface";
+import { getMovieGenreLabel, useDeleteMovie } from "@/services/movieService";
 import { Edit, Eye, Trash } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { Movie } from "../../../interfaces/movies.interface";
+
+const getStatusClassName = (status?: MovieStatus) => {
+  if (status === MovieStatus.ACTIVE) return "bg-green-100 text-green-800";
+  if (status === MovieStatus.UPCOMING) return "bg-blue-100 text-blue-800";
+  return "bg-red-100 text-red-800";
+};
 
 interface MovieListProps {
   movies: Movie[];
@@ -15,9 +23,24 @@ interface MovieListProps {
 const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [movieToView, setMovieToView] = useState<Movie | null>(null);
+
+  // Use useDeleteMovie hook from movieService
+  const deleteMovieMutation = useDeleteMovie();
+
+  // Handle delete mutation result
+  useEffect(() => {
+    if (deleteMovieMutation.isSuccess) {
+      toast.success("Movie deleted successfully");
+      onMoviesChange(); // Refresh the movie list
+      setDeleteDialogOpen(false);
+      setMovieToDelete(null);
+    } else if (deleteMovieMutation.isError) {
+      toast.error("Failed to delete movie");
+    }
+  }, [deleteMovieMutation.isSuccess, deleteMovieMutation.isError, onMoviesChange]);
 
   const handleDeleteClick = (movie: Movie) => {
     setMovieToDelete(movie);
@@ -29,30 +52,13 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
     setViewDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (movieToDelete) {
-      setLoading(true);
-      try {
-        const response = await fetch(`http://localhost:3000/movies/${movieToDelete.id}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Refresh the movie list
-        onMoviesChange();
-        toast.success("Movie deleted successfully");
-      } catch (error) {
-        console.error("Error deleting movie:", error);
-        toast.error("Failed to delete movie");
-      } finally {
-        setLoading(false);
-      }
+  const handleDeleteConfirm = () => {
+    if (movieToDelete?.id) {
+      // Use mutation from movieService
+      deleteMovieMutation.mutate({
+        params: { path: { id: movieToDelete.id } },
+      });
     }
-    setDeleteDialogOpen(false);
-    setMovieToDelete(null);
   };
 
   const formatDate = (dateString?: string) => {
@@ -64,7 +70,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
     if (loading) {
       return (
         <TableRow>
-          <TableCell colSpan={8} className="text-center py-4">
+          <TableCell colSpan={10} className="text-center py-4">
             <div className="flex justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
             </div>
@@ -76,7 +82,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
     if (movies.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={8} className="text-center py-4">
+          <TableCell colSpan={10} className="text-center py-4">
             No movies found
           </TableCell>
         </TableRow>
@@ -85,27 +91,25 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
 
     return movies.map((movie) => (
       <TableRow key={movie.id}>
-        <TableCell>{movie.title}</TableCell>
-        <TableCell>{movie.releaseYear}</TableCell>
-        <TableCell>{movie.productionCompany}</TableCell>
-        <TableCell>{movie.duration} min</TableCell>
-        <TableCell>{movie.version}</TableCell>
+        <TableCell>{movie.name ?? "N/A"}</TableCell>
+        <TableCell>{movie.director ?? "N/A"}</TableCell>
+        <TableCell>{movie.studio ?? "N/A"}</TableCell>
+        <TableCell>{movie.duration ? `${movie.duration} min` : "N/A"}</TableCell>
+        <TableCell>{movie.version ?? "N/A"}</TableCell>
+        <TableCell>{movie.ageRestrict ? `${movie.ageRestrict}+` : "N/A"}</TableCell>
+        <TableCell>{movie.type ? getMovieGenreLabel(movie.type) : "N/A"}</TableCell>
         <TableCell>
-          {movie.startShowingDate ? (
+          {movie.fromDate ? (
             <>
-              {formatDate(movie.startShowingDate)} - {formatDate(movie.endShowingDate)}
+              {formatDate(movie.fromDate)} - {formatDate(movie.toDate)}
             </>
           ) : (
             "N/A"
           )}
         </TableCell>
         <TableCell>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              movie.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-            }`}
-          >
-            {movie.status.toUpperCase()}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClassName(movie.status)}`}>
+            {movie.status?.toUpperCase() ?? "UNKNOWN"}
           </span>
         </TableCell>
         <TableCell>
@@ -132,10 +136,12 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-              <TableHead>Release Year</TableHead>
-              <TableHead>Production Company</TableHead>
+              <TableHead>Director</TableHead>
+              <TableHead>Studio</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>Version</TableHead>
+              <TableHead>Age Restrict</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Showing Period</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
@@ -173,78 +179,83 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold">{movieToView.title}</h3>
-                  <p className="text-sm text-gray-500">{movieToView.genre}</p>
+                  <h3 className="text-lg font-semibold">{movieToView.name ?? "Untitled"}</h3>
+                  <p className="text-sm text-gray-500">{movieToView.type ? getMovieGenreLabel(movieToView.type) : "No type specified"}</p>
                 </div>
 
                 {movieToView.poster && (
                   <div className="aspect-[2/3] overflow-hidden rounded-md">
-                    <img src={movieToView.poster} alt={`${movieToView.title} poster`} className="w-full h-full object-cover" />
+                    <img src={movieToView.poster} alt={`${movieToView.name} poster`} className="w-full h-full object-cover" />
                   </div>
                 )}
 
-                {movieToView.trailerUrl && (
+                {movieToView.trailer && (
                   <div>
                     <h4 className="text-sm font-medium mb-1">Trailer</h4>
-                    <a href={movieToView.trailerUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
+                    <a href={movieToView.trailer} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
                       Watch Trailer
                     </a>
                   </div>
                 )}
+
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Status</h4>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClassName(movieToView.status)}`}>
+                    {movieToView.status?.toUpperCase() ?? "UNKNOWN"}
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <h4 className="text-sm font-medium mb-1">Director</h4>
-                  <p>{movieToView.director}</p>
+                  <p>{movieToView.director ?? "N/A"}</p>
                 </div>
 
-                {movieToView.actors && (
+                {movieToView.actor && (
                   <div>
-                    <h4 className="text-sm font-medium mb-1">Actors</h4>
-                    <p>{movieToView.actors}</p>
+                    <h4 className="text-sm font-medium mb-1">Actor(s)</h4>
+                    <p>{movieToView.actor}</p>
                   </div>
                 )}
 
                 <div>
-                  <h4 className="text-sm font-medium mb-1">Production Company</h4>
-                  <p>{movieToView.productionCompany}</p>
+                  <h4 className="text-sm font-medium mb-1">Studio</h4>
+                  <p>{movieToView.studio ?? "N/A"}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h4 className="text-sm font-medium mb-1">Release Year</h4>
-                    <p>{movieToView.releaseYear}</p>
+                    <h4 className="text-sm font-medium mb-1">Age Restriction</h4>
+                    <p>{movieToView.ageRestrict ? `${movieToView.ageRestrict}+` : "No restriction"}</p>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium mb-1">Duration</h4>
-                    <p>{movieToView.duration} minutes</p>
+                    <p>{movieToView.duration ? `${movieToView.duration} minutes` : "N/A"}</p>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium mb-1">Version</h4>
-                    <p>{movieToView.version}</p>
+                    <p>{movieToView.version ?? "N/A"}</p>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium mb-1">Rating</h4>
-                    <p>{movieToView.rating}/10</p>
+                    <h4 className="text-sm font-medium mb-1">Type/Genre</h4>
+                    <p>{movieToView.type ? getMovieGenreLabel(movieToView.type) : "N/A"}</p>
                   </div>
                 </div>
 
                 <div>
                   <h4 className="text-sm font-medium mb-1">Showing Period</h4>
-                  <p>
-                    {movieToView.startShowingDate ? `${formatDate(movieToView.startShowingDate)} - ${formatDate(movieToView.endShowingDate)}` : "N/A"}
-                  </p>
+                  <p>{movieToView.fromDate ? `${formatDate(movieToView.fromDate)} - ${formatDate(movieToView.toDate)}` : "N/A"}</p>
                 </div>
 
                 {movieToView.showtimes && movieToView.showtimes.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium mb-1">Showtimes</h4>
-                    <ul className="space-y-1">
+                    <ul className="space-y-1 max-h-32 overflow-y-auto">
                       {movieToView.showtimes.map((showtime, index) => (
-                        <li key={index} className="text-sm">
-                          Room {showtime.cinemaRoomId}: {new Date(showtime.startTime).toLocaleString()} -{" "}
-                          {new Date(showtime.endTime).toLocaleString()}
+                        <li key={`${showtime.id}-${index}`} className="text-sm">
+                          Room {showtime.cinemaRoomId}: {showtime.date} | {new Date(showtime.startTime).toLocaleTimeString()} -{" "}
+                          {new Date(showtime.endTime).toLocaleTimeString()}
                         </li>
                       ))}
                     </ul>
@@ -253,7 +264,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
 
                 <div>
                   <h4 className="text-sm font-medium mb-1">Description</h4>
-                  <p className="text-sm">{movieToView.description}</p>
+                  <p className="text-sm">{movieToView.description ?? "No description available"}</p>
                 </div>
               </div>
             </div>

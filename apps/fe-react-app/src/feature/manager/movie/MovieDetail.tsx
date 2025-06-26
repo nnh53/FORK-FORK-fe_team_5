@@ -1,5 +1,4 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { Checkbox } from "@/components/Shadcn/ui/checkbox";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
@@ -12,7 +11,9 @@ import { Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { MovieStatus, MovieVersion, type Movie, type MovieFormData, type MovieGenre } from "../../../interfaces/movies.interface";
+import type { Movie, MovieFormData } from "../../../interfaces/movies.interface";
+import { MovieGenre, MovieStatus, MovieVersion } from "../../../interfaces/movies.interface";
+import { movieGenreOptions } from "../../../services/movieService";
 
 interface MovieDetailProps {
   movie?: Movie;
@@ -21,58 +22,39 @@ interface MovieDetailProps {
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  genre: z.string().min(1, "Genre is required"),
-  genres: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
+  name: z.string().min(1, "Movie name is required"),
+  ageRestrict: z.number().min(13, "Age restriction must be at least 13").max(18, "Age restriction must be at most 18"),
+  fromDate: z.string().optional(),
+  toDate: z.string().optional(),
+  actor: z.string().optional(),
+  studio: z.string().min(1, "Studio is required"),
   director: z.string().min(1, "Director is required"),
-  actors: z.string().optional(),
-  releaseYear: z.number().min(1900, "Release year must be at least 1900"),
-  startShowingDate: z.string().optional(),
-  endShowingDate: z.string().optional(),
-  productionCompany: z.string().min(1, "Production company is required"),
-  duration: z.number().min(1, "Duration must be at least 1 minute"),
-  rating: z.number().min(1, "Rating must be at least 1").max(10, "Rating must be at most 10"),
+  duration: z.number().min(1, "Duration must be at least 1 minute").optional(),
+  version: z.nativeEnum(MovieVersion).optional(),
+  trailer: z.string().optional(),
+  type: z.nativeEnum(MovieGenre).optional(),
   description: z.string().min(1, "Description is required"),
+  status: z.nativeEnum(MovieStatus).optional(),
   poster: z.string().optional(),
-  trailerUrl: z.string().optional(),
-  status: z.string(),
-  version: z.string(),
   showtimes: z
     .array(
       z.object({
         id: z.string().optional(),
+        movieId: z.number().optional(),
         cinemaRoomId: z.string(),
+        date: z.string().optional(),
         startTime: z.string(),
         endTime: z.string(),
+        format: z.string().optional(),
+        availableSeats: z.number().optional(),
+        price: z.number().optional(),
       }),
     )
     .optional(),
   posterFile: z.any().optional(),
 });
 
-const GenreCheckbox = ({ genre, field }: { genre: MovieGenre; field: { value?: MovieGenre[]; onChange: (value: MovieGenre[]) => void } }) => {
-  const isSelected = field.value?.some((g: MovieGenre) => g.id === genre.id) || false;
-  const handleGenreChange = (checked: boolean) => {
-    const currentGenres = field.value || [];
-    if (checked) {
-      field.onChange([...currentGenres, genre]);
-    } else {
-      field.onChange(currentGenres.filter((g: MovieGenre) => g.id !== genre.id));
-    }
-  };
-
-  return (
-    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-      <FormControl>
-        <Checkbox checked={isSelected} onCheckedChange={handleGenreChange} />
-      </FormControl>
-      <FormLabel className="font-normal">{genre.name}</FormLabel>
-    </FormItem>
-  );
-};
-
 const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
-  const [genres, setGenres] = useState<MovieGenre[]>([]);
   const [cinemaRooms, setCinemaRooms] = useState<CinemaRoom[]>([]);
   const [showAddShowtimeDialog, setShowAddShowtimeDialog] = useState(false);
   const [selectedCinemaRoom, setSelectedCinemaRoom] = useState("");
@@ -82,41 +64,26 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      genre: "",
-      genres: [],
+      name: "",
+      ageRestrict: 13, // Default to minimum allowed age
+      fromDate: "",
+      toDate: "",
+      actor: "",
+      studio: "",
       director: "",
-      actors: "",
-      releaseYear: new Date().getFullYear(),
-      startShowingDate: "",
-      endShowingDate: "",
-      productionCompany: "",
       duration: 90,
-      rating: 5,
+      version: MovieVersion["2D"],
+      trailer: "",
+      type: MovieGenre.ACTION,
       description: "",
-      poster: "",
-      trailerUrl: "",
       status: MovieStatus.ACTIVE,
-      version: MovieVersion.TWO_D,
+      poster: "",
       showtimes: [],
     },
   });
 
-  // Fetch genres and cinema rooms
+  // Fetch cinema rooms
   useEffect(() => {
-    const fetchGenres = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/genres");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setGenres(data);
-      } catch (error) {
-        console.error("Error fetching genres:", error);
-      }
-    };
-
     const fetchCinemaRooms = async () => {
       try {
         const response = await fetch("http://localhost:3000/cinema-rooms");
@@ -130,18 +97,27 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
       }
     };
 
-    fetchGenres();
     fetchCinemaRooms();
   }, []);
 
   useEffect(() => {
     if (movie) {
       form.reset({
-        ...movie,
-        startShowingDate: movie.startShowingDate || "",
-        endShowingDate: movie.endShowingDate || "",
-        trailerUrl: movie.trailerUrl || "",
-        actors: movie.actors || "",
+        name: movie.name ?? "",
+        ageRestrict: movie.ageRestrict ?? 13, // Default to minimum if not set
+        fromDate: movie.fromDate ?? "",
+        toDate: movie.toDate ?? "",
+        actor: movie.actor ?? "",
+        studio: movie.studio ?? "",
+        director: movie.director ?? "",
+        duration: movie.duration ?? 90,
+        version: movie.version ?? MovieVersion["2D"],
+        trailer: movie.trailer ?? "",
+        type: movie.type ?? MovieGenre.ACTION,
+        description: movie.description ?? "",
+        status: movie.status ?? MovieStatus.ACTIVE,
+        poster: movie.poster ?? "",
+        showtimes: movie.showtimes ?? [],
       });
     }
   }, [movie, form]);
@@ -156,9 +132,14 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
     const newShowtime = {
       id: `temp-${Date.now()}`,
+      movieId: movie?.id ?? 0,
       cinemaRoomId: selectedCinemaRoom,
+      date: showtimeStartTime.split("T")[0], // Extract date from datetime-local
       startTime: showtimeStartTime,
       endTime: showtimeEndTime,
+      format: form.getValues("version") ?? MovieVersion["2D"],
+      availableSeats: 100, // Default value
+      price: 100000, // Default value
     };
 
     form.setValue("showtimes", [...currentShowtimes, newShowtime]);
@@ -197,12 +178,12 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="title"
+              name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Movie Name*</FormLabel>
                   <FormControl>
-                    <Input placeholder="Movie title" {...field} />
+                    <Input placeholder="Movie name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -225,7 +206,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
             <FormField
               control={form.control}
-              name="actors"
+              name="actor"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Actor(s)</FormLabel>
@@ -239,12 +220,12 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
             <FormField
               control={form.control}
-              name="productionCompany"
+              name="studio"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Production Company*</FormLabel>
+                  <FormLabel>Studio*</FormLabel>
                   <FormControl>
-                    <Input placeholder="Production company" {...field} />
+                    <Input placeholder="Production company/studio" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -253,13 +234,22 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
             <FormField
               control={form.control}
-              name="releaseYear"
+              name="ageRestrict"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Release Year*</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Release year" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
-                  </FormControl>
+                  <FormLabel>Age Restriction*</FormLabel>
+                  <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select age restriction" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="13">13+</SelectItem>
+                      <SelectItem value="16">16+</SelectItem>
+                      <SelectItem value="18">18+</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -270,7 +260,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
               name="duration"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Running Time (minutes)*</FormLabel>
+                  <FormLabel>Duration (minutes)*</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="Duration in minutes" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                   </FormControl>
@@ -281,12 +271,12 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
             <FormField
               control={form.control}
-              name="startShowingDate"
+              name="fromDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>From Date (Start Showing)</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} value={field.value || ""} />
+                    <Input type="date" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -295,12 +285,12 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
             <FormField
               control={form.control}
-              name="endShowingDate"
+              name="toDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>To Date (End Showing)</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} value={field.value || ""} />
+                    <Input type="date" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -309,21 +299,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
             <FormField
               control={form.control}
-              name="rating"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Rating (1-10)</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Rating (1-10)" step="0.1" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="trailerUrl"
+              name="trailer"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Trailer URL</FormLabel>
@@ -342,30 +318,30 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                 <FormItem>
                   <FormLabel>Version*</FormLabel>
                   <FormControl>
-                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4">
+                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <RadioGroupItem value={MovieVersion.TWO_D} />
+                          <RadioGroupItem value={MovieVersion["2D"]} />
                         </FormControl>
                         <FormLabel className="font-normal">2D</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <RadioGroupItem value={MovieVersion.THREE_D} />
+                          <RadioGroupItem value={MovieVersion["3D"]} />
                         </FormControl>
                         <FormLabel className="font-normal">3D</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <RadioGroupItem value={MovieVersion["4D"]} />
+                        </FormControl>
+                        <FormLabel className="font-normal">4D</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
                           <RadioGroupItem value={MovieVersion.IMAX} />
                         </FormControl>
                         <FormLabel className="font-normal">IMAX</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-2">
-                        <FormControl>
-                          <RadioGroupItem value={MovieVersion.FOUR_DX} />
-                        </FormControl>
-                        <FormLabel className="font-normal">4DX</FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
@@ -380,7 +356,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
@@ -389,6 +365,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                     <SelectContent>
                       <SelectItem value={MovieStatus.ACTIVE}>Active</SelectItem>
                       <SelectItem value={MovieStatus.INACTIVE}>Inactive</SelectItem>
+                      <SelectItem value={MovieStatus.UPCOMING}>Upcoming</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -420,20 +397,20 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
           <FormField
             control={form.control}
-            name="genre"
+            name="type"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Primary Genre*</FormLabel>
+                <FormLabel>Type/Genre*</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select primary genre" />
+                      <SelectValue placeholder="Select a genre" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {genres.map((genre) => (
-                      <SelectItem key={genre.id} value={genre.name}>
-                        {genre.name}
+                    {movieGenreOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -444,35 +421,11 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
           />
 
           <FormField
-            name="genres"
-            render={() => (
-              <FormItem>
-                <div className="mb-4">
-                  <FormLabel>Movie Types/Genres (Select all that apply)</FormLabel>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    <FormField
-                      control={form.control}
-                      name="genres"
-                      render={({ field }) => (
-                        <>
-                          {genres.map((genre) => (
-                            <GenreCheckbox key={genre.id} genre={genre} field={field} />
-                          ))}
-                        </>
-                      )}
-                    />
-                  </div>
-                </div>
-              </FormItem>
-            )}
-          />
-
-          <FormField
             control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Content (Description)*</FormLabel>
+                <FormLabel>Description*</FormLabel>
                 <FormControl>
                   <Textarea placeholder="Movie description" {...field} rows={3} />
                 </FormControl>
@@ -483,27 +436,29 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <FormLabel>Cinema Times</FormLabel>
+              <FormLabel>Showtimes</FormLabel>
               <Button type="button" size="sm" onClick={() => setShowAddShowtimeDialog(true)}>
-                <Plus className="h-4 w-4 mr-1" /> Add Cinema Time
+                <Plus className="h-4 w-4 mr-1" /> Add Showtime
               </Button>
             </div>
 
             {form.getValues("showtimes")?.length ? (
               <div className="border rounded-md p-3">
-                <div className="grid grid-cols-3 gap-2 font-medium text-sm mb-2">
+                <div className="grid grid-cols-4 gap-2 font-medium text-sm mb-2">
                   <div>Cinema Room</div>
+                  <div>Date</div>
                   <div>Start Time</div>
                   <div>End Time</div>
                 </div>
                 {form.getValues("showtimes")?.map((showtime, index) => {
                   const room = cinemaRooms.find((r) => r.id === showtime.cinemaRoomId);
                   return (
-                    <div key={showtime.id || index} className="grid grid-cols-3 gap-2 items-center py-1 border-t">
-                      <div>{room?.roomNumber || showtime.cinemaRoomId}</div>
-                      <div>{new Date(showtime.startTime).toLocaleString()}</div>
+                    <div key={showtime.id ?? index} className="grid grid-cols-4 gap-2 items-center py-1 border-t">
+                      <div>{room?.roomNumber ?? showtime.cinemaRoomId}</div>
+                      <div>{showtime.date}</div>
+                      <div>{new Date(showtime.startTime).toLocaleTimeString()}</div>
                       <div className="flex items-center justify-between">
-                        <span>{new Date(showtime.endTime).toLocaleString()}</span>
+                        <span>{new Date(showtime.endTime).toLocaleTimeString()}</span>
                         <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveShowtime(index)}>
                           <Trash className="h-4 w-4 text-red-500" />
                         </Button>
@@ -513,7 +468,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                 })}
               </div>
             ) : (
-              <div className="text-center py-4 text-gray-500 border rounded-md">No cinema times added yet</div>
+              <div className="text-center py-4 text-gray-500 border rounded-md">No showtimes added yet</div>
             )}
           </div>
 
@@ -529,7 +484,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
       <Dialog open={showAddShowtimeDialog} onOpenChange={setShowAddShowtimeDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Cinema Time</DialogTitle>
+            <DialogTitle>Add Showtime</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">

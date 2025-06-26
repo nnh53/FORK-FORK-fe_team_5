@@ -2,10 +2,11 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Input } from "@/components/Shadcn/ui/input";
-import type { Movie, MovieSearchParams } from "@/interfaces/movies.interface";
-import { Calendar, Clock, Search, Star, X } from "lucide-react";
+import type { Movie } from "@/interfaces/movies.interface";
+import { getMovieGenreLabel, transformMovieResponse, useMovies } from "@/services/movieService";
+import type { MovieResponse } from "@/type-from-be";
+import { Calendar, Clock, Search, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { movieService } from "../services/movieService";
 
 interface MovieSearchProps {
   onMovieSelect?: (movie: Movie) => void;
@@ -16,53 +17,52 @@ interface MovieSearchProps {
 
 const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = "Tìm kiếm phim...", showResults = true, className = "" }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+
+  // Fetch all movies using React Query
+  const moviesQuery = useMovies();
+
   useEffect(() => {
-    const searchMovies = async () => {
-      try {
-        setLoading(true);
-        const params: MovieSearchParams = {
-          search: searchTerm,
-          limit: 8,
-        };
-        const response = await movieService.searchMovies(params);
-        setMovies(response.movies);
-        setShowDropdown(true);
-      } catch (error) {
-        console.error("Error searching movies:", error);
-        setMovies([]);
-      } finally {
-        setLoading(false);
+    const filterMovies = () => {
+      if (!moviesQuery.data?.result || searchTerm.length < 2) {
+        setFilteredMovies([]);
+        setShowDropdown(false);
+        return;
       }
+
+      const filtered = moviesQuery.data.result
+        .map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
+        .filter(
+          (movie: Movie) =>
+            movie.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            movie.director?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            movie.actor?.toLowerCase().includes(searchTerm.toLowerCase()),
+        )
+        .slice(0, 8); // Limit to 8 results
+
+      setFilteredMovies(filtered);
+      setShowDropdown(true);
     };
 
-    const delayedSearch = setTimeout(() => {
-      if (searchTerm.length >= 2) {
-        searchMovies();
-      } else {
-        setMovies([]);
-        setShowDropdown(false);
-      }
-    }, 300);
-
+    const delayedSearch = setTimeout(filterMovies, 300);
     return () => clearTimeout(delayedSearch);
-  }, [searchTerm]);
+  }, [searchTerm, moviesQuery.data]);
 
   const handleMovieSelect = (movie: Movie) => {
-    setSearchTerm(movie.title);
+    setSearchTerm(movie.name ?? "");
     setShowDropdown(false);
     onMovieSelect?.(movie);
   };
 
   const clearSearch = () => {
     setSearchTerm("");
-    setMovies([]);
+    setFilteredMovies([]);
     setShowDropdown(false);
   };
 
-  const formatDuration = (minutes: number) => {
+  const formatDuration = (minutes?: number) => {
+    if (!minutes) return "N/A";
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
@@ -79,7 +79,7 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-10 pr-10"
           onFocus={() => {
-            if (movies.length > 0) {
+            if (filteredMovies.length > 0) {
               setShowDropdown(true);
             }
           }}
@@ -95,47 +95,50 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
       {showResults && showDropdown && (
         <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-96 overflow-y-auto shadow-lg">
           <CardContent className="p-0">
-            {loading && <div className="p-4 text-center text-gray-500">Đang tìm kiếm...</div>}
+            {moviesQuery.isLoading && <div className="p-4 text-center text-gray-500">Đang tìm kiếm...</div>}
 
-            {!loading && movies.length === 0 && searchTerm.length >= 2 && (
+            {!moviesQuery.isLoading && filteredMovies.length === 0 && searchTerm.length >= 2 && (
               <div className="p-4 text-center text-gray-500">Không tìm thấy phim nào cho "{searchTerm}"</div>
             )}
 
-            {!loading && movies.length > 0 && (
+            {!moviesQuery.isLoading && filteredMovies.length > 0 && (
               <div className="divide-y">
-                {movies.map((movie) => (
-                  <div key={movie.id} className="p-4 hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => handleMovieSelect(movie)}>
+                {filteredMovies.map((movie) => (
+                  <button
+                    key={movie.id}
+                    className="w-full p-4 hover:bg-gray-50 cursor-pointer transition-colors text-left"
+                    onClick={() => handleMovieSelect(movie)}
+                    type="button"
+                  >
                     <div className="flex items-start gap-3">
-                      <img src={movie.poster} alt={movie.title} className="w-12 h-16 object-cover rounded" />
+                      <img src={movie.poster ?? "/placeholder-movie.jpg"} alt={movie.name ?? "Movie"} className="w-12 h-16 object-cover rounded" />
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm truncate">{movie.title}</h4>
+                        <h4 className="font-medium text-sm truncate">{movie.name ?? "Untitled"}</h4>
                         <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            <span>{movie.releaseYear}</span>
+                            <span>{movie.fromDate ? new Date(movie.fromDate).getFullYear() : "N/A"}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             <span>{formatDuration(movie.duration)}</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3" />
-                            <span>{movie.rating}/10</span>
-                          </div>
-                        </div>{" "}
+                        </div>
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {movie.genre
-                            .split(",")
-                            .slice(0, 2)
-                            .map((genre: string, index: number) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {genre.trim()}
-                              </Badge>
-                            ))}
+                          {movie.type && (
+                            <Badge variant="outline" className="text-xs">
+                              {getMovieGenreLabel(movie.type)}
+                            </Badge>
+                          )}
+                          {movie.version && (
+                            <Badge variant="outline" className="text-xs">
+                              {movie.version}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
@@ -144,7 +147,14 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
       )}
 
       {/* Overlay to close dropdown */}
-      {showDropdown && <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />}
+      {showDropdown && (
+        <button
+          className="fixed inset-0 z-40 cursor-default"
+          onClick={() => setShowDropdown(false)}
+          type="button"
+          aria-label="Close search results"
+        />
+      )}
     </div>
   );
 };
