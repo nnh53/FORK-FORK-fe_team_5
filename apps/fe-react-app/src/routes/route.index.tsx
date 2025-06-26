@@ -14,6 +14,7 @@ import ForgotPassword from "@/pages/authentication/ForgotPassword";
 // import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
 import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import CinemaExperience from "@/feature/views/CinemaExperience";
+import MovieGallery from "@/feature/views/CircularGallery/MovieGallery";
 import FAQ from "@/feature/views/FAQ/FAQ";
 import FlowingMenuSection from "@/feature/views/FlowingMenu/FlowingMenuSection";
 import HeroSection from "@/feature/views/HeroSection/HeroSection";
@@ -34,7 +35,6 @@ import TermOfService from "@/pages/static/rule/TermOfService";
 import MovieSelection from "@/pages/store/MovieSelection";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import MovieGallery from "@/feature/views/CircularGallery/MovieGallery";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
