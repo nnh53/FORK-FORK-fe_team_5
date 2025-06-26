@@ -17,6 +17,8 @@ export const ROUTES = {
   CINEMA_EXPERIENCE: "/cinema-experience",
   HERO_SECTION: "/welcome",
   NOW_SHOWING: "/now-showing",
+  TRENDING_SECTION: "/trending-section",
+  FLOWING_MENU_SECTION: "/flowing-menu",
 
   //Static Routes
   TERM_OF_SERVICE: "/term-of-service",

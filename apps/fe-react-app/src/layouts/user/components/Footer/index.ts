@@ -1,4 +1,4 @@
-export { default as FlowingMenuSection } from "./components/FlowingMenuSection";
+export { default as FlowingMenuSection } from "../../../../feature/views/FlowingMenu/FlowingMenuSection";
 export { default as FooterBottom } from "./components/FooterBottom";
 export { default as FooterLinks } from "./components/FooterLinks";
 export { default as FooterLogo } from "./components/FooterLogo";

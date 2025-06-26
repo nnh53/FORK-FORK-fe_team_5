@@ -1,10 +1,10 @@
-import { FlowingMenuSection, FooterBottom, FooterLinks, FooterLogo, NewsletterSubscription } from ".";
+import { FooterBottom, FooterLinks, FooterLogo, NewsletterSubscription } from ".";
 import { quickLinks, supportLinks } from "./constants/footerData";
 import "./css/Footer.css";
 import { useFooterAnimations } from "./hooks/useFooterAnimations";
 
 const Footer = () => {
-  const { footerRef, flowingMenuRef } = useFooterAnimations();
+  const { footerRef } = useFooterAnimations();
 
   const handleNewsletterSubscribe = (email: string) => {
     console.log("Newsletter subscription:", email);
@@ -23,8 +23,6 @@ const Footer = () => {
           <FooterBottom />
         </section>
       </footer>
-
-      <FlowingMenuSection flowingMenuRef={flowingMenuRef} />
     </>
   );
 };

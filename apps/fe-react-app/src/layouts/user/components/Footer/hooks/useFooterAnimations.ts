@@ -6,7 +6,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const useFooterAnimations = () => {
   const footerRef = useRef<HTMLElement | null>(null);
-  const flowingMenuRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     // Main footer animation
@@ -72,26 +71,6 @@ export const useFooterAnimations = () => {
       },
     );
 
-    // Animate FlowingMenu
-    if (flowingMenuRef.current) {
-      gsap.fromTo(
-        flowingMenuRef.current,
-        {
-          opacity: 0,
-        },
-        {
-          opacity: 1,
-          duration: 1,
-          delay: 0.5,
-          scrollTrigger: {
-            trigger: flowingMenuRef.current,
-            start: "top bottom",
-            toggleActions: "play none none none",
-          },
-        },
-      );
-    }
-
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
@@ -99,6 +78,5 @@ export const useFooterAnimations = () => {
 
   return {
     footerRef,
-    flowingMenuRef,
   };
 };

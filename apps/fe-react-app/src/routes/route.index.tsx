@@ -18,8 +18,10 @@ import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import FAQ from "@/feature/views/FAQ/FAQ";
+import FlowingMenuSection from "@/feature/views/FlowingMenu/FlowingMenuSection";
 import HeroSection from "@/feature/views/HeroSection/HeroSection";
 import NowShowing from "@/feature/views/NowShowing/NowShowing";
+import TrendingSection from "@/feature/views/TrendingSection/TrendingSection";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
@@ -98,5 +100,7 @@ export const AppRoutes = () => (
     <Route path={ROUTES.CINEMA_EXPERIENCE} element={<CinemaExperience />} />
     <Route path={ROUTES.HERO_SECTION} element={<HeroSection />} />
     <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} />
+    <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
+    <Route path={ROUTES.FLOWING_MENU_SECTION} element={<FlowingMenuSection />} />
   </Routes>
 );

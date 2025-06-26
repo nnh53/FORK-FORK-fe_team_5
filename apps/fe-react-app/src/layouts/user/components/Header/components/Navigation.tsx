@@ -1,6 +1,9 @@
+import { ROUTES } from "@/routes/route.constants";
+import { Link } from "react-router-dom";
+
 interface MenuItem {
   label: string;
-  href: string;
+  to: string;
   id?: string;
 }
 
@@ -19,11 +22,11 @@ const Navigation = ({
   navClassName = "",
   linkClassName = "nav-link",
   menuItems = [
-    { label: "Home", href: "#", id: "home" },
-    { label: "Movies", href: "#", id: "movies" },
-    { label: "Theaters", href: "#", id: "theaters" },
-    { label: "Offers", href: "#", id: "offers" },
-    { label: "Membership", href: "#", id: "membership" },
+    { label: "Home", to: ROUTES.HOME, id: "home" },
+    { label: "Movies", to: "#", id: "movies" },
+    { label: "Theaters", to: "#", id: "theaters" },
+    { label: "Offers", to: "#", id: "offers" },
+    { label: "Membership", to: ROUTES.ACCOUNT, id: "membership" },
   ],
   onMenuItemClick,
 }: NavigationProps) => {
@@ -37,10 +40,16 @@ const Navigation = ({
     <nav className={`${className} ${isMenuOpen ? "active" : ""} ${navClassName}`}>
       <ul>
         {menuItems.map((item) => (
-          <li key={item.id || item.label}>
-            <a href={item.href} className={linkClassName} onClick={() => handleItemClick(item)}>
-              {item.label}
-            </a>
+          <li key={item.id ?? item.label}>
+            {item.to === "#" ? (
+              <a href={item.to} className={linkClassName} onClick={() => handleItemClick(item)}>
+                {item.label}
+              </a>
+            ) : (
+              <Link to={item.to} className={linkClassName} onClick={() => handleItemClick(item)}>
+                {item.label}
+              </Link>
+            )}
           </li>
         ))}
       </ul>
