@@ -6,16 +6,16 @@ import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
 import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccessPage.tsx";
 import CheckoutPage from "@/feature/booking/checkout-page/CheckoutPage.tsx";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
-import OldHomePage from "@/feature/booking/home-page/OldHomePage";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
 import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
-import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
-import About from "@/feature/static/About";
-import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
-import TermOfService from "@/feature/static/TermOfService";
-import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
+import ForgotPassword from "@/pages/authentication/ForgotPassword";
+// import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
+import About from "@/pages/static/attachment/About";
+import PrivacyPolicy from "@/pages/static/rule/PrivacyPolicy";
+import TermOfService from "@/pages/static/rule/TermOfService";
+import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import FAQ from "@/feature/views/FAQ/FAQ";
 import FlowingMenuSection from "@/feature/views/FlowingMenu/FlowingMenuSection";
@@ -26,7 +26,6 @@ import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
 import UserLayout from "@/layouts/user/UserLayout";
-import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import Login from "@/pages/authentication/Login";
 import Register from "@/pages/authentication/Register";
 import InternalServerError from "@/pages/error/InternalServerError";
@@ -34,6 +33,7 @@ import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import MovieSelection from "@/pages/store/MovieSelection";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -43,7 +43,7 @@ export const AppRoutes = () => (
     <Route index element={<Navigate to={ROUTES.HOME} replace />} />
     {/* Public Routes */}
     <Route path={ROUTES.HOME} element={<HomePage />} />
-    <Route path={ROUTES.HOME_TEST} element={<OldHomePage />} />
+  <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
     <Route path={ROUTES.BOOKING} element={<BookingPage />} />
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
@@ -84,7 +84,7 @@ export const AppRoutes = () => (
     {/* Legacy Management Routes (should eventually be moved to admin) */}
     <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
     <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
-    <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} />
+    {/* <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} /> */}
     {/* Utility Routes */}
     <Route path={ROUTES.LOADING} element={<Loading />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />

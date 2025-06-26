@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText as GSAPSplitText } from "gsap/SplitText";
+import React, { useEffect, useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger, GSAPSplitText);
 
@@ -109,18 +109,7 @@ const SplitText: React.FC<SplitTextProps> = ({
       gsap.killTweensOf(targets);
       splitter.revert();
     };
-  }, [
-    text,
-    delay,
-    duration,
-    ease,
-    splitType,
-    from,
-    to,
-    threshold,
-    rootMargin,
-    onLetterAnimationComplete,
-  ]);
+  }, [text, delay, duration, ease, splitType, from, to, threshold, rootMargin, onLetterAnimationComplete]);
 
   return (
     <p

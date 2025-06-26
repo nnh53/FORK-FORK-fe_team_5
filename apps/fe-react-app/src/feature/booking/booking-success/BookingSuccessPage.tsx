@@ -49,7 +49,7 @@ const BookingSuccessPage: React.FC = () => {
 
   if (loading) {
     return (
-      <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+      <UserLayout>
         <div className="max-w-2xl mx-auto p-8 text-center">
           <div className="text-lg">Đang tải thông tin booking...</div>
         </div>
@@ -59,7 +59,7 @@ const BookingSuccessPage: React.FC = () => {
 
   if (!booking) {
     return (
-      <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+      <UserLayout>
         <div className="max-w-2xl mx-auto p-8 text-center">
           <div className="text-red-500 text-lg">Không tìm thấy thông tin đặt vé.</div>
           <Link to="/">
@@ -71,7 +71,7 @@ const BookingSuccessPage: React.FC = () => {
   }
 
   return (
-    <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+    <UserLayout>
       <div className="max-w-4xl mx-auto p-8">
         <div className="bg-white rounded-lg shadow-lg p-8">
           {/* Success Icon */}

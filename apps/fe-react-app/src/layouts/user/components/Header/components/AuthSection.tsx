@@ -29,7 +29,7 @@ const AuthSection = ({
       </button>
       {showBookButton && (
         <button className={bookButtonClassName} onClick={onBookClick}>
-          <Link to={ROUTES.BOOKING}>{bookText}</Link>
+          <Link to={ROUTES.MOVIES_SELECTION}>{bookText}</Link>
         </button>
       )}
     </div>

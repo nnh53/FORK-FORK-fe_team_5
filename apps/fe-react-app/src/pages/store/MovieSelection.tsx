@@ -3,7 +3,6 @@ import upcoming from "@/assets/upComingText.png";
 import type { MovieCardProps } from "@/components/movie/MovieCard/MovieCard.tsx";
 import MovieList from "@/components/movie/MovieList/MovieList.tsx";
 import MovieSearch from "@/components/MovieSearch.tsx";
-import Carousel from "@/components/shared/Carousel/Carousel.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import type { Movie } from "@/interfaces/movies.interface.ts";
 import UserLayout from "@/layouts/user/UserLayout.tsx";
@@ -13,9 +12,9 @@ import { convertMoviesToMovieCards } from "@/utils/movieUtils.ts";
 import { convertShowtimesToSchedulePerDay } from "@/utils/showtimeUtils.ts";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { SchedulePerDay } from "../components/ShowtimesModal/ShowtimesModal.tsx";
-import ShowtimesModal from "../components/ShowtimesModal/ShowtimesModal.tsx";
-import TicketConfirmModal from "../components/TicketConfirmModal/TicketConfirmModal.tsx";
+import type { SchedulePerDay } from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
+import ShowtimesModal from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
+import TicketConfirmModal from "../../feature/booking/components/TicketConfirmModal/TicketConfirmModal.tsx";
 
 // 1. MOCK DATA PHIM
 interface FinalSelection {
@@ -24,7 +23,7 @@ interface FinalSelection {
   format: string;
 }
 
-function OldHomePage() {
+function MovieSelection() {
   const navigate = useNavigate();
   // State for movies from API
   const [movies, setMovies] = useState<MovieCardProps[]>([]);
@@ -35,12 +34,6 @@ function OldHomePage() {
   const [showtimes, setShowtimes] = useState<SchedulePerDay[]>([]);
   const [showtimesLoading, setShowtimesLoading] = useState(false);
   const [showtimesError, setShowtimesError] = useState<string | null>(null);
-
-  const movieBaner: string[] = [
-    "https://weliveentertainment.com/wp-content/uploads/2025/04/minecraft-movie-banner.png",
-    "https://files.betacorp.vn/media/images/2025/06/04/1702x621-13-104719-040625-85.png",
-  ];
-
   const [isShowtimesModalOpen, setIsShowtimesModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<MovieCardProps | null>(null);
@@ -180,8 +173,7 @@ function OldHomePage() {
   };
 
   return (
-    <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
-      <Carousel autoplayInterval={2000} images={movieBaner} height={"600px"} />
+    <UserLayout>
       {/* Movie Search Section */}
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center mb-6">
@@ -279,4 +271,4 @@ function OldHomePage() {
   );
 }
 
-export default OldHomePage;
+export default MovieSelection;

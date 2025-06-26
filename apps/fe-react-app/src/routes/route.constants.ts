@@ -3,7 +3,7 @@ export const ROUTES = {
   // Root
   ROOT: "/",
   HOME: "/home",
-  HOME_TEST: "/home-test",
+  MOVIES_SELECTION: "/movies",
   BOOKING: "/booking",
   CHECKOUT: "/checkout",
   BOOKING_SUCCESS: "/booking-success",

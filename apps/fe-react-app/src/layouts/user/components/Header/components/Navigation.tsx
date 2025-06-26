@@ -23,9 +23,7 @@ const Navigation = ({
   linkClassName = "nav-link",
   menuItems = [
     { label: "Home", to: ROUTES.HOME, id: "home" },
-    { label: "Movies", to: "#", id: "movies" },
-    { label: "Theaters", to: "#", id: "theaters" },
-    { label: "Offers", to: "#", id: "offers" },
+    { label: "Movies", to: ROUTES.MOVIES_SELECTION, id: "movies" },
     { label: "Membership", to: ROUTES.ACCOUNT, id: "membership" },
   ],
   onMenuItemClick,

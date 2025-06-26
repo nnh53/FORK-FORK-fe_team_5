@@ -225,7 +225,7 @@ const CheckoutPage: React.FC = () => {
       : mockCombos;
 
   return (
-    <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+    <UserLayout>
       <div className="max-w-screen-2xl mx-auto p-4 md:p-8">
         {" "}
         {/* Breadcrumb */}

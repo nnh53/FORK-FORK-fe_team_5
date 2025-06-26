@@ -104,7 +104,7 @@ const BookingPage: React.FC = () => {
 
   if (!movie) {
     return (
-      <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+      <UserLayout>
         <div className="text-center py-20">
           <p>Lỗi: Không có thông tin đặt vé.</p>
           <Link to="/" className="text-blue-500 hover:underline">
