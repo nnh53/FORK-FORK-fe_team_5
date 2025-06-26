@@ -1,7 +1,6 @@
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { type Icon } from "@tabler/icons-react";
+import { Link, useLocation } from "react-router-dom"; // Thêm useLocation
 
-import { Button } from "@/components/Shadcn/ui/button";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/Shadcn/ui/sidebar";
 
 export function NavMain({
@@ -13,36 +12,40 @@ export function NavMain({
     icon?: Icon;
   }[];
 }) {
+  // Lấy location hiện tại để kiểm tra mục active
+  const location = useLocation();
+
+  // Hàm kiểm tra mục có đang được chọn không
+  const isActive = (itemUrl: string) => {
+    // Loại bỏ trailing slash nếu có
+    const currentPath = location.pathname.endsWith("/") ? location.pathname.slice(0, -1) : location.pathname;
+    const url = itemUrl.endsWith("/") ? itemUrl.slice(0, -1) : itemUrl;
+
+    // Kiểm tra nếu đường dẫn hiện tại chính xác là URL của mục
+    if (currentPath === url) return true;
+
+    // Kiểm tra nếu đường dẫn hiện tại bắt đầu bằng URL của mục và ký tự tiếp theo là '/'
+    if (currentPath.startsWith(url) && (currentPath.length === url.length || currentPath[url.length] === '/')) {
+      return true;
+    }
+
+    return false;
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton
-              asChild
-              tooltip="Quick Create"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
-            >
-              <Link to="/admin/dashboard">
-                <IconCirclePlusFilled />
-                <span>Quick Create</span>
-              </Link>
-            </SidebarMenuButton>
-            <Button
-              size="icon"
-              className="size-8 group-data-[collapsible=icon]:opacity-0"
-              variant="outline"
-              onClick={() => (window.location.href = "/admin/dashboard")}
-            >
-              <IconMail />
-              <span className="sr-only">Inbox</span>
-            </Button>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                // Thêm các class khi mục đang active
+                className={isActive(item.url)
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+                  : ""}
+              >
                 <Link to={item.url}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
