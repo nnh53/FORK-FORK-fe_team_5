@@ -1,40 +1,28 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
+import { Input } from "@/components/Shadcn/ui/input";
 import { Filter, type FilterCriteria } from "@/components/shared/Filter";
-import { SearchBar, type SearchCriteria } from "@/components/shared/SearchBar";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner"; // Thêm import này
 import { ROLE_TYPE } from "@/interfaces/roles.interface";
 import type { Staff, StaffFormData } from "@/interfaces/staff.interface";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import StaffForm from "./StaffForm";
 import StaffTable from "./StaffTable";
 import { createStaff, deleteStaff, getStaffs, updateStaff } from "./services/staffApi";
 
-// Helper functions
-const filterBySearch = (staff: Staff, criteria: SearchCriteria): boolean => {
-  if (!criteria.value) return true;
-
-  switch (criteria.field) {
-    case "id":
-      return staff.id.toString().includes(criteria.value);
-    case "name":
-      return staff.full_name.toLowerCase().includes(criteria.value.toLowerCase());
-    case "email":
-      return staff.email.toLowerCase().includes(criteria.value.toLowerCase());
-    default:
-      return true;
-  }
-};
-
+// Sửa lại chỉ tìm theo ID, tên và email
 const filterByGlobalSearch = (staff: Staff, searchValue: string): boolean => {
+  if (!searchValue) return true;
+
   const lowerSearchValue = searchValue.toLowerCase();
   return (
-    staff.id.toString().includes(searchValue) ||
-    staff.full_name.toLowerCase().includes(lowerSearchValue) ||
-    staff.email.toLowerCase().includes(lowerSearchValue) ||
-    staff.role_name.toLowerCase().includes(lowerSearchValue)
+    staff.id.toString().includes(searchValue.trim()) ||
+    staff.full_name.toLowerCase().includes(lowerSearchValue.trim()) ||
+    staff.email.toLowerCase().includes(lowerSearchValue.trim())
+    // Đã xóa các trường tìm kiếm khác
   );
 };
 
@@ -95,15 +83,9 @@ const StaffManagement = () => {
   const [selectedStaff, setSelectedStaff] = useState<Staff | undefined>();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
-  const [searchCriteria, setSearchCriteria] = useState<SearchCriteria[]>([]);
+  // Thay thế searchCriteria bằng searchTerm
+  const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
-
-  // Search options
-  const searchOptions = [
-    { label: "ID", value: "id" },
-    { label: "Tên", value: "name" },
-    { label: "Email", value: "email" },
-  ];
 
   // Filter groups
   const filterGroups = [
@@ -208,21 +190,12 @@ const StaffManagement = () => {
 
     let result = staffs;
 
-    // Áp dụng search criteria
-    if (searchCriteria.length > 0) {
-      result = result.filter((staff) => {
-        const globalSearchValue = searchCriteria[0]?.value;
-        const isGlobalSearch = searchCriteria.every((c) => c.value === globalSearchValue);
-
-        if (isGlobalSearch && globalSearchValue) {
-          return filterByGlobalSearch(staff, globalSearchValue);
-        }
-
-        return searchCriteria.every((criteria) => filterBySearch(staff, criteria));
-      });
+    // Thay đổi phần tìm kiếm
+    if (searchTerm) {
+      result = result.filter((staff) => filterByGlobalSearch(staff, searchTerm));
     }
 
-    // Áp dụng filter criteria
+    // Áp dụng filter criteria - giữ nguyên phần này
     if (filterCriteria.length > 0) {
       result = result.filter((staff) => {
         return filterCriteria.every((criteria) => {
@@ -256,7 +229,7 @@ const StaffManagement = () => {
     }
 
     return result;
-  }, [staffs, searchCriteria, filterCriteria]);
+  }, [staffs, searchTerm, filterCriteria]);
 
   const handleCreate = () => {
     setSelectedStaff(undefined);
@@ -311,8 +284,14 @@ const StaffManagement = () => {
     setStaffToDelete(null);
   };
 
+  // Cập nhật phần loading
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Đang tải...</div>;
+    return (
+      <div className="flex flex-col justify-center items-center h-screen">
+        <LoadingSpinner size={40} className="text-primary mb-4" />
+        <p className="text-gray-500 text-lg">Đang tải dữ liệu nhân viên...</p>
+      </div>
+    );
   }
 
   return (
@@ -331,18 +310,20 @@ const StaffManagement = () => {
 
             {/* Search and Filter row */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              {/* Search Bar - Left */}
-              <div className="flex-1">
-                <SearchBar searchOptions={searchOptions} onSearchChange={setSearchCriteria} maxSelections={5} placeholder="Tìm kiếm nhân viên..." />
+              {/* Thay thế SearchBar bằng Input đơn giản */}
+              <div className="relative w-full sm:w-1/2 border border-gray-300 rounded-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  placeholder="Tìm kiếm theo ID, tên hoặc email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-full"
+                />
               </div>
 
-              {/* Filter - Right */}
+              {/* Filter - Right - giữ nguyên */}
               <div className="shrink-0">
-                <Filter
-                  filterOptions={filterGroups}
-                  onFilterChange={setFilterCriteria}
-                  groupMode={true} // Thêm tham số này để kích hoạt chế độ nhóm
-                />
+                <Filter filterOptions={filterGroups} onFilterChange={setFilterCriteria} groupMode={true} />
               </div>
             </div>
           </CardHeader>
