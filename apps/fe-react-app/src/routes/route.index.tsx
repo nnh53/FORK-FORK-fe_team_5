@@ -12,9 +12,6 @@ import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import ForgotPassword from "@/pages/authentication/ForgotPassword";
 // import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
-import About from "@/pages/static/attachment/About";
-import PrivacyPolicy from "@/pages/static/rule/PrivacyPolicy";
-import TermOfService from "@/pages/static/rule/TermOfService";
 import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import FAQ from "@/feature/views/FAQ/FAQ";
@@ -31,9 +28,12 @@ import Register from "@/pages/authentication/Register";
 import InternalServerError from "@/pages/error/InternalServerError";
 import NotFoundError from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
+import About from "@/pages/static/attachment/About";
+import PrivacyPolicy from "@/pages/static/rule/PrivacyPolicy";
+import TermOfService from "@/pages/static/rule/TermOfService";
+import MovieSelection from "@/pages/store/MovieSelection";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import MovieSelection from "@/pages/store/MovieSelection";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -43,7 +43,7 @@ export const AppRoutes = () => (
     <Route index element={<Navigate to={ROUTES.HOME} replace />} />
     {/* Public Routes */}
     <Route path={ROUTES.HOME} element={<HomePage />} />
-  <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
+    <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
     <Route path={ROUTES.BOOKING} element={<BookingPage />} />
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
