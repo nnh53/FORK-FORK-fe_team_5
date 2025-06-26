@@ -10,20 +10,20 @@ import OldHomePage from "@/feature/booking/home-page/OldHomePage";
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
 import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
-import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
-import ForgotPassword from "@/pages/authentication/ForgotPassword";
-// import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
+import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
 import About from "@/feature/static/About";
 import PrivacyPolicy from "@/feature/static/PrivacyPolicy";
 import TermOfService from "@/feature/static/TermOfService";
 import Welcome from "@/feature/theme/Welcome";
 import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
+import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import FAQ from "@/feature/views/FAQ/FAQ";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
 import UserLayout from "@/layouts/user/UserLayout";
+import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import Login from "@/pages/authentication/Login";
 import Register from "@/pages/authentication/Register";
 import InternalServerError from "@/pages/error/InternalServerError";
@@ -81,7 +81,7 @@ export const AppRoutes = () => (
     {/* Legacy Management Routes (should eventually be moved to admin) */}
     <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
     <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
-    {/* <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} /> */}
+    <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} />
     {/* Utility Routes */}
     <Route path={ROUTES.WELCOME} element={<Welcome />} />
     <Route path={ROUTES.LOADING} element={<Loading />} />

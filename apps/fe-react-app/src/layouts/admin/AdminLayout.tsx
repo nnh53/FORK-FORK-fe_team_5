@@ -12,7 +12,7 @@ import ComboManagement from "@/feature/manager/food-combo/ComboManagement";
 import FoodManagement from "@/feature/manager/food-combo/food/FoodManagement";
 import MemberManagement from "@/feature/manager/member/MemberManagement";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
-// import StaffManagement from "@/feature/manager/staff/StaffManagement";
+import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import { PromotionManagement } from "@/feature/promotion-management/PromotionManagement";
 import type { ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
@@ -91,7 +91,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
           />
           <Route path="/promotion" element={<PromotionManagement />} />
           <Route path="/members" element={<MemberManagement />} />
-          {/* <Route path="/staffs" element={<StaffManagement />} /> */}
+          <Route path="/staffs" element={<StaffManagement />} />
           <Route path="/combo" element={<ComboManagement />} />
           <Route path="/foods" element={<FoodManagement />} />
           <Route
