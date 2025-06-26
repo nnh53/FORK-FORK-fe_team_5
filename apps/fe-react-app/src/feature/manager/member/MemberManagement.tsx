@@ -1,10 +1,11 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
+import { Input } from "@/components/Shadcn/ui/input";
 import { Filter, type FilterCriteria, type FilterGroup } from "@/components/shared/Filter";
-import { SearchBar, type SearchCriteria } from "@/components/shared/SearchBar";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner"; // Thêm import này
 import type { StaffRegisterDTO, UserBase } from "@/interfaces/users.interface";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import MemberDetail from "./MemberDetail";
@@ -12,33 +13,16 @@ import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 import { createMember, deleteMember, getMembers, updateMember } from "./services/memberApi";
 
-// Helper functions để giảm complexity
-const filterBySearch = (member: UserBase, criteria: SearchCriteria): boolean => {
-  if (!criteria.value) return true;
-  const searchValue = criteria.value.toLowerCase();
-
-  switch (criteria.field) {
-    case "id":
-      return member.id.toString().includes(searchValue);
-    case "name":
-      return member.full_name.toLowerCase().includes(searchValue);
-    case "email":
-      return member.email.toLowerCase().includes(searchValue);
-    case "membership":
-      return member.membershipLevel?.toLowerCase().includes(searchValue) || (!member.membershipLevel && searchValue === "không có");
-    default:
-      return true;
-  }
-};
-
+// Sửa lại filterByGlobalSearch để chỉ tìm theo id, tên, email
 const filterByGlobalSearch = (member: UserBase, searchValue: string): boolean => {
+  if (!searchValue) return true;
+
   const lowerSearchValue = searchValue.toLowerCase();
   return (
-    member.id.toString().includes(searchValue) ||
-    member.full_name.toLowerCase().includes(lowerSearchValue) ||
-    member.email.toLowerCase().includes(lowerSearchValue) ||
-    member.membershipLevel?.toLowerCase().includes(lowerSearchValue) ||
-    false
+    member.id.toString().includes(searchValue.trim()) ||
+    member.full_name.toLowerCase().includes(lowerSearchValue.trim()) ||
+    member.email.toLowerCase().includes(lowerSearchValue.trim())
+    // Đã xóa các điều kiện tìm kiếm khác
   );
 };
 
@@ -212,19 +196,12 @@ const MemberManagement = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<UserBase | undefined>();
-  const [searchCriteria, setSearchCriteria] = useState<SearchCriteria[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<UserBase | null>(null);
   const [viewDetailOpen, setViewDetailOpen] = useState(false);
   const [memberToView, setMemberToView] = useState<UserBase | null>(null);
-
-  // Search options - đã xóa tùy chọn tìm kiếm hạng thành viên
-  const searchOptions = [
-    { label: "ID", value: "id" },
-    { label: "Tên", value: "name" },
-    { label: "Email", value: "email" },
-  ];
 
   const fetchMembers = async () => {
     setLoading(true);
@@ -250,18 +227,9 @@ const MemberManagement = () => {
 
     let result = members;
 
-    // Áp dụng search criteria
-    if (searchCriteria.length > 0) {
-      result = result.filter((member) => {
-        const globalSearchValue = searchCriteria[0]?.value;
-        const isGlobalSearch = searchCriteria.every((c) => c.value === globalSearchValue);
-
-        if (isGlobalSearch && globalSearchValue) {
-          return filterByGlobalSearch(member, globalSearchValue);
-        }
-
-        return searchCriteria.every((criteria) => filterBySearch(member, criteria));
-      });
+    // Tìm kiếm đã giới hạn trong hàm filterByGlobalSearch
+    if (searchTerm) {
+      result = result.filter((member) => filterByGlobalSearch(member, searchTerm));
     }
 
     // Áp dụng filter criteria
@@ -300,7 +268,7 @@ const MemberManagement = () => {
     }
 
     return result;
-  }, [members, searchCriteria, filterCriteria]);
+  }, [members, searchTerm, filterCriteria]);
 
   const handleCreate = () => {
     setSelectedMember(undefined);
@@ -366,8 +334,14 @@ const MemberManagement = () => {
     setMemberToDelete(null);
   };
 
+  // Cập nhật phần loading
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Đang tải...</div>;
+    return (
+      <div className="flex flex-col justify-center items-center h-screen">
+        <LoadingSpinner size={40} className="text-primary mb-4" />
+        <p className="text-gray-500 text-lg">Đang tải dữ liệu thành viên...</p>
+      </div>
+    );
   }
 
   return (
@@ -387,8 +361,14 @@ const MemberManagement = () => {
             {/* Search and Filter row */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               {/* Search Bar - Left */}
-              <div className="flex-1">
-                <SearchBar searchOptions={searchOptions} onSearchChange={setSearchCriteria} maxSelections={5} placeholder="Tìm kiếm thành viên..." />
+              <div className="relative w-full sm:w-1/2 border border-gray-300 rounded-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  placeholder="Tìm kiếm theo ID, tên hoặc email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-full"
+                />
               </div>
 
               {/* Filter - Right */}
