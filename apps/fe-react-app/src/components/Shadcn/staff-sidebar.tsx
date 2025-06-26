@@ -1,5 +1,3 @@
-import { IconCalendar, IconCheckbox, IconHome, IconLifebuoy, IconSend, IconTicket } from "@tabler/icons-react";
-
 import FCinemaLogo from "@/assets/FCinema_Logo.png";
 import { NavMain } from "@/components/Shadcn/nav-main";
 import { NavSecondary } from "@/components/Shadcn/nav-secondary";
@@ -13,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/Shadcn/ui/sidebar";
+import { IconCalendar, IconCheckbox, IconHome, IconLifebuoy, IconSend, IconTicket } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
 // This is sample data for staff sidebar.

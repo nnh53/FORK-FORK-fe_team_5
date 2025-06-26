@@ -1,3 +1,17 @@
+import FCinemaLogo from "@/assets/FCinema_Logo.png";
+import { NavDocuments } from "@/components/Shadcn/nav-documents";
+import { NavMain } from "@/components/Shadcn/nav-main";
+import { NavSecondary } from "@/components/Shadcn/nav-secondary";
+import { NavUser } from "@/components/Shadcn/nav-user";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/Shadcn/ui/sidebar";
 import {
   IconBox,
   IconCamera,
@@ -19,20 +33,6 @@ import {
 } from "@tabler/icons-react";
 import * as React from "react";
 import { Link } from "react-router-dom";
-
-import { NavDocuments } from "@/components/Shadcn/nav-documents";
-import { NavMain } from "@/components/Shadcn/nav-main";
-import { NavSecondary } from "@/components/Shadcn/nav-secondary";
-import { NavUser } from "@/components/Shadcn/nav-user";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/Shadcn/ui/sidebar";
 
 const data = {
   user: {
@@ -180,7 +180,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link to="/admin/dashboard">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">FCinema Inc.</span>
+                <img src={FCinemaLogo} alt="FCinema Logo" className="!size-5" />
+                <span className="text-base font-semibold">FCinema Admin</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -1,4 +1,3 @@
-import FCinemeLogo from "@/assets/FCinema_Logo.png";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Separator } from "@/components/Shadcn/ui/separator";
 import { SidebarTrigger } from "@/components/Shadcn/ui/sidebar";
@@ -10,10 +9,7 @@ export function SiteHeader() {
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />{" "}
         <h1 className="text-base font-medium">
-          <a href="/staff/dashboard" className="hover:underline flex items-center gap-2">
-            <img src={FCinemeLogo} alt="FCinema Logo" className="h-8 w-auto" />
-            <span>FCinema Staff</span>
-          </a>
+          <a href="/staff/dashboard" className="hover:underline flex items-center gap-2"></a>
         </h1>
         <div className="ml-auto flex items-center gap-2">
           <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
