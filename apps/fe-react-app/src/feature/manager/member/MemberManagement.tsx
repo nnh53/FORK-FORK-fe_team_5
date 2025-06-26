@@ -231,7 +231,7 @@ const MemberManagement = () => {
     try {
       const data = await getMembers();
       // Filter to only show members with role_name "Member"
-      const memberData = data.filter((member) => member.role_name === "Member");
+      const memberData = data.filter((member) => member.role_name === "MEMBER");
       setMembers(memberData);
     } catch (err) {
       toast.error("Lỗi khi tải danh sách thành viên");
@@ -327,7 +327,7 @@ const MemberManagement = () => {
       // Ensure role_name is always "Member"
       const memberData = {
         ...values,
-        role_name: "Member",
+        role_name: "MEMBER",
       };
 
       if (selectedMember) {

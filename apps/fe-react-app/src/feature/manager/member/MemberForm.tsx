@@ -24,7 +24,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
       password: "",
       is_active: 1,
       is_subscription: 0,
-      role_name: "Member", // Hardcoded to Member
+      role_name: "MEMBER", // Hardcoded to Member
       status_name: "UNVERIFY" as USER_STATUS,
       avatar_url: "",
       loyalty_point: 0,
@@ -40,7 +40,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
       reset({
         ...member,
         password: member.password || "",
-        role_name: "Member", // Always set to Member
+        role_name: "MEMBER", // Always set to Member
       });
     }
   }, [member, reset]);
