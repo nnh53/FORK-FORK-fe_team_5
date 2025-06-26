@@ -21,7 +21,6 @@ import {
   IconFileAi,
   IconFileDescription,
   IconHelp,
-  IconInnerShadowTop,
   IconListDetails,
   IconMovie,
   IconSearch,
@@ -173,13 +172,12 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link to="/admin/dashboard">
-                <IconInnerShadowTop className="!size-5" />
                 <img src={FCinemaLogo} alt="FCinema Logo" className="!size-5" />
                 <span className="text-base font-semibold">FCinema Admin</span>
               </Link>

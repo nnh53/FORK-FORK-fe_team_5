@@ -32,7 +32,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="sidebar" />
+      <AppSidebar />
       <SidebarInset>
         <SiteHeader />
         <Routes>

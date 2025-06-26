@@ -9,3 +9,14 @@ const fetchClient = createFetchClient<paths>({
   },
 });
 export const $api = createClient(fetchClient);
+
+// Add a request interceptor to dynamically include the token
+fetchClient.use({
+  onRequest({ request }) {
+    const token = localStorage.getItem("token");
+    if (token) {
+      request.headers.set("Authorization", `Bearer ${token}`);
+    }
+    return request;
+  },
+});
