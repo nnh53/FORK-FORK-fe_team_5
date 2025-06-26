@@ -1,7 +1,6 @@
 import FCinemaLogo from "@/assets/FCinema_Logo.png";
 import { NavDocuments } from "@/components/Shadcn/nav-documents";
 import { NavMain } from "@/components/Shadcn/nav-main";
-import { NavSecondary } from "@/components/Shadcn/nav-secondary";
 import { NavUser } from "@/components/Shadcn/nav-user";
 import {
   Sidebar,
@@ -188,7 +187,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
