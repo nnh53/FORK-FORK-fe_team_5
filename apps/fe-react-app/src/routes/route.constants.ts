@@ -19,6 +19,7 @@ export const ROUTES = {
   NOW_SHOWING: "/now-showing",
   TRENDING_SECTION: "/trending-section",
   FLOWING_MENU_SECTION: "/flowing-menu",
+  MOVIE_GALLERY: "/movie-gallery",
 
   //Static Routes
   TERM_OF_SERVICE: "/term-of-service",

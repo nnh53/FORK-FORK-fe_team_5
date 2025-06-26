@@ -107,7 +107,7 @@ const MovieDetailPage: React.FC = () => {
   // Loading state
   if (loading) {
     return (
-      <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+      <UserLayout>
         <div className="flex justify-center items-center py-20">
           <div className="text-white text-xl">Đang tải thông tin phim...</div>
         </div>
@@ -118,7 +118,7 @@ const MovieDetailPage: React.FC = () => {
   // Error state
   if (error || !movie) {
     return (
-      <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+      <UserLayout>
         <div className="flex justify-center items-center py-20">
           <div className="text-red-500 text-xl">{error || "Không tìm thấy thông tin phim"}</div>
         </div>
@@ -130,7 +130,7 @@ const MovieDetailPage: React.FC = () => {
     movie.trailerUrl && getYouTubeId(movie.trailerUrl) ? `https://www.youtube.com/embed/${getYouTubeId(movie.trailerUrl)}?autoplay=0` : "";
 
   return (
-    <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
+    <UserLayout>
       <div className="bg-gray-50 py-10">
         <div className="max-w-6xl mx-auto px-4">
           {/* Breadcrumbs */}

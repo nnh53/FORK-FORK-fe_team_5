@@ -34,6 +34,7 @@ import TermOfService from "@/pages/static/rule/TermOfService";
 import MovieSelection from "@/pages/store/MovieSelection";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import MovieGallery from "@/feature/views/CircularGallery/MovieGallery";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -102,5 +103,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} />
     <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
     <Route path={ROUTES.FLOWING_MENU_SECTION} element={<FlowingMenuSection />} />
+    <Route path={ROUTES.MOVIE_GALLERY} element={<MovieGallery />} />
   </Routes>
 );
