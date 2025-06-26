@@ -10,7 +10,8 @@ export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
     case "STAFF":
       return "/staffs";
     case "MEMBER":
-      return "/members";
+      return "/account";
+    // return "/members";
     case "GUEST":
       return "/welcome";
     case "ADMIN":
