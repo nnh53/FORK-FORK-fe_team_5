@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-import type { UserBase } from "./users.interface";
+import type { USER_STATUS, UserBase } from "./users.interface";
 
-export type STAFF_STATUS = "ACTIVE" | "UNVERIFY" | "BAN";
+export type STAFF_STATUS = USER_STATUS;
 
-export interface Staff extends UserBase {}
+// Loại bỏ các trường chỉ dành cho thành viên
+export type Staff = Omit<UserBase, "loyalty_point" | "totalSpent" | "membershipLevel" | "is_subscription">;
 
 export type StaffFormData = Omit<Staff, "id">;
