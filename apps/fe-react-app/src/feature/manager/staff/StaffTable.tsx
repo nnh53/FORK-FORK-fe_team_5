@@ -1,3 +1,4 @@
+import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import {
   Pagination,
@@ -37,15 +38,43 @@ const getStatusDisplay = (status: USER_STATUS) => {
   }
 };
 
-const getRoleDisplay = (role: string) => {
+const getRoleBadge = (role: string) => {
   switch (role) {
     case ROLE_TYPE.MANAGER:
-      return "Quản lý";
+      return <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">Quản lý</span>;
     case ROLE_TYPE.STAFF:
-      return "Nhân viên";
+      return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">Nhân viên</span>;
     default:
-      return role;
+      return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">{role}</span>;
   }
+};
+
+// Thêm hàm để định dạng thời gian
+const formatDateTime = (dateString: string) => {
+  if (!dateString) return "Chưa cập nhật";
+
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    console.error(`Không thể định dạng thời gian: ${dateString}`);
+    return "Định dạng không hợp lệ";
+  }
+};
+
+// Thêm hàm để hiển thị trạng thái kích hoạt
+const getActiveStatus = (isActive: number) => {
+  return isActive === 1 ? (
+    <Badge className="bg-green-100 text-green-800">Đã kích hoạt</Badge>
+  ) : (
+    <Badge className="bg-gray-100 text-gray-800">Chưa kích hoạt</Badge>
+  );
 };
 
 const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
@@ -114,6 +143,7 @@ const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
             <TableHeader>
               <TableRow className="bg-red-50 hover:bg-red-100">
                 <TableHead>ID</TableHead>
+                <TableHead>Avatar</TableHead>
                 <TableHead>
                   <div className="flex items-center gap-1">
                     Tên
@@ -134,13 +164,16 @@ const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
                 </TableHead>
                 <TableHead>Vai trò</TableHead>
                 <TableHead>Trạng thái</TableHead>
+                <TableHead>Kích hoạt</TableHead>
+                <TableHead>Ngày tạo</TableHead>
+                <TableHead>Cập nhật</TableHead>
                 <TableHead className="text-center">Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentPageData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={10} className="text-center py-8 text-gray-500">
                     {sortedData.length === 0 ? "Không tìm thấy nhân viên" : "Không có dữ liệu trang này"}
                   </TableCell>
                 </TableRow>
@@ -150,13 +183,36 @@ const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
                   return (
                     <TableRow key={staff.id}>
                       <TableCell>{staff.id}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          {staff.avatar_url ? (
+                            <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-gray-200">
+                              <img
+                                src={staff.avatar_url}
+                                alt={`Avatar của ${staff.full_name}`}
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(staff.full_name)}&background=random`;
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                              {staff.full_name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>{staff.full_name}</TableCell>
                       <TableCell>{staff.email}</TableCell>
                       <TableCell>{formatDate(staff.date_of_birth)}</TableCell>
-                      <TableCell>{getRoleDisplay(staff.role_name)}</TableCell>
+                      <TableCell>{getRoleBadge(staff.role_name)}</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>
                       </TableCell>
+                      <TableCell>{getActiveStatus(staff.is_active)}</TableCell>
+                      <TableCell>{formatDateTime(staff.createdAt)}</TableCell>
+                      <TableCell>{formatDateTime(staff.updatedAt)}</TableCell>
                       <TableCell className="text-center">
                         <div className="flex justify-center space-x-2">
                           <Button variant="ghost" size="icon" onClick={() => onEdit(staff)}>
