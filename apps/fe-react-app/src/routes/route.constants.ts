@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-hardcoded-passwords */
 // Route constants for better maintainability and type safety
 export const ROUTES = {
   // Root

@@ -25,12 +25,12 @@ type AdminLayoutProps = {
 export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
   return (
     <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
+    // style={
+    //   {
+    //     "--sidebar-width": "calc(var(--spacing) * 72)",
+    //     "--header-height": "calc(var(--spacing) * 12)",
+    //   } as React.CSSProperties
+    // }
     >
       <AppSidebar />
       <SidebarInset>

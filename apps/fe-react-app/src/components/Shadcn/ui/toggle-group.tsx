@@ -1,5 +1,7 @@
-import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group";
+"use client";
+
 import { type VariantProps } from "class-variance-authority";
+import { ToggleGroup as ToggleGroupPrimitive } from "radix-ui";
 import * as React from "react";
 
 import { toggleVariants } from "@/components/Shadcn/ui/toggle";

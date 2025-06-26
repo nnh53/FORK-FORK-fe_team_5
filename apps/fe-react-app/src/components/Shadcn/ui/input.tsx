@@ -4,7 +4,7 @@ import { cn } from "@/utils/utils";
 
 export type InputProps = React.ComponentProps<"input">;
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+function Input({ className, type, ...props }: InputProps) {
   return (
     <input
       type={type}

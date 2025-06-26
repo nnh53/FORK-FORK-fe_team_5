@@ -7,11 +7,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      className="toaster group "
-      position="top-right"
+      className="toaster group"
       style={
         {
-          "--normal-bg": "#FFF4E7", // Màu nền cụ thể (caramel latte vibe)
+          "--normal-bg": "var(--popover)",
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
           transform: "scale(1.2)",
