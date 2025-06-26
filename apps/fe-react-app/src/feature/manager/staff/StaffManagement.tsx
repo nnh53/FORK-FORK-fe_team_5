@@ -51,6 +51,43 @@ const filterByStatus = (staff: Staff, status: string): boolean => {
   return staff.status_name.toLowerCase() === status.toLowerCase();
 };
 
+const filterByActive = (staff: Staff, active: string): boolean => {
+  return staff.is_active === parseInt(active);
+};
+
+const formatDate = (dateString: string): string => {
+  if (!dateString) return "Chưa cập nhật";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  } catch {
+    console.error(`Không thể định dạng ngày: ${dateString}`);
+    return "Định dạng không hợp lệ";
+  }
+};
+
+const filterByCreatedDate = (staff: Staff, range: { from: Date | undefined; to: Date | undefined }): boolean => {
+  if (!range.from && !range.to) return true;
+
+  const createdDate = staff.createdAt ? new Date(staff.createdAt) : null;
+  if (!createdDate) return false;
+
+  return !(range.from && createdDate < range.from) && !(range.to && createdDate > range.to);
+};
+
+const filterByUpdatedDate = (staff: Staff, range: { from: Date | undefined; to: Date | undefined }): boolean => {
+  if (!range.from && !range.to) return true;
+
+  const updatedDate = staff.updatedAt ? new Date(staff.updatedAt) : null;
+  if (!updatedDate) return false;
+
+  return !(range.from && updatedDate < range.from) && !(range.to && updatedDate > range.to);
+};
+
 const StaffManagement = () => {
   const [staffs, setStaffs] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(false);
@@ -68,33 +105,71 @@ const StaffManagement = () => {
     { label: "Email", value: "email" },
   ];
 
-  // Filter options
-  const filterOptions = [
+  // Filter groups
+  const filterGroups = [
     {
-      label: "Khoảng ngày sinh",
-      value: "birth_date_range",
-      type: "dateRange" as const,
+      name: "basic",
+      label: "Thông tin cơ bản",
+      options: [
+        {
+          label: "Ngày sinh",
+          value: "birth_date_range",
+          type: "dateRange" as const,
+        },
+        {
+          label: "Vai trò",
+          value: "role",
+          type: "select" as const,
+          selectOptions: [
+            { value: ROLE_TYPE.MANAGER, label: "Quản lý" },
+            { value: ROLE_TYPE.STAFF, label: "Nhân viên" },
+          ],
+          placeholder: "Chọn vai trò",
+        },
+      ],
     },
     {
+      name: "status",
       label: "Trạng thái",
-      value: "status",
-      type: "select" as const,
-      selectOptions: [
-        { value: "ACTIVE", label: "Đã xác minh" },
-        { value: "BAN", label: "Bị cấm" },
-        { value: "UNVERIFY", label: "Chưa xác minh" },
+      options: [
+        {
+          label: "Trạng thái",
+          value: "status",
+          type: "select" as const,
+          selectOptions: [
+            { value: "ACTIVE", label: "Đã xác minh" },
+            { value: "BAN", label: "Bị cấm" },
+            { value: "UNVERIFY", label: "Chưa xác minh" },
+          ],
+          placeholder: "Chọn trạng thái",
+        },
+        {
+          label: "Kích hoạt",
+          value: "active",
+          type: "select" as const,
+          selectOptions: [
+            { value: "1", label: "Đã kích hoạt" },
+            { value: "0", label: "Chưa kích hoạt" },
+          ],
+          placeholder: "Chọn trạng thái kích hoạt",
+        },
       ],
-      placeholder: "Chọn trạng thái",
     },
     {
-      label: "Vai trò",
-      value: "role",
-      type: "select" as const,
-      selectOptions: [
-        { value: ROLE_TYPE.MANAGER, label: "Quản lý" },
-        { value: ROLE_TYPE.STAFF, label: "Nhân viên" },
+      name: "timestamp",
+      label: "Mốc thời gian",
+      options: [
+        {
+          label: "Ngày tạo",
+          value: "created_date_range",
+          type: "dateRange" as const,
+        },
+        {
+          label: "Ngày cập nhật",
+          value: "updated_date_range",
+          type: "dateRange" as const,
+        },
       ],
-      placeholder: "Chọn vai trò",
     },
   ];
 
@@ -161,6 +236,17 @@ const StaffManagement = () => {
             }
             case "role": {
               return staff.role_name.toLowerCase() === (criteria.value as string).toLowerCase();
+            }
+            case "active": {
+              return filterByActive(staff, criteria.value as string);
+            }
+            case "created_date_range": {
+              const range = criteria.value as { from: Date | undefined; to: Date | undefined };
+              return filterByCreatedDate(staff, range);
+            }
+            case "updated_date_range": {
+              const range = criteria.value as { from: Date | undefined; to: Date | undefined };
+              return filterByUpdatedDate(staff, range);
             }
             default:
               return true;
@@ -252,7 +338,11 @@ const StaffManagement = () => {
 
               {/* Filter - Right */}
               <div className="shrink-0">
-                <Filter filterOptions={filterOptions} onFilterChange={setFilterCriteria} />
+                <Filter
+                  filterOptions={filterGroups}
+                  onFilterChange={setFilterCriteria}
+                  groupMode={true} // Thêm tham số này để kích hoạt chế độ nhóm
+                />
               </div>
             </div>
           </CardHeader>
