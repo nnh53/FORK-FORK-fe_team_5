@@ -1,24 +1,9 @@
 "use client";
 
-import { IconDots, IconFolder, IconShare3, IconTrash, type Icon } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { type Icon } from "@tabler/icons-react";
+import { Link, useLocation } from "react-router-dom"; // Thêm useLocation
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/Shadcn/ui/dropdown-menu";
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/Shadcn/ui/sidebar";
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/Shadcn/ui/sidebar";
 
 export function NavDocuments({
   items,
@@ -30,6 +15,25 @@ export function NavDocuments({
   }[];
 }) {
   const { isMobile } = useSidebar();
+  // Lấy location hiện tại
+  const location = useLocation();
+
+  // Hàm kiểm tra mục có đang được chọn không
+  const isActive = (itemUrl: string) => {
+    // Loại bỏ trailing slash nếu có
+    const currentPath = location.pathname.endsWith("/") ? location.pathname.slice(0, -1) : location.pathname;
+    const url = itemUrl.endsWith("/") ? itemUrl.slice(0, -1) : itemUrl;
+
+    // Kiểm tra nếu đường dẫn hiện tại chính xác là URL của mục
+    if (currentPath === url) return true;
+
+    // Kiểm tra nếu đường dẫn hiện tại bắt đầu bằng URL của mục và ký tự tiếp theo là '/'
+    if (currentPath.startsWith(url) && (currentPath.length === url.length || currentPath[url.length] === "/")) {
+      return true;
+    }
+
+    return false;
+  };
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -37,35 +41,20 @@ export function NavDocuments({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton
+              asChild
+              // Thêm các class khi mục đang active
+              className={
+                isActive(item.url)
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+                  : ""
+              }
+            >
               <Link to={item.url}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>
             </SidebarMenuButton>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuAction showOnHover className="data-[state=open]:bg-accent rounded-sm">
-                  <IconDots />
-                  <span className="sr-only">More</span>
-                </SidebarMenuAction>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-24 rounded-lg" side={isMobile ? "bottom" : "right"} align={isMobile ? "end" : "start"}>
-                <DropdownMenuItem>
-                  <IconFolder />
-                  <span>Open</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <IconShare3 />
-                  <span>Share</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive">
-                  <IconTrash />
-                  <span>Delete</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </SidebarMenuItem>
         ))}
       </SidebarMenu>
