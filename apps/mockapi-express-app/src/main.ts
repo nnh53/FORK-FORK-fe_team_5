@@ -88,13 +88,13 @@ app.get("/myVoucherHistory", (req, res) => {
 app.post("/users/login", (req, res) => {
   const { email, password } = req.body;
 
-  const userData = loginMock(email, password);
+  // const userData = loginMock(email, password);
 
-  if (userData) {
-    res.status(200).json(userData);
-  } else {
-    res.status(401).json({ message: "Invalid email or password" });
-  }
+  // if (userData) {
+  //   res.status(200).json(userData);
+  // } else {
+  //   res.status(401).json({ message: "Invalid email or password" });
+  // }
 });
 
 // Add register endpoint
