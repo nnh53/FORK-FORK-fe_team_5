@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-hardcoded-passwords */
 // Route constants for better maintainability and type safety
 export const ROUTES = {
   // Root
@@ -27,12 +26,14 @@ export const ROUTES = {
     ROOT: "/auth",
     LOGIN: "/auth/login",
     REGISTER: "/auth/register",
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     FORGOT_PASSWORD: "/auth/forgot-password",
   },
   // Legacy Auth Routes (for redirects)
   LEGACY_AUTH: {
     LOGIN: "/login",
     REGISTER: "/register",
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     FORGOT_PASSWORD: "/forgot-password",
   },
 
