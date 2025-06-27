@@ -11,6 +11,7 @@ import { cinemaRoomsAPI, seatsAPI } from "./cinema-room.mockapi.ts";
 import { membersAPI } from "./members.mockapi.ts";
 import { genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi.ts";
 import { promotionsAPI } from "./promotions.mockapi.ts";
+import { seatMapAPI } from "./seat-map.mockapi.ts";
 import { showtimesAPI } from "./showtimes.mockapi.ts";
 // import { loginMock } from "./users.mockapi.ts";
 import { mockVoucherHistory, mockVouchers } from "./voucher.mockapi.ts";
@@ -277,6 +278,138 @@ app.put("/seats/:seatId", (req, res) => {
     res.send(seat);
   } else {
     res.status(404).send({ error: "Seat not found" });
+  }
+});
+
+// SEAT MAP ENDPOINTS
+
+// Get all cinema rooms with seat map info
+app.get("/seat-map/rooms", async (req, res) => {
+  try {
+    const rooms = await seatMapAPI.getAllRooms();
+    res.send(rooms);
+  } catch (error) {
+    res.status(500).send({ error: "Failed to fetch rooms" });
+  }
+});
+
+// Get room by ID with seat map
+app.get("/seat-map/rooms/:roomId", async (req, res) => {
+  try {
+    const room = await seatMapAPI.getRoomById(req.params.roomId);
+    if (room) {
+      res.send(room);
+    } else {
+      res.status(404).send({ error: "Room not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ error: "Failed to fetch room" });
+  }
+});
+
+// Get seat map for a specific room
+app.get("/seat-map/:roomId", async (req, res) => {
+  try {
+    const seatMap = await seatMapAPI.getSeatMapByRoomId(req.params.roomId);
+    if (seatMap) {
+      res.send(seatMap);
+    } else {
+      res.status(404).send({ error: "Seat map not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ error: "Failed to fetch seat map" });
+  }
+});
+
+// Save/update seat map for a room
+app.put("/seat-map/:roomId", async (req, res) => {
+  try {
+    const success = await seatMapAPI.saveSeatMap(req.params.roomId, req.body);
+    if (success) {
+      res.send({ success: true, message: "Seat map saved successfully" });
+    } else {
+      res.status(404).send({ error: "Room not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ error: "Failed to save seat map" });
+  }
+});
+
+// Create new room with seat map capability
+app.post("/seat-map/rooms", async (req, res) => {
+  try {
+    const newRoom = await seatMapAPI.createRoom(req.body);
+    res.status(201).send(newRoom);
+  } catch (error) {
+    res.status(500).send({ error: "Failed to create room" });
+  }
+});
+
+// Update room info
+app.put("/seat-map/rooms/:roomId", async (req, res) => {
+  try {
+    const updatedRoom = await seatMapAPI.updateRoom(req.params.roomId, req.body);
+    if (updatedRoom) {
+      res.send(updatedRoom);
+    } else {
+      res.status(404).send({ error: "Room not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ error: "Failed to update room" });
+  }
+});
+
+// Delete room
+app.delete("/seat-map/rooms/:roomId", async (req, res) => {
+  try {
+    const success = await seatMapAPI.deleteRoom(req.params.roomId);
+    if (success) {
+      res.send({ success: true, message: "Room deleted successfully" });
+    } else {
+      res.status(404).send({ error: "Room not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ error: "Failed to delete room" });
+  }
+});
+
+// Update room status
+app.patch("/seat-map/rooms/:roomId/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const success = await seatMapAPI.updateRoomStatus(req.params.roomId, status);
+    if (success) {
+      res.send({ success: true, message: "Room status updated successfully" });
+    } else {
+      res.status(404).send({ error: "Room not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ error: "Failed to update room status" });
+  }
+});
+
+// Get room statistics
+app.get("/seat-map/stats", async (req, res) => {
+  try {
+    const stats = await seatMapAPI.getRoomStats();
+    res.send(stats);
+  } catch (error) {
+    res.status(500).send({ error: "Failed to fetch stats" });
+  }
+});
+
+// Search rooms
+app.get("/seat-map/search", async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) {
+      res.status(400).send({ error: "Query parameter 'q' is required" });
+      return;
+    }
+    const rooms = await seatMapAPI.searchRooms(q as string);
+    res.send(rooms);
+  } catch (error) {
+    res.status(500).send({ error: "Failed to search rooms" });
   }
 });
 
