@@ -1,3 +1,4 @@
+import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import {
   Pagination,
@@ -41,13 +42,13 @@ const formatDateTime = (dateTimeString: string): string => {
 const getStatusDisplay = (status: ShowtimeStatus) => {
   switch (status) {
     case ShowtimeStatus.SCHEDULE:
-      return { label: "Đã lên lịch", className: "bg-blue-100 text-blue-800" };
+      return { label: "Đã lên lịch", variant: "outline" as const, className: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" };
     case ShowtimeStatus.ONSCREEN:
-      return { label: "Đang chiếu", className: "bg-green-100 text-green-800" };
+      return { label: "Đang chiếu", variant: "outline" as const, className: "bg-green-50 text-green-700 border-green-200 hover:bg-green-100" };
     case ShowtimeStatus.COMPLETE:
-      return { label: "Đã hoàn thành", className: "bg-gray-100 text-gray-800" };
+      return { label: "Đã hoàn thành", variant: "outline" as const, className: "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100" };
     default:
-      return { label: status, className: "bg-yellow-100 text-yellow-800" };
+      return { label: status, variant: "outline" as const, className: "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100" };
   }
 };
 
@@ -76,7 +77,7 @@ const ShowtimeTable = ({ showtimes, onEdit, onDelete, onView, movieNames, roomNa
     return pagination.visiblePages.map((page, index) => {
       if (page === "ellipsis") {
         return (
-          <PaginationItem key={`ellipsis-${index}`}>
+          <PaginationItem key={`ellipsis-page-${pagination.visiblePages[index - 1]}-${pagination.visiblePages[index + 1]}`}>
             <PaginationEllipsis />
           </PaginationItem>
         );
@@ -149,36 +150,35 @@ const ShowtimeTable = ({ showtimes, onEdit, onDelete, onView, movieNames, roomNa
                   </TableCell>
                 </TableRow>
               ) : (
-                currentPageData.map((showtime) => {
-                  const { label, className } = getStatusDisplay(showtime.status);
-                  return (
-                    <TableRow key={showtime.id}>
-                      <TableCell>{showtime.id}</TableCell>
-                      <TableCell>{movieNames[showtime.movie_id] || "Không xác định"}</TableCell>
-                      <TableCell>{roomNames[showtime.room_id] || "Không xác định"}</TableCell>
-                      <TableCell>{formatDateTime(showtime.show_date_time)}</TableCell>
-                      <TableCell>{formatDateTime(showtime.show_end_time)}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex justify-center space-x-2">
-                          {onView && (
-                            <Button variant="ghost" size="icon" onClick={() => onView(showtime)}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button variant="ghost" size="icon" onClick={() => onEdit(showtime)}>
-                            <Edit className="h-4 w-4" />
+                currentPageData.map((showtime) => (
+                  <TableRow key={showtime.showtime_id}>
+                    <TableCell>{showtime.showtime_id}</TableCell>
+                    <TableCell>{movieNames[showtime.movie_id] || "Không xác định"}</TableCell>
+                    <TableCell>{roomNames[showtime.room_id] || "Không xác định"}</TableCell>
+                    <TableCell>{formatDateTime(showtime.show_date_time)}</TableCell>
+                    <TableCell>{formatDateTime(showtime.show_end_time)}</TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusDisplay(showtime.status).variant} className={getStatusDisplay(showtime.status).className}>
+                        {getStatusDisplay(showtime.status).label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center space-x-2">
+                        {onView && (
+                          <Button variant="ghost" size="icon" onClick={() => onView(showtime)}>
+                            <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => onDelete(showtime)}>
-                            <Trash className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
+                        )}
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(showtime)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => onDelete(showtime)}>
+                          <Trash className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>

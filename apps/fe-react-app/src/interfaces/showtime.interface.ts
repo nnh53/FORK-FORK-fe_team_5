@@ -5,7 +5,7 @@ export enum ShowtimeStatus {
 }
 
 export interface Showtime {
-  id: string;
+  showtime_id: string;
   movie_id: string;
   room_id: string;
   show_date_time: string;
@@ -13,4 +13,4 @@ export interface Showtime {
   status: ShowtimeStatus;
 }
 
-export type ShowtimeFormData = Omit<Showtime, "id">;
+export type ShowtimeFormData = Omit<Showtime, "showtime_id">;

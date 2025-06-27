@@ -44,7 +44,7 @@ export const createShowtime = async (showtimeData: ShowtimeFormData): Promise<Sh
  * @returns Promise<Showtime> Thông tin suất chiếu đã cập nhật
  */
 export const updateShowtime = async (showtime: Showtime): Promise<Showtime> => {
-  const response = await fetch(`${API_URL}/${showtime.id}`, {
+  const response = await fetch(`${API_URL}/${showtime.showtime_id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(showtime),

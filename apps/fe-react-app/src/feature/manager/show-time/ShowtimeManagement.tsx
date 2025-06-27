@@ -1,10 +1,11 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
-import { Input } from "@/components/Shadcn/ui/input"; // Thêm import Input
+import { Input } from "@/components/Shadcn/ui/input";
 import { Filter, type FilterCriteria } from "@/components/shared/Filter";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { type Showtime, type ShowtimeFormData, ShowtimeStatus } from "@/interfaces/showtime.interface";
-import { Plus, Search } from "lucide-react"; // Thêm import Search icon
+import { AlertCircle, Plus, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import ShowtimeForm from "./ShowtimeForm";
@@ -33,7 +34,7 @@ const filterByGlobalSearch = (
 
   const lowerSearchValue = searchValue.toLowerCase().trim();
   return (
-    showtime.id.toString().includes(lowerSearchValue) ||
+    showtime.showtime_id.toString().includes(lowerSearchValue) ||
     (movieNames[showtime.movie_id] || "").toLowerCase().includes(lowerSearchValue) ||
     (roomNames[showtime.room_id] || "").toLowerCase().includes(lowerSearchValue) ||
     showtime.status.toLowerCase().includes(lowerSearchValue)
@@ -240,7 +241,7 @@ const ShowtimeManagement = () => {
   const handleDeleteConfirm = async () => {
     if (showtimeToDelete) {
       try {
-        await deleteShowtime(showtimeToDelete.id);
+        await deleteShowtime(showtimeToDelete.showtime_id);
         toast.success("Xóa suất chiếu thành công");
         fetchShowtimes();
       } catch (error) {
@@ -252,9 +253,38 @@ const ShowtimeManagement = () => {
     setShowtimeToDelete(null);
   };
 
-  if (loading && showtimes.length === 0) {
-    return <div className="flex justify-center items-center h-screen">Đang tải...</div>;
-  }
+  // Hàm render content để tránh lỗi nested ternary
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex flex-col justify-center items-center py-16">
+          <LoadingSpinner size={40} className="text-primary mb-2" />
+          <div className="text-gray-600">Đang tải dữ liệu...</div>
+        </div>
+      );
+    }
+
+    if (filteredShowtimes.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 bg-gray-50 rounded-md">
+          <AlertCircle className="h-10 w-10 text-gray-400 mb-2" />
+          <p className="text-gray-500 text-lg font-medium">Không tìm thấy suất chiếu nào</p>
+          <p className="text-gray-400 text-sm">Hãy thay đổi bộ lọc hoặc thêm suất chiếu mới</p>
+        </div>
+      );
+    }
+
+    return (
+      <ShowtimeTable
+        showtimes={filteredShowtimes}
+        onEdit={handleEdit}
+        onDelete={handleDeleteClick}
+        onView={handleView}
+        movieNames={movieNames}
+        roomNames={roomNames}
+      />
+    );
+  };
 
   return (
     <>
@@ -290,16 +320,7 @@ const ShowtimeManagement = () => {
             </div>
           </CardHeader>
 
-          <CardContent>
-            <ShowtimeTable
-              showtimes={filteredShowtimes}
-              onEdit={handleEdit}
-              onDelete={handleDeleteClick}
-              onView={handleView}
-              movieNames={movieNames}
-              roomNames={roomNames}
-            />
-          </CardContent>
+          <CardContent>{renderContent()}</CardContent>
         </Card>
       </div>
 
@@ -347,7 +368,7 @@ const ShowtimeManagement = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500">ID</p>
-                  <p>{showtimeToView.id}</p>
+                  <p>{showtimeToView.showtime_id}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Phim</p>
