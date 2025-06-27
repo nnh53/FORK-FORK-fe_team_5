@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import BookingBreadcrumb from "../../../components/BookingBreadcrumb.tsx";
+import type { GridCell, SeatMapGrid, SelectedSeat } from "../../../interfaces/seatmap.interface.ts";
 import UserLayout from "../../../layouts/user/UserLayout.tsx";
+import { createSampleSeatMap, toggleSeatSelection } from "../../../utils/seatMapUtils.ts";
 import BookingFooter from "../components/BookingFooter/BookingFooter.tsx";
 import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
 import SeatMap from "../components/SeatMap/SeatMap.tsx";
 import SeatMapGridComponent from "../components/SeatMapGrid/SeatMapGrid.tsx";
-import { createSampleSeatMap, toggleSeatSelection } from "../../../utils/seatMapUtils.ts";
-import type { SeatMapGrid, GridCell, SelectedSeat } from "../../../interfaces/seatmap.interface.ts";
 
 export interface SeatType {
   id: string;
@@ -67,15 +67,15 @@ const BookingPage: React.FC = () => {
 
   // Convert SelectedSeat to legacy SeatType for compatibility
   const convertGridSeatsToLegacy = (gridSeats: SelectedSeat[]): SeatType[] => {
-    return gridSeats.map(seat => {
+    return gridSeats.map((seat) => {
       const getSeatType = (seatType: string): "standard" | "vip" | "double" => {
         switch (seatType) {
-          case 'V':
-            return 'vip';
-          case 'D':
-            return 'double';
+          case "V":
+            return "vip";
+          case "D":
+            return "double";
           default:
-            return 'standard';
+            return "standard";
         }
       };
 
@@ -84,14 +84,14 @@ const BookingPage: React.FC = () => {
         row: seat.displayRow,
         number: parseInt(seat.displayCol),
         type: getSeatType(seat.seatType),
-        status: 'selected' as const
+        status: "selected" as const,
       };
     });
   };
 
   // Handle grid seat selection
   const handleGridSeatSelect = (cell: GridCell) => {
-    if (cell.type !== 'seat' || cell.status === 'taken' || cell.status === 'maintenance') {
+    if (cell.type !== "seat" || cell.status === "taken" || cell.status === "maintenance") {
       return;
     }
 
@@ -225,7 +225,7 @@ const BookingPage: React.FC = () => {
                 onClick={() => setUseGridSystem(!useGridSystem)}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
               >
-                {useGridSystem ? 'Chuyển sang hệ thống cũ' : 'Chuyển sang hệ thống mới (Grid)'}
+                {useGridSystem ? "Chuyển sang hệ thống cũ" : "Chuyển sang hệ thống mới (Grid)"}
               </button>
             </div>
 
