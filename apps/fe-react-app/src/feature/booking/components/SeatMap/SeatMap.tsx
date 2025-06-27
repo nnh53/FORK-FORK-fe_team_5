@@ -2,7 +2,6 @@
 import React from "react";
 import type { SeatType } from "../../booking-page/BookingPage.tsx";
 import Seat from "../Seat/Seat.tsx";
-import SeatLegend from "../SeatLegend/SeatLegend.tsx";
 
 interface SeatMapProps {
   seatMap: { rows: string[]; seats: SeatType[] };
@@ -13,7 +12,7 @@ interface SeatMapProps {
 const SeatMap: React.FC<SeatMapProps> = ({ seatMap, selectedSeats, onSeatSelect }) => {
   return (
     <div className="flex flex-col items-center">
-      <SeatLegend />
+
 
       {/* Màn hình chiếu */}
       <div
