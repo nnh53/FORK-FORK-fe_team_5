@@ -102,9 +102,7 @@ const StaffManagement = () => {
           label: "Vai trò",
           value: "role",
           type: "select" as const,
-          selectOptions: [
-            { value: ROLE_TYPE.STAFF, label: "Nhân viên" },
-          ],
+          selectOptions: [{ value: ROLE_TYPE.STAFF, label: "Nhân viên" }],
           placeholder: "Chọn vai trò",
         },
       ],
