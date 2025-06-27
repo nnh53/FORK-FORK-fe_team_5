@@ -1,8 +1,8 @@
 import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { useEffect, useState } from "react";
-import { CustomTable, type TableColumns } from "../../components/CustomTable";
-import type { MyVoucher, MyVoucherHistory } from "../../interfaces/voucher.interface";
-import { formatDateTime } from "../../utils/validation.utils";
+import { CustomTable, type TableColumns } from "../../../components/CustomTable";
+import type { MyVoucher, MyVoucherHistory } from "../../../interfaces/voucher.interface";
+import { formatDateTime } from "../../../utils/validation.utils";
 
 export const MyVoucherManagement: React.FC = () => {
   const voucherColumns: TableColumns[] = [

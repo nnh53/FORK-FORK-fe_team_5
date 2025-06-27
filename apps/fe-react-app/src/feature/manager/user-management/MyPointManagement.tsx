@@ -1,8 +1,8 @@
 import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { formatDateTime } from "@/utils/validation.utils";
 import { useEffect, useState } from "react";
-import { CustomTable, type TableColumns } from "../../components/CustomTable";
-import type { MyPoint, MyPointHistory } from "../../interfaces/users.interface";
+import { CustomTable, type TableColumns } from "../../../components/CustomTable";
+import type { MyPoint, MyPointHistory } from "../../../interfaces/users.interface";
 export const MyPointManagement: React.FC = () => {
   const tableColumns: TableColumns[] = [
     {

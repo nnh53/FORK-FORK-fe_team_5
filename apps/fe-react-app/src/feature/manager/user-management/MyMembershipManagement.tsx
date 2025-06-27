@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { CustomTable, type TableColumns } from "../../components/CustomTable";
-import type { MyMembershipData } from "../../interfaces/users.interface";
+import { CustomTable, type TableColumns } from "../../../components/CustomTable";
+import type { MyMembershipData } from "../../../interfaces/users.interface";
 
 export const MyMembership: React.FC = () => {
   const tableColumns: TableColumns[] = [

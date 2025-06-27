@@ -12,7 +12,7 @@ import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import ForgotPassword from "@/pages/authentication/ForgotPassword";
 // import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
-import { MyUserManagement } from "@/feature/user-management/MyUserManagement";
+import { MyUserManagement } from "@/feature/manager/user-management/MyUserManagement";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import MovieGallery from "@/feature/views/CircularGallery/MovieGallery";
 import FAQ from "@/feature/views/FAQ/FAQ";

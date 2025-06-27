@@ -2,8 +2,8 @@ import axios from "axios";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { MyInfoData } from "../../interfaces/users.interface";
-import { MyInfoSchema } from "../../utils/validation.utils";
+import type { MyInfoData } from "../../../interfaces/users.interface";
+import { MyInfoSchema } from "../../../utils/validation.utils";
 
 export const MyInfo: React.FC = () => {
   const [formData, setFormData] = useState<MyInfoData | null>(null);
