@@ -5,6 +5,9 @@ import UserLayout from "../../../layouts/user/UserLayout.tsx";
 import BookingFooter from "../components/BookingFooter/BookingFooter.tsx";
 import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
 import SeatMap from "../components/SeatMap/SeatMap.tsx";
+import SeatMapGridComponent from "../components/SeatMapGrid/SeatMapGrid.tsx";
+import { createSampleSeatMap, toggleSeatSelection } from "../../../utils/seatMapUtils.ts";
+import type { SeatMapGrid, GridCell, SelectedSeat } from "../../../interfaces/seatmap.interface.ts";
 
 export interface SeatType {
   id: string;
@@ -28,11 +31,23 @@ const BookingPage: React.FC = () => {
   const initialBookingState = location.state || JSON.parse(localStorage.getItem("bookingState") || "{}");
   const { movie, selection, cinemaName } = initialBookingState;
 
-  // Initialize selectedSeats from initialBookingState or empty array
+  // State for grid-based seat selection
+  const [selectedGridSeats, setSelectedGridSeats] = useState<SelectedSeat[]>([]);
+  const [useGridSystem, setUseGridSystem] = useState<boolean>(true); // Toggle between old and new system
+  const [gridSeatMap, setGridSeatMap] = useState<SeatMapGrid | null>(null);
+
+  // Initialize selectedSeats from initialBookingState or empty array (legacy system)
   const [selectedSeats, setSelectedSeats] = useState<SeatType[]>(() => {
     // Prioritize selectedSeats from initialBookingState
     return initialBookingState.selectedSeats || [];
   });
+
+  // Initialize grid seat map
+  useEffect(() => {
+    const sampleGrid = createSampleSeatMap();
+    setGridSeatMap(sampleGrid);
+  }, []);
+
   // Save booking state to localStorage whenever selectedSeats changes
   const updateBookingState = useCallback(
     (newSelectedSeats: SeatType[]) => {
@@ -50,6 +65,45 @@ const BookingPage: React.FC = () => {
     [initialBookingState],
   );
 
+  // Convert SelectedSeat to legacy SeatType for compatibility
+  const convertGridSeatsToLegacy = (gridSeats: SelectedSeat[]): SeatType[] => {
+    return gridSeats.map(seat => {
+      const getSeatType = (seatType: string): "standard" | "vip" | "double" => {
+        switch (seatType) {
+          case 'V':
+            return 'vip';
+          case 'D':
+            return 'double';
+          default:
+            return 'standard';
+        }
+      };
+
+      return {
+        id: seat.id,
+        row: seat.displayRow,
+        number: parseInt(seat.displayCol),
+        type: getSeatType(seat.seatType),
+        status: 'selected' as const
+      };
+    });
+  };
+
+  // Handle grid seat selection
+  const handleGridSeatSelect = (cell: GridCell) => {
+    if (cell.type !== 'seat' || cell.status === 'taken' || cell.status === 'maintenance') {
+      return;
+    }
+
+    const newSelectedSeats = toggleSeatSelection(selectedGridSeats, cell);
+    setSelectedGridSeats(newSelectedSeats);
+
+    // Update localStorage with converted seats
+    const legacySeats = convertGridSeatsToLegacy(newSelectedSeats);
+    updateBookingState(legacySeats);
+  };
+
+  // Legacy seat creation functions for backward compatibility
   const createSeatsForRow = (row: string, count: number, type: SeatType["type"], taken: number[] = []): SeatType[] => {
     const seats: SeatType[] = [];
     for (let i = 1; i <= count; i++) {
@@ -139,7 +193,7 @@ const BookingPage: React.FC = () => {
     // Ensure we have the latest selectedSeats and totalCost
     const finalBookingState = {
       ...latestBookingState,
-      selectedSeats,
+      selectedSeats: currentSelectedSeats,
       totalCost,
     };
 
@@ -149,7 +203,9 @@ const BookingPage: React.FC = () => {
     navigate("/checkout", { state: finalBookingState });
   };
 
-  const totalCost = selectedSeats.reduce((total, seat) => {
+  // Calculate total cost based on current system
+  const currentSelectedSeats = useGridSystem ? convertGridSeatsToLegacy(selectedGridSeats) : selectedSeats;
+  const totalCost = currentSelectedSeats.reduce((total, seat) => {
     if (seat.type === "vip") return total + 90000;
     if (seat.type === "double") return total + 150000;
     return total + 75000;
@@ -163,14 +219,29 @@ const BookingPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cột trái: Sơ đồ ghế */}
           <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-            {seatMapData ? (
-              <SeatMap seatMap={seatMapData} selectedSeats={selectedSeats} onSeatSelect={handleSeatSelect} />
-            ) : (
-              <p>Không tìm thấy sơ đồ ghế.</p>
-            )}
+            {/* Toggle button for demonstration */}
+            <div className="mb-4 text-center">
+              <button
+                onClick={() => setUseGridSystem(!useGridSystem)}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                {useGridSystem ? 'Chuyển sang hệ thống cũ' : 'Chuyển sang hệ thống mới (Grid)'}
+              </button>
+            </div>
+
+            {/* Render appropriate seat map */}
+            {(() => {
+              if (useGridSystem && gridSeatMap) {
+                return <SeatMapGridComponent seatMap={gridSeatMap} selectedSeats={selectedGridSeats} onSeatSelect={handleGridSeatSelect} />;
+              } else if (seatMapData) {
+                return <SeatMap seatMap={seatMapData} selectedSeats={selectedSeats} onSeatSelect={handleSeatSelect} />;
+              } else {
+                return <p>Không tìm thấy sơ đồ ghế.</p>;
+              }
+            })()}
 
             {/* ++ THÊM BOOKING FOOTER VÀO ĐÂY ++ */}
-            <BookingFooter selectedSeats={selectedSeats} totalCost={totalCost} />
+            <BookingFooter selectedSeats={currentSelectedSeats} totalCost={totalCost} />
           </div>{" "}
           {/* Cột phải: Thông tin */}
           <div className="lg:col-span-1">
@@ -178,7 +249,7 @@ const BookingPage: React.FC = () => {
               movie={movie}
               selection={selection}
               cinemaName={cinemaName}
-              selectedSeats={selectedSeats}
+              selectedSeats={currentSelectedSeats}
               totalCost={totalCost}
               showContinueButton={true}
               onContinueClick={handleContinue}

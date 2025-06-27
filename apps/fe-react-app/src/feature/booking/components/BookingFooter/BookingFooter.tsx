@@ -13,34 +13,26 @@ const HOLD_TIME_SECONDS = 10 * 60;
 const BookingFooter: React.FC<BookingFooterProps> = ({ selectedSeats, totalCost }) => {
   const [remainingTime, setRemainingTime] = useState(HOLD_TIME_SECONDS);
 
-  // Logic đếm ngược thời gian
   useEffect(() => {
-    // Chỉ bắt đầu đếm khi người dùng đã chọn ít nhất 1 ghế
     if (selectedSeats.length > 0) {
-      // Reset lại thời gian mỗi khi lựa chọn ghế thay đổi
       setRemainingTime(HOLD_TIME_SECONDS);
 
       const timer = setInterval(() => {
         setRemainingTime((prevTime) => {
           if (prevTime <= 1) {
             clearInterval(timer);
-            // Ở đây có thể gọi một hàm để xử lý khi hết giờ
-            // Ví dụ: onTimeout();
             return 0;
           }
           return prevTime - 1;
         });
       }, 1000);
 
-      // Cleanup function: rất quan trọng để tránh memory leak
       return () => clearInterval(timer);
     } else {
-      // Nếu không có ghế nào được chọn, reset thời gian
       setRemainingTime(HOLD_TIME_SECONDS);
     }
-  }, [selectedSeats.length]); // Chỉ chạy lại effect khi số lượng ghế chọn thay đổi
+  }, [selectedSeats.length]);
 
-  // Format thời gian từ giây thành MM:SS
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
