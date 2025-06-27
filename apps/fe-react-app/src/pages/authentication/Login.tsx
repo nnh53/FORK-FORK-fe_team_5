@@ -3,12 +3,12 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
-import { useAuth } from "@/hooks/useAuth";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
 import type { CustomAPIResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
+import { saveAuthData } from "@/utils/auth.utils";
 import { loginFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useState } from "react";
@@ -20,7 +20,6 @@ import * as z from "zod";
 type LoginFormSchemaType = z.infer<typeof loginFormSchema>;
 
 const Login: React.FC = () => {
-  const { authLogin } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -43,18 +42,25 @@ const Login: React.FC = () => {
         password: data.password,
       },
     });
-
-    authLogin({
-      token: loginQuery.data?.result?.token,
-      roles: loginQuery.data?.result?.roles as unknown as ROLE_TYPE[],
-      id: loginQuery.data?.result?.id as unknown as number,
-      fullName: loginQuery.data?.result?.fullName as unknown as string,
-    });
   };
 
   useEffect(() => {
     console.log(loginQuery.status);
     if (loginQuery.isSuccess) {
+      // Lưu thông tin vào localStorage bằng utility function
+      const authData = loginQuery.data?.result;
+      if (authData) {
+        console.log("Auth data received:", authData);
+        saveAuthData(authData);
+        console.log("Auth data saved to localStorage");
+
+        // Debug: Log what was saved
+        console.log("Token:", localStorage.getItem("token"));
+        console.log("Roles:", localStorage.getItem("roles"));
+        console.log("FullName:", localStorage.getItem("fullName"));
+        console.log("ID:", localStorage.getItem("id"));
+      }
+
       setMessage("Đăng nhập thành công!");
       toast.success("Đăng nhập thành công!");
       form.reset();
@@ -62,10 +68,19 @@ const Login: React.FC = () => {
         navigate(RoleRouteToEachPage(loginQuery.data?.result?.roles as unknown as ROLE_TYPE));
       }, 1000);
     } else if (loginQuery.isError) {
-      setError((loginQuery.error as CustomAPIResponse).message || "Có lỗi xảy ra. Vui lòng thử lại.");
-      toast.error((loginQuery.error as CustomAPIResponse).message || "Có lỗi xảy ra. Vui lòng thử lại.");
+      setError((loginQuery.error as CustomAPIResponse).message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
+      toast.error((loginQuery.error as CustomAPIResponse).message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
     }
-  }, [form, navigate, loginQuery.error, loginQuery.isError, loginQuery.isSuccess, loginQuery.status, loginQuery.data?.result?.roles]);
+  }, [
+    form,
+    navigate,
+    loginQuery.error,
+    loginQuery.isError,
+    loginQuery.isSuccess,
+    loginQuery.status,
+    loginQuery.data?.result?.roles,
+    loginQuery.data?.result,
+  ]);
 
   return (
     <AuthLayout
