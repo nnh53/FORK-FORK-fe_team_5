@@ -1,5 +1,5 @@
 import React from "react";
-import type { SeatMapGrid, GridCell, SelectedSeat } from "../../../../interfaces/seatmap.interface";
+import type { GridCell, SeatMapGrid, SelectedSeat } from "../../../../interfaces/seatmap.interface";
 import GridSeat from "../GridSeat/GridSeat";
 import SeatLegend from "../SeatLegend/SeatLegend";
 
@@ -9,11 +9,7 @@ interface SeatMapGridProps {
   onSeatSelect: (cell: GridCell) => void;
 }
 
-const SeatMapGridComponent: React.FC<SeatMapGridProps> = ({
-  seatMap,
-  selectedSeats,
-  onSeatSelect
-}) => {
+const SeatMapGridComponent: React.FC<SeatMapGridProps> = ({ seatMap, selectedSeats, onSeatSelect }) => {
   return (
     <div className="flex flex-col items-center bg-gradient-to-b from-gray-50 to-white p-6 rounded-xl shadow-lg">
       <SeatLegend />
@@ -35,7 +31,7 @@ const SeatMapGridComponent: React.FC<SeatMapGridProps> = ({
         <div className="flex flex-col gap-3 w-full">
           {seatMap.gridData.map((row, rowIndex) => {
             // Get the display row label for this row
-            const displayRow = row.find(cell => cell.type === 'seat' && cell.displayRow)?.displayRow || '';
+            const displayRow = row.find((cell) => cell.type === "seat" && cell.displayRow)?.displayRow || "";
 
             return (
               <div key={rowIndex} className="flex items-center justify-center gap-2">
@@ -49,22 +45,10 @@ const SeatMapGridComponent: React.FC<SeatMapGridProps> = ({
                   {row.map((cell, colIndex) => {
                     // Skip rendering cells that are consumed by double seats
                     if (cell.isConsumedByDoubleSeat) {
-                      return (
-                        <div
-                          key={`${rowIndex}-${colIndex}-consumed`}
-                          className="w-0 h-0 invisible"
-                        />
-                      );
+                      return <div key={`${rowIndex}-${colIndex}-consumed`} className="w-0 h-0 invisible" />;
                     }
 
-                    return (
-                      <GridSeat
-                        key={`${rowIndex}-${colIndex}`}
-                        cell={cell}
-                        selectedSeats={selectedSeats}
-                        onSeatSelect={onSeatSelect}
-                      />
-                    );
+                    return <GridSeat key={`${rowIndex}-${colIndex}`} cell={cell} selectedSeats={selectedSeats} onSeatSelect={onSeatSelect} />;
                   })}
                 </div>
 
@@ -82,12 +66,13 @@ const SeatMapGridComponent: React.FC<SeatMapGridProps> = ({
       <div className="mt-8 text-center bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 rounded-lg shadow-sm border border-blue-100">
         <p className="text-lg font-bold text-gray-700 mb-1">{seatMap.roomName}</p>
         <p className="text-sm text-gray-500">
-          Kích thước: <span className="font-medium text-gray-700">{seatMap.width} x {seatMap.height}</span>
+          Kích thước:{" "}
+          <span className="font-medium text-gray-700">
+            {seatMap.width} x {seatMap.height}
+          </span>
         </p>
         <p className="text-xs text-gray-400 mt-2">
-          Tổng ghế: <span className="font-medium text-gray-600">
-            {seatMap.gridData.flat().filter(cell => cell.type === 'seat').length}
-          </span>
+          Tổng ghế: <span className="font-medium text-gray-600">{seatMap.gridData.flat().filter((cell) => cell.type === "seat").length}</span>
         </p>
       </div>
     </div>

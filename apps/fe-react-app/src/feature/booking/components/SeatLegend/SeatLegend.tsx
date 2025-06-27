@@ -4,9 +4,7 @@ const LegendItem: React.FC<{ color: string; label: string; icon?: string }> = ({
   <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
     <div className={`w-6 h-6 rounded-t-md shadow-sm ${color} flex items-center justify-center text-xs font-bold relative`}>
       {icon && <span className="text-white">{icon}</span>}
-      {color.includes('gradient') && (
-        <div className="absolute top-0 right-0 w-2 h-2 bg-white opacity-30 rounded-full"></div>
-      )}
+      {color.includes("gradient") && <div className="absolute top-0 right-0 w-2 h-2 bg-white opacity-30 rounded-full"></div>}
     </div>
     <span className="text-sm font-medium text-gray-700">{label}</span>
   </div>

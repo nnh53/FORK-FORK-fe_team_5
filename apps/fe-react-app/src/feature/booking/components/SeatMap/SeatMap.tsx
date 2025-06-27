@@ -12,8 +12,6 @@ interface SeatMapProps {
 const SeatMap: React.FC<SeatMapProps> = ({ seatMap, selectedSeats, onSeatSelect }) => {
   return (
     <div className="flex flex-col items-center">
-
-
       {/* Màn hình chiếu */}
       <div
         className="w-full md:w-4/5 h-2 my-6 bg-gray-300 rounded-full
