@@ -49,8 +49,6 @@ const getStatusDisplay = (status: USER_STATUS) => {
       return { label: "Đã xác minh", className: "bg-green-100 text-green-800" };
     case "BAN":
       return { label: "Bị cấm", className: "bg-red-100 text-red-800" };
-    case "UNVERIFY":
-      return { label: "Chưa xác minh", className: "bg-gray-100 text-gray-800" };
     default:
       return { label: "Không xác định", className: "bg-yellow-100 text-yellow-800" };
   }

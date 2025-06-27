@@ -1,7 +1,5 @@
 export enum ROLE_TYPE {
   ADMIN = "ADMIN",
-  MANAGER = "MANAGER",
   STAFF = "STAFF",
   MEMBER = "MEMBER",
-  GUEST = "GUEST",
 }

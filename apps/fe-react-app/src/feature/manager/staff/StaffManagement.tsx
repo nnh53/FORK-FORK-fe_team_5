@@ -103,7 +103,6 @@ const StaffManagement = () => {
           value: "role",
           type: "select" as const,
           selectOptions: [
-            { value: ROLE_TYPE.MANAGER, label: "Quản lý" },
             { value: ROLE_TYPE.STAFF, label: "Nhân viên" },
           ],
           placeholder: "Chọn vai trò",
@@ -167,7 +166,7 @@ const StaffManagement = () => {
             (staff) =>
               staff &&
               // Kiểm tra xem có role_name hoặc mặc định là STAFF
-              (!staff.role_name || staff.role_name === ROLE_TYPE.STAFF || staff.role_name === ROLE_TYPE.MANAGER),
+              (!staff.role_name || staff.role_name === ROLE_TYPE.STAFF),
           )
         : [];
 

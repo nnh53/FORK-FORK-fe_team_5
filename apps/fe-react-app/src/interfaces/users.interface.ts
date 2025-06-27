@@ -1,6 +1,6 @@
 import { type ROLE_TYPE } from "./roles.interface.ts";
 
-export type USER_STATUS = "ACTIVE" | "UNVERIFY" | "BAN";
+export type USER_STATUS = "ACTIVE" | "BAN";
 
 export type UserDetailsResponse = UserBase & {
   created_at: string | null;

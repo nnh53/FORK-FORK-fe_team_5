@@ -49,23 +49,17 @@ export const AppRoutes = () => (
     <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
     <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
     <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
-    {/* Static Routes */}
-    <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
-    <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
-    <Route path={ROUTES.ABOUT} element={<About />} />
     {/* Auth Routes - grouped under /auth path prefix */}
     <Route path={ROUTES.AUTH.ROOT}>
       <Route index element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
       <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
       <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
       <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
-      <Route path={ROUTES.AUTH.LOG_VIA_REG} element={<LogVIAReg />} />
     </Route>
     {/* Legacy auth routes for backward compatibility */}
     <Route path={ROUTES.LEGACY_AUTH.LOGIN} element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
     <Route path={ROUTES.LEGACY_AUTH.REGISTER} element={<Navigate to={ROUTES.AUTH.REGISTER} replace />} />
     <Route path={ROUTES.LEGACY_AUTH.FORGOT_PASSWORD} element={<Navigate to={ROUTES.AUTH.FORGOT_PASSWORD} replace />} />
-    <Route path={ROUTES.LEGACY_AUTH.LOG_VIA_REG} element={<Navigate to={ROUTES.AUTH.LOG_VIA_REG} replace />} />
     {/* User Account Routes with layout */}
     <Route
       path={ROUTES.ACCOUNT}
@@ -77,7 +71,7 @@ export const AppRoutes = () => (
     />
     {/* Legacy route for backward compatibility */}
     <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} /> {/* Admin Routes */}
-    <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.PROMOTION} replace />} />
+    <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
     <Route path={ROUTES.ADMIN.ROOT + "/*"} element={<AdminLayout />} />
     {/* Staff Routes */}
     <Route path={ROUTES.STAFF.ROOT} element={<Navigate to={ROUTES.STAFF.DASHBOARD} replace />} />
@@ -90,9 +84,14 @@ export const AppRoutes = () => (
     <Route path={ROUTES.LOADING} element={<Loading />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
     <Route path={ROUTES.ERROR} element={<NotFoundError />} />
+    <Route path={ROUTES.LOG_VIA_REG} element={<LogVIAReg />} />
     <Route path={ROUTES.INTERNAL_SERVER_ERROR} element={<InternalServerError />} />
     <Route path={ROUTES.TEST} element={<Test />} />
     <Route path="*" element={<NotFoundError />} />
+    {/* Static Routes */}
+    <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
+    <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
+    <Route path={ROUTES.ABOUT} element={<About />} />
     {/* Viewing Test Route */}
     <Route path={ROUTES.FAQ} element={<FAQ />} />
     <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />

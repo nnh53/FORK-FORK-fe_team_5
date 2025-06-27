@@ -31,21 +31,15 @@ const getStatusDisplay = (status: USER_STATUS) => {
       return { label: "Đã xác minh", className: "bg-green-100 text-green-800" };
     case "BAN":
       return { label: "Bị cấm", className: "bg-red-100 text-red-800" };
-    case "UNVERIFY":
-      return { label: "Chưa xác minh", className: "bg-gray-100 text-gray-800" };
+
     default:
       return { label: "Không xác định", className: "bg-yellow-100 text-yellow-800" };
   }
 };
 
 const getRoleBadge = (role: string) => {
-  switch (role) {
-    case ROLE_TYPE.MANAGER:
-      return <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">Quản lý</span>;
-    case ROLE_TYPE.STAFF:
-      return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">Nhân viên</span>;
-    default:
-      return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">{role}</span>;
+  if (role === ROLE_TYPE.STAFF) {
+    return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">Nhân viên</span>;
   }
 };
 

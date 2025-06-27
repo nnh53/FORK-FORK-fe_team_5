@@ -84,22 +84,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/snacks/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getSnackById"];
-        put: operations["updateSnack"];
-        post?: never;
-        delete: operations["deleteSnack"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/seats/{id}": {
         parameters: {
             query?: never;
@@ -111,22 +95,6 @@ export interface paths {
         put: operations["updateSeat"];
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/combo-details/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getComboDetailById"];
-        put: operations["updateComboDetail"];
-        post?: never;
-        delete: operations["deleteComboDetail"];
         options?: never;
         head?: never;
         patch?: never;
@@ -244,32 +212,16 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/snacks": {
+    "/api/media/upload": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["getAllSnacks"];
+        get?: never;
         put?: never;
-        post: operations["createSnack"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/combo-details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAllComboDetails"];
-        put?: never;
-        post: operations["createComboDetail"];
+        post: operations["uploadImage"];
         delete?: never;
         options?: never;
         head?: never;
@@ -549,23 +501,6 @@ export interface components {
             type?: string;
             status?: string;
         };
-        Snack: {
-            /** Format: int32 */
-            id?: number;
-            /** @enum {string} */
-            category?: "FOOD" | "DRINK" | "COMBO";
-            name?: string;
-            size?: string;
-            flavor?: string;
-            /** Format: float */
-            price?: number;
-            description?: string;
-            /** Format: int32 */
-            quantity?: number;
-            img?: string;
-            /** @enum {string} */
-            status?: "AVAILABLE" | "SOLD_OUT" | "UNAVAILABLE";
-        };
         SeatRequest: {
             type?: string;
             status?: string;
@@ -575,14 +510,6 @@ export interface components {
             code?: number;
             message?: string;
             result?: components["schemas"]["SeatResponse"];
-        };
-        ComboDetail: {
-            /** Format: int32 */
-            id?: number;
-            combo?: components["schemas"]["Snack"];
-            snack?: components["schemas"]["Snack"];
-            /** Format: int32 */
-            quantity?: number;
         };
         UserRequest: {
             email: string;
@@ -692,7 +619,7 @@ export interface components {
         AuthenticationResponse: {
             token?: string;
             /** @enum {string} */
-            roles?: "ADMIN" | "MANAGER" | "STAFF" | "MEMBER" | "GUEST";
+            roles?: "ADMIN" | "STAFF" | "MEMBER";
             fullName?: string;
             id?: string;
         };
@@ -1127,74 +1054,6 @@ export interface operations {
             };
         };
     };
-    getSnackById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Snack"];
-                };
-            };
-        };
-    };
-    updateSnack: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["Snack"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Snack"];
-                };
-            };
-        };
-    };
-    deleteSnack: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     getSeatById: {
         parameters: {
             query?: never;
@@ -1240,74 +1099,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ApiResponseSeatResponse"];
                 };
-            };
-        };
-    };
-    getComboDetailById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ComboDetail"];
-                };
-            };
-        };
-    };
-    updateComboDetail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ComboDetail"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ComboDetail"];
-                };
-            };
-        };
-    };
-    deleteComboDetail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -1579,36 +1370,19 @@ export interface operations {
             };
         };
     };
-    getAllSnacks: {
+    uploadImage: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Snack"][];
-                };
-            };
-        };
-    };
-    createSnack: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
+        requestBody?: {
             content: {
-                "application/json": components["schemas"]["Snack"];
+                "application/json": {
+                    /** Format: binary */
+                    file: string;
+                };
             };
         };
         responses: {
@@ -1618,51 +1392,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Snack"];
-                };
-            };
-        };
-    };
-    getAllComboDetails: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ComboDetail"][];
-                };
-            };
-        };
-    };
-    createComboDetail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ComboDetail"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ComboDetail"];
+                    "application/json": string;
                 };
             };
         };

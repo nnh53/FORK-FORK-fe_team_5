@@ -29,7 +29,6 @@ const MemberDetail = ({ member, onClose }: MemberDetailProps) => {
   const getStatusBadge = (status: USER_STATUS) => {
     const styles: Record<USER_STATUS, { className: string; label: string }> = {
       ACTIVE: { className: "bg-green-100 text-green-800 border-green-200", label: "Đã xác minh" },
-      UNVERIFY: { className: "bg-gray-100 text-gray-800 border-gray-200", label: "Chưa xác minh" },
       BAN: { className: "bg-red-100 text-red-800 border-red-200", label: "Bị cấm" },
     };
     return styles[status] || { className: "bg-gray-100 text-gray-800", label: status };

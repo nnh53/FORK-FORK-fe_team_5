@@ -5,17 +5,11 @@ import { useAuth } from "../../hooks/useAuth";
 
 export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
   switch (roleName) {
-    case "MANAGER":
-      return "/managers";
-    case "STAFF":
-      return "/staffs";
-    case "MEMBER":
-      return "/account";
-    // return "/members";
-    case "GUEST":
-      return "/welcome";
     case "ADMIN":
       return "/admin";
+    case "STAFF":
+      return "/staff";
+    case "MEMBER":
     default:
       return "/";
   }

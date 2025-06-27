@@ -22,27 +22,18 @@ export const ROUTES = {
   FLOWING_MENU_SECTION: "/flowing-menu",
   MOVIE_GALLERY: "/movie-gallery",
 
-  //Static Routes
-  TERM_OF_SERVICE: "/term-of-service",
-  PRIVACY_POLICY: "/privacy-policy",
-  ABOUT: "/about",
-  HELP: "/help",
-  SEARCH: "/search",
-
   // Auth Routes
   AUTH: {
     ROOT: "/auth",
     LOGIN: "/auth/login",
     REGISTER: "/auth/register",
     FORGOT_PASSWORD: "/auth/forgot-password",
-    LOG_VIA_REG: "/auth/logviareg",
   },
   // Legacy Auth Routes (for redirects)
   LEGACY_AUTH: {
     LOGIN: "/login",
     REGISTER: "/register",
     FORGOT_PASSWORD: "/forgot-password",
-    LOG_VIA_REG: "/logviareg",
   },
 
   // User Account Routes
@@ -74,9 +65,9 @@ export const ROUTES = {
   STAFF: {
     ROOT: "/staff",
     DASHBOARD: "/staff/dashboard",
-    MOVIES: "/staff/movies",
-    BOOKING: "/staff/booking",
     TICKET_SALES: "/staff/sales",
+    BOOKING: "/staff/booking",
+    MOVIES: "/staff/movies",
     CHECKIN: "/staff/checkin",
   },
 
@@ -91,8 +82,16 @@ export const ROUTES = {
   LOADING: "/loading",
   UNAUTHORIZED: "/unauthorized",
   ERROR: "/error",
+  LOG_VIA_REG: "/logviareg",
   INTERNAL_SERVER_ERROR: "/internal-server-error",
   TEST: "/test",
+
+  //Static Routes
+  TERM_OF_SERVICE: "/term-of-service",
+  PRIVACY_POLICY: "/privacy-policy",
+  ABOUT: "/about",
+  HELP: "/help",
+  SEARCH: "/search",
 } as const;
 
 // Helper functions for dynamic routes
@@ -111,7 +110,7 @@ export const isAccountRoute = (pathname: string) => pathname.startsWith("/accoun
 // Route groups for easier management
 export const PUBLIC_ROUTES = [ROUTES.HOME, ROUTES.BOOKING, ROUTES.CHECKOUT, ROUTES.MOVIE_DETAIL] as const;
 
-export const AUTH_ROUTES = [ROUTES.AUTH.LOGIN, ROUTES.AUTH.REGISTER, ROUTES.AUTH.FORGOT_PASSWORD, ROUTES.AUTH.LOG_VIA_REG] as const;
+export const AUTH_ROUTES = [ROUTES.AUTH.LOGIN, ROUTES.AUTH.REGISTER, ROUTES.AUTH.FORGOT_PASSWORD] as const;
 
 export const ADMIN_ROUTES = [
   ROUTES.ADMIN.DASHBOARD,
@@ -129,15 +128,11 @@ export const ADMIN_ROUTES = [
   ROUTES.ADMIN.SEARCH,
 ] as const;
 
-export const UTILITY_ROUTES = [ROUTES.LOADING, ROUTES.UNAUTHORIZED, ROUTES.ERROR, ROUTES.INTERNAL_SERVER_ERROR, ROUTES.TEST] as const;
-
-// cái này cái cũ của bảo
-export const ROUTING_PATH = {
-  ADMIN_HOME: "/admin/",
-  ADMIN_MOVIE: "/admin/movie",
-  ADMIN_SEAT: "/admin/seat",
-  ADMIN_SHOW: "/admin/show",
-  ADMIN_TICKET: "/admin/ticket",
-  ADMIN_STAFF: "/admin/staff",
-  ADMIN_MEMBER: "/admin/member",
-} as const;
+export const UTILITY_ROUTES = [
+  ROUTES.LOADING,
+  ROUTES.UNAUTHORIZED,
+  ROUTES.ERROR,
+  ROUTES.INTERNAL_SERVER_ERROR,
+  ROUTES.TEST,
+  ROUTES.LOG_VIA_REG,
+] as const;
