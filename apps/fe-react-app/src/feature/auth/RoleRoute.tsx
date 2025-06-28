@@ -2,6 +2,8 @@ import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { getCookie, parseRoles } from "@/utils/cookie.utils";
+import { getUserCookieToken } from "@/utils/auth.utils";
 
 export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
   switch (roleName) {
@@ -22,17 +24,23 @@ interface RoleRouteProps {
 
 const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles, redirectPath = "/login" }) => {
   const { isLoggedIn, user } = useAuth();
+  const token = getUserCookieToken();
+  const storedRoles = getCookie("user_roles");
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn || !token) {
     return <Navigate to={redirectPath} replace />;
   }
 
-  console.log("Allowed Roles: ", allowedRoles);
+  const roles = user?.roles || (parseRoles(storedRoles) as ROLE_TYPE[]);
 
-  const userRoles = user?.roles || [];
-  const hasAllowedRole = allowedRoles.some((role) => userRoles.includes(role));
+  console.log("Current user roles:", roles);
+  console.log("Allowed roles:", allowedRoles);
+
+  const hasAllowedRole = roles.some((role: ROLE_TYPE) => allowedRoles.includes(role));
+  console.log("Has allowed role:", hasAllowedRole);
 
   if (!hasAllowedRole) {
+    console.log("Access denied: User roles do not match allowed roles");
     return <Navigate to="/unauthorized" replace />;
   }
 

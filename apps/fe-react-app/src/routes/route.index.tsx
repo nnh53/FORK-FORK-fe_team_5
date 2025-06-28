@@ -1,6 +1,8 @@
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Loading from "@/components/shared/Loading";
 import { Test } from "@/components/shared/Test";
 import LogVIAReg from "@/feature/auth/LogVIAReg";
+import RoleRoute from "@/feature/auth/RoleRoute";
 import Unauthorized from "@/feature/auth/unauth/Unauthor";
 import BookingPage from "@/feature/booking/booking-page/BookingPage.tsx";
 import BookingSuccessPage from "@/feature/booking/booking-success/BookingSuccessPage.tsx";
@@ -45,9 +47,6 @@ export const AppRoutes = () => (
     {/* Public Routes */}
     <Route path={ROUTES.HOME} element={<HomePage />} />
     <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
-    <Route path={ROUTES.BOOKING} element={<BookingPage />} />
-    <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
-    <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
     <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
     {/* Auth Routes - grouped under /auth path prefix */}
     <Route path={ROUTES.AUTH.ROOT}>
@@ -60,25 +59,42 @@ export const AppRoutes = () => (
     <Route path={ROUTES.LEGACY_AUTH.LOGIN} element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
     <Route path={ROUTES.LEGACY_AUTH.REGISTER} element={<Navigate to={ROUTES.AUTH.REGISTER} replace />} />
     <Route path={ROUTES.LEGACY_AUTH.FORGOT_PASSWORD} element={<Navigate to={ROUTES.AUTH.FORGOT_PASSWORD} replace />} />
-    {/* User Account Routes with layout */}
-    <Route
-      path={ROUTES.ACCOUNT}
-      element={
-        <UserLayout>
-          <MyUserManagement />
-        </UserLayout>
-      }
-    />
+    {/* Protected Routes for Booking - require authentication */}
+    <Route element={<ProtectedRoute />}>
+      <Route path={ROUTES.BOOKING} element={<BookingPage />} />
+      <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
+      <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
+    </Route>
+    {/* User Account Routes - Protected for MEMBER role */}
+    <Route element={<RoleRoute allowedRoles={["MEMBER"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+      <Route
+        path={ROUTES.ACCOUNT}
+        element={
+          <UserLayout>
+            <MyUserManagement />
+          </UserLayout>
+        }
+      />
+    </Route>
     {/* Legacy route for backward compatibility */}
-    <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} /> {/* Admin Routes */}
-    <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
-    <Route path={ROUTES.ADMIN.ROOT + "/*"} element={<AdminLayout />} />
-    {/* Staff Routes */}
-    <Route path={ROUTES.STAFF.ROOT} element={<Navigate to={ROUTES.STAFF.DASHBOARD} replace />} />
-    <Route path={ROUTES.STAFF.ROOT + "/*"} element={<StaffLayout />} />
-    {/* Legacy Management Routes (should eventually be moved to admin) */}
-    <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
-    <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
+    <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
+    {/* Admin Routes - Protected for ADMIN role */}
+    <Route element={<RoleRoute allowedRoles={["ADMIN"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+      <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
+      <Route path={ROUTES.ADMIN.ROOT + "/*"} element={<AdminLayout />} />
+    </Route>
+    {/* Staff Routes - Protected for STAFF role */}
+    <Route element={<RoleRoute allowedRoles={["STAFF"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+      <Route path={ROUTES.STAFF.ROOT} element={<Navigate to={ROUTES.STAFF.DASHBOARD} replace />} />
+      <Route path={ROUTES.STAFF.ROOT + "/*"} element={<StaffLayout />} />
+    </Route>
+    {/* Legacy Management Routes - Protected for ADMIN/STAFF */}
+    <Route element={<RoleRoute allowedRoles={["ADMIN", "STAFF"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+      <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
+    </Route>
+    <Route element={<RoleRoute allowedRoles={["ADMIN"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+      <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
+    </Route>
     {/* <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} /> */}
     {/* Utility Routes */}
     <Route path={ROUTES.LOADING} element={<Loading />} />

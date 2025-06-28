@@ -1,7 +1,8 @@
 import { Toaster } from "@/components/Shadcn/ui/sonner";
 import "./App.css";
+import AuthDebug from "./components/shared/AuthDebug";
 import ConditionalPageTransition from "./components/shared/ConditionalPageTransition";
-import { AuthProvider } from "./contexts/AuthProvider";
+import { AuthProvider } from "./contexts/AuthContext";
 import { AppRoutes } from "./routes/route.index";
 
 const TITLE = "FCinema";
@@ -14,6 +15,7 @@ function App() {
         <ConditionalPageTransition>
           <Toaster position="top-right" />
           <AppRoutes />
+          <AuthDebug />
         </ConditionalPageTransition>
       </div>
     </AuthProvider>

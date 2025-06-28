@@ -100,9 +100,13 @@ export type LoginDTO = {
   password: string;
 };
 
+export type Member = UserBase;
+export type Staff = UserBase;
+
 export type UserLoginResponse = {
   id: number;
   fullName: string;
   roles: ROLE_TYPE[];
   token: string;
+  refresh_token: string;
 };

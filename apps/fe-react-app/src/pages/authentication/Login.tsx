@@ -3,12 +3,12 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
+import { useAuth } from "@/hooks/useAuth";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
 import type { CustomAPIResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
-import { saveAuthData } from "@/utils/auth.utils";
 import { loginFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useState } from "react";
@@ -21,6 +21,7 @@ type LoginFormSchemaType = z.infer<typeof loginFormSchema>;
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { authLogin } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const loginQuery = $api.useMutation("post", "/auth/authenticate");
@@ -47,40 +48,35 @@ const Login: React.FC = () => {
   useEffect(() => {
     console.log(loginQuery.status);
     if (loginQuery.isSuccess) {
-      // Lưu thông tin vào localStorage bằng utility function
+      // Sử dụng AuthContext để lưu thông tin authentication
       const authData = loginQuery.data?.result;
       if (authData) {
         console.log("Auth data received:", authData);
-        saveAuthData(authData);
-        console.log("Auth data saved to localStorage");
 
-        // Debug: Log what was saved
-        console.log("Token:", localStorage.getItem("token"));
-        console.log("Roles:", localStorage.getItem("roles"));
-        console.log("FullName:", localStorage.getItem("fullName"));
-        console.log("ID:", localStorage.getItem("id"));
+        // Convert AuthenticationResponse to UserLoginResponse format
+        const userLoginData = {
+          token: authData.token || "",
+          refresh_token: authData.refresh_token || "",
+          roles: authData.roles ? [authData.roles] : [],
+          id: authData.id ? parseInt(authData.id, 10) : 0,
+          fullName: authData.fullName || "",
+        };
+
+        authLogin(userLoginData);
+        console.log("Auth data saved to cookies via AuthContext");
       }
 
       setMessage("Đăng nhập thành công!");
       toast.success("Đăng nhập thành công!");
       form.reset();
       setTimeout(() => {
-        navigate(RoleRouteToEachPage(loginQuery.data?.result?.roles as unknown as ROLE_TYPE));
+        navigate(RoleRouteToEachPage(authData?.roles as ROLE_TYPE));
       }, 1000);
     } else if (loginQuery.isError) {
       setError((loginQuery.error as CustomAPIResponse).message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
       toast.error((loginQuery.error as CustomAPIResponse).message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
     }
-  }, [
-    form,
-    navigate,
-    loginQuery.error,
-    loginQuery.isError,
-    loginQuery.isSuccess,
-    loginQuery.status,
-    loginQuery.data?.result?.roles,
-    loginQuery.data?.result,
-  ]);
+  }, [form, navigate, authLogin, loginQuery.error, loginQuery.isError, loginQuery.isSuccess, loginQuery.status, loginQuery.data?.result]);
 
   return (
     <AuthLayout

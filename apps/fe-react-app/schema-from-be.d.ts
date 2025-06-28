@@ -618,6 +618,7 @@ export interface components {
         };
         AuthenticationResponse: {
             token?: string;
+            refresh_token?: string;
             /** @enum {string} */
             roles?: "ADMIN" | "STAFF" | "MEMBER";
             fullName?: string;

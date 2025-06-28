@@ -2,7 +2,7 @@
 import axios from "axios";
 import { API_URL } from "../config/environments/endpoints";
 
-export const logout = async (token: string) => {
+export const doLogout = async (token: string) => {
   try {
     const response = await axios.post(
       `${API_URL}/users/logout`,
