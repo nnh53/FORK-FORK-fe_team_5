@@ -15,7 +15,7 @@ import { getPageInfo, usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { MEMBERSHIP_LEVEL, USER_STATUS, UserBase } from "@/interfaces/users.interface";
 import { Edit, Eye, Trash } from "lucide-react";
-import { useMemo, useState } from "react";
+import { forwardRef, useImperativeHandle, useMemo } from "react";
 
 // Add inline formatter functions since the module is missing
 const formatDate = (dateString: string): string => {
@@ -67,9 +67,9 @@ const getMembershipBadge = (level: MEMBERSHIP_LEVEL) => {
   return <Badge className={badgeColors[level] || "bg-gray-100"}>{level}</Badge>;
 };
 
-const MemberTable = ({ members, onEdit, onDelete, onView }: MemberTableProps) => {
+// Sửa MemberTable component để có thể forward ref và expose resetPagination
+const MemberTable = forwardRef(({ members, onEdit, onDelete, onView }: MemberTableProps, ref) => {
   const { sortedData, getSortProps } = useSortable<UserBase>(members);
-  const [showAllColumns, setShowAllColumns] = useState(false);
 
   // Pagination configuration
   const pagination = usePagination({
@@ -78,6 +78,11 @@ const MemberTable = ({ members, onEdit, onDelete, onView }: MemberTableProps) =>
     maxVisiblePages: 5,
     initialPage: 1,
   });
+
+  // Expose resetPagination method
+  useImperativeHandle(ref, () => ({
+    resetPagination: () => pagination.setPage(1),
+  }));
 
   // Get current page data
   const currentPageData = useMemo(() => {
@@ -114,13 +119,6 @@ const MemberTable = ({ members, onEdit, onDelete, onView }: MemberTableProps) =>
 
   return (
     <div className="space-y-4">
-      {/* Toggle columns button */}
-      <div className="flex justify-end mb-2">
-        <Button variant="outline" size="sm" onClick={() => setShowAllColumns(!showAllColumns)}>
-          {showAllColumns ? "Hiển thị cột cơ bản" : "Hiển thị tất cả cột"}
-        </Button>
-      </div>
-
       {/* Table */}
       <div className="w-full overflow-hidden rounded-md border">
         <div className="overflow-x-auto">
@@ -140,54 +138,31 @@ const MemberTable = ({ members, onEdit, onDelete, onView }: MemberTableProps) =>
                     <SortButton {...getSortProps("email")} />
                   </div>
                 </TableHead>
-
-                {showAllColumns && <TableHead>Avatar</TableHead>}
-
+                <TableHead>Avatar</TableHead>
                 <TableHead>
                   <div className="flex items-center gap-1">
                     Ngày sinh
                     <SortButton {...getSortProps("date_of_birth")} />
                   </div>
                 </TableHead>
-
                 <TableHead>
                   <div className="flex items-center gap-1">
                     Điểm tích lũy
                     <SortButton {...getSortProps("loyalty_point")} />
                   </div>
                 </TableHead>
-
-                {showAllColumns && (
-                  <>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        Tổng chi tiêu
-                        <SortButton {...getSortProps("totalSpent")} />
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        Hạng thành viên
-                        <SortButton {...getSortProps("membershipLevel")} />
-                      </div>
-                    </TableHead>
-                    <TableHead>Kích hoạt</TableHead>
-                    <TableHead>Đăng ký thông báo</TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        Ngày tạo
-                        <SortButton {...getSortProps("createdAt")} />
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        Cập nhật lần cuối
-                        <SortButton {...getSortProps("updatedAt")} />
-                      </div>
-                    </TableHead>
-                  </>
-                )}
-
+                <TableHead>
+                  <div className="flex items-center gap-1">
+                    Tổng chi tiêu
+                    <SortButton {...getSortProps("totalSpent")} />
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center gap-1">
+                    Hạng thành viên
+                    <SortButton {...getSortProps("membershipLevel")} />
+                  </div>
+                </TableHead>
                 <TableHead>Trạng thái</TableHead>
                 <TableHead className="text-center">Hành động</TableHead>
               </TableRow>
@@ -195,7 +170,7 @@ const MemberTable = ({ members, onEdit, onDelete, onView }: MemberTableProps) =>
             <TableBody>
               {currentPageData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={showAllColumns ? 14 : 7} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={10} className="text-center py-8 text-gray-500">
                     {sortedData.length === 0 ? "Không tìm thấy thành viên" : "Không có dữ liệu trang này"}
                   </TableCell>
                 </TableRow>
@@ -207,33 +182,13 @@ const MemberTable = ({ members, onEdit, onDelete, onView }: MemberTableProps) =>
                       <TableCell>{member.id}</TableCell>
                       <TableCell>{member.full_name}</TableCell>
                       <TableCell>{member.email}</TableCell>
-
-                      {showAllColumns && (
-                        <TableCell>
-                          {member.avatar_url ? <img src={member.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full" /> : "Chưa cập nhật"}
-                        </TableCell>
-                      )}
-
+                      <TableCell>
+                        {member.avatar_url ? <img src={member.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full" /> : "Chưa cập nhật"}
+                      </TableCell>
                       <TableCell>{member.date_of_birth ? formatDate(member.date_of_birth) : "Chưa cập nhật"}</TableCell>
                       <TableCell>{member.loyalty_point}</TableCell>
-
-                      {showAllColumns && (
-                        <>
-                          <TableCell>{formatCurrency(member.totalSpent)}</TableCell>
-                          <TableCell>{getMembershipBadge(member.membershipLevel)}</TableCell>
-                          <TableCell>
-                            <Badge variant={member.is_active ? "default" : "outline"}>{member.is_active ? "Đã kích hoạt" : "Chưa kích hoạt"}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={member.is_subscription ? "default" : "outline"}>
-                              {member.is_subscription ? "Đã đăng ký" : "Chưa đăng ký"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{formatDate(member.createdAt)}</TableCell>
-                          <TableCell>{formatDate(member.updatedAt)}</TableCell>
-                        </>
-                      )}
-
+                      <TableCell>{formatCurrency(member.totalSpent)}</TableCell>
+                      <TableCell>{getMembershipBadge(member.membershipLevel)}</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>
                       </TableCell>
@@ -304,6 +259,6 @@ const MemberTable = ({ members, onEdit, onDelete, onView }: MemberTableProps) =>
       )}
     </div>
   );
-};
+});
 
 export default MemberTable;

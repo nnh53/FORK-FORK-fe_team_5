@@ -1,33 +1,35 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
-import { Input } from "@/components/Shadcn/ui/input";
 import { Filter, type FilterCriteria } from "@/components/shared/Filter";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner"; // Thêm import này
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import { ROLE_TYPE } from "@/interfaces/roles.interface";
 import type { Staff, StaffFormData } from "@/interfaces/staff.interface";
-import { Plus, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Plus } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import StaffForm from "./StaffForm";
 import StaffTable from "./StaffTable";
 import { createStaff, deleteStaff, getStaffs, updateStaff } from "./services/staffApi";
 
-// Sửa lại chỉ tìm theo ID, tên và email
+// Sửa lại hàm filterByGlobalSearch để xử lý undefined/null
 const filterByGlobalSearch = (staff: Staff, searchValue: string): boolean => {
   if (!searchValue) return true;
+  if (!staff) return false;
 
   const lowerSearchValue = searchValue.toLowerCase();
   return (
-    staff.id.toString().includes(searchValue.trim()) ||
-    staff.full_name.toLowerCase().includes(lowerSearchValue.trim()) ||
-    staff.email.toLowerCase().includes(lowerSearchValue.trim())
-    // Đã xóa các trường tìm kiếm khác
+    (staff.id?.toString() || "").includes(searchValue.trim()) ||
+    (staff.full_name?.toLowerCase() || "").includes(lowerSearchValue.trim()) ||
+    (staff.email?.toLowerCase() || "").includes(lowerSearchValue.trim())
   );
 };
 
+// Sửa lại các hàm filter khác để xử lý undefined/null
 const filterByDateRange = (staff: Staff, range: { from: Date | undefined; to: Date | undefined }): boolean => {
   if (!range.from && !range.to) return true;
+  if (!staff) return false;
 
   const staffBirthDate = staff.date_of_birth ? new Date(staff.date_of_birth) : null;
   if (!staffBirthDate) return false;
@@ -83,9 +85,16 @@ const StaffManagement = () => {
   const [selectedStaff, setSelectedStaff] = useState<Staff | undefined>();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
-  // Thay thế searchCriteria bằng searchTerm
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
+  const tableRef = useRef<{ resetPagination: () => void }>(null);
+
+  // Định nghĩa các trường tìm kiếm
+  const searchOptions: SearchOption[] = [
+    { value: "id", label: "ID" },
+    { value: "full_name", label: "Tên" },
+    { value: "email", label: "Email" },
+  ];
 
   // Filter groups
   const filterGroups = [
@@ -307,26 +316,34 @@ const StaffManagement = () => {
 
             {/* Search and Filter row */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              {/* Thay thế SearchBar bằng Input đơn giản */}
-              <div className="relative w-full sm:w-1/2 border border-gray-300 rounded-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
-                  placeholder="Tìm kiếm theo ID, tên hoặc email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full"
-                />
-              </div>
+              {/* Thay thế Input bằng SearchBar và thêm resetPagination */}
+              <SearchBar
+                searchOptions={searchOptions}
+                onSearchChange={setSearchTerm}
+                placeholder="Tìm kiếm theo ID, tên hoặc email..."
+                className="w-full sm:w-1/2"
+                resetPagination={() => tableRef.current?.resetPagination()}
+              />
 
-              {/* Filter - Right - giữ nguyên */}
+              {/* Filter - Right - giữ nguyên nhưng thêm reset pagination */}
               <div className="shrink-0">
-                <Filter filterOptions={filterGroups} onFilterChange={setFilterCriteria} groupMode={true} />
+                <Filter
+                  filterOptions={filterGroups}
+                  onFilterChange={(criteria) => {
+                    setFilterCriteria(criteria);
+                    // Reset pagination khi filter thay đổi
+                    if (tableRef.current) {
+                      tableRef.current.resetPagination();
+                    }
+                  }}
+                  groupMode={true}
+                />
               </div>
             </div>
           </CardHeader>
 
           <CardContent>
-            <StaffTable staffs={filteredStaffs} onEdit={handleEdit} onDelete={handleDeleteClick} />
+            <StaffTable ref={tableRef} staffs={filteredStaffs} onEdit={handleEdit} onDelete={handleDeleteClick} />
           </CardContent>
         </Card>
       </div>

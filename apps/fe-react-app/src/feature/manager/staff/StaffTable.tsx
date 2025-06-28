@@ -17,7 +17,7 @@ import { ROLE_TYPE } from "@/interfaces/roles.interface";
 import type { Staff } from "@/interfaces/staff.interface";
 import type { USER_STATUS } from "@/interfaces/users.interface";
 import { Edit, Trash } from "lucide-react";
-import { useMemo } from "react";
+import { forwardRef, useImperativeHandle, useMemo } from "react";
 
 interface StaffTableProps {
   staffs: Staff[];
@@ -71,7 +71,8 @@ const getActiveStatus = (isActive: number) => {
   );
 };
 
-const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
+// Sử dụng forwardRef để forward reference từ component cha
+const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(({ staffs, onEdit, onDelete }, ref) => {
   const { sortedData, getSortProps } = useSortable<Staff>(staffs);
 
   // Pagination configuration
@@ -81,6 +82,11 @@ const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
     maxVisiblePages: 5,
     initialPage: 1,
   });
+
+  // Expose resetPagination method thông qua ref
+  useImperativeHandle(ref, () => ({
+    resetPagination: () => pagination.setPage(1),
+  }));
 
   // Get current page data
   const currentPageData = useMemo(() => {
@@ -269,6 +275,9 @@ const StaffTable = ({ staffs, onEdit, onDelete }: StaffTableProps) => {
       )}
     </div>
   );
-};
+});
+
+// Thêm displayName cho component
+StaffTable.displayName = "StaffTable";
 
 export default StaffTable;

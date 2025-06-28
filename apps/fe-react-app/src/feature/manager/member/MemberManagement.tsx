@@ -1,33 +1,35 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
-import { Input } from "@/components/Shadcn/ui/input";
 import { Filter, type FilterCriteria, type FilterGroup } from "@/components/shared/Filter";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner"; // Thêm import này
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import type { StaffRegisterDTO, UserBase } from "@/interfaces/users.interface";
-import { Plus, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Plus } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import MemberDetail from "./MemberDetail";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 import { createMember, deleteMember, getMembers, updateMember } from "./services/memberApi";
 
-// Sửa lại filterByGlobalSearch để chỉ tìm theo id, tên, email
+// Sửa lại hàm filterByGlobalSearch để xử lý undefined/null
 const filterByGlobalSearch = (member: UserBase, searchValue: string): boolean => {
   if (!searchValue) return true;
+  if (!member) return false;
 
   const lowerSearchValue = searchValue.toLowerCase();
   return (
-    member.id.toString().includes(searchValue.trim()) ||
-    member.full_name.toLowerCase().includes(lowerSearchValue.trim()) ||
-    member.email.toLowerCase().includes(lowerSearchValue.trim())
-    // Đã xóa các điều kiện tìm kiếm khác
+    (member.id?.toString() || "").includes(searchValue.trim()) ||
+    (member.full_name?.toLowerCase() || "").includes(lowerSearchValue.trim()) ||
+    (member.email?.toLowerCase() || "").includes(lowerSearchValue.trim())
   );
 };
 
+// Sửa lại các hàm filter khác
 const filterByDateRange = (member: UserBase, field: string, range: { from: Date | undefined; to: Date | undefined }): boolean => {
   if (!range.from && !range.to) return true;
+  if (!member) return false;
 
   let dateValue;
   switch (field) {
@@ -46,7 +48,6 @@ const filterByDateRange = (member: UserBase, field: string, range: { from: Date 
 
   if (!dateValue) return false;
 
-  // Sửa logic để bao gồm cả ngày from và to (inclusive)
   return !(range.from && dateValue < range.from) && !(range.to && dateValue > range.to);
 };
 
@@ -202,6 +203,14 @@ const MemberManagement = () => {
   const [memberToDelete, setMemberToDelete] = useState<UserBase | null>(null);
   const [viewDetailOpen, setViewDetailOpen] = useState(false);
   const [memberToView, setMemberToView] = useState<UserBase | null>(null);
+  const tableRef = useRef<{ resetPagination: () => void }>(null);
+
+  // Định nghĩa các trường tìm kiếm
+  const searchOptions: SearchOption[] = [
+    { value: "id", label: "ID" },
+    { value: "full_name", label: "Tên" },
+    { value: "email", label: "Email" },
+  ];
 
   const fetchMembers = async () => {
     setLoading(true);
@@ -360,26 +369,34 @@ const MemberManagement = () => {
 
             {/* Search and Filter row */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              {/* Search Bar - Left */}
-              <div className="relative w-full sm:w-1/2 border border-gray-300 rounded-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
-                  placeholder="Tìm kiếm theo ID, tên hoặc email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full"
-                />
-              </div>
+              {/* SearchBar - Thêm resetPagination prop */}
+              <SearchBar
+                searchOptions={searchOptions}
+                onSearchChange={setSearchTerm}
+                placeholder="Tìm kiếm theo ID, tên hoặc email..."
+                className="w-full sm:w-1/2"
+                resetPagination={() => tableRef.current?.resetPagination()}
+              />
 
               {/* Filter - Right */}
               <div className="shrink-0">
-                <Filter filterOptions={filterGroups} onFilterChange={setFilterCriteria} groupMode={true} />
+                <Filter
+                  filterOptions={filterGroups}
+                  onFilterChange={(criteria) => {
+                    setFilterCriteria(criteria);
+                    // Reset pagination khi filter thay đổi
+                    if (tableRef.current) {
+                      tableRef.current.resetPagination();
+                    }
+                  }}
+                  groupMode={true}
+                />
               </div>
             </div>
           </CardHeader>
 
           <CardContent>
-            <MemberTable members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} onView={handleView} />
+            <MemberTable ref={tableRef} members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} onView={handleView} />
           </CardContent>
         </Card>
       </div>
