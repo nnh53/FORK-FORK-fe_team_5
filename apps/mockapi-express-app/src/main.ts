@@ -9,7 +9,7 @@ import express from "express";
 import { availableCombos, bookingAPI } from "./booking.mockapi.ts";
 import { cinemaRoomsAPI, seatsAPI } from "./cinema-room.mockapi.ts";
 import { membersAPI } from "./members.mockapi.ts";
-import { genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi.ts";
+//import { genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi.ts";
 import { promotionsAPI } from "./promotions.mockapi.ts";
 import { seatMapAPI } from "./seat-map.mockapi.ts";
 import { showtimesAPI } from "./showtimes.mockapi.ts";
@@ -125,6 +125,7 @@ app.post("/users/logout", (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 });
 
+/*
 // Add movies routes
 app.get("/movies", (req, res) => {
   res.send(moviesMockData);
@@ -228,6 +229,7 @@ app.get("/genres/:id", (req, res) => {
     res.status(404).send({ error: "Genre not found" });
   }
 });
+*/
 
 // Add cinema rooms
 app.get("/cinema-rooms", (req, res) => {
