@@ -2,6 +2,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Filter, type FilterCriteria } from "@/components/shared/Filter";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchCriteria } from "@/components/shared/SearchBar";
 import type { Food } from "@/interfaces/foodAndCombo.interface";
 import { Plus } from "lucide-react";
@@ -302,7 +303,7 @@ const FoodManagement: React.FC = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <LoadingSpinner size={32} className="text-primary" />
           <p className="text-muted-foreground">Đang tải danh sách thực phẩm...</p>
         </div>
       </div>

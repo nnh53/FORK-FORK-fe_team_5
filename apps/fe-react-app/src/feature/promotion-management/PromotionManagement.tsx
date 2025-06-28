@@ -3,17 +3,20 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { Promotion } from "@/interfaces/promotion.interface";
 import { ChevronDownIcon, Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { PromotionDialog } from "./PromotionDialog";
 import { PromotionTable } from "./PromotionTable";
+
 export const PromotionManagement: React.FC = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion>();
   const [open, setOpen] = useState<boolean>(false);
   const [from, setFrom] = useState<Date | undefined>(undefined);
   const [to, setTo] = useState<Date | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
   const promotionColumn: TableColumns[] = [
     {
       header: "#",
@@ -58,6 +61,7 @@ export const PromotionManagement: React.FC = () => {
   ];
   const getPromotions = async () => {
     try {
+      setLoading(true);
       const res = await fetch("http://localhost:3000/promotions");
       if (res.ok) {
         const promotionData: Promotion[] = await res.json();
@@ -65,6 +69,8 @@ export const PromotionManagement: React.FC = () => {
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -158,7 +164,14 @@ export const PromotionManagement: React.FC = () => {
 
               {/* <DatePicker ></DatePicker> */}
             </div>
-            <PromotionTable promotions={promotions} columns={promotionColumn} onView={handleOpenDialog} />
+            {loading ? (
+              <div className="flex justify-center items-center py-8">
+                <LoadingSpinner size={32} className="text-primary" />
+                <span className="ml-2 text-muted-foreground">Loading promotions...</span>
+              </div>
+            ) : (
+              <PromotionTable promotions={promotions} columns={promotionColumn} onView={handleOpenDialog} />
+            )}
           </CardContent>
         </Card>
       </div>

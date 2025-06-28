@@ -12,6 +12,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { Food } from "@/interfaces/foodAndCombo.interface";
 import { Plus, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -120,7 +121,7 @@ const ComboManagement = () => {
 
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+              <LoadingSpinner size={40} className="text-primary" />
             </div>
           ) : (
             <ComboTable combos={filteredCombos} onEdit={handleEdit} onDelete={handleDelete} />

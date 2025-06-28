@@ -4,6 +4,7 @@ import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
 import { MovieStatus } from "@/interfaces/movies.interface";
 import { transformMovieResponse, transformMovieToRequest, useCreateMovie, useMovies, useUpdateMovie } from "@/services/movieService";
@@ -34,8 +35,11 @@ const MovieManagement = () => {
   // Show loading state
   if (moviesQuery.isLoading) {
     return (
-      <div className="container mx-auto p-4">
-        <div className="text-center">Đang tải danh sách phim...</div>
+      <div className="container mx-auto p-4 flex justify-center items-center h-64">
+        <div className="flex flex-col items-center">
+          <LoadingSpinner size={40} className="text-primary mb-2" />
+          <p className="text-muted-foreground">Đang tải danh sách phim...</p>
+        </div>
       </div>
     );
   }

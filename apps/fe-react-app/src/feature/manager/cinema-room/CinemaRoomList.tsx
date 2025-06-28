@@ -1,6 +1,7 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import { Edit, Eye, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -99,7 +100,12 @@ export default function CinemaRoomList({ searchQuery, onRefresh }: CinemaRoomLis
   };
 
   if (loading) {
-    return <div className="text-center p-4">Loading cinema rooms...</div>;
+    return (
+      <div className="flex justify-center items-center p-8">
+        <LoadingSpinner size={32} className="text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading cinema rooms...</span>
+      </div>
+    );
   }
   if (error) {
     return <div className="text-center text-red-500 p-4">{error}</div>;
