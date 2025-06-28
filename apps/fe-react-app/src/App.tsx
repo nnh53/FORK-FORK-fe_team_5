@@ -12,7 +12,7 @@ function App() {
       <div data-theme="aaaaaa">
         <title>{TITLE}</title>
         <ConditionalPageTransition>
-          <Toaster />
+          <Toaster position="top-right" />
           <AppRoutes />
         </ConditionalPageTransition>
       </div>
