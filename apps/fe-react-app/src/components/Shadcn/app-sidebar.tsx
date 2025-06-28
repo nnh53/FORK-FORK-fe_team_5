@@ -162,7 +162,7 @@ const data = {
       icon: IconBox,
     },
     {
-      name: "Snacks",
+      name: "Snack",
       url: "/admin/snacks",
       icon: IconBox,
     },

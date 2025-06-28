@@ -17,12 +17,13 @@ interface SnackFormProps {
   onCancel: () => void;
 }
 
-// Cập nhật schema theo interface mới
+// Update formSchema to include flavor
 const formSchema = z.object({
   img: z.string().min(1, "Image URL is required"),
   name: z.string().min(1, "Snack name is required"),
   category: z.enum(["DRINK", "FOOD"], { required_error: "Category is required" }),
   size: z.enum(["SMALL", "MEDIUM", "LARGE"], { required_error: "Size is required" }),
+  flavor: z.string().min(1, "Flavor is required"),
   description: z.string().min(1, "Description is required"),
   price: z.number().min(1000, "Price must be at least 1,000 VND"),
   quantity: z.number().min(0, "Quantity must be at least 0"),
@@ -32,6 +33,7 @@ const formSchema = z.object({
 const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
   const [dragActive, setDragActive] = useState(false);
 
+  // Update defaultValues and reset logic
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,6 +41,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
       name: "",
       category: undefined,
       size: undefined,
+      flavor: "",
       description: "",
       price: 0,
       quantity: 0,
@@ -55,6 +58,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
           name: snack.name,
           category: snack.category,
           size: snack.size,
+          flavor: snack.flavor,
           description: snack.description,
           price: snack.price,
           quantity: snack.quantity,
@@ -68,6 +72,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
         name: "",
         category: undefined,
         size: undefined,
+        flavor: "",
         description: "",
         price: 0,
         quantity: 0,
@@ -219,19 +224,34 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Tên đồ ăn */}
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tên đồ ăn*</FormLabel>
-                        <FormControl>
-                          <Input placeholder="VD: Pizza Hải Sản Deluxe" {...field} className="h-11" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tên đồ ăn*</FormLabel>
+                          <FormControl>
+                            <Input placeholder="VD: Pizza Hải Sản Deluxe" {...field} className="h-11" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="flavor"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Hương vị</FormLabel>
+                          <FormControl>
+                            <Input placeholder="VD: Vị cay, Vị ngọt, Vị đắng..." {...field} className="h-11" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   {/* Mô tả - Thay thế flavor */}
                   <FormField

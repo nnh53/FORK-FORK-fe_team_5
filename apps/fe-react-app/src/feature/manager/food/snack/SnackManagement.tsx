@@ -1,39 +1,43 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
-import { Input } from "@/components/Shadcn/ui/input";
 import { Filter, type FilterCriteria } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import type { Snack } from "@/interfaces/snacks.interface";
-import { Plus, Search as SearchIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { createSnack, deleteSnack, getSnacks, updateSnack } from "../service/snackApi";
 import SnackForm from "./SnackForm";
 import SnackTable from "./SnackTable";
 
-// Cập nhật hàm filter cho interface mới
+// Hàm filter toàn cục với kiểm tra null/undefined
 const filterByGlobalSearch = (snack: Snack, searchTerm: string): boolean => {
   if (!searchTerm) return true;
+  if (!snack) return false;
 
   const lowerSearchTerm = searchTerm.toLowerCase().trim();
   return (
-    snack.id.toString().includes(searchTerm) ||
-    snack.name.toLowerCase().includes(lowerSearchTerm) ||
-    snack.description.toLowerCase().includes(lowerSearchTerm)
+    (snack.id?.toString() || "").includes(searchTerm) ||
+    (snack.name?.toLowerCase() || "").includes(lowerSearchTerm) ||
+    (snack.flavor?.toLowerCase() || "").includes(lowerSearchTerm) ||
+    (snack.description?.toLowerCase() || "").includes(lowerSearchTerm)
   );
 };
 
+// Hàm filter số trong khoảng
 const filterByNumberRange = (snack: Snack, field: string, range: { from: number | undefined; to: number | undefined }): boolean => {
   if (!range.from && !range.to) return true;
+  if (!snack) return false;
 
   let value: number;
   switch (field) {
     case "price_range":
-      value = snack.price;
+      value = snack.price || 0;
       break;
     case "quantity_range":
-      value = snack.quantity;
+      value = snack.quantity || 0;
       break;
     default:
       return true;
@@ -42,15 +46,19 @@ const filterByNumberRange = (snack: Snack, field: string, range: { from: number 
   return !(range.from && value < range.from) && !(range.to && value > range.to);
 };
 
+// Hàm filter theo các enum
 const filterByCategory = (snack: Snack, category: string): boolean => {
-  return snack.category.toLowerCase() === category.toLowerCase();
+  if (!snack) return false;
+  return snack.category === category;
 };
 
 const filterBySize = (snack: Snack, size: string): boolean => {
-  return snack.size.toLowerCase() === size.toLowerCase();
+  if (!snack) return false;
+  return snack.size === size;
 };
 
 const filterByStatus = (snack: Snack, status: string): boolean => {
+  if (!snack) return false;
   return snack.status === status;
 };
 
@@ -65,7 +73,15 @@ const SnackManagement: React.FC = () => {
   const [snackToDelete, setSnackToDelete] = useState<Snack | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
-  // Cập nhật các filter options với enum mới
+  // Định nghĩa các trường tìm kiếm
+  const searchOptions: SearchOption[] = [
+    { value: "id", label: "ID" },
+    { value: "name", label: "Tên" },
+    { value: "flavor", label: "Hương vị" },
+    { value: "description", label: "Mô tả" },
+  ];
+
+  // Filter options dựa trên enum của interface mới
   const filterOptions = [
     {
       label: "Khoảng giá",
@@ -88,7 +104,6 @@ const SnackManagement: React.FC = () => {
         toPlaceholder: "Đến số lượng",
         min: 0,
         step: 1,
-        suffix: " cái",
       },
     },
     {
@@ -142,18 +157,25 @@ const SnackManagement: React.FC = () => {
     fetchSnacks();
   }, []);
 
-  // Apply filters
+  // Reset pagination khi filter thay đổi
+  useEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.resetPagination();
+    }
+  }, [filterCriteria]);
+
+  // Lọc snacks theo các tiêu chí
   const filteredSnacks = useMemo(() => {
     if (!snacks) return [];
 
     let result = snacks;
 
-    // Global search
+    // Tìm kiếm toàn cục
     if (searchTerm) {
       result = result.filter((snack) => filterByGlobalSearch(snack, searchTerm));
     }
 
-    // Apply filter criteria
+    // Áp dụng các bộ lọc
     if (filterCriteria.length > 0) {
       result = result.filter((snack) => {
         return filterCriteria.every((criteria) => {
@@ -188,7 +210,6 @@ const SnackManagement: React.FC = () => {
   };
 
   const handleEdit = (snack: Snack) => {
-    console.log("Edit clicked for snack:", snack);
     setSelectedSnack(snack);
     setIsModalOpen(true);
   };
@@ -255,7 +276,7 @@ const SnackManagement: React.FC = () => {
       <div className="container mx-auto p-4">
         <Card className="w-full">
           <CardHeader className="space-y-4">
-            {/* Title and Add button */}
+            {/* Tiêu đề và nút thêm */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle className="text-2xl font-bold">Quản lý thực phẩm</CardTitle>
@@ -267,22 +288,26 @@ const SnackManagement: React.FC = () => {
               </Button>
             </div>
 
-            {/* Search and Filter row */}
+            {/* Thanh tìm kiếm và bộ lọc */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              {/* Search Bar - Left */}
-              <div className="relative w-full sm:w-auto flex-1">
-                <Input
-                  placeholder="Tìm kiếm theo tên, mô tả..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="h-10 pr-10"
-                />
-                <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
+              <SearchBar
+                searchOptions={searchOptions}
+                onSearchChange={setSearchTerm}
+                placeholder="Tìm kiếm theo ID, tên, mô tả..."
+                className="w-full sm:w-auto flex-1"
+                resetPagination={() => tableRef.current?.resetPagination()}
+              />
 
-              {/* Filter - Right */}
               <div className="shrink-0">
-                <Filter filterOptions={filterOptions} onFilterChange={setFilterCriteria} />
+                <Filter
+                  filterOptions={filterOptions}
+                  onFilterChange={(criteria) => {
+                    setFilterCriteria(criteria);
+                    if (tableRef.current) {
+                      tableRef.current.resetPagination();
+                    }
+                  }}
+                />
               </div>
             </div>
           </CardHeader>

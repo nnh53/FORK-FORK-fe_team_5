@@ -230,9 +230,18 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
             </div>
           </div>
 
-          {/* Description - thay thế cho flavor */}
-          <div className="text-sm text-muted-foreground">
-            <span className="font-medium">Mô tả:</span> {snack.description}
+          {/* Flavor and Description section */}
+          <div className="space-y-2">
+            {/* Flavor */}
+            <div className="text-sm text-muted-foreground flex items-start gap-1">
+              <span className="font-medium">Hương vị:</span>
+              <span className="flex-1">{snack.flavor || "Không có"}</span>
+            </div>
+
+            {/* Description */}
+            <div className="text-sm text-muted-foreground">
+              <span className="font-medium">Mô tả:</span> {snack.description}
+            </div>
           </div>
 
           {/* Thông tin chi tiết dạng grid 2 cột */}
@@ -269,7 +278,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
           {/* Content Grid */}
           <div className="flex-1 grid grid-cols-12 gap-4 items-center">
             {/* Name and Category */}
-            <div className="col-span-3">
+            <div className="col-span-2">
               <h3 className="font-semibold text-sm line-clamp-1">{snack.name}</h3>
               <div className="text-xs text-muted-foreground">ID: #{snack.id}</div>
               <div className="flex gap-1 mt-1">
@@ -277,8 +286,14 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
               </div>
             </div>
 
-            {/* Description - thay thế flavor */}
-            <div className="col-span-3 text-sm">
+            {/* Flavor */}
+            <div className="col-span-2 text-sm">
+              <div className="text-muted-foreground text-xs">Hương vị</div>
+              <div className="font-medium line-clamp-1">{snack.flavor || "Không có"}</div>
+            </div>
+
+            {/* Description */}
+            <div className="col-span-2 text-sm">
               <div className="text-muted-foreground text-xs">Mô tả</div>
               <div className="font-medium line-clamp-1">{snack.description}</div>
             </div>
@@ -290,7 +305,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
             </div>
 
             {/* Price */}
-            <div className="col-span-2 text-sm">
+            <div className="col-span-1 text-sm">
               <div className="text-muted-foreground text-xs">Giá</div>
               <div className="font-bold text-primary">{formatPrice(snack.price)}</div>
             </div>
