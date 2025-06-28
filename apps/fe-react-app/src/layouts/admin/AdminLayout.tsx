@@ -8,8 +8,8 @@ import CinemaRoomAdd from "@/feature/manager/cinema-room/CinemaRoomAdd";
 import CinemaRoomDetail from "@/feature/manager/cinema-room/CinemaRoomDetail";
 import CinemaRoomEdit from "@/feature/manager/cinema-room/CinemaRoomEdit";
 import CinemaRoomManagement from "@/feature/manager/cinema-room/CinemaRoomManagement";
-import ComboManagement from "@/feature/manager/food-combo/ComboManagement";
-import FoodManagement from "@/feature/manager/food-combo/food/FoodManagement";
+import ComboManagement from "@/feature/manager/food/ComboManagement";
+import SnackManagement from "@/feature/manager/food/snack/SnackManagement";
 import MemberManagement from "@/feature/manager/member/MemberManagement";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import ShowtimeManagement from "@/feature/manager/show-time/ShowtimeManagement";
@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
           <Route path="/showtime" element={<ShowtimeManagement />} />
           <Route path="/staffs" element={<StaffManagement />} />
           <Route path="/combo" element={<ComboManagement />} />
-          <Route path="/foods" element={<FoodManagement />} />
+          <Route path="/snacks" element={<SnackManagement />} />
 
           <Route
             path="/settings"
