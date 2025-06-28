@@ -1,253 +1,168 @@
-import { type ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-
+"use client";
+import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from "@/components/Shadcn/file-upload";
 import { Button } from "@/components/Shadcn/ui/button";
-import { Checkbox } from "@/components/Shadcn/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/Shadcn/ui/dropdown-menu";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { decode, encode } from "@jsquash/webp";
+import { CloudUpload, Paperclip } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { DropzoneOptions } from "react-dropzone";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
-const data: Payment[] = [
-  {
-    id: "m5gr84i9",
-    amount: 316,
-    status: "success",
-    email: "ken99@example.com",
-  },
-  {
-    id: "3u1reuv4",
-    amount: 242,
-    status: "success",
-    email: "Abe45@example.com",
-  },
-  {
-    id: "derv1ws0",
-    amount: 837,
-    status: "processing",
-    email: "Monserrat44@example.com",
-  },
-  {
-    id: "5kma53ae",
-    amount: 874,
-    status: "success",
-    email: "Silas22@example.com",
-  },
-  {
-    id: "bhqecj4p",
-    amount: 721,
-    status: "failed",
-    email: "carmella@example.com",
-  },
-];
+const formSchema = z.object({
+  files: z
+    .array(
+      z.instanceof(File).refine((file) => file.size < 4 * 1024 * 1024, {
+        message: "File size must be less than 4MB",
+      }),
+    )
+    .max(5, {
+      message: "Maximum 5 files are allowed",
+    })
+    .nullable(),
+});
 
-type Payment = {
-  id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
-};
+const dropZoneConfig = {
+  accept: {
+    "image/*": [".jpg", ".jpeg", ".png"],
+  },
+  maxFiles: 5,
+  maxSize: 1024 * 1024 * 4,
+  multiple: true,
+} satisfies DropzoneOptions;
 
-const columns: ColumnDef<Payment>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" />,
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("status")}</div>,
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Email
-          <ArrowUpDown />
-        </Button>
+async function loadImage(src: File) {
+  const img = document.createElement("img");
+  img.src = URL.createObjectURL(src);
+  await new Promise((resolve) => (img.onload = resolve));
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  [canvas.width, canvas.height] = [img.width, img.height];
+  ctx?.drawImage(img, 0, 0);
+  return ctx?.getImageData(0, 0, img.width, img.height);
+}
+
+// TRÊN ĐÂY LÀ HÀM UTILS **********************************************************************************
+// DƯỚI ĐÂY LÀ COMPONENT **********************************************************************************
+
+export default function Test() {
+  const [files, setFiles] = useState<File[] | null>(null);
+  const [webpBufferFileArr, setWebpBufferFileArr] = useState<ArrayBuffer[] | null>(null);
+
+  const [webpBufferFileArrDecode, setWebpBufferFileArrDecode] = useState<ImageData[] | null>(null);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      files: [],
+    },
+  });
+
+  function onSubmit(formInputData: z.infer<typeof formSchema>) {
+    try {
+      console.log("formInputData nè ", formInputData); // formInputData.files ko có dữ liệu, phải lấy từ trên useState ra
+
+      if (files && files.length > 0) {
+        files.forEach(async (item) => {
+          const rawImageData = await loadImage(item);
+          if (rawImageData != null) {
+            const webpBuffer = await encode(rawImageData);
+            console.log("webpBuffer của file", item.name);
+            console.log(webpBuffer);
+            setWebpBufferFileArr((prev) => [...(prev || []), webpBuffer]);
+          }
+        });
+      }
+      toast(
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(formInputData, null, 2)}</code>
+        </pre>,
       );
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
+    } catch (error) {
+      console.error("Form submission error", error);
+      toast.error("Failed to submit the form. Please try again.");
+    }
+  }
 
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
+  useEffect(() => {
+    console.log("files nè ", files);
 
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original;
+    if (webpBufferFileArr) {
+      webpBufferFileArr.forEach(async (item) => {
+        const imageData = await decode(item);
+        setWebpBufferFileArrDecode((prev) => [...(prev || []), imageData]);
+      });
+    }
+  }, [webpBufferFileArr, files]);
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>Copy payment ID</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+  return (
+    <div className="">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto py-10">
+          <FormField
+            control={form.control}
+            name="files"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Select File</FormLabel>
+                <FormControl>
+                  <FileUploader
+                    value={files}
+                    onValueChange={setFiles}
+                    dropzoneOptions={dropZoneConfig}
+                    className="relative bg-background rounded-lg p-2"
+                  >
+                    <FileInput id="fileInput" className="outline-dashed outline-1 outline-slate-500">
+                      <div className="flex items-center justify-center flex-col p-8 w-full ">
+                        <CloudUpload className="text-gray-500 w-10 h-10" />
+                        <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold">Click to upload</span>
+                          &nbsp; or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF</p>
+                      </div>
+                    </FileInput>
+                    <FileUploaderContent>
+                      {files &&
+                        files.length > 0 &&
+                        files.map((file, i) => (
+                          <FileUploaderItem key={i} index={i}>
+                            <Paperclip className="h-4 w-4 stroke-current" />
+                            <span>{file.name}</span>
+                            <img src={URL.createObjectURL(file)} alt={file.name} height={80} width={80} className="size-20 p-0" />
+                          </FileUploaderItem>
+                        ))}
+                    </FileUploaderContent>
+                  </FileUploader>
+                </FormControl>
+                <FormDescription>Select a file to upload.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit">Submit</Button>
+        </form>
+      </Form>
+      <div>{webpBufferFileArrDecode && webpBufferFileArrDecode.map((item, i) => <div key={i}>{item.data}</div>)}</div>
+    </div>
+  );
+}
 
-// export function Test() {
-//   const [sorting, setSorting] = React.useState<SortingState>([]);
-//   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-//   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-//   const [rowSelection, setRowSelection] = React.useState({});
+// import type { UserResponse } from "@/type-from-be";
+// import { $api } from "@/utils/api";
 
-//   const table = useReactTable({
-//     data,
-//     columns,
-//     onSortingChange: setSorting,
-//     onColumnFiltersChange: setColumnFilters,
-//     getCoreRowModel: getCoreRowModel(),
-//     getPaginationRowModel: getPaginationRowModel(),
-//     getSortedRowModel: getSortedRowModel(),
-//     getFilteredRowModel: getFilteredRowModel(),
-//     onColumnVisibilityChange: setColumnVisibility,
-//     onRowSelectionChange: setRowSelection,
-//     state: {
-//       sorting,
-//       columnFilters,
-//       columnVisibility,
-//       rowSelection,
-//     },
-//   });
+// export const Test = () => {
+//   const { data, error, isLoading } = $api.useQuery("get", "/users", {});
 
-//   return (
-//     <div className="w-full">
-//       <div className="flex items-center py-4">
-//         <Input
-//           placeholder="Filter emails..."
-//           value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-//           onChange={(event) => table.getColumn("email")?.setFilterValue(event.target.value)}
-//           className="max-w-sm"
-//         />
-//         <DropdownMenu>
-//           <DropdownMenuTrigger asChild>
-//             <Button variant="outline" className="ml-auto">
-//               Columns <ChevronDown />
-//             </Button>
-//           </DropdownMenuTrigger>
-//           <DropdownMenuContent align="end">
-//             {table
-//               .getAllColumns()
-//               .filter((column) => column.getCanHide())
-//               .map((column) => {
-//                 return (
-//                   <DropdownMenuCheckboxItem
-//                     key={column.id}
-//                     className="capitalize"
-//                     checked={column.getIsVisible()}
-//                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
-//                   >
-//                     {column.id}
-//                   </DropdownMenuCheckboxItem>
-//                 );
-//               })}
-//           </DropdownMenuContent>
-//         </DropdownMenu>
-//       </div>
-//       <div className="rounded-md border ">
-//         <Table className="table">
-//           <TableHeader>
-//             {table.getHeaderGroups().map((headerGroup) => (
-//               <TableRow key={headerGroup.id}>
-//                 {headerGroup.headers.map((header) => {
-//                   return (
-//                     <TableHead key={header.id}>
-//                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-//                     </TableHead>
-//                   );
-//                 })}
-//               </TableRow>
-//             ))}
-//           </TableHeader>
-//           <TableBody>
-//             {table.getRowModel().rows?.length ? (
-//               table.getRowModel().rows.map((row) => (
-//                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-//                   {row.getVisibleCells().map((cell) => (
-//                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-//                   ))}
-//                 </TableRow>
-//               ))
-//             ) : (
-//               <TableRow>
-//                 <TableCell colSpan={columns.length} className="h-24 text-center">
-//                   No results.
-//                 </TableCell>
-//               </TableRow>
-//             )}
-//           </TableBody>
-//         </Table>
-//       </div>
-//       <div className="flex items-center justify-end space-x-2 py-4">
-//         <div className="text-muted-foreground flex-1 text-sm">
-//           {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
-//         </div>
-//         <div className="space-x-2">
-//           <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-//             Previous
-//           </Button>
-//           <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-//             Next
-//           </Button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
+//   console.log(data?.result as UserResponse);
+//   console.log();
+//   console.log(error);
+//   console.log(isLoading);
 
-import type { UserResponse } from "@/type-from-be";
-import { $api } from "@/utils/api";
+//   if (!data || isLoading) return "Loading...";
+//   if (error) return `An error occurred: ${error}`;
 
-export const Test = () => {
-  const { data, error, isLoading } = $api.useQuery("get", "/users", {});
-
-  console.log(data?.result as UserResponse);
-  console.log();
-  console.log(error);
-  console.log(isLoading);
-
-  if (!data || isLoading) return "Loading...";
-  if (error) return `An error occurred: ${error}`;
-
-  // return <div>{data.result?.map((item) => item.fullName)}</div>;
-};
+//   // return <div>{data.result?.map((item) => item.fullName)}</div>;
+// };
