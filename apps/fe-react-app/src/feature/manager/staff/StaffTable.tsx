@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { SortButton } from "@/components/shared/SortButton";
 import { getPageInfo, usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
-import { ROLE_TYPE } from "@/interfaces/roles.interface";
+import { ROLES } from "@/interfaces/roles.interface";
 import type { Staff } from "@/interfaces/staff.interface";
 import type { USER_STATUS } from "@/interfaces/users.interface";
 import { Edit, Trash } from "lucide-react";
@@ -38,7 +38,7 @@ const getStatusDisplay = (status: USER_STATUS) => {
 };
 
 const getRoleBadge = (role: string) => {
-  if (role === ROLE_TYPE.STAFF) {
+  if (role === ROLES.STAFF) {
     return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">Nhân viên</span>;
   }
 };

@@ -1,9 +1,9 @@
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
+import { getUserCookieToken } from "@/utils/auth.utils";
+import { getCookie, parseRoles } from "@/utils/cookie.utils";
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { getCookie, parseRoles } from "@/utils/cookie.utils";
-import { getUserCookieToken } from "@/utils/auth.utils";
 
 export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
   switch (roleName) {
@@ -19,19 +19,19 @@ export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
 
 interface RoleRouteProps {
   allowedRoles: ROLE_TYPE[];
-  redirectPath: string;
 }
 
-const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles, redirectPath = "/login" }) => {
+const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles }) => {
   const { isLoggedIn, user } = useAuth();
   const token = getUserCookieToken();
   const storedRoles = getCookie("user_roles");
 
+  // If not logged in or no token, redirect to login
   if (!isLoggedIn || !token) {
-    return <Navigate to={redirectPath} replace />;
+    return <Navigate to="/auth/login" replace />;
   }
 
-  const roles = user?.roles || (parseRoles(storedRoles) as ROLE_TYPE[]);
+  const roles = user?.roles || parseRoles(storedRoles);
 
   console.log("Current user roles:", roles);
   console.log("Allowed roles:", allowedRoles);
@@ -39,6 +39,7 @@ const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles, redirectPath = "/lo
   const hasAllowedRole = roles.some((role: ROLE_TYPE) => allowedRoles.includes(role));
   console.log("Has allowed role:", hasAllowedRole);
 
+  // If user doesn't have required role, redirect to unauthorized page
   if (!hasAllowedRole) {
     console.log("Access denied: User roles do not match allowed roles");
     return <Navigate to="/unauthorized" replace />;

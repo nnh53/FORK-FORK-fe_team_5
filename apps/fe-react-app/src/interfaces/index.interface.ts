@@ -1,10 +1,13 @@
 export * from "./auth.interface";
 export * from "./cinemarooms.interface";
 export * from "./member.interface";
+export * from "./foodAndCombo.interface";
+export { MemberStatus, type Member, type MemberCreateRequest, type PointTransaction } from "./member.interface";
 export * from "./movies.interface";
 export * from "./promotion.interface";
 export * from "./roles.interface";
 export * from "./snacks.interface";
 export * from "./staff.interface";
+export { type STAFF_STATUS, type Staff, type StaffFormData } from "./staff.interface";
 export * from "./users.interface";
 export * from "./voucher.interface";

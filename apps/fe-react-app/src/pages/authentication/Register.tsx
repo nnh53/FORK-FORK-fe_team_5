@@ -4,7 +4,7 @@ import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
-import { ROLE_TYPE } from "@/interfaces/roles.interface";
+import { ROLES } from "@/interfaces/roles.interface";
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
 import type { CustomAPIResponse } from "@/type-from-be";
@@ -53,7 +53,7 @@ const Register: React.FC = () => {
         email: data.email,
         password: data.password,
         fullName: data.fullName,
-        role: ROLE_TYPE.MEMBER,
+        role: ROLES.MEMBER,
         dateOfBirth: dateOfBirthSimpleFormat,
         phone: data.phone,
       },

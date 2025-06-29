@@ -1,4 +1,5 @@
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import AuthTestComponent from "@/components/shared/AuthTestComponent";
 import Loading from "@/components/shared/Loading";
 import { Test } from "@/components/shared/Test";
 import LogVIAReg from "@/feature/auth/LogVIAReg";
@@ -66,7 +67,7 @@ export const AppRoutes = () => (
       <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
     </Route>
     {/* User Account Routes - Protected for MEMBER role */}
-    <Route element={<RoleRoute allowedRoles={["MEMBER"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+    <Route element={<RoleRoute allowedRoles={["MEMBER"]} />}>
       <Route
         path={ROUTES.ACCOUNT}
         element={
@@ -79,20 +80,20 @@ export const AppRoutes = () => (
     {/* Legacy route for backward compatibility */}
     <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
     {/* Admin Routes - Protected for ADMIN role */}
-    <Route element={<RoleRoute allowedRoles={["ADMIN"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+    <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
       <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
       <Route path={ROUTES.ADMIN.ROOT + "/*"} element={<AdminLayout />} />
     </Route>
     {/* Staff Routes - Protected for STAFF role */}
-    <Route element={<RoleRoute allowedRoles={["STAFF"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+    <Route element={<RoleRoute allowedRoles={["STAFF"]} />}>
       <Route path={ROUTES.STAFF.ROOT} element={<Navigate to={ROUTES.STAFF.DASHBOARD} replace />} />
       <Route path={ROUTES.STAFF.ROOT + "/*"} element={<StaffLayout />} />
     </Route>
     {/* Legacy Management Routes - Protected for ADMIN/STAFF */}
-    <Route element={<RoleRoute allowedRoles={["ADMIN", "STAFF"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+    <Route element={<RoleRoute allowedRoles={["ADMIN", "STAFF"]} />}>
       <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
     </Route>
-    <Route element={<RoleRoute allowedRoles={["ADMIN"]} redirectPath={ROUTES.AUTH.LOGIN} />}>
+    <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
       <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
     </Route>
     {/* <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} /> */}
@@ -103,6 +104,7 @@ export const AppRoutes = () => (
     <Route path={ROUTES.LOG_VIA_REG} element={<LogVIAReg />} />
     <Route path={ROUTES.INTERNAL_SERVER_ERROR} element={<InternalServerError />} />
     <Route path={ROUTES.TEST} element={<Test />} />
+    <Route path="/auth-test" element={<AuthTestComponent />} />
     <Route path="*" element={<NotFoundError />} />
     {/* Static Routes */}
     <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />

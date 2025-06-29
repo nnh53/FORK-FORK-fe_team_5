@@ -1,5 +1,5 @@
 import type { AuthenticationResponse } from "@/type-from-be";
-import { getCookie, setCookie } from "./cookie.utils";
+import { eraseCookie, getCookie, setCookie } from "./cookie.utils";
 
 export const getUserCookieToken = (): string | null => {
   return getCookie("access_token");
@@ -26,4 +26,12 @@ export const saveAuthData = (authData: AuthenticationResponse) => {
   if (authData.fullName) {
     setCookie("fullName", authData.fullName, 1);
   }
+};
+
+export const clearAuthData = () => {
+  eraseCookie("access_token");
+  eraseCookie("refresh_token");
+  eraseCookie("user_roles");
+  eraseCookie("user_id");
+  eraseCookie("fullName");
 };
