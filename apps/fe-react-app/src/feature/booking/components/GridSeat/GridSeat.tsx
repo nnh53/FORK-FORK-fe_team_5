@@ -23,6 +23,11 @@ const GridSeat: React.FC<GridSeatProps> = ({ cell, selectedSeats, onSeatSelect }
     );
   }
 
+  // Skip rendering cells that are consumed by double seats (secondary part)
+  if (cell.isConsumedByDoubleSeat || cell.seatType === "d") {
+    return <div className="w-0 h-0 invisible" />;
+  }
+
   const isSelected = selectedSeats.some((seat) => seat.gridRow === cell.row && seat.gridCol === cell.col);
 
   const getSeatClass = () => {
@@ -59,9 +64,6 @@ const GridSeat: React.FC<GridSeatProps> = ({ cell, selectedSeats, onSeatSelect }
     }
   };
 
-  // For double seats, always show content since we don't have secondary cells anymore
-  const shouldShowContent = true;
-
   return (
     <button
       className={getSeatClass()}
@@ -69,14 +71,10 @@ const GridSeat: React.FC<GridSeatProps> = ({ cell, selectedSeats, onSeatSelect }
       disabled={cell.status === "taken" || cell.status === "maintenance"}
       aria-label={`Ghế ${cell.displayRow}${cell.displayCol}`}
     >
-      {shouldShowContent && (
-        <>
-          <span className="relative z-10">{cell.displayCol}</span>
-          {/* Seat type indicator */}
-          {cell.seatType === "V" && <div className="absolute top-0 right-0 w-2 h-2 bg-yellow-600 rounded-full"></div>}
-          {cell.seatType === "D" && <div className="absolute top-0 right-0 w-2 h-2 bg-pink-600 rounded-full"></div>}
-        </>
-      )}
+      <span className="relative z-10">{cell.displayCol}</span>
+      {/* Seat type indicator */}
+      {cell.seatType === "V" && <div className="absolute top-0 right-0 w-2 h-2 bg-yellow-600 rounded-full"></div>}
+      {cell.seatType === "D" && <div className="absolute top-0 right-0 w-2 h-2 bg-pink-600 rounded-full"></div>}
     </button>
   );
 };

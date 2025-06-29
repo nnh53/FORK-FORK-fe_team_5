@@ -1,4 +1,7 @@
+import { Badge } from "@/components/Shadcn/ui/badge";
+import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/Shadcn/ui/dropdown-menu";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Icon } from "@iconify/react";
@@ -12,26 +15,26 @@ type SortOption = "all" | "Standard" | "VIP" | "IMAX" | "4DX";
 const getRoomTypeIcon = (type: string) => {
   switch (type) {
     case "VIP":
-      return "material-symbols:crown";
+      return "material-symbols:star";
     case "IMAX":
-      return "material-symbols:movie";
+      return "material-symbols:theaters";
     case "4DX":
-      return "material-symbols:view-in-ar";
+      return "material-symbols:rocket-launch";
     default:
-      return "material-symbols:chair";
+      return "material-symbols:movie";
   }
 };
 
-const getRoomTypeColor = (type: string) => {
+const getRoomTypeVariant = (type: string): "default" | "secondary" | "destructive" | "outline" => {
   switch (type) {
     case "VIP":
-      return "badge badge-warning border-warning/20";
+      return "default";
     case "IMAX":
-      return "badge badge-info border-info/20";
+      return "secondary";
     case "4DX":
-      return "badge badge-success border-success/20";
+      return "outline";
     default:
-      return "badge badge-neutral border-neutral/20";
+      return "secondary";
   }
 };
 
@@ -48,16 +51,16 @@ const getRoomStatusIcon = (status: string) => {
   }
 };
 
-const getRoomStatusColor = (status: string) => {
+const getRoomStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
   switch (status) {
     case "active":
-      return "badge badge-success border-success/20";
+      return "default";
     case "maintenance":
-      return "badge badge-warning border-warning/20";
+      return "outline";
     case "closed":
-      return "badge badge-error border-error/20";
+      return "destructive";
     default:
-      return "badge badge-neutral border-neutral/20";
+      return "secondary";
   }
 };
 
@@ -70,105 +73,98 @@ interface RoomCardProps {
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onChangeStatus, onDeleteRoom }) => (
-  <Card className="hover:shadow-xl transition-all duration-200 hover:-translate-y-1 bg-base-100 border border-base-300 overflow-hidden group">
-    <CardContent className="p-0">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold text-base-content mb-1 group-hover:text-primary transition-colors">{room.name}</h3>
-            <p className="text-sm text-base-content/60 mb-3">{room.id}</p>
+  <Card className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1 overflow-hidden group">
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex-1">
+          <h3 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">{room.name}</h3>
+          <p className="text-sm text-muted-foreground mb-3">{room.id}</p>
 
-            <div className="flex gap-2">
-              <span className={`${getRoomTypeColor(room.type)} text-xs font-medium`}>
-                <Icon icon={getRoomTypeIcon(room.type)} className="mr-1 h-3 w-3" />
-                {room.type}
-              </span>
-              <span className={`${getRoomStatusColor(room.status)} text-xs font-medium`}>
-                <Icon icon={getRoomStatusIcon(room.status)} className="mr-1 h-3 w-3" />
-                {room.status}
-              </span>
-            </div>
+          <div className="flex gap-2">
+            <Badge variant={getRoomTypeVariant(room.type)} className="text-xs">
+              <Icon icon={getRoomTypeIcon(room.type)} className="mr-1 h-3 w-3" />
+              {room.type}
+            </Badge>
+            <Badge variant={getRoomStatusVariant(room.status)} className="text-xs">
+              <Icon icon={getRoomStatusIcon(room.status)} className="mr-1 h-3 w-3" />
+              {room.status}
+            </Badge>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-3 mb-6">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center text-base-content/70">
-              <Icon icon="material-symbols:people" className="mr-2 h-4 w-4" />
-              Capacity
-            </div>
-            <span className="font-semibold text-base-content">{room.capacity} seats</span>
+      <div className="space-y-3 mb-6">
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center text-muted-foreground">
+            <Icon icon="material-symbols:people" className="mr-2 h-4 w-4" />
+            Capacity
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center text-base-content/70">
-              <Icon icon="material-symbols:grid-view" className="mr-2 h-4 w-4" />
-              Seat Map
-            </div>
-            <div className="flex items-center">
-              <div className={`w-2 h-2 rounded-full mr-2 ${room.hasSeatMap ? "bg-success" : "bg-error"}`}></div>
-              <span className={`font-medium text-sm ${room.hasSeatMap ? "text-success" : "text-error"}`}>
-                {room.hasSeatMap ? "Configured" : "Not configured"}
-              </span>
-            </div>
+          <span className="font-semibold">{room.capacity} seats</span>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center text-muted-foreground">
+            <Icon icon="material-symbols:grid-view" className="mr-2 h-4 w-4" />
+            Seat Map
+          </div>
+          <div className="flex items-center">
+            <div className={`w-2 h-2 rounded-full mr-2 ${room.hasSeatMap ? "bg-green-500" : "bg-red-500"}`}></div>
+            <span className={`font-medium text-sm ${room.hasSeatMap ? "text-green-600" : "text-red-600"}`}>
+              {room.hasSeatMap ? "Configured" : "Not configured"}
+            </span>
           </div>
         </div>
+      </div>
 
-        <div className="flex gap-2 pt-4 border-t border-base-300">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onRoomSelect(room.id);
-            }}
-            className="btn btn-primary btn-sm flex-1"
-          >
-            <Icon icon="material-symbols:edit" className="mr-1 h-4 w-4" />
-            Edit Layout
-          </button>
+      <div className="flex gap-2 pt-4 border-t">
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            onRoomSelect(room.id);
+          }}
+          className="flex-1"
+          size="sm"
+        >
+          <Icon icon="material-symbols:edit" className="mr-1 h-4 w-4" />
+          Edit Layout
+        </Button>
 
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-sm">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
               <Icon icon="material-symbols:more-vert" className="h-4 w-4" />
-            </label>
-            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 border border-base-300 rounded-box w-48">
-              <li>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditRoom(room);
-                  }}
-                  className="text-sm hover:bg-base-200"
-                >
-                  <Icon icon="material-symbols:edit" className="h-4 w-4" />
-                  Edit Info
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onChangeStatus(room);
-                  }}
-                  className="text-sm hover:bg-base-200"
-                >
-                  <Icon icon="material-symbols:swap-horiz" className="h-4 w-4" />
-                  Change Status
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteRoom(room);
-                  }}
-                  className="text-sm hover:bg-error hover:text-error-content"
-                >
-                  <Icon icon="material-symbols:delete" className="h-4 w-4" />
-                  Delete Room
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditRoom(room);
+              }}
+            >
+              <Icon icon="material-symbols:edit" className="mr-2 h-4 w-4" />
+              Edit Info
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onChangeStatus(room);
+              }}
+            >
+              <Icon icon="material-symbols:swap-horiz" className="mr-2 h-4 w-4" />
+              Change Status
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteRoom(room);
+              }}
+              className="text-red-600 focus:text-red-600"
+            >
+              <Icon icon="material-symbols:delete" className="mr-2 h-4 w-4" />
+              Delete Room
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </CardContent>
   </Card>
@@ -207,32 +203,32 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
   });
 
   return (
-    <Card className="shadow-lg border-base-300 bg-base-100">
-      <CardHeader className="bg-base-200/50 border-b border-base-300">
+    <Card className="shadow-lg">
+      <CardHeader>
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <CardTitle className="text-xl text-base-content">Cinema Rooms</CardTitle>
-            <CardDescription className="text-base-content/70">Manage your cinema rooms and seat layouts efficiently</CardDescription>
+            <CardTitle className="text-xl">Cinema Rooms</CardTitle>
+            <CardDescription>Manage your cinema rooms and seat layouts efficiently</CardDescription>
           </div>
 
           {/* Search and Filter Controls */}
           <div className="flex flex-col sm:flex-row gap-3 lg:w-auto w-full">
             <div className="relative">
-              <Icon icon="material-symbols:search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/50 h-4 w-4" />
+              <Icon icon="material-symbols:search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search by name or ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full sm:w-64 input input-bordered bg-base-100 border-base-300 focus:border-primary"
+                className="pl-10 w-full sm:w-64"
               />
             </div>
 
             <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-              <SelectTrigger className="w-full sm:w-48 border-base-300 bg-base-100 hover:bg-base-200">
+              <SelectTrigger className="w-full sm:w-48">
                 <Icon icon="material-symbols:filter-list" className="mr-2 h-4 w-4" />
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
-              <SelectContent className="bg-base-100 border-base-300">
+              <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="Standard">Standard</SelectItem>
                 <SelectItem value="VIP">VIP</SelectItem>
@@ -247,17 +243,17 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
       <CardContent className="p-6">
         {filteredRooms.length === 0 ? (
           <div className="text-center py-16 px-4">
-            <div className="bg-base-200 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-              <Icon icon="material-symbols:search-off" className="h-12 w-12 text-base-content/50" />
+            <div className="bg-muted rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+              <Icon icon="material-symbols:search-off" className="h-12 w-12 text-muted-foreground" />
             </div>
-            <h3 className="text-xl font-semibold text-base-content mb-3">No Rooms Found</h3>
-            <p className="text-base-content/70 mb-6 max-w-md mx-auto">
+            <h3 className="text-xl font-semibold mb-3">No Rooms Found</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               No rooms match your current search criteria. Try adjusting your search terms or create a new room.
             </p>
-            <button onClick={onAddRoom} className="btn btn-primary">
+            <Button onClick={onAddRoom}>
               <Plus className="mr-2 h-4 w-4" />
               Create Your First Room
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

@@ -1,6 +1,8 @@
+import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Icon } from "@iconify/react";
 import React from "react";
+import type { DatabaseSeat } from "../../../../interfaces/seat.interface";
 import type { SeatMapGrid, SelectedSeat } from "../../../../interfaces/seatmap.interface";
 import SeatMapEditor from "../../../booking/components/SeatMapEditor/SeatMapEditor";
 import SeatMapGridComponent from "../../../booking/components/SeatMapGrid/SeatMapGrid";
@@ -14,6 +16,11 @@ interface SeatMapEditorViewProps {
   onBackToRooms: () => void;
   onSaveSeatMap: () => void;
   loading: boolean;
+  // Database-aligned props
+  databaseSeats?: DatabaseSeat[];
+  onSeatUpdate?: (seatId: string, updates: Partial<DatabaseSeat>) => Promise<void>;
+  onSeatCreate?: (seat: Omit<DatabaseSeat, "id">) => Promise<DatabaseSeat>;
+  onSeatDelete?: (seatId: string) => Promise<void>;
 }
 
 export const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
@@ -25,81 +32,85 @@ export const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
   onBackToRooms,
   onSaveSeatMap,
   loading,
+  // Database-aligned props
+  databaseSeats = [],
+  onSeatUpdate,
+  // onSeatCreate, // Available for future seat creation features
+  // onSeatDelete, // Available for future seat deletion features
 }) => {
+  // Enhanced seat map update handler that syncs with database
+  const handleSeatMapUpdate = async (updatedMap: SeatMapGrid) => {
+    // Update the UI immediately
+    setSeatMap(updatedMap);
+
+    // If we have database handlers, sync changes to database
+    if (onSeatUpdate && databaseSeats.length > 0) {
+      try {
+        // Compare changes and update database accordingly
+        // This is a simplified approach - in a real app you'd want more sophisticated diffing
+        console.log("Syncing seat map changes to database...", updatedMap);
+        // For now, we'll log the changes. In a full implementation,
+        // you would compare the grid changes with databaseSeats and call appropriate CRUD operations
+        console.log("Database seats available for sync:", databaseSeats.length);
+      } catch (error) {
+        console.error("Failed to sync seat map changes to database:", error);
+      }
+    }
+  };
+
   return (
-    <Card className="shadow-xl border-base-300 overflow-hidden bg-base-100">
-      <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5 border-b border-base-300 py-4">
+    <Card className="shadow-lg overflow-hidden">
+      <CardHeader className="border-b py-4">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg text-base-content flex items-center truncate">
-              <Icon icon="material-symbols:edit" className="mr-2 h-5 w-5 text-primary flex-shrink-0" />
+            <CardTitle className="text-lg flex items-center truncate">
+              <Icon icon="material-symbols:edit" className="mr-2 h-5 w-5 flex-shrink-0" />
               <span className="truncate">{seatMap?.roomName || "Unknown Room"}</span>
             </CardTitle>
-            <CardDescription className="text-sm text-base-content/70 mt-0.5">
-              {isEditorMode ? "Chế độ chỉnh sửa - Click vào ghế để thay đổi layout" : "Chế độ xem trước - Xem cách khách hàng thấy layout"}
+            <CardDescription className="text-sm mt-0.5">
+              {isEditorMode ? "Edit mode - Click on seats to modify layout" : "Preview mode - See how customers view the layout"}
             </CardDescription>
           </div>
 
-          {/* Mode Toggle */}
-          <div className="flex items-center gap-2 ml-4">
-            <button onClick={onBackToRooms} className="btn btn-ghost btn-sm border-base-300 hover:bg-base-200 transition-colors">
+          {/* Action Controls */}
+          <div className="flex items-center gap-3 ml-4">
+            <Button variant="outline" onClick={onBackToRooms} size="sm">
               <Icon icon="material-symbols:arrow-back" className="mr-1.5 h-4 w-4" />
               Back to Rooms
-            </button>
-            <div className="hidden sm:flex rounded-md bg-base-100 border border-base-300 shadow-sm overflow-hidden">
-              <button
+            </Button>
+
+            {/* Mode Toggle */}
+            <div className="hidden sm:flex border rounded-md overflow-hidden">
+              <Button
+                variant={!isEditorMode ? "default" : "ghost"}
+                size="sm"
                 onClick={() => setIsEditorMode(false)}
-                className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 flex items-center ${
-                  !isEditorMode ? "bg-primary text-primary-content" : "text-base-content/70 hover:text-base-content hover:bg-base-200"
-                }`}
+                className="rounded-none border-0"
               >
                 <Icon icon="material-symbols:visibility" className="mr-1.5 h-4 w-4" />
                 Preview
-              </button>
-              <button
-                onClick={() => setIsEditorMode(true)}
-                className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 flex items-center ${
-                  isEditorMode ? "bg-primary text-primary-content" : "text-base-content/70 hover:text-base-content hover:bg-base-200"
-                }`}
-              >
+              </Button>
+              <Button variant={isEditorMode ? "default" : "ghost"} size="sm" onClick={() => setIsEditorMode(true)} className="rounded-none border-0">
                 <Icon icon="material-symbols:edit" className="mr-1.5 h-4 w-4" />
                 Edit
-              </button>
+              </Button>
             </div>
-            <button
-              onClick={onSaveSeatMap}
-              disabled={loading}
-              className="btn btn-success btn-sm shadow-md hover:shadow-lg transition-all duration-200"
-            >
+
+            <Button onClick={onSaveSeatMap} disabled={loading} size="sm" className="bg-green-600 hover:bg-green-700 text-white">
               <Icon icon="material-symbols:save" className="mr-1.5 h-4 w-4" />
               {loading ? "Saving..." : "Save"}
-            </button>
+            </Button>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="p-0">
         {isEditorMode ? (
-          <div className="p-6">
-            <div className="mb-4 p-4 bg-info/10 border border-info/20 rounded-lg">
-              <div className="flex items-center">
-                <Icon icon="material-symbols:info" className="h-5 w-5 text-info mr-2" />
-                <div>
-                  <p className="text-sm font-medium text-info">Chế độ chỉnh sửa</p>
-                  <p className="text-xs text-info/80">Click vào các ô để thay đổi loại ghế hoặc tạo lối đi</p>
-                </div>
-              </div>
-            </div>
-            {seatMap && <SeatMapEditor seatMap={seatMap} onSeatMapUpdate={setSeatMap} />}
-          </div>
+          <div className="p-6">{seatMap && <SeatMapEditor seatMap={seatMap} onSeatMapUpdate={handleSeatMapUpdate} />}</div>
         ) : (
           <div className="p-6">
             {seatMap && (
-              <div className="bg-gradient-to-br from-base-200/50 to-primary/10 p-8 rounded-lg border border-base-300 shadow-inner">
-                <div className="mb-4 text-center">
-                  <h3 className="text-lg font-semibold text-base-content mb-2">Xem trước sơ đồ ghế</h3>
-                  <p className="text-sm text-base-content/70">Đây là cách khách hàng sẽ thấy sơ đồ ghế của phòng chiếu</p>
-                </div>
+              <div className="p-8 rounded-lg border shadow-inner bg-muted/30">
                 <SeatMapGridComponent seatMap={seatMap} selectedSeats={selectedSeats} onSeatSelect={() => {}} />
               </div>
             )}

@@ -11,20 +11,20 @@ const Seat: React.FC<SeatProps> = ({ seatData, onClick }) => {
     const baseClass = "w-7 h-7 rounded-t-md text-xs font-bold flex items-center justify-center cursor-pointer transition-colors duration-200";
 
     if (seatData.status === "taken") {
-      return `${baseClass} bg-red-500 text-white cursor-not-allowed`;
+      return `${baseClass} bg-error text-error-content cursor-not-allowed`;
     }
     if (seatData.status === "selected") {
-      return `${baseClass} bg-blue-500 text-white`;
+      return `${baseClass} bg-primary text-primary-content`;
     }
 
     // Available seats
     if (seatData.type === "vip") {
-      return `${baseClass} bg-yellow-400 hover:bg-yellow-500`;
+      return `${baseClass} bg-warning text-warning-content hover:bg-warning/80`;
     }
     if (seatData.type === "double") {
-      return `${baseClass} w-16 bg-pink-400 hover:bg-pink-500`;
+      return `${baseClass} w-16 bg-secondary text-secondary-content hover:bg-secondary/80`;
     }
-    return `${baseClass} bg-gray-200 hover:bg-gray-300`;
+    return `${baseClass} bg-base-300 text-base-content hover:bg-base-200`;
   };
 
   return (

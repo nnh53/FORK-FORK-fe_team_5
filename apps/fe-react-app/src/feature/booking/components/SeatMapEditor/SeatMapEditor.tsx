@@ -347,10 +347,10 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapUpdate 
           ...prev,
           selectionArea: prev.selectionArea
             ? {
-                ...prev.selectionArea,
-                endRow: row,
-                endCol: col,
-              }
+              ...prev.selectionArea,
+              endRow: row,
+              endCol: col,
+            }
             : undefined,
         }));
       }

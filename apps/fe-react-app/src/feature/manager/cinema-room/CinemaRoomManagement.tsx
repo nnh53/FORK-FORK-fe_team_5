@@ -120,6 +120,10 @@ export default function CinemaRoomManagement() {
             onBackToRooms={seatMapEditor.handleBackToRooms}
             onSaveSeatMap={seatMapEditor.handleSaveSeatMap}
             loading={seatMapEditor.loading}
+            databaseSeats={seatMapEditor.databaseSeats}
+            onSeatUpdate={seatMapEditor.handleSeatUpdate}
+            onSeatCreate={seatMapEditor.handleSeatCreate}
+            onSeatDelete={seatMapEditor.handleSeatDelete}
           />
         )}
 

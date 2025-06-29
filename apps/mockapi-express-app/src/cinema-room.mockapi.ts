@@ -138,6 +138,16 @@ export const cinemaRoomsAPI = {
 
 export const seatsAPI = {
   getByRoomId: (roomId: string) => seatsMockData.filter((seat) => seat.roomId === roomId),
+  getAll: () => seatsMockData,
+  getSeatById: (seatId: string) => seatsMockData.find((seat) => seat.id === seatId) || null,
+  createSeat: (seatData: Omit<Seat, "id">) => {
+    const newSeat: Seat = {
+      ...seatData,
+      id: `seat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    };
+    seatsMockData.push(newSeat);
+    return newSeat;
+  },
   updateSeat: (seatId: string, data: Partial<Seat>) => {
     const index = seatsMockData.findIndex((seat) => seat.id === seatId);
     if (index !== -1) {
@@ -145,5 +155,13 @@ export const seatsAPI = {
       return seatsMockData[index];
     }
     return null;
+  },
+  deleteSeat: (seatId: string) => {
+    const index = seatsMockData.findIndex((seat) => seat.id === seatId);
+    if (index !== -1) {
+      seatsMockData.splice(index, 1);
+      return true;
+    }
+    return false;
   },
 };

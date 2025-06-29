@@ -8,6 +8,7 @@ import cors from "cors";
 import express from "express";
 import { availableCombos, bookingAPI } from "./booking.mockapi.ts";
 import { cinemaRoomsAPI, seatsAPI } from "./cinema-room.mockapi.ts";
+import { databaseSeatsAPI } from "./database-seats.mockapi.ts";
 import { membersAPI } from "./members.mockapi.ts";
 //import { genresAPI, moviesAPI, moviesMockData } from "./movies.mockapi.ts";
 import { promotionsAPI } from "./promotions.mockapi.ts";
@@ -774,6 +775,154 @@ app.get("/combos", (req, res) => {
     imageUrl: combo.image, // Transform image to imageUrl
   }));
   res.send(transformedCombos);
+});
+
+// Database-aligned seat endpoints
+
+// Get all seats
+app.get("/seats", (req, res) => {
+  res.send(seatsAPI.getAll());
+});
+
+// Get seat by ID
+app.get("/seats/:seatId", (req, res) => {
+  const seat = seatsAPI.getSeatById(req.params.seatId);
+  if (seat) {
+    res.send(seat);
+  } else {
+    res.status(404).send({ error: "Seat not found" });
+  }
+});
+
+// Create new seat
+app.post("/seats", (req, res) => {
+  try {
+    const seat = seatsAPI.createSeat(req.body);
+    res.status(201).send(seat);
+  } catch (error) {
+    res.status(400).send({ error: "Failed to create seat", details: error });
+  }
+});
+
+// Delete seat
+app.delete("/seats/:seatId", (req, res) => {
+  const deleted = seatsAPI.deleteSeat(req.params.seatId);
+  if (deleted) {
+    res.send({ success: true, message: "Seat deleted successfully" });
+  } else {
+    res.status(404).send({ error: "Seat not found" });
+  }
+});
+
+// Bulk update seats
+app.put("/seats/bulk-update", (req, res) => {
+  try {
+    const { updates } = req.body;
+    const results = updates
+      .map((update: any) => {
+        return seatsAPI.updateSeat(update.seatId, update.updates);
+      })
+      .filter(Boolean);
+    res.send(results);
+  } catch (error) {
+    res.status(400).send({ error: "Failed to bulk update seats", details: error });
+  }
+});
+
+// Get seat types
+app.get("/seat-types", (req, res) => {
+  const seatTypes = [
+    { id: 1, name: "SINGLE", price: 75000 },
+    { id: 2, name: "DOUBLE", price: 150000 },
+    { id: 3, name: "PATH", price: 0 },
+    { id: 4, name: "PATH_VIP", price: 100000 },
+  ];
+  res.send(seatTypes);
+});
+
+// Database-aligned seat endpoints (more database-specific structure)
+
+// Get all database seats
+app.get("/database-seats", (req, res) => {
+  res.send(databaseSeatsAPI.getAll());
+});
+
+// Get database seats by room ID
+app.get("/database-seats/room/:roomId", (req, res) => {
+  const seats = databaseSeatsAPI.getByRoomId(req.params.roomId);
+  res.send(seats);
+});
+
+// Get database seat by ID
+app.get("/database-seats/:seatId", (req, res) => {
+  const seat = databaseSeatsAPI.getSeatById(req.params.seatId);
+  if (seat) {
+    res.send(seat);
+  } else {
+    res.status(404).send({ error: "Database seat not found" });
+  }
+});
+
+// Create new database seat
+app.post("/database-seats", (req, res) => {
+  try {
+    const validationResult = databaseSeatsAPI.validateSeatData(req.body);
+    if (!validationResult.isValid) {
+      res.status(400).send({ error: "Validation failed", errors: validationResult.errors });
+      return;
+    }
+
+    const seat = databaseSeatsAPI.createSeat(req.body);
+    res.status(201).send(seat);
+  } catch (error) {
+    res.status(400).send({ error: "Failed to create database seat", details: error });
+  }
+});
+
+// Update database seat
+app.put("/database-seats/:seatId", (req, res) => {
+  try {
+    const seat = databaseSeatsAPI.updateSeat(req.params.seatId, req.body);
+    if (seat) {
+      res.send(seat);
+    } else {
+      res.status(404).send({ error: "Database seat not found" });
+    }
+  } catch (error) {
+    res.status(400).send({ error: "Failed to update database seat", details: error });
+  }
+});
+
+// Delete database seat
+app.delete("/database-seats/:seatId", (req, res) => {
+  const deleted = databaseSeatsAPI.deleteSeat(req.params.seatId);
+  if (deleted) {
+    res.send({ success: true, message: "Database seat deleted successfully" });
+  } else {
+    res.status(404).send({ error: "Database seat not found" });
+  }
+});
+
+// Get seat types
+app.get("/database-seat-types", (req, res) => {
+  res.send(databaseSeatsAPI.getSeatTypes());
+});
+
+// Generate seats for a room
+app.post("/database-seats/generate-for-room", (req, res) => {
+  try {
+    const { roomId, layout } = req.body;
+
+    if (!roomId || !layout) {
+      res.status(400).send({ error: "roomId and layout are required" });
+      return;
+    }
+
+    const seats = databaseSeatsAPI.generateSeatsForRoom(roomId, layout);
+    res.status(201).send(seats);
+  } catch (error) {
+    res.status(400).send({ error: "Failed to generate seats for room", details: error });
+  }
 });
 
 const port = 3000;

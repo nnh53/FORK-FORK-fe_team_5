@@ -14,16 +14,16 @@ const SeatMap: React.FC<SeatMapProps> = ({ seatMap, selectedSeats, onSeatSelect 
     <div className="flex flex-col items-center">
       {/* Màn hình chiếu */}
       <div
-        className="w-full md:w-4/5 h-2 my-6 bg-gray-300 rounded-full
-                            shadow-[0_0_20px_5px_rgba(200,200,200,0.7)]"
+        className="w-full md:w-4/5 h-2 my-6 bg-base-300 rounded-full
+                            shadow-[0_0_20px_5px_rgba(0,0,0,0.1)]"
       ></div>
-      <p className="text-gray-400 text-sm mb-8">MÀN HÌNH CHIẾU</p>
+      <p className="text-base-content/60 text-sm mb-8">MÀN HÌNH CHIẾU</p>
 
       {/* Sơ đồ ghế */}
       <div className="flex flex-col gap-2 w-full">
         {seatMap.rows.map((row) => (
           <div key={row} className="flex items-center justify-center gap-2">
-            <span className="w-6 text-center font-semibold text-gray-500">{row}</span>
+            <span className="w-6 text-center font-semibold text-base-content/70">{row}</span>
             {seatMap.seats
               .filter((s) => s.row === row)
               .map((seat) => (
@@ -33,7 +33,7 @@ const SeatMap: React.FC<SeatMapProps> = ({ seatMap, selectedSeats, onSeatSelect 
                   onClick={onSeatSelect}
                 />
               ))}
-            <span className="w-6 text-center font-semibold text-gray-500">{row}</span>
+            <span className="w-6 text-center font-semibold text-base-content/70">{row}</span>
           </div>
         ))}
       </div>

@@ -29,41 +29,37 @@ export const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-base-100 border-base-300">
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl text-base-content flex items-center">
-            <Icon icon="material-symbols:swap-horiz" className="mr-2 h-5 w-5 text-primary" />
+          <DialogTitle className="flex items-center">
+            <Icon icon="material-symbols:swap-horiz" className="mr-2 h-5 w-5" />
             Change Room Status
           </DialogTitle>
-          <DialogDescription className="text-base-content/70">
-            {roomToChangeStatus && `Update the status of "${roomToChangeStatus.name}"`}
-          </DialogDescription>
+          <DialogDescription>{roomToChangeStatus && `Update the status of "${roomToChangeStatus.name}"`}</DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
-          <Label htmlFor="newStatus" className="text-base-content font-medium">
-            New Status
-          </Label>
+          <Label htmlFor="newStatus">New Status</Label>
           <Select value={newStatus} onValueChange={(value: RoomStatus) => setNewStatus(value)}>
-            <SelectTrigger className="w-full border-base-300 bg-base-100 mt-2">
+            <SelectTrigger className="w-full mt-2">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-base-100 border-base-300">
+            <SelectContent>
               <SelectItem value="active">
                 <div className="flex items-center">
-                  <Icon icon="material-symbols:check-circle" className="mr-2 h-4 w-4 text-success" />
+                  <Icon icon="material-symbols:check-circle" className="mr-2 h-4 w-4" />
                   Active
                 </div>
               </SelectItem>
               <SelectItem value="maintenance">
                 <div className="flex items-center">
-                  <Icon icon="material-symbols:build" className="mr-2 h-4 w-4 text-warning" />
+                  <Icon icon="material-symbols:build" className="mr-2 h-4 w-4" />
                   Maintenance
                 </div>
               </SelectItem>
               <SelectItem value="closed">
                 <div className="flex items-center">
-                  <Icon icon="material-symbols:cancel" className="mr-2 h-4 w-4 text-error" />
+                  <Icon icon="material-symbols:cancel" className="mr-2 h-4 w-4" />
                   Closed
                 </div>
               </SelectItem>
@@ -71,11 +67,11 @@ export const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
           </Select>
         </div>
 
-        <DialogFooter className="border-t border-base-300 pt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="border-base-300 hover:bg-base-200">
+        <DialogFooter className="pt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={onChangeStatus} disabled={loading} className="btn btn-primary">
+          <Button onClick={onChangeStatus} disabled={loading}>
             <Icon icon="material-symbols:save" className="mr-2 h-4 w-4" />
             Update Status
           </Button>

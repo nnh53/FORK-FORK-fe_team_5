@@ -1,6 +1,9 @@
-import { Icon } from "@iconify/react";
-import { Plus } from "lucide-react";
+import { ArrowLeft, Plus, Save } from "lucide-react";
 import React from "react";
+import { Badge } from "../../../../components/Shadcn/ui/badge";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "../../../../components/Shadcn/ui/breadcrumb";
+import { Button } from "../../../../components/Shadcn/ui/button";
+import { Card, CardContent } from "../../../../components/Shadcn/ui/card";
 import type { SeatMapGrid } from "../../../../interfaces/seatmap.interface";
 
 interface PageHeaderProps {
@@ -14,51 +17,86 @@ interface PageHeaderProps {
 
 export const PageHeader: React.FC<PageHeaderProps> = ({ isEditorView, seatMap, loading, onAddRoom, onBackToRooms, onSaveSeatMap }) => {
   return (
-    <div className="bg-base-100 rounded-box shadow-lg border border-base-300 overflow-hidden">
-      <div className="px-6 py-4 border-b border-base-300">
+    <Card className="bg-gradient-to-r from-slate-50 to-blue-50/50 dark:from-slate-950 dark:to-blue-950/50 border-0 shadow-xl">
+      <CardContent className="p-6">
         <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center text-sm text-base-content/60 mb-1">
-              <span>Management</span>
-              <Icon icon="material-symbols:chevron-right" className="mx-2 h-4 w-4" />
-              <span className="text-primary font-medium">Cinema Rooms</span>
-              {isEditorView && seatMap && (
-                <>
-                  <Icon icon="material-symbols:chevron-right" className="mx-2 h-4 w-4" />
-                  <span className="text-primary font-medium truncate">{seatMap.roomName}</span>
-                </>
-              )}
-            </div>
+          <div className="flex-1 min-w-0 space-y-3">
+            {/* Breadcrumb */}
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink className="text-muted-foreground hover:text-primary transition-colors">Management</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink className="text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                    Cinema Rooms
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                {isEditorView && seatMap && (
+                  <>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <Badge
+                        variant="secondary"
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
+                      >
+                        {seatMap.roomName}
+                      </Badge>
+                    </BreadcrumbItem>
+                  </>
+                )}
+              </BreadcrumbList>
+            </Breadcrumb>
 
-            <h1 className="text-2xl font-bold text-base-content truncate">
-              {isEditorView ? `Editing: ${seatMap?.roomName || "Room"}` : "Cinema Room Management"}
-            </h1>
-            <p className="text-base-content/70 text-sm mt-0.5">
-              {isEditorView ? "Design and configure the seat layout for this cinema room" : "Manage cinema rooms and seat layouts efficiently"}
-            </p>
+            {/* Title */}
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                {isEditorView ? `Editing: ${seatMap?.roomName || "Room"}` : "Cinema Room Management"}
+              </h1>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {isEditorView ? "Design and configure the seat layout for this cinema room" : "Manage cinema rooms and seat layouts efficiently"}
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 ml-4">
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3 ml-6">
             {!isEditorView ? (
-              <button onClick={onAddRoom} disabled={loading} className="btn btn-primary shadow-lg hover:shadow-xl transition-all duration-200">
-                <Plus className="mr-1.5 h-4 w-4" />
+              <Button
+                onClick={onAddRoom}
+                disabled={loading}
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+              >
+                <Plus className="mr-2 h-5 w-5" />
                 {loading ? "Creating..." : "Create Room"}
-              </button>
+              </Button>
             ) : (
               <>
-                <button onClick={onBackToRooms} className="btn btn-ghost btn-sm border-base-300 hover:bg-base-200 transition-colors">
-                  <Icon icon="material-symbols:arrow-back" className="mr-1.5 h-4 w-4" />
+                <Button
+                  onClick={onBackToRooms}
+                  variant="outline"
+                  size="default"
+                  className="border-2 border-orange-200 hover:border-orange-300 hover:bg-orange-50 dark:border-orange-800 dark:hover:border-orange-700 dark:hover:bg-orange-950/20 text-orange-700 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition-all duration-300"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Rooms
-                </button>
-                <button onClick={onSaveSeatMap} disabled={loading} className="btn btn-success shadow-md hover:shadow-lg transition-all duration-200">
-                  <Icon icon="material-symbols:save" className="mr-1.5 h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={onSaveSeatMap}
+                  disabled={loading}
+                  size="lg"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                >
+                  <Save className="mr-2 h-5 w-5" />
                   {loading ? "Saving..." : "Save Layout"}
-                </button>
+                </Button>
               </>
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
