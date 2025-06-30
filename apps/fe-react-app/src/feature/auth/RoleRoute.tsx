@@ -1,9 +1,11 @@
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
-import { getUserCookieToken } from "@/utils/auth.utils";
-import { getCookie, parseRoles } from "@/utils/cookie.utils";
+// TEMPORARY: Commented out imports for bypass
+// import { getUserCookieToken } from "@/utils/auth.utils";
+// import { getCookie, parseRoles } from "@/utils/cookie.utils";
 import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { Outlet } from "react-router-dom";
+// import { Navigate } from "react-router-dom";
+// import { useAuth } from "../../hooks/useAuth";
 
 export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
   switch (roleName) {
@@ -22,6 +24,11 @@ interface RoleRouteProps {
 }
 
 const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles }) => {
+  // TEMPORARY: Bypass all authentication checks for development
+  console.log("TEMP BYPASS: Allowing access to all routes, allowed roles:", allowedRoles);
+  return <Outlet />;
+
+  /* ORIGINAL CODE - COMMENTED OUT FOR TEMP ACCESS
   const { isLoggedIn, user } = useAuth();
   const token = getUserCookieToken();
   const storedRoles = getCookie("user_roles");
@@ -46,6 +53,7 @@ const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles }) => {
   }
 
   return <Outlet />;
+  */
 };
 
 export default RoleRoute;
