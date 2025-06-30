@@ -1,252 +1,302 @@
-enum status_ACTIVE_INACTIVE_BAN_t {
+enum status_ACTIVE_INACTIVE_BAN {
 	ACTIVE
 	INACTIVE
 	BAN
 }
 
-enum status_AVAILABLE_SOLD_OUT_UNAVAILABLE_t {
+enum status_AVAILABLE_SOLD_OUT_UNAVAILABLE {
 	AVAILABLE
 	SOLD_OUT
 	UNAVAILABLE
 }
 
-enum category_DRINK_FOOD_t {
+enum category_DRINK_FOOD {
 	DRINK
 	FOOD
 }
 
-enum size_  SMALL_    MEDIUM_    LARGE_t {
-	  SMALL
-	    MEDIUM
-	    LARGE
+enum size_SMALL_MEDIUM_LARGE {
+	SMALL
+	MEDIUM
+	LARGE
 }
 
-enum status_AVAILABLE_SOLD_OUT_UNAVAILABLE_t {
+enum status_active_closed_maintenance {
+	ACTIVE
+	CLOSED
+	MAINTENANCE
+}
+
+enum status_active_inactive_upcoming {
+	ACTIVE
+	INACTIVE
+	UPCOMING
+}
+
+enum status_available_maintenance {
 	AVAILABLE
-	SOLD_OUT
-	UNAVAILABLE
+	MAINTENANCE
+}
+
+enum type_couple_path_regular_vip {
+	COUPLE
+	PATH
+	REGULAR
+	VIP
+}
+
+enum status_cancelled_completed_onscreen_schedule {
+	CANCELLED
+	COMPLETED
+	ONSCREEN
+	SCHEDULE
+}
+
+enum name_single_double_path_path_vip {
+	SINGLE
+	DOUBLE
+	PATH
+	VIP
+}
+
+enum payment_method_cash_banking {
+	CASH
+	BANKING
+}
+
+enum payment_status_pending_paid_cancle {
+	PENDING
+	PAID
+	CANCEL
+}
+
+enum booking_status_pending_success_fail_cancel {
+	PENDING
+	SUCCESS
+	FAIL
+	CANCEL
 }
 
 Table booking_snack {
-	id integer [ pk, increment, not null, unique ]
+	id integer [pk, increment, not null, unique]
 	snack_id integer
 	booking_id integer
 	quantity integer
 }
 
 Table cinema_room {
-	id integer [ pk, increment, unique ]
-	capacity integer [ not null ]
-	fee double [ not null ]
-	room_number integer [ not null ]
-	status status_active_closed_maintenance_t [ not null ]
-	type varchar(255) [ not null ]
-	width integer [ not null ]
-	length integer [ not null ]
+	id integer [pk, increment, unique]
+	capacity integer [not null]
+	fee double [not null]
+	room_number integer [not null]
+	status status_active_closed_maintenance [not null]
+	type varchar(255) [not null]
+	width integer [not null]
+	length integer [not null]
 }
 
 Table movie {
-	id integer [ pk, increment, unique ]
-	actor varchar(255) [ not null ]
-	age_restrict integer [ not null ]
-	description varchar(255) [ not null ]
-	director varchar(255) [ not null ]
-	duration integer [ not null ]
-	name varchar(255) [ not null ]
-	poster varchar(255) [ not null ]
-	status status_active_inactive_upcoming_t [ not null ]
-	studio varchar(255) [ not null ]
-	trailer varchar(255) [ not null ]
-	type varchar(255) [ not null ]
-	version varchar(255) [ not null ]
-	from_date date [ not null ]
-	to_date date [ not null ]
+	id integer [pk, increment, unique]
+	actor varchar(255) [not null]
+	age_restrict integer [not null]
+	description varchar(255) [not null]
+	director varchar(255) [not null]
+	duration integer [not null]
+	name varchar(255) [not null]
+	poster varchar(255) [not null]
+	status status_active_inactive_upcoming [not null]
+	studio varchar(255) [not null]
+	trailer varchar(255) [not null]
+	type varchar(255) [not null]
+	version varchar(255) [not null]
+	from_date date [not null]
+	to_date date [not null]
 }
 
 Table promotion {
-	id integer [ pk, increment, unique ]
-	description varchar(255) [ not null ]
-	discount_value double [ not null ]
-	end_time datetime [ not null ]
-	image varchar(255) [ not null ]
-	min_purchase double [ not null ]
-	start_time datetime [ not null ]
-	status tinyint [ not null ]
-	title varchar(255) [ not null ]
-	type tinyint [ not null ]
+	id integer [pk, increment, unique]
+	description varchar(255) [not null]
+	discount_value double [not null]
+	end_time datetime [not null]
+	image varchar(255) [not null]
+	min_purchase double [not null]
+	start_time datetime [not null]
+	status tinyint [not null]
+	title varchar(255) [not null]
+	type tinyint [not null]
 }
 
 Table seat {
-	id integer [ pk, increment, not null, unique ]
-	name varchar(255) [ not null ]
-	seat_type_id integer [ not null ]
-	seat_column varchar(255) [ not null ]
-	seat_row varchar(255) [ not null ]
-	status status_available_maintenance_t [ not null ]
-	type type_couple_path_regular_vip_t [ not null ]
-	cinema_room_id integer [ not null ]
+	id integer [pk, increment, not null, unique]
+	name varchar(255) [not null]
+	seat_type_id integer [not null]
+	seat_column varchar(255) [not null]
+	seat_row varchar(255) [not null]
+	status status_available_maintenance [not null]
+	type type_couple_path_regular_vip [not null]
+	cinema_room_id integer [not null]
 	seat_link_id integer
 }
 
 Table showtime {
-	id integer [ pk, increment, unique ]
-	room_id integer [ not null ]
-	movie_id integer [ not null ]
-	end_date_time datetime [ not null ]
-	show_date_time datetime [ not null ]
-	status status_cancelled_completed_onscreen_schedule_t [ not null ]
+	id integer [pk, increment, unique]
+	room_id integer [not null]
+	movie_id integer [not null]
+	end_date_time datetime [not null]
+	show_date_time datetime [not null]
+	status status_cancelled_completed_onscreen_schedule [not null]
 }
 
 Table user {
-	id varchar(255) [ pk, not null, unique ]
-	is_active bit [ not null ]
-	address varchar(255) [ not null ]
-	avatar_url varchar(255) [ not null ]
-	date_of_birth date [ not null ]
-	email varchar(255) [ not null ]
-	full_name varchar(255) [ not null ]
-	loyalty_point integer [ not null ]
-	password varchar(255) [ not null ]
-	phone varchar(255) [ not null ]
-	role_name tinyint [ not null ]
-	status status_ACTIVE_INACTIVE_BAN_t
+	id varchar(255) [pk, not null, unique]
+	is_active bit [not null]
+	address varchar(255) [not null]
+	avatar_url varchar(255) [not null]
+	date_of_birth date [not null]
+	email varchar(255) [not null]
+	full_name varchar(255) [not null]
+	loyalty_point integer [not null]
+	password varchar(255) [not null]
+	phone varchar(255) [not null]
+	role_name tinyint [not null]
+	status status_ACTIVE_INACTIVE_BAN
 }
 
 Table seat_type {
-	id integer [ pk, increment, not null, unique ]
+	id integer [pk, increment, not null, unique]
 	price float
-	name name_single_double_path_path_vip_t
+	name name_single_double_path_path_vip
 }
 
 Table booking {
-	id integer [ pk, increment, not null, unique ]
+	id integer [pk, increment, not null, unique]
 	user_id varchar(255)
 	booking_date_time datetime
 	showtime_id integer
 	promotion_id integer
 	loyalty_point_used integer
 	total_price float
-	payment_method payment_method_cash_banking_t
-	payment_status payment_status_pending_paid_cancle_t
-	booking_status booking_status_pending_success_fail_cancel_t
+	payment_method payment_method_cash_banking
+	payment_status payment_status_pending_paid_cancle
+	booking_status booking_status_pending_success_fail_cancel
 	pay_os_code varchar(13)
 	staff_id varchar(255)
 }
 
 Table booking_seat {
-	id integer [ pk, increment, not null, unique ]
+	id integer [pk, increment, not null, unique]
 	seat_id integer
 	booking_id integer
 }
 
 Table receipt {
-	id integer [ pk, increment, not null, unique ]
+	id integer [pk, increment, not null, unique]
 	user_id varchar(255)
 	booking_date_time datetime
 	showtime_id integer
 	promotion_id integer
 	loyalty_point_used integer
 	total_price float
-	payment_method payment_method_cash_banking_t
-	payment_status payment_status_pending_paid_cancle_t
-	booking_status booking_status_pending_success_fail_cancel_t
+	payment_method payment_method_cash_banking
+	payment_status payment_status_pending_paid_cancle
+	booking_status booking_status_pending_success_fail_cancel
 	pay_os_code varchar(13)
 	staff_id varchar(255)
 }
 
 Table combo {
-	id integer [ pk, increment ]
-	description varchar(255) [ not null ]
-	img varchar(255) [ not null ]
-	name varchar(255) [ not null ]
-	status status_AVAILABLE_SOLD_OUT_UNAVAILABLE_t [ not null ]
+	id integer [pk, increment]
+	description varchar(255) [not null]
+	img varchar(255) [not null]
+	name varchar(255) [not null]
+	status status_AVAILABLE_SOLD_OUT_UNAVAILABLE [not null]
 }
 
 Table snack {
-	id integer [ pk, increment ]
-	category category_DRINK_FOOD_t [ not null ]
-	description varchar(255) [ not null ]
-	flavor varchar(255) [ not null ]
-	img varchar(255) [ not null ]
-	name varchar(255) [ not null ]
-	price float [ not null ]
-	size size_  SMALL_    MEDIUM_    LARGE_t [ not null ]
-	status status_AVAILABLE_SOLD_OUT_UNAVAILABLE_t [ not null ]
+	id integer [pk, increment]
+	category category_DRINK_FOOD [not null]
+	description varchar(255) [not null]
+	flavor varchar(255) [not null]
+	img varchar(255) [not null]
+	name varchar(255) [not null]
+	price float [not null]
+	size size_SMALL_MEDIUM_LARGE [not null]
+	status status_AVAILABLE_SOLD_OUT_UNAVAILABLE [not null]
 }
 
 Table combo_snack {
-	combo_id integer [ pk, not null ]
-	snack_id integer [ pk, not null ]
+	combo_id integer [pk, not null]
+	snack_id integer [pk, not null]
 	snack_tin integer
 }
 
 Table booking_combo {
-	id integer [ pk, increment, not null, unique ]
+	id integer [pk, increment, not null, unique]
 	combo_id integer
 	booking_id integer
 	quantity integer
 }
 
 Ref fk_seat_cinema_room_id_cinema_room {
-	seat.cinema_room_id > cinema_room.id [ delete: no action, update: no action ]
+	seat.cinema_room_id > cinema_room.id [delete: no action, update: no action]
 }
 
 Ref fk_showtime_room_id_cinema_room {
-	showtime.room_id > cinema_room.id [ delete: no action, update: no action ]
+	showtime.room_id > cinema_room.id [delete: no action, update: no action]
 }
 
 Ref fk_showtime_movie_id_movie {
-	showtime.movie_id > movie.id [ delete: no action, update: no action ]
+	showtime.movie_id > movie.id [delete: no action, update: no action]
 }
 
 Ref fk_seat_seat_type_id_seat_type {
-	seat.seat_type_id > seat_type.id [ delete: no action, update: no action ]
+	seat.seat_type_id > seat_type.id [delete: no action, update: no action]
 }
 
 Ref fk_user_id_booking {
-	user.id < booking.user_id [ delete: no action, update: no action ]
+	booking.user_id > user.id [delete: no action, update: no action]
 }
 
 Ref fk_booking_seat_booking_id_booking {
-	booking_seat.booking_id > booking.id [ delete: no action, update: no action ]
+	booking_seat.booking_id > booking.id [delete: no action, update: no action]
 }
 
 Ref fk_seat_id_booking_seat {
-	seat.id < booking_seat.seat_id [ delete: no action, update: no action ]
+	booking_seat.seat_id > seat.id [delete: no action, update: no action]
 }
 
 Ref fk_booking_showtime_id_showtime {
-	booking.showtime_id > showtime.id [ delete: no action, update: no action ]
+	booking.showtime_id > showtime.id [delete: no action, update: no action]
 }
 
 Ref fk_promotion_id_booking {
-	promotion.id < booking.promotion_id [ delete: no action, update: no action ]
+	booking.promotion_id > promotion.id [delete: no action, update: no action]
 }
 
 Ref fk_receipt_user_id_user {
-	receipt.user_id - user.id [ delete: no action, update: no action ]
+	receipt.user_id - user.id [delete: no action, update: no action]
 }
 
 Ref fk_combo_snack_snack_id_snack {
-	combo_snack.snack_id > snack.id [ delete: no action, update: no action ]
+	combo_snack.snack_id > snack.id [delete: no action, update: no action]
 }
 
 Ref fk_combo_snack_combo_id_combo {
-	combo_snack.combo_id > combo.id [ delete: no action, update: no action ]
+	combo_snack.combo_id > combo.id [delete: no action, update: no action]
 }
 
-Ref fk_combo_id_combo_booking {
-	combo.id < booking_combo.combo_id [ delete: no action, update: no action ]
+Ref fk_combo_id_booking_combo {
+	booking_combo.combo_id > combo.id [delete: no action, update: no action]
 }
 
 Ref fk_combo_booking_booking_id_booking {
-	booking_combo.booking_id > booking.id [ delete: no action, update: no action ]
+	booking_combo.booking_id > booking.id [delete: no action, update: no action]
 }
 
 Ref fk_snack_id_booking_snack {
-	snack.id < booking_snack.snack_id [ delete: no action, update: no action ]
+	booking_snack.snack_id > snack.id [delete: no action, update: no action]
 }
 
 Ref fk_booking_snack_booking_id_booking {
-	booking_snack.booking_id > booking.id [ delete: no action, update: no action ]
+	booking_snack.booking_id > booking.id [delete: no action, update: no action]
 }
