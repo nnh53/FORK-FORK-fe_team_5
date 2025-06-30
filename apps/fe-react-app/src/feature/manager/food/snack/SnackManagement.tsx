@@ -244,14 +244,7 @@ const SnackManagement: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="flex flex-col items-center gap-4">
-          <LoadingSpinner size={32} className="text-primary" />
-          <p className="text-muted-foreground">Đang tải danh sách thực phẩm...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner name="thực phẩm" />;
   }
 
   return (

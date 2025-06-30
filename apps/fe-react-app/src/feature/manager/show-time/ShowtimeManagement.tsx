@@ -256,12 +256,7 @@ const ShowtimeManagement = () => {
   // Hàm render content để tránh lỗi nested ternary
   const renderContent = () => {
     if (loading) {
-      return (
-        <div className="flex flex-col justify-center items-center py-16">
-          <LoadingSpinner size={40} className="text-primary mb-2" />
-          <div className="text-gray-600">Đang tải dữ liệu...</div>
-        </div>
-      );
+      return <LoadingSpinner name="suất chiếu" />;
     }
 
     if (filteredShowtimes.length === 0) {

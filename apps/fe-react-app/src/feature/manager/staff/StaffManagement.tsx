@@ -283,12 +283,7 @@ const StaffManagement = () => {
 
   // Cập nhật phần loading
   if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center h-screen">
-        <LoadingSpinner size={40} className="text-primary mb-4" />
-        <p className="text-gray-500 text-lg">Đang tải dữ liệu nhân viên...</p>
-      </div>
-    );
+    return <LoadingSpinner name="nhân viên" />;
   }
 
   return (

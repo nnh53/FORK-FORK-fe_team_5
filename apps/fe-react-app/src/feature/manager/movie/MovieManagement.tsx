@@ -34,14 +34,7 @@ const MovieManagement = () => {
 
   // Show loading state
   if (moviesQuery.isLoading) {
-    return (
-      <div className="container mx-auto p-4 flex justify-center items-center h-64">
-        <div className="flex flex-col items-center">
-          <LoadingSpinner size={40} className="text-primary mb-2" />
-          <p className="text-muted-foreground">Đang tải danh sách phim...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner name="phim" />;
   }
 
   // Show error state

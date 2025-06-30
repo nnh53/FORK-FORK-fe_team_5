@@ -165,10 +165,7 @@ export const PromotionManagement: React.FC = () => {
               {/* <DatePicker ></DatePicker> */}
             </div>
             {loading ? (
-              <div className="flex justify-center items-center py-8">
-                <LoadingSpinner size={32} className="text-primary" />
-                <span className="ml-2 text-muted-foreground">Loading promotions...</span>
-              </div>
+              <LoadingSpinner name="khuyến mãi" />
             ) : (
               <PromotionTable promotions={promotions} columns={promotionColumn} onView={handleOpenDialog} />
             )}

@@ -100,12 +100,7 @@ export default function CinemaRoomList({ searchQuery, onRefresh }: CinemaRoomLis
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <LoadingSpinner size={32} className="text-primary" />
-        <span className="ml-2 text-muted-foreground">Loading cinema rooms...</span>
-      </div>
-    );
+    return <LoadingSpinner name="phòng chiếu" />;
   }
   if (error) {
     return <div className="text-center text-red-500 p-4">{error}</div>;
