@@ -4,11 +4,10 @@ import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
-import { ROLES } from "@/interfaces/roles.interface";
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
+import { transformRegisterRequest, useRegister } from "@/services/userService";
 import type { CustomAPIResponse } from "@/type-from-be";
-import { $api } from "@/utils/api";
 import { cn } from "@/utils/utils";
 import { registerFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +25,7 @@ const Register: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
-  const registerQuery = $api.useMutation("post", "/users");
+  const registerQuery = useRegister();
   const form = useForm<RegisterFormSchemaType>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -42,21 +41,12 @@ const Register: React.FC = () => {
   const onSubmit = (data: RegisterFormSchemaType) => {
     setError(null);
     setMessage(null);
-    const dateOfBirthSimpleFormat = data.dateOfBirth?.toISOString().split("T")[0];
-    console.log(dateOfBirthSimpleFormat);
     if (data.password !== data.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
     registerQuery.mutate({
-      body: {
-        email: data.email,
-        password: data.password,
-        fullName: data.fullName,
-        role: ROLES.MEMBER,
-        dateOfBirth: dateOfBirthSimpleFormat,
-        phone: data.phone,
-      },
+      body: transformRegisterRequest(data),
     });
   };
 

@@ -7,8 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
+import { transformLoginRequest, transformUserLoginResponse, useLogin } from "@/services/userService";
 import type { CustomAPIResponse } from "@/type-from-be";
-import { $api } from "@/utils/api";
 import { loginFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useState } from "react";
@@ -24,7 +24,7 @@ const Login: React.FC = () => {
   const { authLogin } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const loginQuery = $api.useMutation("post", "/auth/authenticate");
+  const loginQuery = useLogin();
   const form = useForm<LoginFormSchemaType>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -38,10 +38,7 @@ const Login: React.FC = () => {
     setMessage(null);
 
     loginQuery.mutate({
-      body: {
-        email: data.email,
-        password: data.password,
-      },
+      body: transformLoginRequest(data),
     });
   };
 
@@ -53,13 +50,7 @@ const Login: React.FC = () => {
       if (authData) {
         console.log("Auth data received:", authData);
         // Convert AuthenticationResponse to UserLoginResponse format
-        const userLoginData = {
-          token: authData.token || "",
-          refresh_token: authData.refresh_token || "",
-          roles: authData.roles ? [authData.roles] : [],
-          id: authData.id ? parseInt(authData.id, 10) : 0,
-          fullName: authData.fullName || "",
-        };
+        const userLoginData = transformUserLoginResponse(authData);
 
         authLogin(userLoginData);
         console.log("Auth data saved to cookies via AuthContext");
@@ -129,7 +120,7 @@ const Login: React.FC = () => {
           />
 
           <div className="flex justify-between items-center">
-            <Link to={ROUTES.AUTH.FORGOT_PASSWORD || "/forgot-password"} className="text-sm text-red-600 hover:underline">
+            <Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm text-red-600 hover:underline">
               Quên mật khẩu?
             </Link>
           </div>
@@ -140,7 +131,7 @@ const Login: React.FC = () => {
 
           <div className="text-center mt-4">
             <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
-            <Link to={ROUTES.AUTH.REGISTER || "/register"} className="text-red-600 hover:underline">
+            <Link to={ROUTES.AUTH.REGISTER} className="text-red-600 hover:underline">
               Đăng ký ngay
             </Link>
           </div>
