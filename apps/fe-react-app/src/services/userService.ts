@@ -19,16 +19,24 @@ export const transformRegisterRequest = (data: {
   fullName: string;
   email: string;
   password: string;
+  confirmPassword?: string;
   dateOfBirth?: Date | string;
   phone: string;
-}) => ({
-  fullName: data.fullName,
-  email: data.email,
-  password: data.password,
-  role: ROLES.MEMBER,
-  dateOfBirth: data.dateOfBirth instanceof Date ? data.dateOfBirth.toISOString().split("T")[0] : data.dateOfBirth,
-  phone: data.phone,
-});
+}) => {
+  // Validate password match if confirmPassword is provided
+  if (data.confirmPassword && data.password !== data.confirmPassword) {
+    throw new Error("Mật khẩu không khớp");
+  }
+
+  return {
+    fullName: data.fullName,
+    email: data.email,
+    password: data.password,
+    role: ROLES.MEMBER,
+    dateOfBirth: data.dateOfBirth instanceof Date ? data.dateOfBirth.toISOString().split("T")[0] : data.dateOfBirth,
+    phone: data.phone,
+  };
+};
 
 export const transformUserLoginResponse = (data: {
   id?: string;

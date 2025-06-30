@@ -9,21 +9,16 @@ export const loginFormSchema = z.object({
 });
 
 // Zod schema based on the original Yup validation rules
-export const registerFormSchema = z
-  .object({
-    fullName: z.string().trim().min(2, "Tối thiểu 2 ký tự").max(50, "Tối đa 50 ký tự"),
-    dateOfBirth: z.date({
-      required_error: "Ngày sinh là bắt buộc",
-    }),
-    email: z.string().email("Email không hợp lệ"),
-    password: z.string().min(6, "Mật khẩu phải có ít nhất 8 ký tự"),
-    confirmPassword: z.string(),
-    phone: z.string().regex(/^\d{9,11}$/, "Số điện thoại không hợp lệ"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Mật khẩu không khớp",
-    path: ["confirmPassword"],
-  });
+export const registerFormSchema = z.object({
+  fullName: z.string().trim().min(2, "Tối thiểu 2 ký tự").max(50, "Tối đa 50 ký tự"),
+  dateOfBirth: z.date({
+    required_error: "Ngày sinh là bắt buộc",
+  }),
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(6, "Mật khẩu phải có ít nhất 8 ký tự"),
+  confirmPassword: z.string(),
+  phone: z.string().regex(/^\d{9,11}$/, "Số điện thoại không hợp lệ"),
+});
 
 // export const registerValidationSchema = Yup.object().shape({
 //   fullName: Yup.string()

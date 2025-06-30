@@ -41,13 +41,10 @@ const Register: React.FC = () => {
   const onSubmit = (data: RegisterFormSchemaType) => {
     setError(null);
     setMessage(null);
-    if (data.password !== data.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
     registerQuery.mutate({
       body: transformRegisterRequest(data),
     });
+
   };
 
   useEffect(() => {

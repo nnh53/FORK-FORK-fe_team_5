@@ -36,7 +36,6 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginFormSchemaType) => {
     setError(null);
     setMessage(null);
-
     loginQuery.mutate({
       body: transformLoginRequest(data),
     });
@@ -61,7 +60,7 @@ const Login: React.FC = () => {
       form.reset();
       setTimeout(() => {
         navigate(RoleRouteToEachPage(authData?.roles as ROLE_TYPE));
-      }, 1000);
+      }, 2000);
     } else if (loginQuery.isError) {
       setError((loginQuery.error as CustomAPIResponse).message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
       toast.error((loginQuery.error as CustomAPIResponse).message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
