@@ -1,10 +1,12 @@
 import ClickSpark from "@/components/Reactbits/reactbit-animations/ClickSpark/ClickSpark";
+import ScrollFloat from "@/components/Reactbits/reactbit-animations/ScrollFloat/ScrollFloat";
+import ScrollReveal from "@/components/Reactbits/reactbit-animations/ScrollReveal/ScrollReveal";
 import { Button } from "@/components/Shadcn/ui/button";
 import CarouselSection from "@/feature/views/CarouselSection/CarouselSection";
 import { recentMoviesData } from "@/feature/views/CarouselSection/data/movies.data";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import { FAQ } from "@/feature/views/FAQ";
-import HeroSection from "@/feature/views/HeroSection/HeroSection";
+import WelcomePanel from "@/feature/views/HeroSection/components/WelcomePanel";
 import NowShowing from "@/feature/views/NowShowing/NowShowing";
 import TrendingSection from "@/feature/views/TrendingSection/TrendingSection";
 import { useHomePageAnimations } from "@/hooks/useHomePageAnimations";
@@ -52,8 +54,104 @@ const HomePage = () => {
     <UserLayout>
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="test-home-page">
-          {/* Hero Section */}
-          <HeroSection ref={heroRef} />
+          {/* Header Section */}
+          <div className="h-screen flex items-center justify-center">
+            <div className="text-center space-y-8">
+              <WelcomePanel />
+              <div>
+                <p className="text-lg">Scroll xuống</p>
+              </div>
+            </div>
+          </div>
+          {/* Hero Section with ScrollFloat */}
+          <section className="py-20 px-8">
+            <div className="max-w-6xl mx-auto text-center">
+              <ScrollFloat
+                animationDuration={1}
+                ease="back.inOut(2)"
+                scrollStart="center bottom+=50%"
+                scrollEnd="bottom bottom-=40%"
+                stagger={0.03}
+                containerClassName="text-base font-medium whitespace-nowrap"
+              >
+                Modern Theater
+              </ScrollFloat>
+            </div>
+          </section>
+
+          {/* Spacer */}
+          <div className="h-96"></div>
+
+          {/* Multiple lines */}
+          <section className="py-20 px-8">
+            <div className="max-w-4xl mx-auto text-center space-y-8">
+              <ScrollFloat
+                animationDuration={0.8}
+                ease="power2.out"
+                scrollStart="center bottom"
+                scrollEnd="center top"
+                stagger={0.02}
+                containerClassName="text-4xl font-bold"
+                textClassName="text-blue-00"
+              >
+                The Best
+              </ScrollFloat>
+
+              <ScrollFloat
+                animationDuration={0.8}
+                ease="power2.out"
+                scrollStart="center bottom+=20%"
+                scrollEnd="center top-=20%"
+                stagger={0.02}
+                containerClassName="text-5xl font-bold"
+                textClassName="text-yellow-00"
+              >
+                Facilities
+              </ScrollFloat>
+            </div>
+          </section>
+          <div className="h-96"></div>
+          <section className="py-20 px-8">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="mb-16">
+                <ScrollReveal enableBlur={true} baseOpacity={0.1} baseRotation={3} blurStrength={4} containerClassName="text-4xl font-bold">
+                  Trải nghiệm những dịch vụ sang trọng
+                </ScrollReveal>
+              </div>
+              {/* ScrollReveal Test 2 - No Blur */}
+              <div className="mb-16">
+                <ScrollReveal enableBlur={false} baseOpacity={0.2} baseRotation={5} containerClassName="text-3xl font-semibold">
+                  Cơ sở vật chất hiện đại
+                </ScrollReveal>
+              </div>
+
+              {/* ScrollReveal Test 3 - Custom Settings */}
+              <div className="mb-16">
+                <h3 className="text-xl font-medium mb-6">Cùng với</h3>
+                <ScrollReveal
+                  enableBlur={true}
+                  baseOpacity={0.05}
+                  baseRotation={8}
+                  blurStrength={6}
+                  rotationEnd="center center"
+                  wordAnimationEnd="center center"
+                  containerClassName="text-5xl font-bold"
+                >
+                  Phòng Chiếu Chuẩn Quốc Tế
+                </ScrollReveal>
+
+                {/* Button Thử ngay */}
+                <div className="mt-8">
+                  <Button
+                    onClick={() => navigate(ROUTES.MOVIES_SELECTION)}
+                    className="bg-gradient-to-r from-amber-700 to-orange-800 hover:from-amber-800 hover:to-orange-900 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105"
+                  >
+                    Đặt phim ngay
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </section>
           {/* New Releases Carousel Section */}
           <CarouselSection ref={carouselRef} movies={recentMoviesData} />
           {/* Trending Movies Section */}
@@ -80,22 +178,13 @@ const HomePage = () => {
               <p>Feel the magic of cinema</p>
 
               {/* Logout Button */}
-              <div className="mt-6 flex gap-4 justify-center">
+              <div className="mt-6">
                 <Button
                   onClick={handleLogout}
                   variant="destructive"
                   className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
                 >
                   Đăng Xuất
-                </Button>
-
-                {/* ScrollFloat Test Button */}
-                <Button
-                  onClick={() => navigate(ROUTES.SCROLL_FLOAT)}
-                  variant="secondary"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
-                >
-                  Test ScrollFloat
                 </Button>
               </div>
             </div>{" "}
@@ -104,6 +193,13 @@ const HomePage = () => {
           <CinemaExperience ref={experienceRef} />
           {/* FAQ Section */}
           <FAQ ref={faqRef} />
+          {/* Footer */}
+          <div className="h-screen flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold">End of ScrollFloat Tests</h2>
+              <p className="text-lg mt-4">Scroll back up để xem lại các hiệu ứng</p>
+            </div>
+          </div>
         </div>
       </ClickSpark>
     </UserLayout>

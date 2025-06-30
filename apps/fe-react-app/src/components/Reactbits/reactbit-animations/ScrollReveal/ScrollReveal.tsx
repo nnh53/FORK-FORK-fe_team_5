@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useMemo, type ReactNode, type RefObject } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
 import "./ScrollReveal.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -48,10 +48,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
     const el = containerRef.current;
     if (!el) return;
 
-    const scroller =
-      scrollContainerRef && scrollContainerRef.current
-        ? scrollContainerRef.current
-        : window;
+    const scroller = scrollContainerRef && scrollContainerRef.current ? scrollContainerRef.current : window;
 
     gsap.fromTo(
       el,
@@ -66,7 +63,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
           end: rotationEnd,
           scrub: true,
         },
-      }
+      },
     );
 
     const wordElements = el.querySelectorAll<HTMLElement>(".word");
@@ -85,7 +82,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
           end: wordAnimationEnd,
           scrub: true,
         },
-      }
+      },
     );
 
     if (enableBlur) {
@@ -103,22 +100,14 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
             end: wordAnimationEnd,
             scrub: true,
           },
-        }
+        },
       );
     }
 
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, [
-    scrollContainerRef,
-    enableBlur,
-    baseRotation,
-    baseOpacity,
-    rotationEnd,
-    wordAnimationEnd,
-    blurStrength,
-  ]);
+  }, [scrollContainerRef, enableBlur, baseRotation, baseOpacity, rotationEnd, wordAnimationEnd, blurStrength]);
 
   return (
     <h2 ref={containerRef} className={`scroll-reveal ${containerClassName}`}>

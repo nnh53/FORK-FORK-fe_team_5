@@ -26,20 +26,13 @@ const NowShowing = forwardRef<HTMLElement, NowShowingProps>(({ className }, ref)
     },
     {
       id: 2,
-      title: "The Batman",
-      genre: "Action • Crime",
-      duration: "2h 56m",
-      posterUrl: "https://image.tmdb.org/t/p/w500/b0PlSFdDwbyK0cf5RxwDpaOJQvQ.jpg",
-    },
-    {
-      id: 3,
       title: "Dune",
       genre: "Sci-Fi • Adventure",
       duration: "2h 35m",
       posterUrl: "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
     },
     {
-      id: 4,
+      id: 3,
       title: "Spider-Man: No Way Home",
       genre: "Action • Adventure",
       duration: "2h 28m",

@@ -1,9 +1,5 @@
-import React from 'react'
-
 const ScrollFloat = () => {
-  return (
-    <div>ScrollFloat</div>
-  )
-}
+  return <div>ScrollFloat</div>;
+};
 
-export default ScrollFloat
+export default ScrollFloat;

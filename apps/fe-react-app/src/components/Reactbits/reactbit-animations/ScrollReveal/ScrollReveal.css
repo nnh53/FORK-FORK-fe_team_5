@@ -3,9 +3,9 @@
 }
 
 .scroll-reveal-text {
+  font-weight: 600;
   font-size: clamp(1.6rem, 4vw, 3rem);
   line-height: 1.5;
-  font-weight: 600;
 }
 
 .word {
