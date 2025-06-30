@@ -235,6 +235,67 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
   };
 
   // Create render items for grid display with proper double seat handling
+  // Helper function to get display number for seats (consecutive numbering per row)
+  const getDisplayNumber = (seat: Seat) => {
+    if (!currentSeatMap || seat.type === "AISLE" || seat.type === "BLOCKED") {
+      return null;
+    }
+
+    // Get all seats in the same row (excluding AISLE and BLOCKED)
+    const rowSeats = currentSeatMap.gridData
+      .filter((s) => s.seat_row === seat.seat_row && s.type !== "AISLE" && s.type !== "BLOCKED")
+      .sort((a, b) => parseInt(a.seat_column) - parseInt(b.seat_column));
+
+    return calculateDisplayPosition(seat, rowSeats);
+  };
+
+  // Helper function to calculate display position
+  const calculateDisplayPosition = (targetSeat: Seat, rowSeats: Seat[]) => {
+    let displayNumber = 1;
+    let skipNext = false;
+
+    for (let i = 0; i < rowSeats.length; i++) {
+      if (skipNext) {
+        skipNext = false;
+        continue;
+      }
+
+      const currentSeat = rowSeats[i];
+
+      if (currentSeat.id === targetSeat.id) {
+        return displayNumber;
+      }
+
+      // Handle couple seat logic
+      skipNext = handleCoupleSeatLogic(currentSeat, rowSeats, i, targetSeat);
+
+      if (!skipNext || (skipNext && rowSeats[i + 1]?.id !== targetSeat.id)) {
+        displayNumber++;
+      }
+    }
+
+    return displayNumber;
+  };
+
+  // Helper function to handle couple seat logic
+  const handleCoupleSeatLogic = (currentSeat: Seat, rowSeats: Seat[], index: number, targetSeat: Seat) => {
+    if (currentSeat.type !== "COUPLE") return false;
+
+    const nextSeat = rowSeats[index + 1];
+    const isCouplePair =
+      nextSeat &&
+      nextSeat.type === "COUPLE" &&
+      nextSeat.seat_row === currentSeat.seat_row &&
+      parseInt(nextSeat.seat_column) === parseInt(currentSeat.seat_column) + 1;
+
+    if (isCouplePair && nextSeat.id === targetSeat.id) {
+      // If we're looking for the second seat of the couple, it should have the same display number
+      return false;
+    }
+
+    return isCouplePair;
+  };
+
   const createRenderItems = () => {
     if (!currentSeatMap) return [];
 
@@ -516,12 +577,12 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                             width: "68px", // 32px * 2 + 4px gap
                           }}
                         >
-                          {item.seat.seat_column}
+                          {getDisplayNumber(item.seat) || item.seat.seat_column}
                         </div>
                       );
                     } else {
                       // Render special content for aisle and blocked seats
-                      let content: React.ReactNode = item.seat.seat_column;
+                      let content: React.ReactNode = getDisplayNumber(item.seat) || item.seat.seat_column;
                       if (item.seat.type === "AISLE") {
                         content = <Icon icon="mdi:walk" className="w-3 h-3" />;
                       } else if (item.seat.type === "BLOCKED") {

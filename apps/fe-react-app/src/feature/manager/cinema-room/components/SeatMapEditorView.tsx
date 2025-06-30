@@ -61,6 +61,50 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
       return colA - colB;
     });
 
+    // Create display numbering system - consecutive numbers per row (couple seats share same number)
+    const displayNumbering: Record<string, number> = {};
+
+    // Group seats by row
+    const seatsByRow: Record<string, Seat[]> = {};
+    sortedSeats.forEach((seat) => {
+      if (!seatsByRow[seat.seat_row]) {
+        seatsByRow[seat.seat_row] = [];
+      }
+      seatsByRow[seat.seat_row].push(seat);
+    });
+
+    // Generate display numbers for each row
+    Object.keys(seatsByRow).forEach((rowKey) => {
+      const rowSeats = seatsByRow[rowKey]
+        .filter((s) => s.type !== "AISLE" && s.type !== "BLOCKED")
+        .sort((a, b) => parseInt(a.seat_column) - parseInt(b.seat_column));
+
+      let displayCounter = 1;
+      let skipNext = false;
+
+      for (let i = 0; i < rowSeats.length; i++) {
+        if (skipNext) {
+          skipNext = false;
+          continue;
+        }
+
+        const seat = rowSeats[i];
+        displayNumbering[`${seat.seat_row}-${seat.seat_column}`] = displayCounter;
+
+        // If this is a couple seat, check if it pairs with the next seat
+        if (seat.type === "COUPLE") {
+          const nextSeat = rowSeats[i + 1];
+          if (nextSeat && nextSeat.type === "COUPLE" && parseInt(nextSeat.seat_column) === parseInt(seat.seat_column) + 1) {
+            // Next seat is part of the same couple, give it the same display number
+            displayNumbering[`${nextSeat.seat_row}-${nextSeat.seat_column}`] = displayCounter;
+            skipNext = true;
+          }
+        }
+
+        displayCounter++;
+      }
+    });
+
     const renderItems = [];
     let skipNext = false;
 
@@ -71,6 +115,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
       }
 
       const seat = sortedSeats[i];
+      const displayNumber = displayNumbering[`${seat.seat_row}-${seat.seat_column}`];
 
       // Check if this seat should be part of a double seat
       if (seat.type === "COUPLE") {
@@ -79,14 +124,14 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
         const currentCol = parseInt(seat.seat_column);
 
         if (nextSeat && nextSeat.type === "COUPLE" && nextSeat.seat_row === seat.seat_row && parseInt(nextSeat.seat_column) === currentCol + 1) {
-          // This is the start of a double seat
+          // This is the start of a double seat - both seats share the same display number
           renderItems.push({
             type: "double",
             seat: seat,
             index: i,
             span: 2,
             cellType: "seat" as const,
-            displayCol: seat.seat_column,
+            displayCol: displayNumber.toString(),
             displayRow: seat.seat_row,
           });
           // Mark to skip the next seat since it's part of this double seat
@@ -99,7 +144,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
             index: i,
             span: 1,
             cellType: "seat" as const,
-            displayCol: seat.seat_column,
+            displayCol: displayNumber.toString(),
             displayRow: seat.seat_row,
           });
         }
@@ -111,7 +156,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
           index: i,
           span: 1,
           cellType: "seat" as const,
-          displayCol: seat.seat_column,
+          displayCol: displayNumber.toString(),
           displayRow: seat.seat_row,
         });
       }
@@ -306,7 +351,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
             {/* Space for row labels */}
             <div className="w-8"></div>
 
-            {/* Column numbers */}
+            {/* Column numbers - show consecutive numbering that matches seats */}
             <div
               className="grid"
               style={{
@@ -315,18 +360,34 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
                 maxWidth: `${actualDimensions.actualWidth * 32 + (actualDimensions.actualWidth - 1) * 4}px`,
               }}
             >
-              {Array.from({ length: actualDimensions.actualWidth }, (_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-center text-sm font-medium text-gray-500"
-                  style={{
-                    width: "32px", // Match seat width exactly
-                    height: "24px",
-                  }}
-                >
-                  {i + 1}
-                </div>
-              ))}
+              {(() => {
+                // Calculate how many display numbers we have based on the render items
+                const displayNumbers = new Set<number>();
+                createRenderItems.forEach((item) => {
+                  if (item.seat.type !== "AISLE" && item.seat.type !== "BLOCKED") {
+                    const displayNum = parseInt(item.displayCol);
+                    if (!isNaN(displayNum)) {
+                      displayNumbers.add(displayNum);
+                    }
+                  }
+                });
+
+                const maxDisplayNumber = Math.max(...Array.from(displayNumbers), 0);
+                const columnCount = Math.max(maxDisplayNumber, actualDimensions.actualWidth);
+
+                return Array.from({ length: columnCount }, (_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center text-sm font-medium text-gray-500"
+                    style={{
+                      width: "32px", // Match seat width exactly
+                      height: "24px",
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         </div>
