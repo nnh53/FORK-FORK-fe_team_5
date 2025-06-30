@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { CinemaRoomWithSeatMap } from "../../../../interfaces/cinemarooms.interface";
-import { seatMapService } from "../../../../services/seatMapService";
+import type { CinemaRoom } from "../../../../interfaces/cinemarooms.interface";
+import { cinemaRoomService } from "../../../../services/cinemaRoomService";
 
 interface RoomStats {
   total: number;
@@ -11,7 +11,7 @@ interface RoomStats {
 }
 
 export const useRoomManagement = () => {
-  const [rooms, setRooms] = useState<CinemaRoomWithSeatMap[]>([]);
+  const [rooms, setRooms] = useState<CinemaRoom[]>([]);
   const [stats, setStats] = useState<RoomStats>({
     total: 0,
     withSeatMap: 0,
@@ -27,7 +27,7 @@ export const useRoomManagement = () => {
     try {
       setLoading(true);
       setError(null);
-      const rooms = await seatMapService.getAllRooms();
+      const rooms = await cinemaRoomService.getAllRooms();
       setRooms(rooms);
     } catch (err) {
       setError("Failed to load rooms");
@@ -40,7 +40,7 @@ export const useRoomManagement = () => {
   // Load room statistics
   const loadStats = async () => {
     try {
-      const stats = await seatMapService.getRoomStats();
+      const stats = await cinemaRoomService.getRoomStats();
       setStats(stats);
     } catch (err) {
       console.error("Error loading stats:", err);
@@ -48,7 +48,7 @@ export const useRoomManagement = () => {
   };
 
   // Delete room
-  const deleteRoom = async (room: CinemaRoomWithSeatMap) => {
+  const deleteRoom = async (room: CinemaRoom) => {
     if (!confirm(`Are you sure you want to delete "${room.name}"?`)) {
       return false;
     }
@@ -57,7 +57,7 @@ export const useRoomManagement = () => {
       setLoading(true);
       setError(null);
 
-      const success = await seatMapService.deleteRoom(room.id);
+      const success = await cinemaRoomService.deleteRoom(room.id);
       if (success) {
         setRooms((prev) => prev.filter((r) => r.id !== room.id));
         await loadStats();

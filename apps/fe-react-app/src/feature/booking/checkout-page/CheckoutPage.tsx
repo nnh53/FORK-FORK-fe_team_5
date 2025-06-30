@@ -1,4 +1,4 @@
-import { PaymentMethod, type BookingCreateRequest, type Combo } from "@/interfaces/booking.interface.ts";
+import type { BookingRequest, PaymentMethod } from "@/interfaces/booking.interface.ts";
 import type { Member } from "@/interfaces/member.interface.ts";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -13,30 +13,39 @@ import PaymentInfo from "../components/PaymentInfo/PaymentInfo.tsx";
 import PaymentMethodSelector from "../components/PaymentMethodSelector/PaymentMethodSelector.tsx";
 import PaymentSummary from "../components/PaymentSummary/PaymentSummary.tsx";
 
-const mockCombos: Combo[] = [
+// Legacy interface for UI compatibility
+interface UICombo {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+}
+
+const mockCombos: UICombo[] = [
   {
-    id: "combo1",
+    id: "1",
     name: "Family Combo Bắp",
     description: "02 bắp ngọt lớn + 02 nước siêu lớn",
     price: 129000,
     imageUrl: "https://www.betacinemas.vn/images/common/combo-1.png",
   },
   {
-    id: "combo2",
+    id: "2",
     name: "Combo lon Milo",
     description: "01 lon Milo + 01 bắp ngọt lớn",
     price: 89000,
     imageUrl: "https://www.betacinemas.vn/images/common/combo-milo.png",
   },
   {
-    id: "combo3",
+    id: "3",
     name: "Beta Combo Bắp",
     description: "01 bắp ngọt lớn + 01 nước siêu lớn",
     price: 79000,
     imageUrl: "https://www.betacinemas.vn/images/common/combo-2.png",
   },
   {
-    id: "combo4",
+    id: "4",
     name: "Sweet Combo Bắp",
     description: "01 bắp ngọt lớn + 01 KitKat + 01 nước ngọt",
     price: 95000,
@@ -57,8 +66,8 @@ const CheckoutPage: React.FC = () => {
     return location.state || {};
   });
   const [selectedCombos, setSelectedCombos] = useState<Record<string, number>>({});
-  const [combos, setCombos] = useState<Combo[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.MOMO);
+  const [combos, setCombos] = useState<UICombo[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("BANKING");
   const [isCreatingBooking, setIsCreatingBooking] = useState(false);
   const [usePoints, setUsePoints] = useState(0);
   const [pointsDiscount, setPointsDiscount] = useState(0);
@@ -78,20 +87,20 @@ const CheckoutPage: React.FC = () => {
       try {
         const combosData = await bookingService.getCombos();
         console.log("Fetched combos from API:", combosData);
-        setCombos(combosData);
+        // Convert BookingCombo to UICombo for compatibility
+        const uiCombos: UICombo[] = combosData.map((combo) => ({
+          id: combo.id.toString(),
+          name: combo.name,
+          description: combo.description,
+          price: combo.total_price || 0,
+          imageUrl: combo.img || "https://via.placeholder.com/100x100",
+        }));
+        setCombos(uiCombos);
       } catch (error) {
         console.error("Error fetching combos:", error);
         console.log("Using fallback mock combos");
         // Fallback to mock data
-        setCombos(
-          mockCombos.map((combo) => ({
-            id: combo.id,
-            name: combo.name,
-            description: combo.description,
-            price: combo.price,
-            imageUrl: combo.imageUrl,
-          })),
-        );
+        setCombos(mockCombos);
       }
     };
 
@@ -155,26 +164,20 @@ const CheckoutPage: React.FC = () => {
       }
 
       // Prepare booking data
-      const bookingData: BookingCreateRequest = {
-        movieId: bookingState.movie.id.toString(),
-        showtimeId: "ST001", // Mock showtime ID
-        cinemaRoomId: "ROOM001", // Mock cinema room ID
-        seats: bookingState.selectedSeats.map((seat: { id: string }) => seat.id),
-        customerInfo: {
-          name: "Phát Đạt", // Should come from form
-          phone: "0123456789",
-          email: "test@gmail.com",
-        },
-        paymentMethod: paymentMethod,
+      const bookingData: BookingRequest = {
+        user_id: currentMember?.id,
+        showtime_id: 1, // Mock showtime ID - should come from bookingState
+        promotion_id: voucherCode ? 1 : undefined, // Mock promotion ID
+        loyalty_point_used: usePoints > 0 ? usePoints : undefined,
+        payment_method: paymentMethod,
+        staff_id: undefined, // For customer bookings
+        seat_ids: bookingState.selectedSeats.map((seat: { id: string }) => parseInt(seat.id)), // Convert to numbers
         combos: Object.entries(selectedCombos)
           .filter(([, quantity]) => quantity > 0)
           .map(([comboId, quantity]) => ({
-            id: comboId,
+            combo_id: parseInt(comboId),
             quantity,
           })),
-        usePoints: usePoints > 0 ? usePoints : undefined,
-        voucherCode: voucherCode || undefined,
-        memberId: currentMember?.id,
       };
 
       const booking = await bookingService.createBooking(bookingData);
@@ -213,16 +216,7 @@ const CheckoutPage: React.FC = () => {
   }
 
   // Convert API combos to match UI component interface
-  const uiCombos =
-    combos.length > 0
-      ? combos.map((combo) => ({
-          id: combo.id,
-          name: combo.name,
-          description: combo.description,
-          price: combo.price,
-          imageUrl: combo.imageUrl,
-        }))
-      : mockCombos;
+  const uiCombos = combos.length > 0 ? combos : mockCombos;
 
   return (
     <UserLayout>
@@ -234,7 +228,10 @@ const CheckoutPage: React.FC = () => {
           {" "}
           {/* Cột trái: Thông tin và lựa chọn */}
           <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md space-y-8">
-            <PaymentInfo user={{ name: "Phát Đạt", phone: "0123456789", email: "test@gmail.com" }} selectedSeats={selectedSeats} />{" "}
+            <PaymentInfo
+              user={{ id: "GUEST", full_name: "Phát Đạt", phone: "0123456789", email: "test@gmail.com", loyalty_point: 0 }}
+              selectedSeats={selectedSeats}
+            />{" "}
             <ComboList combos={uiCombos} selectedCombos={selectedCombos} onQuantityChange={handleQuantityChange} />
             {/* Discount Section */}
             <DiscountSection

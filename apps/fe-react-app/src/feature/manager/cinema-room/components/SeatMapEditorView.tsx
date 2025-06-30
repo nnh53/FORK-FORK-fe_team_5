@@ -1,122 +1,385 @@
-import { Button } from "@/components/Shadcn/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Badge } from "@/components/Shadcn/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import type { Seat, SeatMap } from "@/interfaces/seat.interface";
 import { Icon } from "@iconify/react";
 import React from "react";
-import type { DatabaseSeat } from "../../../../interfaces/seat.interface";
-import type { SeatMapGrid, SelectedSeat } from "../../../../interfaces/seatmap.interface";
-import SeatMapEditor from "../../../booking/components/SeatMapEditor/SeatMapEditor";
-import SeatMapGridComponent from "../../../booking/components/SeatMapGrid/SeatMapGrid";
 
 interface SeatMapEditorViewProps {
-  seatMap: SeatMapGrid | null;
-  setSeatMap: (seatMap: SeatMapGrid | null) => void;
-  selectedSeats: SelectedSeat[];
-  isEditorMode: boolean;
-  setIsEditorMode: (mode: boolean) => void;
-  onBackToRooms: () => void;
-  onSaveSeatMap: () => void;
-  loading: boolean;
-  // Database-aligned props
-  databaseSeats?: DatabaseSeat[];
-  onSeatUpdate?: (seatId: string, updates: Partial<DatabaseSeat>) => Promise<void>;
-  onSeatCreate?: (seat: Omit<DatabaseSeat, "id">) => Promise<DatabaseSeat>;
-  onSeatDelete?: (seatId: string) => Promise<void>;
+  seatMap: SeatMap | null;
+  selectedSeats?: string[];
+  onSeatSelect?: (seatId: string) => void;
+  showSelectable?: boolean;
+  width?: number;
+  length?: number;
 }
 
-export const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
+const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
   seatMap,
-  setSeatMap,
-  selectedSeats,
-  isEditorMode,
-  setIsEditorMode,
-  onBackToRooms,
-  onSaveSeatMap,
-  loading,
-  // Database-aligned props
-  databaseSeats = [],
-  onSeatUpdate,
-  // onSeatCreate, // Available for future seat creation features
-  // onSeatDelete, // Available for future seat deletion features
+  selectedSeats = [],
+  onSeatSelect,
+  showSelectable = false,
+  width = 10,
+  length = 10,
 }) => {
-  // Enhanced seat map update handler that syncs with database
-  const handleSeatMapUpdate = async (updatedMap: SeatMapGrid) => {
-    // Update the UI immediately
-    setSeatMap(updatedMap);
+  // Calculate actual dimensions based on seat data
+  const actualDimensions = React.useMemo(() => {
+    if (!seatMap || seatMap.gridData.length === 0) {
+      return { actualWidth: width, actualHeight: length };
+    }
 
-    // If we have database handlers, sync changes to database
-    if (onSeatUpdate && databaseSeats.length > 0) {
-      try {
-        // Compare changes and update database accordingly
-        // This is a simplified approach - in a real app you'd want more sophisticated diffing
-        console.log("Syncing seat map changes to database...", updatedMap);
-        // For now, we'll log the changes. In a full implementation,
-        // you would compare the grid changes with databaseSeats and call appropriate CRUD operations
-        console.log("Database seats available for sync:", databaseSeats.length);
-      } catch (error) {
-        console.error("Failed to sync seat map changes to database:", error);
+    const seats = seatMap.gridData;
+    let maxRow = 0;
+    let maxCol = 0;
+
+    seats.forEach((seat) => {
+      const rowIndex = seat.seat_row.charCodeAt(0) - 65; // A=0, B=1, etc.
+      const colIndex = parseInt(seat.seat_column) - 1; // 1=0, 2=1, etc.
+
+      maxRow = Math.max(maxRow, rowIndex);
+      maxCol = Math.max(maxCol, colIndex);
+    });
+
+    return {
+      actualWidth: Math.max(maxCol + 1, width),
+      actualHeight: Math.max(maxRow + 1, length),
+    };
+  }, [seatMap, width, length]);
+
+  const createRenderItems = React.useMemo(() => {
+    if (!seatMap || !seatMap.gridData) return [];
+
+    const seats = seatMap.gridData;
+
+    // Sort seats by row and column to ensure proper grid order
+    const sortedSeats = [...seats].sort((a, b) => {
+      const rowA = a.seat_row.charCodeAt(0);
+      const rowB = b.seat_row.charCodeAt(0);
+      if (rowA !== rowB) return rowA - rowB;
+
+      const colA = parseInt(a.seat_column);
+      const colB = parseInt(b.seat_column);
+      return colA - colB;
+    });
+
+    const renderItems = [];
+    let skipNext = false;
+
+    for (let i = 0; i < sortedSeats.length; i++) {
+      if (skipNext) {
+        skipNext = false;
+        continue;
       }
+
+      const seat = sortedSeats[i];
+
+      // Check if this seat should be part of a double seat
+      if (seat.type === "COUPLE") {
+        // Check if next seat is also COUPLE and in same row
+        const nextSeat = sortedSeats[i + 1];
+        const currentCol = parseInt(seat.seat_column);
+
+        if (nextSeat && nextSeat.type === "COUPLE" && nextSeat.seat_row === seat.seat_row && parseInt(nextSeat.seat_column) === currentCol + 1) {
+          // This is the start of a double seat
+          renderItems.push({
+            type: "double",
+            seat: seat,
+            index: i,
+            span: 2,
+            cellType: "seat" as const,
+            displayCol: seat.seat_column,
+            displayRow: seat.seat_row,
+          });
+          // Mark to skip the next seat since it's part of this double seat
+          skipNext = true;
+        } else {
+          // Single COUPLE seat (shouldn't happen but handle gracefully)
+          renderItems.push({
+            type: "single",
+            seat: seat,
+            index: i,
+            span: 1,
+            cellType: "seat" as const,
+            displayCol: seat.seat_column,
+            displayRow: seat.seat_row,
+          });
+        }
+      } else {
+        // Regular single seat
+        renderItems.push({
+          type: "single",
+          seat: seat,
+          index: i,
+          span: 1,
+          cellType: "seat" as const,
+          displayCol: seat.seat_column,
+          displayRow: seat.seat_row,
+        });
+      }
+    }
+
+    return renderItems;
+  }, [seatMap]);
+  // Function to get seat color based on seat type
+  const getSeatColor = (seat: Seat, isSelected: boolean = false): string => {
+    const baseClass = "border rounded flex items-center justify-center text-xs cursor-pointer hover:opacity-80";
+
+    if (isSelected) {
+      return `${baseClass} bg-blue-500 text-white border-blue-500 ring-2 ring-blue-300`;
+    }
+
+    switch (seat.type) {
+      case "REGULAR":
+        return `${baseClass} bg-blue-100 border-blue-300 text-blue-800`;
+      case "VIP":
+        return `${baseClass} bg-yellow-100 border-yellow-300 text-yellow-800`;
+      case "COUPLE":
+        return `${baseClass} bg-purple-100 border-purple-300 text-purple-800`;
+      case "AISLE":
+        return `${baseClass} bg-gray-50 border-gray-200 text-gray-500`;
+      case "BLOCKED":
+        return `${baseClass} bg-red-100 border-red-300 text-red-800`;
+      default:
+        return `${baseClass} bg-gray-100 border-gray-300 text-gray-600`;
     }
   };
 
+  const handleSeatClick = (seat: Seat) => {
+    if (showSelectable && onSeatSelect && seat.id && seat.status === "AVAILABLE") {
+      onSeatSelect(seat.id as string);
+    }
+  };
+
+  const seatStats = React.useMemo(() => {
+    if (!seatMap) return { total: 0, standard: 0, vip: 0, double: 0, available: 0, maintenance: 0 };
+
+    let total = 0,
+      standard = 0,
+      vip = 0,
+      double = 0,
+      available = 0,
+      maintenance = 0;
+
+    seatMap.gridData.forEach((seat) => {
+      total++;
+      switch (seat.type) {
+        case "REGULAR":
+          standard++;
+          break;
+        case "VIP":
+          vip++;
+          break;
+        case "COUPLE":
+          double++;
+          break;
+      }
+
+      switch (seat.status) {
+        case "AVAILABLE":
+          available++;
+          break;
+        case "MAINTENANCE":
+          maintenance++;
+          break;
+      }
+    });
+
+    return { total, standard, vip, double, available, maintenance };
+  }, [seatMap]);
+
+  if (!seatMap) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <Icon icon="mdi:seat" className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <p className="text-gray-500">Không có dữ liệu sơ đồ ghế</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="shadow-lg overflow-hidden">
-      <CardHeader className="border-b py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg flex items-center truncate">
-              <Icon icon="material-symbols:edit" className="mr-2 h-5 w-5 flex-shrink-0" />
-              <span className="truncate">{seatMap?.roomName || "Unknown Room"}</span>
-            </CardTitle>
-            <CardDescription className="text-sm mt-0.5">
-              {isEditorMode ? "Edit mode - Click on seats to modify layout" : "Preview mode - See how customers view the layout"}
-            </CardDescription>
-          </div>
-
-          {/* Action Controls */}
-          <div className="flex items-center gap-3 ml-4">
-            <Button variant="outline" onClick={onBackToRooms} size="sm">
-              <Icon icon="material-symbols:arrow-back" className="mr-1.5 h-4 w-4" />
-              Back to Rooms
-            </Button>
-
-            {/* Mode Toggle */}
-            <div className="hidden sm:flex border rounded-md overflow-hidden">
-              <Button
-                variant={!isEditorMode ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setIsEditorMode(false)}
-                className="rounded-none border-0"
-              >
-                <Icon icon="material-symbols:visibility" className="mr-1.5 h-4 w-4" />
-                Preview
-              </Button>
-              <Button variant={isEditorMode ? "default" : "ghost"} size="sm" onClick={() => setIsEditorMode(true)} className="rounded-none border-0">
-                <Icon icon="material-symbols:edit" className="mr-1.5 h-4 w-4" />
-                Edit
-              </Button>
-            </div>
-
-            <Button onClick={onSaveSeatMap} disabled={loading} size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-              <Icon icon="material-symbols:save" className="mr-1.5 h-4 w-4" />
-              {loading ? "Saving..." : "Save"}
-            </Button>
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg">Sơ đồ ghế - Phòng {seatMap.roomId}</CardTitle>
+          <div className="flex gap-2">
+            <Badge variant="outline">
+              <Icon icon="mdi:seat" className="w-4 h-4 mr-1" />
+              {seatStats.total} ghế
+            </Badge>
+            {showSelectable && selectedSeats.length > 0 && (
+              <Badge variant="default">
+                <Icon icon="mdi:check" className="w-4 h-4 mr-1" />
+                {selectedSeats.length} đã chọn
+              </Badge>
+            )}
           </div>
         </div>
       </CardHeader>
+      <CardContent>
+        {/* Screen */}
+        <div className="mb-6">
+          <div className="w-full h-3 bg-gradient-to-r from-gray-300 via-gray-500 to-gray-300 rounded-full mb-2 shadow-lg"></div>
+          <p className="text-center text-sm text-gray-500 font-medium">MÀN HÌNH CHIẾU</p>
+        </div>
 
-      <CardContent className="p-0">
-        {isEditorMode ? (
-          <div className="p-6">{seatMap && <SeatMapEditor seatMap={seatMap} onSeatMapUpdate={handleSeatMapUpdate} />}</div>
-        ) : (
-          <div className="p-6">
-            {seatMap && (
-              <div className="p-8 rounded-lg border shadow-inner bg-muted/30">
-                <SeatMapGridComponent seatMap={seatMap} selectedSeats={selectedSeats} onSeatSelect={() => {}} />
+        {/* Grid with row labels */}
+        <div className="overflow-auto">
+          <div className="flex justify-center">
+            <div className="flex">
+              {/* Row labels (A, B, C...) */}
+              <div className="flex flex-col mr-2">
+                {Array.from({ length: actualDimensions.actualHeight }, (_, i) => (
+                  <div
+                    key={i}
+                    className="w-6 flex items-center justify-center text-sm font-medium text-gray-500"
+                    style={{
+                      height: "32px", // Match seat height exactly
+                      marginBottom: i < actualDimensions.actualHeight - 1 ? "4px" : "0",
+                    }}
+                  >
+                    {String.fromCharCode(65 + i)}
+                  </div>
+                ))}
               </div>
-            )}
+
+              {/* Seat grid */}
+              <div
+                className="grid"
+                style={{
+                  gridTemplateColumns: `repeat(${actualDimensions.actualWidth}, 1fr)`,
+                  gap: "4px",
+                  maxWidth: `${actualDimensions.actualWidth * 32 + (actualDimensions.actualWidth - 1) * 4}px`,
+                }}
+              >
+                {/* Using render items for proper double seat handling */}
+                {createRenderItems.map((item) => {
+                  const isSelected = item.seat.id ? selectedSeats.includes(item.seat.id as string) : false;
+
+                  if (item.type === "double") {
+                    return (
+                      <div
+                        key={item.seat.id || item.index}
+                        className={`border rounded flex items-center justify-center text-xs cursor-pointer hover:opacity-80 ${getSeatColor(item.seat, isSelected)}`}
+                        onClick={() => handleSeatClick(item.seat)}
+                        style={{
+                          gridColumn: "span 2",
+                          height: "32px", // Fixed height
+                          width: "68px", // 32px * 2 + 4px gap
+                        }}
+                      >
+                        {item.displayCol}
+                      </div>
+                    );
+                  } else {
+                    // Render special content for aisle and blocked seats
+                    let content: React.ReactNode = item.displayCol;
+                    if (item.seat.type === "AISLE") {
+                      content = <Icon icon="mdi:walk" className="w-3 h-3" />;
+                    } else if (item.seat.type === "BLOCKED") {
+                      content = <Icon icon="mdi:close" className="w-3 h-3" />;
+                    }
+
+                    return (
+                      <div
+                        key={item.seat.id || item.index}
+                        className={`${getSeatColor(item.seat, isSelected)}`}
+                        onClick={() => handleSeatClick(item.seat)}
+                        style={{
+                          height: "32px", // Fixed height
+                          width: "32px", // Fixed width
+                        }}
+                      >
+                        {content}
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Column labels (1, 2, 3...) */}
+        <div className="mt-4 flex justify-center">
+          <div className="flex">
+            {/* Space for row labels */}
+            <div className="w-8"></div>
+
+            {/* Column numbers */}
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: `repeat(${actualDimensions.actualWidth}, 1fr)`,
+                gap: "4px",
+                maxWidth: `${actualDimensions.actualWidth * 32 + (actualDimensions.actualWidth - 1) * 4}px`,
+              }}
+            >
+              {Array.from({ length: actualDimensions.actualWidth }, (_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-center text-sm font-medium text-gray-500"
+                  style={{
+                    width: "32px", // Match seat width exactly
+                    height: "24px",
+                  }}
+                >
+                  {i + 1}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-6 flex flex-wrap gap-4 justify-center">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
+            <span className="text-sm">Ghế Thường ({seatStats.standard})</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
+            <span className="text-sm">Ghế VIP ({seatStats.vip})</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-4 bg-purple-100 border border-purple-300 rounded"></div>
+            <span className="text-sm">Ghế Đôi ({seatStats.double})</span>
+          </div>
+          {showSelectable && (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-500 border border-blue-500 rounded"></div>
+              <span className="text-sm">Đã chọn</span>
+            </div>
+          )}
+        </div>
+
+        {/* Seat Statistics */}
+        {seatStats.total > 0 && (
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Thống kê ghế</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Tổng số:</span>
+                <span className="font-medium">{seatStats.total}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Có thể sử dụng:</span>
+                <span className="font-medium text-green-600">{seatStats.available}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Bảo trì:</span>
+                <span className="font-medium text-orange-600">{seatStats.maintenance}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Tỷ lệ khả dụng:</span>
+                <span className="font-medium">{seatStats.total > 0 ? Math.round((seatStats.available / seatStats.total) * 100) : 0}%</span>
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
     </Card>
   );
 };
+
+export default SeatMapEditorView;

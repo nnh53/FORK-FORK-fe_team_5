@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Icon } from "@iconify/react";
 import { Plus } from "lucide-react";
 import React from "react";
-import type { CinemaRoomWithSeatMap } from "../../../../interfaces/cinemarooms.interface";
+import type { CinemaRoom } from "../../../../interfaces/cinemarooms.interface";
 
 type SortOption = "all" | "Standard" | "VIP" | "IMAX" | "4DX";
 
@@ -15,13 +15,13 @@ type SortOption = "all" | "Standard" | "VIP" | "IMAX" | "4DX";
 const getRoomTypeIcon = (type: string) => {
   switch (type) {
     case "VIP":
-      return "material-symbols:star";
+      return "mdi:star";
     case "IMAX":
-      return "material-symbols:theaters";
+      return "mdi:theater";
     case "4DX":
-      return "material-symbols:rocket-launch";
+      return "mdi:rocket-launch";
     default:
-      return "material-symbols:movie";
+      return "mdi:movie";
   }
 };
 
@@ -41,13 +41,13 @@ const getRoomTypeVariant = (type: string): "default" | "secondary" | "destructiv
 const getRoomStatusIcon = (status: string) => {
   switch (status) {
     case "active":
-      return "material-symbols:check-circle";
+      return "mdi:check-circle";
     case "maintenance":
-      return "material-symbols:build";
+      return "mdi:wrench";
     case "closed":
-      return "material-symbols:cancel";
+      return "mdi:cancel";
     default:
-      return "material-symbols:help";
+      return "mdi:help-circle";
   }
 };
 
@@ -65,11 +65,11 @@ const getRoomStatusVariant = (status: string): "default" | "secondary" | "destru
 };
 
 interface RoomCardProps {
-  room: CinemaRoomWithSeatMap;
+  room: CinemaRoom;
   onRoomSelect: (roomId: string) => void;
-  onEditRoom: (room: CinemaRoomWithSeatMap) => void;
-  onChangeStatus: (room: CinemaRoomWithSeatMap) => void;
-  onDeleteRoom: (room: CinemaRoomWithSeatMap) => void;
+  onEditRoom: (room: CinemaRoom) => void;
+  onChangeStatus: (room: CinemaRoom) => void;
+  onDeleteRoom: (room: CinemaRoom) => void;
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onChangeStatus, onDeleteRoom }) => (
@@ -96,20 +96,20 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
       <div className="space-y-3 mb-6">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center text-muted-foreground">
-            <Icon icon="material-symbols:people" className="mr-2 h-4 w-4" />
+            <Icon icon="mdi:account-group" className="mr-2 h-4 w-4" />
             Capacity
           </div>
           <span className="font-semibold">{room.capacity} seats</span>
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center text-muted-foreground">
-            <Icon icon="material-symbols:grid-view" className="mr-2 h-4 w-4" />
+            <Icon icon="mdi:view-grid" className="mr-2 h-4 w-4" />
             Seat Map
           </div>
           <div className="flex items-center">
-            <div className={`w-2 h-2 rounded-full mr-2 ${room.hasSeatMap ? "bg-green-500" : "bg-red-500"}`}></div>
-            <span className={`font-medium text-sm ${room.hasSeatMap ? "text-green-600" : "text-red-600"}`}>
-              {room.hasSeatMap ? "Configured" : "Not configured"}
+            <div className={`w-2 h-2 rounded-full mr-2 ${room.seatMap ? "bg-green-500" : "bg-red-500"}`}></div>
+            <span className={`font-medium text-sm ${room.seatMap ? "text-green-600" : "text-red-600"}`}>
+              {room.seatMap ? "Configured" : "Not configured"}
             </span>
           </div>
         </div>
@@ -124,14 +124,14 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
           className="flex-1"
           size="sm"
         >
-          <Icon icon="material-symbols:edit" className="mr-1 h-4 w-4" />
+          <Icon icon="mdi:pencil" className="mr-1 h-4 w-4" />
           Edit Layout
         </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <Icon icon="material-symbols:more-vert" className="h-4 w-4" />
+            <Button variant="outline" size="sm">
+              <Icon icon="mdi:dots-vertical" className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
@@ -141,7 +141,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
                 onEditRoom(room);
               }}
             >
-              <Icon icon="material-symbols:edit" className="mr-2 h-4 w-4" />
+              <Icon icon="mdi:pencil" className="mr-2 h-4 w-4" />
               Edit Info
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -150,7 +150,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
                 onChangeStatus(room);
               }}
             >
-              <Icon icon="material-symbols:swap-horiz" className="mr-2 h-4 w-4" />
+              <Icon icon="mdi:swap-horizontal" className="mr-2 h-4 w-4" />
               Change Status
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -160,7 +160,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
               }}
               className="text-red-600 focus:text-red-600"
             >
-              <Icon icon="material-symbols:delete" className="mr-2 h-4 w-4" />
+              <Icon icon="mdi:delete" className="mr-2 h-4 w-4" />
               Delete Room
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -171,16 +171,16 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
 );
 
 interface RoomListViewProps {
-  rooms: CinemaRoomWithSeatMap[];
+  rooms: CinemaRoom[];
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   sortBy: SortOption;
   setSortBy: (sort: SortOption) => void;
   onAddRoom: () => void;
   onRoomSelect: (roomId: string) => void;
-  onEditRoom: (room: CinemaRoomWithSeatMap) => void;
-  onChangeStatus: (room: CinemaRoomWithSeatMap) => void;
-  onDeleteRoom: (room: CinemaRoomWithSeatMap) => void;
+  onEditRoom: (room: CinemaRoom) => void;
+  onChangeStatus: (room: CinemaRoom) => void;
+  onDeleteRoom: (room: CinemaRoom) => void;
 }
 
 export const RoomListView: React.FC<RoomListViewProps> = ({
@@ -214,7 +214,7 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
           {/* Search and Filter Controls */}
           <div className="flex flex-col sm:flex-row gap-3 lg:w-auto w-full">
             <div className="relative">
-              <Icon icon="material-symbols:search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search by name or ID..."
                 value={searchQuery}
@@ -225,7 +225,7 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
 
             <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
               <SelectTrigger className="w-full sm:w-48">
-                <Icon icon="material-symbols:filter-list" className="mr-2 h-4 w-4" />
+                <Icon icon="mdi:filter-variant" className="mr-2 h-4 w-4" />
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent>
@@ -244,7 +244,7 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
         {filteredRooms.length === 0 ? (
           <div className="text-center py-16 px-4">
             <div className="bg-muted rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-              <Icon icon="material-symbols:search-off" className="h-12 w-12 text-muted-foreground" />
+              <Icon icon="mdi:magnify-close" className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-3">No Rooms Found</h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">

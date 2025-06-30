@@ -1,8 +1,8 @@
 import { useState } from "react";
-import type { CinemaRoomWithSeatMap, ComponentRoomStatus } from "../../../../interfaces/cinemarooms.interface";
-import { seatMapService } from "../../../../services/seatMapService";
+import type { CinemaRoom } from "../../../../interfaces/cinemarooms.interface";
+import { cinemaRoomService } from "../../../../services/cinemaRoomService";
 
-type RoomStatus = ComponentRoomStatus;
+type RoomStatus = "ACTIVE" | "MAINTENANCE" | "CLOSED";
 
 interface CreateRoomData {
   name: string;
@@ -29,7 +29,7 @@ export const useRoomDialogs = (onRoomCreated: () => void, onRoomUpdated: () => v
     name: "",
     type: "Standard",
     capacity: 160,
-    status: "active",
+    status: "ACTIVE",
     width: 16,
     height: 10,
     roomNumber: 0,
@@ -44,12 +44,12 @@ export const useRoomDialogs = (onRoomCreated: () => void, onRoomUpdated: () => v
     width: 16,
     height: 10,
   });
-  const [roomToEdit, setRoomToEdit] = useState<CinemaRoomWithSeatMap | null>(null);
+  const [roomToEdit, setRoomToEdit] = useState<CinemaRoom | null>(null);
 
   // Change status dialog state
   const [changeStatusDialogOpen, setChangeStatusDialogOpen] = useState(false);
-  const [roomToChangeStatus, setRoomToChangeStatus] = useState<CinemaRoomWithSeatMap | null>(null);
-  const [newStatus, setNewStatus] = useState<RoomStatus>("active");
+  const [roomToChangeStatus, setRoomToChangeStatus] = useState<CinemaRoom | null>(null);
+  const [newStatus, setNewStatus] = useState<RoomStatus>("ACTIVE");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +60,7 @@ export const useRoomDialogs = (onRoomCreated: () => void, onRoomUpdated: () => v
       name: `Phòng ${roomsCount + 1}`,
       type: "Standard",
       capacity: 160,
-      status: "active",
+      status: "ACTIVE",
       width: 16,
       height: 10,
       roomNumber: 100 + roomsCount + 1,
@@ -70,19 +70,19 @@ export const useRoomDialogs = (onRoomCreated: () => void, onRoomUpdated: () => v
   };
 
   // Open edit room dialog
-  const openEditDialog = (room: CinemaRoomWithSeatMap) => {
+  const openEditDialog = (room: CinemaRoom) => {
     setRoomToEdit(room);
     setEditRoomData({
       name: room.name,
       type: room.type,
       width: room.width,
-      height: room.height,
+      height: room.length,
     });
     setEditRoomDialogOpen(true);
   };
 
   // Open change status dialog
-  const openChangeStatusDialog = (room: CinemaRoomWithSeatMap) => {
+  const openChangeStatusDialog = (room: CinemaRoom) => {
     setRoomToChangeStatus(room);
     setNewStatus(room.status);
     setChangeStatusDialogOpen(true);
@@ -99,7 +99,16 @@ export const useRoomDialogs = (onRoomCreated: () => void, onRoomUpdated: () => v
       setLoading(true);
       setError(null);
 
-      await seatMapService.createRoom(newRoomData);
+      await cinemaRoomService.createRoom({
+        name: newRoomData.name,
+        roomNumber: newRoomData.roomNumber,
+        type: newRoomData.type,
+        fee: newRoomData.fee,
+        capacity: newRoomData.capacity,
+        status: newRoomData.status,
+        width: newRoomData.width,
+        length: newRoomData.height,
+      });
       setCreateRoomDialogOpen(false);
       onRoomCreated();
       alert("Room created successfully!");
@@ -127,7 +136,12 @@ export const useRoomDialogs = (onRoomCreated: () => void, onRoomUpdated: () => v
       setLoading(true);
       setError(null);
 
-      const updatedRoom = await seatMapService.updateRoom(roomToEdit.id, editRoomData);
+      const updatedRoom = await cinemaRoomService.updateRoom(roomToEdit.id, {
+        name: editRoomData.name,
+        type: editRoomData.type,
+        width: editRoomData.width,
+        length: editRoomData.height,
+      });
       if (updatedRoom) {
         setEditRoomDialogOpen(false);
         setRoomToEdit(null);
@@ -152,7 +166,7 @@ export const useRoomDialogs = (onRoomCreated: () => void, onRoomUpdated: () => v
       setLoading(true);
       setError(null);
 
-      const success = await seatMapService.updateRoomStatus(roomToChangeStatus.id, newStatus);
+      const success = await cinemaRoomService.updateRoomStatus(roomToChangeStatus.id, newStatus);
       if (success) {
         setChangeStatusDialogOpen(false);
         setRoomToChangeStatus(null);

@@ -8,8 +8,9 @@ import CinemaRoomAdd from "@/feature/manager/cinema-room/CinemaRoomAdd";
 import CinemaRoomDetail from "@/feature/manager/cinema-room/CinemaRoomDetail";
 import CinemaRoomEdit from "@/feature/manager/cinema-room/CinemaRoomEdit";
 import CinemaRoomManagement from "@/feature/manager/cinema-room/CinemaRoomManagement";
-import ComboManagement from "@/feature/manager/food/ComboManagement";
 import SnackManagement from "@/feature/manager/food/snack/SnackManagement";
+import ComboManagement from "@/feature/manager/food/ComboManagement";
+import SeatMapManagement from "@/feature/manager/cinema-room/components/SeatMapManagement";
 import MemberManagement from "@/feature/manager/member/MemberManagement";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import ShowtimeManagement from "@/feature/manager/show-time/ShowtimeManagement";
@@ -54,20 +55,21 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
             }
           />
           <Route
-            path="/booking"
+            path="booking"
             element={
               <div className="p-6">
                 <h1 className="text-2xl font-bold">Booking Management</h1>
               </div>
             }
           />
-          <Route path="/movie" element={<MovieManagement />} />
-          <Route path="/cinema-room" element={<CinemaRoomManagement />} />
-          <Route path="/cinema-room/:roomId" element={<CinemaRoomDetail />} />
-          <Route path="/cinema-room/add" element={<CinemaRoomAdd />} />
-          <Route path="/cinema-room/edit/:id" element={<CinemaRoomEdit />} />
+          <Route path="movie" element={<MovieManagement />} />
+          <Route path="cinema-room" element={<CinemaRoomManagement />} />
+          <Route path="cinema-room/:roomId" element={<CinemaRoomDetail />} />
+          <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />
+          <Route path="cinema-room/add" element={<CinemaRoomAdd />} />
+          <Route path="cinema-room/edit/:id" element={<CinemaRoomEdit />} />
           <Route
-            path="/seat"
+            path="seat"
             element={
               <div className="p-6">
                 <h1 className="text-2xl font-bold">Seat Management</h1>
@@ -75,22 +77,22 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
             }
           />
           <Route
-            path="/ticket"
+            path="ticket"
             element={
               <div className="p-6">
                 <h1 className="text-2xl font-bold">Ticket Management</h1>
               </div>
             }
           />
-          <Route path="/promotion" element={<PromotionManagement />} />
-          <Route path="/members" element={<MemberManagement />} />
-          <Route path="/showtime" element={<ShowtimeManagement />} />
-          <Route path="/staffs" element={<StaffManagement />} />
-          <Route path="/combo" element={<ComboManagement />} />
+          <Route path="promotion" element={<PromotionManagement />} />
+          <Route path="members" element={<MemberManagement />} />
+          <Route path="showtime" element={<ShowtimeManagement />} />
+          <Route path="staffs" element={<StaffManagement />} />
+          <Route path="combo" element={<ComboManagement />} />
           <Route path="/snacks" element={<SnackManagement />} />
 
           <Route
-            path="/settings"
+            path="settings"
             element={
               <div className="p-6">
                 <h1 className="text-2xl font-bold">Settings</h1>
@@ -98,7 +100,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
             }
           />
           <Route
-            path="/help"
+            path="help"
             element={
               <div className="p-6">
                 <h1 className="text-2xl font-bold">Help Center</h1>
@@ -106,7 +108,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
             }
           />
           <Route
-            path="/search"
+            path="search"
             element={
               <div className="p-6">
                 <h1 className="text-2xl font-bold">Search</h1>

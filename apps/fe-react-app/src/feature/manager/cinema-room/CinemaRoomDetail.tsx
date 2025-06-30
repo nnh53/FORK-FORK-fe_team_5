@@ -2,7 +2,8 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Checkbox } from "@/components/Shadcn/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
-import type { CinemaRoom, Seat } from "@/interfaces/cinemarooms.interface";
+import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
+import type { Seat } from "@/interfaces/seat.interface";
 import axios from "axios";
 import { ArrowLeft, Save } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -117,7 +118,7 @@ export default function CinemaRoomDetail() {
     if (seat.status !== "AVAILABLE") return "bg-gray-400 text-white";
     if (isSelected) return "bg-green-500 text-white";
     if (seat.type === "VIP") return "bg-purple-100 text-purple-800";
-    if (seat.type === "PREMIUM") return "bg-amber-100 text-amber-800";
+    if (seat.type === "COUPLE") return "bg-amber-100 text-amber-800";
     return "bg-blue-100 text-blue-800";
   };
 

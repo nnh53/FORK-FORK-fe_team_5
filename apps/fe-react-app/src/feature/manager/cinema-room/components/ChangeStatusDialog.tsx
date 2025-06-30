@@ -4,14 +4,14 @@ import { Label } from "@/components/Shadcn/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Icon } from "@iconify/react";
 import React from "react";
-import type { CinemaRoomWithSeatMap, ComponentRoomStatus } from "../../../../interfaces/cinemarooms.interface";
+import type { CinemaRoom } from "../../../../interfaces/cinemarooms.interface";
 
-type RoomStatus = ComponentRoomStatus;
+type RoomStatus = "ACTIVE" | "MAINTENANCE" | "CLOSED";
 
 interface ChangeStatusDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  roomToChangeStatus: CinemaRoomWithSeatMap | null;
+  roomToChangeStatus: CinemaRoom | null;
   newStatus: RoomStatus;
   setNewStatus: (status: RoomStatus) => void;
   onChangeStatus: () => void;

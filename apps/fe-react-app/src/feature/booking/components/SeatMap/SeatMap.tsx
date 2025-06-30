@@ -1,12 +1,12 @@
 // src/pages/SeatSelectionPage/components/SeatMap.tsx
+import type { BookingSeat } from "@/interfaces/booking.interface";
 import React from "react";
-import type { SeatType } from "../../booking-page/BookingPage.tsx";
 import Seat from "../Seat/Seat.tsx";
 
 interface SeatMapProps {
-  seatMap: { rows: string[]; seats: SeatType[] };
-  selectedSeats: SeatType[];
-  onSeatSelect: (seat: SeatType) => void;
+  seatMap: { rows: string[]; seats: BookingSeat[] };
+  selectedSeats: BookingSeat[];
+  onSeatSelect: (seat: BookingSeat) => void;
 }
 
 const SeatMap: React.FC<SeatMapProps> = ({ seatMap, selectedSeats, onSeatSelect }) => {
@@ -25,14 +25,22 @@ const SeatMap: React.FC<SeatMapProps> = ({ seatMap, selectedSeats, onSeatSelect 
           <div key={row} className="flex items-center justify-center gap-2">
             <span className="w-6 text-center font-semibold text-base-content/70">{row}</span>
             {seatMap.seats
-              .filter((s) => s.row === row)
-              .map((seat) => (
-                <Seat
-                  key={seat.id}
-                  seatData={{ ...seat, status: selectedSeats.some((s) => s.id === seat.id) ? "selected" : seat.status }}
-                  onClick={onSeatSelect}
-                />
-              ))}
+              .filter((s) => s.seat_row === row)
+              .map((seat) => {
+                // Check if seat is selected
+                const isSelected = selectedSeats.some((s) => s.id === seat.id);
+
+                return (
+                  <Seat
+                    key={seat.id}
+                    seatData={{
+                      ...seat,
+                      bookingStatus: isSelected ? "selected" : seat.bookingStatus || "available",
+                    }}
+                    onClick={onSeatSelect}
+                  />
+                );
+              })}
             <span className="w-6 text-center font-semibold text-base-content/70">{row}</span>
           </div>
         ))}

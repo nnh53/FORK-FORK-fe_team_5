@@ -6,9 +6,7 @@ import { Label } from "@/components/Shadcn/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Icon } from "@iconify/react";
 import React from "react";
-import type { ComponentRoomStatus } from "../../../../interfaces/cinemarooms.interface";
-
-type RoomStatus = ComponentRoomStatus;
+type RoomStatus = "ACTIVE" | "MAINTENANCE" | "CLOSED";
 
 interface CreateRoomData {
   name: string;
