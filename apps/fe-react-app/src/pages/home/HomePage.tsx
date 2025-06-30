@@ -80,13 +80,22 @@ const HomePage = () => {
               <p>Feel the magic of cinema</p>
 
               {/* Logout Button */}
-              <div className="mt-6">
+              <div className="mt-6 flex gap-4 justify-center">
                 <Button
                   onClick={handleLogout}
                   variant="destructive"
                   className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
                 >
                   Đăng Xuất
+                </Button>
+
+                {/* ScrollFloat Test Button */}
+                <Button
+                  onClick={() => navigate(ROUTES.SCROLL_FLOAT)}
+                  variant="secondary"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
+                >
+                  Test ScrollFloat
                 </Button>
               </div>
             </div>{" "}

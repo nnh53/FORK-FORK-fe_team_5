@@ -36,6 +36,7 @@ import About from "@/pages/static/attachment/About";
 import PrivacyPolicy from "@/pages/static/rule/PrivacyPolicy";
 import TermOfService from "@/pages/static/rule/TermOfService";
 import MovieSelection from "@/pages/store/MovieSelection";
+import ScrollFloatTest from "@/pages/test/ScrollFloatTest";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
 
@@ -121,5 +122,7 @@ export const AppRoutes = () => (
     <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
     <Route path={ROUTES.FLOWING_MENU_SECTION} element={<FlowingMenuSection />} />
     <Route path={ROUTES.MOVIE_GALLERY} element={<MovieGallery />} />
+    <Route path={ROUTES.SCROLL_FLOAT} element={<ScrollFloatTest />} />
+    {/* Catch-all for unknown routes */}
   </Routes>
 );

@@ -20,6 +20,7 @@ export const ROUTES = {
   TRENDING_SECTION: "/trending-section",
   FLOWING_MENU_SECTION: "/flowing-menu",
   MOVIE_GALLERY: "/movie-gallery",
+  SCROLL_FLOAT: "/scroll-float",
 
   // Auth Routes
   AUTH: {
