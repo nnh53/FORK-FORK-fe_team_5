@@ -1,130 +1,155 @@
-import { Booking, BookingCreateRequest, PaymentMethod } from "@/interfaces/booking.interface.ts";
-import { membersAPI } from "./members.mockapi.ts";
-import { vouchersAPI } from "./vouchers.mockapi.ts";
+import { Booking, BookingCombo, BookingPromotion, BookingRequest, BookingSnack } from "../../fe-react-app/src/interfaces/booking.interface.ts";
 
-// Mock data
+// Mock data theo database schema
 let bookings: Booking[] = [
   {
-    id: "BK001",
-    userId: "USER001",
-    movieId: "1",
-    showtimeId: "ST001",
-    cinemaRoomId: "ROOM001",
-    seats: ["A1", "A2"],
-    totalAmount: 200000,
-    status: "confirmed",
-    paymentStatus: "paid",
-    paymentMethod: PaymentMethod.MOMO,
-    bookingDate: new Date("2025-06-16T19:00:00"),
-    customerInfo: {
-      name: "Nguyễn Văn A",
-      phone: "0123456789",
-      email: "nguyenvana@gmail.com",
-    },
-    combos: [
-      {
-        id: "COMBO001",
-        name: "Combo Bắp Nước",
-        price: 50000,
-        quantity: 1,
-      },
-    ],
-    createdAt: new Date("2025-06-15T10:30:00"),
-    updatedAt: new Date("2025-06-15T10:30:00"),
+    id: 1,
+    user_id: "USER001",
+    booking_date_time: new Date("2025-06-16T19:00:00"),
+    showtime_id: 1,
+    promotion_id: 1,
+    loyalty_point_used: 50,
+    total_price: 200000,
+    payment_method: "BANKING",
+    payment_status: "PAID",
+    booking_status: "SUCCESS",
+    pay_os_code: "PAY001",
+    staff_id: undefined,
   },
   {
-    id: "BK002",
-    userId: "USER002",
-    movieId: "2",
-    showtimeId: "ST002",
-    cinemaRoomId: "ROOM002",
-    seats: ["B5"],
-    totalAmount: 120000,
-    status: "pending",
-    paymentStatus: "pending",
-    paymentMethod: PaymentMethod.CASH,
-    bookingDate: new Date("2025-06-17T15:30:00"),
-    customerInfo: {
-      name: "Trần Thị B",
-      phone: "0987654321",
-      email: "tranthib@gmail.com",
-    },
-    createdAt: new Date("2025-06-16T09:15:00"),
-    updatedAt: new Date("2025-06-16T09:15:00"),
-  },
-  // Add more test data for confirmed bookings
-  {
-    id: "BK003",
-    userId: "USER003",
-    movieId: "3",
-    showtimeId: "ST003",
-    cinemaRoomId: "ROOM001",
-    seats: ["C1", "C2"],
-    totalAmount: 180000,
-    status: "confirmed",
-    paymentStatus: "pending", // Need payment
-    paymentMethod: PaymentMethod.CASH,
-    bookingDate: new Date("2025-06-19T20:00:00"),
-    customerInfo: {
-      name: "Lê Văn C",
-      phone: "0555123456", // Member phone
-      email: "levanc@gmail.com",
-    },
-    combos: [
-      {
-        id: "COMBO002",
-        name: "Combo Couple",
-        price: 90000,
-        quantity: 1,
-      },
-    ],
-    createdAt: new Date("2025-06-18T14:20:00"),
-    updatedAt: new Date("2025-06-18T14:20:00"),
+    id: 2,
+    user_id: "USER002",
+    booking_date_time: new Date("2025-06-17T15:30:00"),
+    showtime_id: 2,
+    promotion_id: undefined,
+    loyalty_point_used: 0,
+    total_price: 120000,
+    payment_method: "CASH",
+    payment_status: "PENDING",
+    booking_status: "PENDING",
+    pay_os_code: undefined,
+    staff_id: undefined,
   },
   {
-    id: "BK004",
-    userId: "USER004",
-    movieId: "1",
-    showtimeId: "ST004",
-    cinemaRoomId: "ROOM002",
-    seats: ["D5"],
-    totalAmount: 100000,
-    status: "confirmed",
-    paymentStatus: "paid",
-    paymentMethod: PaymentMethod.MOMO,
-    bookingDate: new Date("2025-06-19T18:30:00"),
-    customerInfo: {
-      name: "Phạm Thị D",
-      phone: "0987654321", // Another member phone
-      email: "phamthid@gmail.com",
-    },
-    createdAt: new Date("2025-06-18T16:45:00"),
-    updatedAt: new Date("2025-06-18T16:45:00"),
+    id: 3,
+    user_id: "USER003",
+    booking_date_time: new Date("2025-06-19T20:00:00"),
+    showtime_id: 3,
+    promotion_id: 2,
+    loyalty_point_used: 100,
+    total_price: 180000,
+    payment_method: "CASH",
+    payment_status: "PENDING",
+    booking_status: "SUCCESS",
+    pay_os_code: undefined,
+    staff_id: "STAFF001",
+  },
+  {
+    id: 4,
+    user_id: "USER004",
+    booking_date_time: new Date("2025-06-19T18:30:00"),
+    showtime_id: 4,
+    promotion_id: undefined,
+    loyalty_point_used: 0,
+    total_price: 100000,
+    payment_method: "BANKING",
+    payment_status: "PAID",
+    booking_status: "SUCCESS",
+    pay_os_code: "PAY002",
+    staff_id: undefined,
   },
 ];
 
-// Mock combo data for booking
-export const availableCombos = [
+// Mock snacks data theo database schema
+export const availableSnacks: BookingSnack[] = [
   {
-    id: "COMBO001",
+    id: 1,
+    name: "Bắp rang bơ",
+    description: "Bắp rang bơ thơm ngon",
+    price: 25000,
+    category: "FOOD",
+    size: "MEDIUM",
+    flavor: "Bơ",
+    img: "https://via.placeholder.com/100x100",
+    status: "AVAILABLE",
+  },
+  {
+    id: 2,
+    name: "Coca Cola",
+    description: "Nước ngọt có ga",
+    price: 20000,
+    category: "DRINK",
+    size: "LARGE",
+    flavor: "Cola",
+    img: "https://via.placeholder.com/100x100",
+    status: "AVAILABLE",
+  },
+  {
+    id: 3,
+    name: "Kẹo bông gòn",
+    description: "Kẹo bông gòn ngọt ngào",
+    price: 15000,
+    category: "FOOD",
+    size: "SMALL",
+    flavor: "Dâu",
+    img: "https://via.placeholder.com/100x100",
+    status: "AVAILABLE",
+  },
+];
+
+// Mock combos data theo database schema
+export const availableCombos: BookingCombo[] = [
+  {
+    id: 1,
     name: "Combo Bắp Nước",
     description: "1 Bắp rang bơ + 1 Nước ngọt",
-    price: 50000,
-    image: "https://via.placeholder.com/100x100",
+    img: "https://via.placeholder.com/100x100",
+    status: "AVAILABLE",
+    total_price: 45000,
   },
   {
-    id: "COMBO002",
+    id: 2,
     name: "Combo Couple",
     description: "2 Bắp rang bơ + 2 Nước ngọt",
-    price: 90000,
-    image: "https://via.placeholder.com/100x100",
+    img: "https://via.placeholder.com/100x100",
+    status: "AVAILABLE",
+    total_price: 90000,
   },
   {
-    id: "COMBO003",
+    id: 3,
     name: "Combo Family",
     description: "3 Bắp rang bơ + 3 Nước ngọt + 1 Kẹo",
-    price: 150000,
-    image: "https://via.placeholder.com/100x100",
+    img: "https://via.placeholder.com/100x100",
+    status: "AVAILABLE",
+    total_price: 150000,
+  },
+];
+
+// Mock promotions data theo database schema
+export const availablePromotions: BookingPromotion[] = [
+  {
+    id: 1,
+    title: "Giảm giá 10%",
+    description: "Giảm 10% cho đơn hàng từ 200k",
+    discount_value: 0.1,
+    min_purchase: 200000,
+    start_time: new Date("2025-06-01T00:00:00"),
+    end_time: new Date("2025-06-30T23:59:59"),
+    status: 1,
+    type: 1,
+    image: "https://via.placeholder.com/300x200",
+  },
+  {
+    id: 2,
+    title: "Giảm 50k",
+    description: "Giảm 50k cho hóa đơn từ 300k",
+    discount_value: 50000,
+    min_purchase: 300000,
+    start_time: new Date("2025-06-15T00:00:00"),
+    end_time: new Date("2025-07-15T23:59:59"),
+    status: 1,
+    type: 2,
+    image: "https://via.placeholder.com/300x200",
   },
 ];
 
@@ -132,67 +157,49 @@ export const availableCombos = [
 export const bookingAPI = {
   getAll: () => bookings,
 
-  getById: (id: string) => bookings.find((booking) => booking.id === id),
+  getById: (id: number) => bookings.find((booking) => booking.id === id),
 
-  getByUserId: (userId: string) => bookings.filter((booking) => booking.userId === userId),
+  getByUserId: (userId: string) => bookings.filter((booking) => booking.user_id === userId),
 
-  getByPhone: (phone: string) => bookings.filter((booking) => booking.customerInfo.phone === phone),
-  create: (data: BookingCreateRequest): Booking => {
+  getByUserPhone: (phone: string) => {
+    // This would need to be implemented with a join to user table in real API
+    // For now, just return empty array
+    return [];
+  },
+
+  create: (data: BookingRequest): Booking => {
     const newBooking: Booking = {
-      id: `BK${String(bookings.length + 1).padStart(3, "0")}`,
-      userId: data.userId || "GUEST",
-      movieId: data.movieId,
-      showtimeId: data.showtimeId,
-      cinemaRoomId: data.cinemaRoomId,
-      seats: data.seats,
-      totalAmount: calculateTotalAmount(data),
-      status: data.isStaffBooking ? "confirmed" : "pending", // Staff bookings are auto-confirmed
-      paymentStatus: data.paymentMethod === PaymentMethod.CASH ? "pending" : "paid",
-      paymentMethod: data.paymentMethod,
-      bookingDate: new Date(),
-      customerInfo: data.customerInfo,
-      combos: data.combos?.map((combo) => {
-        const comboData = availableCombos.find((c) => c.id === combo.id);
-        return {
-          id: combo.id,
-          name: comboData?.name || "Unknown Combo",
-          price: comboData?.price || 0,
-          quantity: combo.quantity,
-        };
-      }),
-      discount: calculateDiscount(data),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      id: bookings.length + 1,
+      user_id: data.user_id,
+      booking_date_time: new Date(),
+      showtime_id: data.showtime_id,
+      promotion_id: data.promotion_id,
+      loyalty_point_used: data.loyalty_point_used || 0,
+      total_price: calculateTotalAmount(data),
+      payment_method: data.payment_method,
+      payment_status: data.payment_method === "CASH" ? "PENDING" : "PAID",
+      booking_status: data.staff_id ? "SUCCESS" : "PENDING",
+      pay_os_code: undefined,
+      staff_id: data.staff_id,
     };
-
-    // Process member points deduction
-    if (data.memberId && data.usePoints && data.usePoints > 0) {
-      membersAPI.updatePoints(data.memberId, data.usePoints, "redeem", `Sử dụng điểm cho booking ${newBooking.id}`);
-    }
-
-    // Process voucher usage
-    if (data.voucherCode) {
-      vouchersAPI.applyVoucher(data.voucherCode, newBooking.id);
-    }
 
     bookings.push(newBooking);
     return newBooking;
   },
 
-  update: (id: string, data: Partial<Booking>): Booking | null => {
+  update: (id: number, data: Partial<Booking>): Booking | null => {
     const index = bookings.findIndex((booking) => booking.id === id);
     if (index === -1) return null;
 
     bookings[index] = {
       ...bookings[index],
       ...data,
-      updatedAt: new Date(),
     };
 
     return bookings[index];
   },
 
-  delete: (id: string): Booking | null => {
+  delete: (id: number): Booking | null => {
     const index = bookings.findIndex((booking) => booking.id === id);
     if (index === -1) return null;
 
@@ -201,86 +208,74 @@ export const bookingAPI = {
     return deletedBooking;
   },
 
-  confirmBooking: (id: string): Booking | null => {
+  confirmBooking: (id: number): Booking | null => {
     return bookingAPI.update(id, {
-      status: "confirmed",
-      paymentStatus: "paid",
+      booking_status: "SUCCESS",
+      payment_status: "PAID",
     });
   },
 
-  cancelBooking: (id: string): Booking | null => {
+  cancelBooking: (id: number): Booking | null => {
     return bookingAPI.update(id, {
-      status: "cancelled",
-      paymentStatus: "refunded",
+      booking_status: "CANCEL",
+      payment_status: "CANCEL",
     });
   },
+
+  // Get available combos
+  getCombos: () => availableCombos,
+
+  // Get available snacks
+  getSnacks: () => availableSnacks,
+
+  // Get available promotions
+  getPromotions: () => availablePromotions,
 };
 
 // Helper functions
-function calculateTotalAmount(data: BookingCreateRequest): number {
-  // Base ticket price (assuming 100,000 VND per seat)
+function calculateTotalAmount(data: BookingRequest): number {
+  // Base ticket price (sẽ được tính dựa trên seat_type và showtime)
   const ticketPrice = 100000;
-  let total = data.seats.length * ticketPrice;
+  let total = data.seat_ids.length * ticketPrice;
 
   // Add combo prices
   if (data.combos) {
     for (const combo of data.combos) {
-      const comboData = availableCombos.find((c) => c.id === combo.id);
-      if (comboData) {
-        total += comboData.price * combo.quantity;
+      const comboData = availableCombos.find((c) => c.id === combo.combo_id);
+      if (comboData && comboData.total_price) {
+        total += comboData.total_price * combo.quantity;
       }
     }
   }
 
-  // Apply point discount (1 point = 1000 VND)
-  if (data.usePoints) {
-    total -= data.usePoints * 1000;
+  // Add snack prices
+  if (data.snacks) {
+    for (const snack of data.snacks) {
+      const snackData = availableSnacks.find((s) => s.id === snack.snack_id);
+      if (snackData) {
+        total += snackData.price * snack.quantity;
+      }
+    }
   }
 
-  // Apply voucher discount
-  if (data.voucherCode) {
-    const voucherResult = vouchersAPI.validateVoucher(data.voucherCode, total, data.movieId);
-    if (voucherResult.isValid) {
-      total -= voucherResult.discount;
+  // Apply loyalty point discount (1 point = 1000 VND)
+  if (data.loyalty_point_used) {
+    total -= data.loyalty_point_used * 1000;
+  }
+
+  // Apply promotion discount
+  if (data.promotion_id) {
+    const promotion = availablePromotions.find((p) => p.id === data.promotion_id);
+    if (promotion && total >= promotion.min_purchase) {
+      if (promotion.type === 1) {
+        // Percentage discount
+        total = total * (1 - promotion.discount_value);
+      } else if (promotion.type === 2) {
+        // Fixed amount discount
+        total -= promotion.discount_value;
+      }
     }
   }
 
   return Math.max(total, 0);
-}
-
-function calculateDiscount(data: BookingCreateRequest): Booking["discount"] | undefined {
-  let totalDiscount = 0;
-  const discounts: string[] = [];
-
-  // Points discount
-  if (data.usePoints && data.usePoints > 0) {
-    totalDiscount += data.usePoints * 1000;
-    discounts.push(`${data.usePoints} điểm`);
-  }
-
-  // Voucher discount
-  if (data.voucherCode) {
-    const subtotal =
-      data.seats.length * 100000 +
-      (data.combos?.reduce((sum, combo) => {
-        const comboData = availableCombos.find((c) => c.id === combo.id);
-        return sum + (comboData ? comboData.price * combo.quantity : 0);
-      }, 0) || 0);
-
-    const voucherResult = vouchersAPI.validateVoucher(data.voucherCode, subtotal - (data.usePoints || 0) * 1000, data.movieId);
-    if (voucherResult.isValid) {
-      totalDiscount += voucherResult.discount;
-      discounts.push(`voucher ${data.voucherCode}`);
-    }
-  }
-
-  if (totalDiscount > 0) {
-    return {
-      type: data.voucherCode ? "voucher" : "points",
-      amount: totalDiscount,
-      description: `Giảm từ ${discounts.join(" và ")}`,
-    };
-  }
-
-  return undefined;
 }

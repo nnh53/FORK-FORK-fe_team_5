@@ -1,4 +1,4 @@
-import type { Booking, BookingCreateRequest, Combo } from "@/interfaces/booking.interface";
+import type { Booking, BookingCombo, BookingRequest, BookingUpdateRequest } from "@/interfaces/booking.interface";
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3000";
@@ -7,7 +7,7 @@ export const bookingService = {
   // Get all bookings or by user ID
   getAllBookings: async (userId?: string): Promise<Booking[]> => {
     try {
-      const params = userId ? { userId } : {};
+      const params = userId ? { user_id: userId } : {};
       const response = await axios.get(`${API_BASE_URL}/bookings`, { params });
       return response.data;
     } catch (error) {
@@ -17,7 +17,7 @@ export const bookingService = {
   },
 
   // Get booking by ID
-  getBookingById: async (id: string): Promise<Booking> => {
+  getBookingById: async (id: number): Promise<Booking> => {
     try {
       const response = await axios.get(`${API_BASE_URL}/bookings/${id}`);
       return response.data;
@@ -28,7 +28,7 @@ export const bookingService = {
   },
 
   // Create new booking
-  createBooking: async (bookingData: BookingCreateRequest): Promise<Booking> => {
+  createBooking: async (bookingData: BookingRequest): Promise<Booking> => {
     try {
       const response = await axios.post(`${API_BASE_URL}/bookings`, bookingData);
       return response.data;
@@ -39,7 +39,7 @@ export const bookingService = {
   },
 
   // Update booking
-  updateBooking: async (id: string, bookingData: Partial<Booking>): Promise<Booking> => {
+  updateBooking: async (id: number, bookingData: BookingUpdateRequest): Promise<Booking> => {
     try {
       const response = await axios.put(`${API_BASE_URL}/bookings/${id}`, bookingData);
       return response.data;
@@ -50,7 +50,7 @@ export const bookingService = {
   },
 
   // Confirm booking
-  confirmBooking: async (id: string): Promise<Booking> => {
+  confirmBooking: async (id: number): Promise<Booking> => {
     try {
       const response = await axios.post(`${API_BASE_URL}/bookings/${id}/confirm`);
       return response.data;
@@ -71,7 +71,7 @@ export const bookingService = {
   },
 
   // Cancel booking
-  cancelBooking: async (id: string): Promise<Booking> => {
+  cancelBooking: async (id: number): Promise<Booking> => {
     try {
       const response = await axios.post(`${API_BASE_URL}/bookings/${id}/cancel`);
       return response.data;
@@ -82,7 +82,7 @@ export const bookingService = {
   },
 
   // Delete booking
-  deleteBooking: async (id: string): Promise<Booking> => {
+  deleteBooking: async (id: number): Promise<Booking> => {
     try {
       const response = await axios.delete(`${API_BASE_URL}/bookings/${id}`);
       return response.data;
@@ -93,12 +93,87 @@ export const bookingService = {
   },
 
   // Get available combos
-  getCombos: async (): Promise<Combo[]> => {
+  getCombos: async (): Promise<BookingCombo[]> => {
     try {
       const response = await axios.get(`${API_BASE_URL}/combos`);
       return response.data;
     } catch (error) {
       console.error("Error fetching combos:", error);
+      throw error;
+    }
+  },
+
+  // Get available snacks
+  getSnacks: async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/snacks`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching snacks:", error);
+      throw error;
+    }
+  },
+
+  // Get seats for a showtime/room
+  getAvailableSeats: async (showtimeId: number) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/showtimes/${showtimeId}/seats`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching available seats:", error);
+      throw error;
+    }
+  },
+
+  // Get showtimes
+  getShowtimes: async (movieId?: number, roomId?: number) => {
+    try {
+      const params: Record<string, number> = {};
+      if (movieId) params.movie_id = movieId;
+      if (roomId) params.room_id = roomId;
+
+      const response = await axios.get(`${API_BASE_URL}/showtimes`, { params });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching showtimes:", error);
+      throw error;
+    }
+  },
+
+  // Get promotions
+  getPromotions: async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/promotions`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching promotions:", error);
+      throw error;
+    }
+  },
+
+  // Update booking payment status
+  updatePaymentStatus: async (id: number, paymentStatus: string, payOsCode?: string) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/bookings/${id}/payment`, {
+        payment_status: paymentStatus,
+        pay_os_code: payOsCode,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      throw error;
+    }
+  },
+
+  // Update booking status
+  updateBookingStatus: async (id: number, bookingStatus: string) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/bookings/${id}/status`, {
+        booking_status: bookingStatus,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating booking status:", error);
       throw error;
     }
   },

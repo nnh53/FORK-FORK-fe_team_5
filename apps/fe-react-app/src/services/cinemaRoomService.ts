@@ -1,62 +1,11 @@
-import type {
-  ApiRoomStatus,
-  CinemaRoom,
-  CinemaRoomWithSeatMapAlt as CinemaRoomWithSeatMap,
-  ComponentRoomStatus,
-  CreateCinemaRoomApiRequest as CreateCinemaRoomRequest,
-  Seat,
-  UpdateCinemaRoomApiRequest as UpdateCinemaRoomRequest,
-} from "../interfaces/cinemarooms.interface";
+import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
+import type { Seat, SeatMap } from "@/interfaces/seat.interface";
 
 const API_BASE_URL = "http://localhost:3000";
 
-// Map API status to component status
-const mapApiStatusToComponentStatus = (apiStatus: ApiRoomStatus): ComponentRoomStatus => {
-  switch (apiStatus) {
-    case "ACTIVE":
-      return "active";
-    case "MAINTENANCE":
-      return "maintenance";
-    case "CLOSED":
-      return "closed";
-    default:
-      return "active";
-  }
-};
-
-// Map component status to API status
-const mapComponentStatusToApiStatus = (componentStatus: ComponentRoomStatus): ApiRoomStatus => {
-  switch (componentStatus) {
-    case "active":
-      return "ACTIVE";
-    case "maintenance":
-      return "MAINTENANCE";
-    case "closed":
-      return "CLOSED";
-    default:
-      return "ACTIVE";
-  }
-};
-
-// Transform API CinemaRoom to component CinemaRoomWithSeatMap
-const transformApiRoomToComponent = (apiRoom: CinemaRoom): CinemaRoomWithSeatMap => {
-  return {
-    id: apiRoom.id,
-    name: `Room ${apiRoom.roomNumber}`, // Create a display name
-    type: apiRoom.type,
-    capacity: apiRoom.capacity,
-    status: mapApiStatusToComponentStatus(apiRoom.status),
-    width: apiRoom.width,
-    height: apiRoom.length, // Map length to height
-    hasSeatMap: false, // Default to false, can be updated based on seats data
-    fee: apiRoom.fee,
-    roomNumber: apiRoom.roomNumber,
-  };
-};
-
 export const cinemaRoomService = {
   // Get all cinema rooms
-  async getAllRooms(): Promise<CinemaRoomWithSeatMap[]> {
+  async getAllRooms(): Promise<CinemaRoom[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/cinema-rooms`);
       if (!response.ok) {
@@ -64,22 +13,20 @@ export const cinemaRoomService = {
       }
       const rooms: CinemaRoom[] = await response.json();
 
-      // Transform API rooms to component format
-      const transformedRooms = rooms.map(transformApiRoomToComponent);
-
-      // Check if rooms have seat maps
+      // Check if rooms have seat maps and update seatMap property
       const roomsWithSeatMapStatus = await Promise.all(
-        transformedRooms.map(async (room) => {
+        rooms.map(async (room) => {
           try {
-            const seats = await this.getRoomSeats(room.id);
+            const seats = await this.getSeatMap(room.id);
+            const hasSeatMap = seats.length > 0;
             return {
               ...room,
-              hasSeatMap: seats.length > 0,
+              seatMap: hasSeatMap ? { gridData: seats, roomId: room.id } : null,
             };
           } catch {
             return {
               ...room,
-              hasSeatMap: false,
+              seatMap: null,
             };
           }
         }),
@@ -93,7 +40,7 @@ export const cinemaRoomService = {
   },
 
   // Get a specific cinema room by ID
-  async getRoomById(id: string): Promise<CinemaRoomWithSeatMap | null> {
+  async getRoomById(id: string): Promise<CinemaRoom | null> {
     try {
       const response = await fetch(`${API_BASE_URL}/cinema-rooms/${id}`);
       if (!response.ok) {
@@ -105,12 +52,18 @@ export const cinemaRoomService = {
       const room: CinemaRoom = await response.json();
 
       // Check if room has seats
-      const seats = await this.getRoomSeats(id);
-
-      return {
-        ...transformApiRoomToComponent(room),
-        hasSeatMap: seats.length > 0,
-      };
+      try {
+        const seats = await this.getSeatMap(id);
+        return {
+          ...room,
+          seatMap: seats.length > 0 ? { gridData: seats, roomId: id } : null,
+        };
+      } catch {
+        return {
+          ...room,
+          seatMap: null,
+        };
+      }
     } catch (error) {
       console.error("Error fetching cinema room:", error);
       throw error;
@@ -118,17 +71,17 @@ export const cinemaRoomService = {
   },
 
   // Create a new cinema room
-  async createRoom(roomData: Omit<CinemaRoomWithSeatMap, "id" | "hasSeatMap" | "seatMapData">): Promise<CinemaRoomWithSeatMap> {
+  async createRoom(roomData: Omit<CinemaRoom, "id" | "seatMap">): Promise<CinemaRoom> {
     try {
-      const createRequest: CreateCinemaRoomRequest = {
+      const createRequest = {
         name: roomData.name,
         roomNumber: roomData.roomNumber,
         type: roomData.type,
         fee: roomData.fee,
         capacity: roomData.capacity,
-        status: mapComponentStatusToApiStatus(roomData.status),
+        status: roomData.status,
         width: roomData.width,
-        length: roomData.height, // Map height to length
+        length: roomData.length,
       };
 
       const response = await fetch(`${API_BASE_URL}/cinema-rooms`, {
@@ -145,8 +98,8 @@ export const cinemaRoomService = {
 
       const createdRoom: CinemaRoom = await response.json();
       return {
-        ...transformApiRoomToComponent(createdRoom),
-        hasSeatMap: false,
+        ...createdRoom,
+        seatMap: null,
       };
     } catch (error) {
       console.error("Error creating cinema room:", error);
@@ -155,18 +108,18 @@ export const cinemaRoomService = {
   },
 
   // Update an existing cinema room
-  async updateRoom(id: string, roomData: Partial<CinemaRoomWithSeatMap>): Promise<CinemaRoomWithSeatMap | null> {
+  async updateRoom(id: string, roomData: Partial<CinemaRoom>): Promise<CinemaRoom | null> {
     try {
-      const updateRequest: UpdateCinemaRoomRequest = {};
+      const updateRequest: Partial<Omit<CinemaRoom, "id" | "seatMap">> = {};
 
       if (roomData.name) updateRequest.name = roomData.name;
       if (roomData.roomNumber) updateRequest.roomNumber = roomData.roomNumber;
       if (roomData.type) updateRequest.type = roomData.type;
       if (roomData.fee) updateRequest.fee = roomData.fee;
       if (roomData.capacity) updateRequest.capacity = roomData.capacity;
-      if (roomData.status) updateRequest.status = mapComponentStatusToApiStatus(roomData.status);
+      if (roomData.status) updateRequest.status = roomData.status;
       if (roomData.width) updateRequest.width = roomData.width;
-      if (roomData.height) updateRequest.length = roomData.height;
+      if (roomData.length) updateRequest.length = roomData.length;
 
       const response = await fetch(`${API_BASE_URL}/cinema-rooms/${id}`, {
         method: "PUT",
@@ -186,12 +139,18 @@ export const cinemaRoomService = {
       const updatedRoom: CinemaRoom = await response.json();
 
       // Check if room has seats
-      const seats = await this.getRoomSeats(id);
-
-      return {
-        ...transformApiRoomToComponent(updatedRoom),
-        hasSeatMap: seats.length > 0,
-      };
+      try {
+        const seats = await this.getSeatMap(id);
+        return {
+          ...updatedRoom,
+          seatMap: seats.length > 0 ? { gridData: seats, roomId: id } : null,
+        };
+      } catch {
+        return {
+          ...updatedRoom,
+          seatMap: null,
+        };
+      }
     } catch (error) {
       console.error("Error updating cinema room:", error);
       throw error;
@@ -220,7 +179,7 @@ export const cinemaRoomService = {
   },
 
   // Get seats for a specific room
-  async getRoomSeats(roomId: string): Promise<Seat[]> {
+  async getSeatMap(roomId: string): Promise<Seat[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/cinema-rooms/${roomId}/seats`);
       if (!response.ok) {
@@ -233,10 +192,32 @@ export const cinemaRoomService = {
     }
   },
 
-  // Update a seat
-  async updateSeat(seatId: string, seatData: Partial<Seat>): Promise<Seat | null> {
+  // Save seat map for a room
+  async saveSeatMap(roomId: string, seats: Seat[]): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL}/seats/${seatId}`, {
+      const response = await fetch(`${API_BASE_URL}/cinema-rooms/${roomId}/seats`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(seats),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error saving seat map:", error);
+      throw error;
+    }
+  },
+
+  // Update a seat
+  async updateSeatMap(roomId: string, seatData: Partial<SeatMap[]>): Promise<SeatMap[] | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/seats/${roomId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -265,10 +246,10 @@ export const cinemaRoomService = {
 
       return {
         total: rooms.length,
-        withSeatMap: rooms.filter((room) => room.hasSeatMap).length,
-        active: rooms.filter((room) => room.status === "active").length,
-        maintenance: rooms.filter((room) => room.status === "maintenance").length,
-        closed: rooms.filter((room) => room.status === "closed").length,
+        withSeatMap: rooms.filter((room) => room.seatMap !== null).length,
+        active: rooms.filter((room) => room.status === "ACTIVE").length,
+        maintenance: rooms.filter((room) => room.status === "MAINTENANCE").length,
+        closed: rooms.filter((room) => room.status === "CLOSED").length,
       };
     } catch (error) {
       console.error("Error calculating room stats:", error);
@@ -279,6 +260,45 @@ export const cinemaRoomService = {
         maintenance: 0,
         closed: 0,
       };
+    }
+  },
+
+  // Update room status
+  async updateRoomStatus(id: string, status: "ACTIVE" | "MAINTENANCE" | "CLOSED"): Promise<CinemaRoom | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/cinema-rooms/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedRoom: CinemaRoom = await response.json();
+
+      // Check if room has seats
+      try {
+        const seats = await this.getSeatMap(id);
+        return {
+          ...updatedRoom,
+          seatMap: seats.length > 0 ? { gridData: seats, roomId: id } : null,
+        };
+      } catch {
+        return {
+          ...updatedRoom,
+          seatMap: null,
+        };
+      }
+    } catch (error) {
+      console.error("Error updating room status:", error);
+      throw error;
     }
   },
 };

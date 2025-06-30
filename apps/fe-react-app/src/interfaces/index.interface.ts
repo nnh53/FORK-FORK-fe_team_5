@@ -6,6 +6,7 @@ export * from "./movies.interface";
 export * from "./promotion.interface";
 export * from "./roles.interface";
 export * from "./snacks.interface";
+export * from "./seat.interface";
 export * from "./staff.interface";
 export { type STAFF_STATUS, type Staff, type StaffFormData } from "./staff.interface";
 export * from "./users.interface";

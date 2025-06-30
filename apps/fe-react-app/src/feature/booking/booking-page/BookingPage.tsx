@@ -1,15 +1,17 @@
+import type { Seat } from "@/interfaces/seat.interface";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import BookingBreadcrumb from "../../../components/BookingBreadcrumb.tsx";
-import type { GridCell, SeatMapGrid, SelectedSeat } from "../../../interfaces/seatmap.interface.ts";
 import UserLayout from "../../../layouts/user/UserLayout.tsx";
-import { createSampleSeatMap, toggleSeatSelection } from "../../../utils/seatMapUtils.ts";
-import BookingFooter from "../components/BookingFooter/BookingFooter.tsx";
 import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
-import SeatMap from "../components/SeatMap/SeatMap.tsx";
-import SeatMapGridComponent from "../components/SeatMapGrid/SeatMapGrid.tsx";
 
-export interface SeatType {
+// Booking-specific seat interface that extends the base Seat
+export interface BookingSeat extends Seat {
+  bookingStatus: "available" | "taken" | "selected";
+}
+
+// Legacy seat type for backward compatibility with existing booking system
+export interface LegacySeatType {
   id: string;
   row: string;
   number: number;
@@ -20,7 +22,7 @@ export interface SeatType {
 // ++ TẠO MỘT TYPE CHO SƠ ĐỒ GHẾ ĐỂ DỄ TÁI SỬ DỤNG
 interface SeatMapData {
   rows: string[];
-  seats: SeatType[];
+  seats: LegacySeatType[];
 }
 
 const BookingPage: React.FC = () => {
@@ -31,26 +33,15 @@ const BookingPage: React.FC = () => {
   const initialBookingState = location.state || JSON.parse(localStorage.getItem("bookingState") || "{}");
   const { movie, selection, cinemaName } = initialBookingState;
 
-  // State for grid-based seat selection
-  const [selectedGridSeats, setSelectedGridSeats] = useState<SelectedSeat[]>([]);
-  const [useGridSystem, setUseGridSystem] = useState<boolean>(true); // Toggle between old and new system
-  const [gridSeatMap, setGridSeatMap] = useState<SeatMapGrid | null>(null);
-
   // Initialize selectedSeats from initialBookingState or empty array (legacy system)
-  const [selectedSeats, setSelectedSeats] = useState<SeatType[]>(() => {
+  const [selectedSeats, setSelectedSeats] = useState<LegacySeatType[]>(() => {
     // Prioritize selectedSeats from initialBookingState
     return initialBookingState.selectedSeats || [];
   });
 
-  // Initialize grid seat map
-  useEffect(() => {
-    const sampleGrid = createSampleSeatMap();
-    setGridSeatMap(sampleGrid);
-  }, []);
-
   // Save booking state to localStorage whenever selectedSeats changes
   const updateBookingState = useCallback(
-    (newSelectedSeats: SeatType[]) => {
+    (newSelectedSeats: LegacySeatType[]) => {
       const updatedBookingState = {
         ...initialBookingState,
         selectedSeats: newSelectedSeats,
@@ -65,47 +56,9 @@ const BookingPage: React.FC = () => {
     [initialBookingState],
   );
 
-  // Convert SelectedSeat to legacy SeatType for compatibility
-  const convertGridSeatsToLegacy = (gridSeats: SelectedSeat[]): SeatType[] => {
-    return gridSeats.map((seat) => {
-      const getSeatType = (seatType: string): "standard" | "vip" | "double" => {
-        switch (seatType) {
-          case "V":
-            return "vip";
-          case "D":
-            return "double";
-          default:
-            return "standard";
-        }
-      };
-
-      return {
-        id: seat.id,
-        row: seat.displayRow,
-        number: parseInt(seat.displayCol),
-        type: getSeatType(seat.seatType),
-        status: "selected" as const,
-      };
-    });
-  };
-
-  // Handle grid seat selection
-  const handleGridSeatSelect = (cell: GridCell) => {
-    if (cell.type !== "seat" || cell.status === "taken" || cell.status === "maintenance") {
-      return;
-    }
-
-    const newSelectedSeats = toggleSeatSelection(selectedGridSeats, cell);
-    setSelectedGridSeats(newSelectedSeats);
-
-    // Update localStorage with converted seats
-    const legacySeats = convertGridSeatsToLegacy(newSelectedSeats);
-    updateBookingState(legacySeats);
-  };
-
   // Legacy seat creation functions for backward compatibility
-  const createSeatsForRow = (row: string, count: number, type: SeatType["type"], taken: number[] = []): SeatType[] => {
-    const seats: SeatType[] = [];
+  const createSeatsForRow = (row: string, count: number, type: LegacySeatType["type"], taken: number[] = []): LegacySeatType[] => {
+    const seats: LegacySeatType[] = [];
     for (let i = 1; i <= count; i++) {
       seats.push({
         id: `${row}${i}`,
@@ -136,7 +89,22 @@ const BookingPage: React.FC = () => {
     },
   };
 
-  const seatMapData = mockSeatMap.P1;
+  // Function to get seat CSS classes
+  const getSeatClassName = (seat: LegacySeatType, isSelected: boolean) => {
+    if (seat.status === "taken") {
+      return "bg-gray-400 text-white cursor-not-allowed";
+    }
+    if (isSelected) {
+      return "bg-green-500 text-white border-green-600";
+    }
+    if (seat.type === "vip") {
+      return "bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200";
+    }
+    if (seat.type === "double") {
+      return "bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200";
+    }
+    return "bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200";
+  };
 
   // Ensure localStorage is updated when component mounts or data changes
   useEffect(() => {
@@ -168,10 +136,10 @@ const BookingPage: React.FC = () => {
       </UserLayout>
     );
   }
-  const handleSeatSelect = (seat: SeatType) => {
+  const handleSeatSelect = (seat: LegacySeatType) => {
     setSelectedSeats((prev) => {
       const isSelected = prev.some((s) => s.id === seat.id);
-      let newSelectedSeats: SeatType[];
+      let newSelectedSeats: LegacySeatType[];
 
       if (isSelected) {
         newSelectedSeats = prev.filter((s) => s.id !== seat.id);
@@ -186,14 +154,27 @@ const BookingPage: React.FC = () => {
     });
   };
 
+  const totalCost = selectedSeats.reduce((total, seat) => {
+    if (seat.type === "vip") return total + 90000;
+    if (seat.type === "double") return total + 150000;
+    return total + 75000;
+  }, 0);
+
   const handleContinue = () => {
+    // Calculate total cost
+    const totalCost = selectedSeats.reduce((total, seat) => {
+      if (seat.type === "vip") return total + 90000;
+      if (seat.type === "double") return total + 150000;
+      return total + 75000;
+    }, 0);
+
     // Get the latest booking state from localStorage
     const latestBookingState = JSON.parse(localStorage.getItem("bookingState") || "{}");
 
     // Ensure we have the latest selectedSeats and totalCost
     const finalBookingState = {
       ...latestBookingState,
-      selectedSeats: currentSelectedSeats,
+      selectedSeats: selectedSeats,
       totalCost,
     };
 
@@ -202,14 +183,6 @@ const BookingPage: React.FC = () => {
 
     navigate("/checkout", { state: finalBookingState });
   };
-
-  // Calculate total cost based on current system
-  const currentSelectedSeats = useGridSystem ? convertGridSeatsToLegacy(selectedGridSeats) : selectedSeats;
-  const totalCost = currentSelectedSeats.reduce((total, seat) => {
-    if (seat.type === "vip") return total + 90000;
-    if (seat.type === "double") return total + 150000;
-    return total + 75000;
-  }, 0);
   return (
     <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
       <div className="max-w-screen-2xl mx-auto p-4 md:p-8">
@@ -219,37 +192,71 @@ const BookingPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cột trái: Sơ đồ ghế */}
           <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-            {/* Toggle button for demonstration */}
-            <div className="mb-4 text-center">
-              <button
-                onClick={() => setUseGridSystem(!useGridSystem)}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-              >
-                {useGridSystem ? "Chuyển sang hệ thống cũ" : "Chuyển sang hệ thống mới (Grid)"}
-              </button>
+            <h2 className="text-xl font-bold mb-4">Chọn ghế</h2>
+            <div className="mb-4">
+              <div className="flex items-center justify-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
+                  <span>Ghế thường</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
+                  <span>Ghế VIP</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-purple-100 border border-purple-300 rounded"></div>
+                  <span>Ghế đôi</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gray-400 rounded"></div>
+                  <span>Đã đặt</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-green-500 rounded"></div>
+                  <span>Đã chọn</span>
+                </div>
+              </div>
             </div>
 
-            {/* Render appropriate seat map */}
-            {(() => {
-              if (useGridSystem && gridSeatMap) {
-                return <SeatMapGridComponent seatMap={gridSeatMap} selectedSeats={selectedGridSeats} onSeatSelect={handleGridSeatSelect} />;
-              } else if (seatMapData) {
-                return <SeatMap seatMap={seatMapData} selectedSeats={selectedSeats} onSeatSelect={handleSeatSelect} />;
-              } else {
-                return <p>Không tìm thấy sơ đồ ghế.</p>;
-              }
-            })()}
+            {/* Screen */}
+            <div className="mb-6">
+              <div className="bg-gray-200 text-center py-2 rounded-t-2xl text-gray-600 font-medium">MÀN HÌNH</div>
+            </div>
 
-            {/* ++ THÊM BOOKING FOOTER VÀO ĐÂY ++ */}
-            <BookingFooter selectedSeats={currentSelectedSeats} totalCost={totalCost} />
-          </div>{" "}
+            {/* Seat Grid */}
+            <div className="space-y-2">
+              {mockSeatMap.P1.rows.map((row) => (
+                <div key={row} className="flex items-center gap-2 justify-center">
+                  <span className="w-8 text-center font-bold text-gray-600">{row}</span>
+                  <div className="flex gap-1">
+                    {mockSeatMap.P1.seats
+                      .filter((seat) => seat.row === row)
+                      .map((seat) => {
+                        const isSelected = selectedSeats.some((s) => s.id === seat.id);
+                        return (
+                          <button
+                            key={seat.id}
+                            className={`w-8 h-8 text-xs font-medium rounded border-2 transition-colors ${getSeatClassName(seat, isSelected)}`}
+                            disabled={seat.status === "taken"}
+                            onClick={() => handleSeatSelect(seat)}
+                          >
+                            {seat.number}
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Cột phải: Thông tin */}
           <div className="lg:col-span-1">
             <BookingSummary
               movie={movie}
               selection={selection}
               cinemaName={cinemaName}
-              selectedSeats={currentSelectedSeats}
+              selectedSeats={selectedSeats}
               totalCost={totalCost}
               showContinueButton={true}
               onContinueClick={handleContinue}
