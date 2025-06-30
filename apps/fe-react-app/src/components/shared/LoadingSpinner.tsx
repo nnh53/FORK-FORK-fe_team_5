@@ -5,7 +5,7 @@ export interface ISVGProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
 }
 
-export const LoadingSpinner = ({ size = 24, className, ...props }: ISVGProps) => {
+export const LoadingSpin = ({ size = 24, className, ...props }: ISVGProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -24,3 +24,19 @@ export const LoadingSpinner = ({ size = 24, className, ...props }: ISVGProps) =>
     </svg>
   );
 };
+
+// --- Thêm component tiện dụng cho loading section ---
+interface LoadingSectionProps {
+  name?: string;
+  className?: string;
+  heightFullScreen?: boolean;
+}
+
+export const LoadingSpinner: React.FC<LoadingSectionProps> = ({ name, className, heightFullScreen = true }) => (
+  <div className={cn("flex justify-center items-center", heightFullScreen ? "h-screen" : "py-12", className)}>
+    <div className="flex flex-col items-center gap-4">
+      <LoadingSpin size={32} className="text-primary" />
+      <p className="text-muted-foreground">Đang tải {name ? `danh sách ${name}` : "dữ liệu"}...</p>
+    </div>
+  </div>
+);
