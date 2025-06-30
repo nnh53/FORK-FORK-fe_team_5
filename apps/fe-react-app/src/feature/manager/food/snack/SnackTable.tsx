@@ -94,7 +94,6 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
             <span className="text-sm font-medium px-2">Sắp xếp:</span>
             <SortButton {...getSortProps("name")} label="Tên" />
             <SortButton {...getSortProps("price")} label="Giá" />
-            <SortButton {...getSortProps("quantity")} label="Tồn kho" />
           </div>
 
           {/* Page Size Selector */}

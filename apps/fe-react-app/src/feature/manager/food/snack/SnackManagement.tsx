@@ -32,15 +32,10 @@ const filterByNumberRange = (snack: Snack, field: string, range: { from: number 
   if (!snack) return false;
 
   let value: number;
-  switch (field) {
-    case "price_range":
-      value = snack.price || 0;
-      break;
-    case "quantity_range":
-      value = snack.quantity || 0;
-      break;
-    default:
-      return true;
+  if (field === "price_range") {
+    value = snack.price || 0;
+  } else {
+    return true;
   }
 
   return !(range.from && value < range.from) && !(range.to && value > range.to);
@@ -96,17 +91,6 @@ const SnackManagement: React.FC = () => {
       },
     },
     {
-      label: "Tồn kho",
-      value: "quantity_range",
-      type: "numberRange" as const,
-      numberRangeConfig: {
-        fromPlaceholder: "Từ số lượng",
-        toPlaceholder: "Đến số lượng",
-        min: 0,
-        step: 1,
-      },
-    },
-    {
       label: "Loại sản phẩm",
       value: "category",
       type: "select" as const,
@@ -133,7 +117,6 @@ const SnackManagement: React.FC = () => {
       type: "select" as const,
       selectOptions: [
         { value: "AVAILABLE", label: "Có sẵn" },
-        { value: "SOLD_OUT", label: "Đã bán hết" },
         { value: "UNAVAILABLE", label: "Ngừng bán" },
       ],
       placeholder: "Chọn trạng thái",

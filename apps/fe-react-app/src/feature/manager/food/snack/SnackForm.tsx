@@ -26,8 +26,7 @@ const formSchema = z.object({
   flavor: z.string().min(1, "Flavor is required"),
   description: z.string().min(1, "Description is required"),
   price: z.number().min(1000, "Price must be at least 1,000 VND"),
-  quantity: z.number().min(0, "Quantity must be at least 0"),
-  status: z.enum(["SOLD_OUT", "AVAILABLE", "UNAVAILABLE"], { required_error: "Status is required" }),
+  status: z.enum(["AVAILABLE", "UNAVAILABLE"], { required_error: "Status is required" }),
 });
 
 const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
@@ -44,7 +43,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
       flavor: "",
       description: "",
       price: 0,
-      quantity: 0,
       status: "AVAILABLE",
     },
   });
@@ -61,7 +59,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
           flavor: snack.flavor,
           description: snack.description,
           price: snack.price,
-          quantity: snack.quantity,
           status: snack.status,
         });
       }, 0);
@@ -75,7 +72,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
         flavor: "",
         description: "",
         price: 0,
-        quantity: 0,
         status: "AVAILABLE",
       });
     }
@@ -269,7 +265,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                   />
 
                   {/* Danh mục, Kích thước, Trạng thái */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Cập nhật các giá trị enum của category */}
                     <FormField
                       control={form.control}
@@ -318,6 +314,32 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                     />
 
                     {/* Cập nhật giá trị enum của trạng thái */}
+                  </div>
+
+                  {/* Giá bán, Số lượng tồn kho */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Giá bán (VNĐ)*</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type="number"
+                                placeholder="50000"
+                                {...field}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                className="h-11 pr-12"
+                              />
+                              <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground font-medium">₫</span>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="status"
@@ -351,51 +373,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                               </SelectItem>
                             </SelectContent>
                           </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Giá bán, Số lượng tồn kho */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="price"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Giá bán (VNĐ)*</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                placeholder="50000"
-                                {...field}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="h-11 pr-12"
-                              />
-                              <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground font-medium">₫</span>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="quantity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Số lượng tồn kho*</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="100"
-                              {...field}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
-                              className="h-11"
-                            />
-                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
