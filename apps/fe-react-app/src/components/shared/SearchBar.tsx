@@ -43,7 +43,6 @@ function SearchBar({ searchOptions, onSearchChange, className, placeholder = "T�
   };
 
   // Hiển thị các trường có thể tìm kiếm
-  const searchableFields = searchOptions.map((option) => option.label).join(", ");
 
   return (
     <div className={cn("space-y-3", className)}>
@@ -62,13 +61,6 @@ function SearchBar({ searchOptions, onSearchChange, className, placeholder = "T�
           </Button>
         )}
       </div>
-
-      {/* Search hint */}
-      {limitedFields && searchOptions.length > 0 && (
-        <div className="text-xs text-muted-foreground">
-          Tìm kiếm trong các trường: <span className="font-medium">{searchableFields}</span>
-        </div>
-      )}
 
       {/* Search is active */}
       {searchValue && <div className="text-xs text-blue-600">Đang tìm kiếm: "{searchValue}"</div>}
