@@ -1,16 +1,16 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
-import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
-import { Input } from "@/components/Shadcn/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import type { FilterCriteria } from "@/components/shared/Filter";
+import { Filter } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { SearchBar } from "@/components/shared/SearchBar";
 import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
-import { MovieStatus } from "@/interfaces/movies.interface";
+import { MovieGenre, MovieStatus, MovieVersion } from "@/interfaces/movies.interface";
 import { transformMovieResponse, transformMovieToRequest, useCreateMovie, useMovies, useUpdateMovie } from "@/services/movieService";
 import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import MovieDetail from "./MovieDetail";
 import MovieList from "./MovieList";
@@ -18,9 +18,9 @@ import MovieList from "./MovieList";
 const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | undefined>();
-  const [searchInput, setSearchInput] = useState<string>("");
-  const [from, setFrom] = useState<Date | undefined>(undefined);
-  const [to, setTo] = useState<Date | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
+  const tableRef = useRef<{ resetPagination: () => void }>(null);
 
   // Use React Query hooks
   const moviesQuery = useMovies();
@@ -32,18 +32,124 @@ const MovieManagement = () => {
     ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
     : [];
 
+  // SearchBar options
+  const searchOptions = [
+    { value: "id", label: "ID" },
+    { value: "name", label: "Tên phim" },
+    { value: "actor", label: "Diễn viên" },
+    { value: "director", label: "Đạo diễn" },
+    { value: "studio", label: "Hãng phim" },
+    { value: "description", label: "Mô tả" },
+  ];
+
+  // Filter options
+  const filterOptions = [
+    {
+      label: "Trạng thái",
+      value: "status",
+      type: "select" as const,
+      selectOptions: [
+        { value: MovieStatus.ACTIVE, label: "Đang chiếu" },
+        { value: MovieStatus.UPCOMING, label: "Sắp chiếu" },
+        { value: MovieStatus.INACTIVE, label: "Ngừng chiếu" },
+      ],
+      placeholder: "Chọn trạng thái",
+    },
+    {
+      label: "Thể loại",
+      value: "type",
+      type: "select" as const,
+      selectOptions: Object.values(MovieGenre).map((genre) => ({
+        value: genre,
+        label: genre.charAt(0) + genre.slice(1).toLowerCase(), // hoặc map sang tiếng Việt nếu muốn
+      })),
+      placeholder: "Chọn thể loại",
+    },
+    {
+      label: "Phiên bản",
+      value: "version",
+      type: "select" as const,
+      selectOptions: Object.values(MovieVersion).map((ver) => ({
+        value: ver,
+        label: ver,
+      })),
+      placeholder: "Chọn phiên bản",
+    },
+    {
+      label: "Độ tuổi giới hạn",
+      value: "ageRestrict",
+      type: "numberRange" as const,
+      numberRangeConfig: {
+        fromPlaceholder: "Từ tuổi",
+        toPlaceholder: "Đến tuổi",
+        min: 13,
+        max: 18,
+        step: 1,
+      },
+    },
+    {
+      label: "Thời lượng (phút)",
+      value: "duration",
+      type: "numberRange" as const,
+      numberRangeConfig: {
+        fromPlaceholder: "Từ phút",
+        toPlaceholder: "Đến phút",
+        min: 1,
+        step: 1,
+      },
+    },
+    {
+      label: "Ngày khởi chiếu",
+      value: "fromDate",
+      type: "dateRange" as const,
+    },
+    {
+      label: "Ngày kết thúc",
+      value: "toDate",
+      type: "dateRange" as const,
+    },
+    // Nếu muốn, có thể thêm filter cho studio, director, actor dạng select hoặc text
+  ];
+
+  // Lọc phim theo searchTerm và filterCriteria
+  const filteredMovies = useMemo(() => {
+    let result = movies;
+
+    // Search
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      result = result.filter(
+        (movie) =>
+          movie.name?.toLowerCase().includes(lower) ||
+          movie.director?.toLowerCase().includes(lower) ||
+          movie.studio?.toLowerCase().includes(lower) ||
+          movie.type?.toLowerCase().includes(lower) ||
+          movie.description?.toLowerCase().includes(lower),
+      );
+    }
+
+    // Filter
+    if (filterCriteria.length > 0) {
+      result = result.filter((movie) => {
+        return filterCriteria.every((criteria) => {
+          switch (criteria.field) {
+            case "status":
+              return movie.status === criteria.value;
+            case "type":
+              return movie.type === criteria.value;
+            default:
+              return true;
+          }
+        });
+      });
+    }
+
+    return result;
+  }, [movies, searchTerm, filterCriteria]);
+
   // Show loading state
   if (moviesQuery.isLoading) {
     return <LoadingSpinner name="phim" />;
-  }
-
-  // Show error state
-  if (moviesQuery.error) {
-    return (
-      <div className="container mx-auto p-4">
-        <div className="text-center text-red-500">Có lỗi xảy ra khi tải danh sách phim</div>
-      </div>
-    );
   }
 
   const handleCreate = () => {
@@ -189,33 +295,30 @@ const MovieManagement = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="mb-6 flex gap-4">
-              <Input
-                type="text"
-                placeholder="Search movies..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                maxLength={50}
-                className="mr-2 w-1/3"
+            <div className="mb-6 flex flex-col md:flex-row gap-4">
+              {/* SearchBar */}
+              <SearchBar
+                searchOptions={searchOptions}
+                onSearchChange={(value) => {
+                  setSearchTerm(value);
+                  if (tableRef.current) tableRef.current.resetPagination();
+                }}
+                placeholder="Tìm kiến theo id, tên phim, hãng phim, diễn viên, đạo diễn, hoặc mô tả..."
+                className="flex-1"
+                resetPagination={() => tableRef.current?.resetPagination()}
               />
-              <div className="mb-4 flex gap-4">
-                <DatePicker date={from} setDate={setFrom} placeholder="From date" />
-                <DatePicker date={to} setDate={setTo} placeholder="To date" />
-                <Select>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value={MovieStatus.ACTIVE}>Active</SelectItem>
-                    <SelectItem value={MovieStatus.INACTIVE}>Inactive</SelectItem>
-                    <SelectItem value={MovieStatus.UPCOMING}>Upcoming</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button>Search</Button>
+              {/* Filter */}
+              <Filter
+                filterOptions={filterOptions}
+                onFilterChange={(criteria) => {
+                  setFilterCriteria(criteria);
+                  if (tableRef.current) tableRef.current.resetPagination();
+                }}
+                className="flex-1"
+                // groupMode={true} // Nếu muốn nhóm filter
+              />
             </div>
-            <MovieList onEdit={handleEdit} movies={movies} onMoviesChange={() => moviesQuery.refetch()} />
+            <MovieList onEdit={handleEdit} movies={filteredMovies} onMoviesChange={() => moviesQuery.refetch()} />
           </CardContent>
         </Card>
       </div>
@@ -239,4 +342,5 @@ const MovieManagement = () => {
     </>
   );
 };
+
 export default MovieManagement;

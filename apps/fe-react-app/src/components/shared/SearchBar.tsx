@@ -48,8 +48,8 @@ function SearchBar({ searchOptions, onSearchChange, className, placeholder = "TÃ
     <div className={cn("space-y-3", className)}>
       {/* Main search input */}
       <div className="flex items-center gap-2">
-        <div className="relative flex-1 max-w-md border border-gray-300 rounded-md focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
-          <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative flex-1 max-w-xl border border-gray-300 rounded-md focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+          <SearchIcon className="absolute left-3  top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input type="text" placeholder={placeholder} value={searchValue} onChange={(e) => handleSearchChange(e.target.value)} className="pl-10" />
         </div>
 

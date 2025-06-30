@@ -8,7 +8,7 @@ import type { Snack } from "@/interfaces/snacks.interface";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { createSnack, deleteSnack, getSnacks, updateSnack } from "../service/snackApi";
+import { createSnack, deleteSnack, getSnacks, updateSnack } from "../services/snackApi";
 import SnackForm from "./SnackForm";
 import SnackTable from "./SnackTable";
 

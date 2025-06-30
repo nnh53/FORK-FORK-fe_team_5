@@ -1,6 +1,7 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { Movie } from "@/interfaces/movies.interface";
 import { MovieStatus } from "@/interfaces/movies.interface";
 import { getMovieGenreLabel, useDeleteMovie } from "@/services/movieService";
@@ -68,15 +69,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
 
   const renderTableContent = () => {
     if (loading) {
-      return (
-        <TableRow>
-          <TableCell colSpan={10} className="text-center py-4">
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-            </div>
-          </TableCell>
-        </TableRow>
-      );
+      return <LoadingSpinner name="phim" />;
     }
 
     if (movies.length === 0) {
