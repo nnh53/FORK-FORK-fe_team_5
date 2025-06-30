@@ -6,7 +6,8 @@ export interface Snack {
   flavor: string;
   price: number;
   description: string;
-  quantity: number;
   img: string;
-  status: "SOLD_OUT" | "AVAILABLE" | "UNAVAILABLE";
+  status: "AVAILABLE" | "UNAVAILABLE";
 }
+
+export type SnackForm = Omit<Snack, "id">;
