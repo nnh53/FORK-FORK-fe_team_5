@@ -1,6 +1,7 @@
 import ClickSpark from "@/components/Reactbits/reactbit-animations/ClickSpark/ClickSpark";
 import ScrollFloat from "@/components/Reactbits/reactbit-animations/ScrollFloat/ScrollFloat";
 import ScrollReveal from "@/components/Reactbits/reactbit-animations/ScrollReveal/ScrollReveal";
+import Stack from "@/components/Reactbits/reactbit-components/Stack/Stack";
 import { Button } from "@/components/Shadcn/ui/button";
 import CarouselSection from "@/feature/views/CarouselSection/CarouselSection";
 import { recentMoviesData } from "@/feature/views/CarouselSection/data/movies.data";
@@ -193,11 +194,29 @@ const HomePage = () => {
           <CinemaExperience ref={experienceRef} />
           {/* FAQ Section */}
           <FAQ ref={faqRef} />
-          {/* Footer */}
+          {/* Footer - Admin Team Stack */}
           <div className="h-screen flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-3xl font-bold">End of ScrollFloat Tests</h2>
-              <p className="text-lg mt-4">Scroll back up để xem lại các hiệu ứng</p>
+              <h2 className="text-3xl font-bold mb-8">Đội Ngũ Phát Triển</h2>
+              <p className="text-lg mb-12">Các thành viên FCinema</p>
+
+              <div className="flex justify-center items-center w-full">
+                <div className="relative" style={{ left: "-130px" }}>
+                  <Stack
+                    randomRotation={true}
+                    sensitivity={150}
+                    cardDimensions={{ width: 280, height: 350 }}
+                    sendToBackOnClick={true}
+                    cardsData={[
+                      { id: 1, img: "/admins/cuong.jpg" },
+                      { id: 2, img: "/admins/hoang.jpg" },
+                      { id: 3, img: "/admins/phat.jpg" },
+                      { id: 4, img: "/admins/tan.jpg" },
+                    ]}
+                    animationConfig={{ stiffness: 260, damping: 20 }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
