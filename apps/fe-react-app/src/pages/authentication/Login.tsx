@@ -52,7 +52,6 @@ const Login: React.FC = () => {
       const authData = loginQuery.data?.result;
       if (authData) {
         console.log("Auth data received:", authData);
-
         // Convert AuthenticationResponse to UserLoginResponse format
         const userLoginData = {
           token: authData.token || "",

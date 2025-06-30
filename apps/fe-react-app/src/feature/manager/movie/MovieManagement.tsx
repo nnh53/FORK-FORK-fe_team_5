@@ -132,7 +132,6 @@ const MovieManagement = () => {
         }
       }
 
-      // Use the transform function to convert to the correct API format
       const movieRequestData = transformMovieToRequest({
         ...values,
         id: selectedMovie?.id,
@@ -141,7 +140,6 @@ const MovieManagement = () => {
       });
 
       if (selectedMovie?.id) {
-        // Update existing movie using mutation
         updateMovieMutation.mutate(
           {
             params: { path: { id: selectedMovie.id } },
@@ -160,7 +158,6 @@ const MovieManagement = () => {
           },
         );
       } else {
-        // Create new movie using mutation
         createMovieMutation.mutate(
           {
             body: movieRequestData,

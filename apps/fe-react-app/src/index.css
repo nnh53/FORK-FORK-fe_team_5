@@ -403,3 +403,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom CSS to prevent FormLabel from changing color on error */
+[data-slot="form-label"][data-error="true"] {
+  color: inherit !important;
+}

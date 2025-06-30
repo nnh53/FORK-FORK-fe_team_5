@@ -98,7 +98,6 @@ const Register: React.FC = () => {
             </div>
           )}
 
-          {/* Group 1: Họ và tên, Ngày sinh và Số điện thoại */}
           <div className="grid grid-cols-3 gap-4">
             <FormField
               control={form.control}
