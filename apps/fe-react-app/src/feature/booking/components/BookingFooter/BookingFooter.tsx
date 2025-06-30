@@ -1,9 +1,9 @@
 // src/pages/SeatSelectionPage/components/BookingFooter.tsx
+import type { BookingSeat } from "@/interfaces/booking.interface";
 import React, { useEffect, useState } from "react";
-import type { SeatType } from "../../booking-page/BookingPage.tsx";
 
 interface BookingFooterProps {
-  selectedSeats: SeatType[];
+  selectedSeats: BookingSeat[];
   totalCost: number;
 }
 
@@ -42,10 +42,20 @@ const BookingFooter: React.FC<BookingFooterProps> = ({ selectedSeats, totalCost 
   // Đếm số lượng từng loại ghế
   const seatCounts = selectedSeats.reduce(
     (acc, seat) => {
-      acc[seat.type] = (acc[seat.type] || 0) + 1;
+      // Map database SeatType to display type
+      let displayType: "standard" | "vip" | "double";
+      if (seat.type === "VIP") {
+        displayType = "vip";
+      } else if (seat.type === "COUPLE") {
+        displayType = "double";
+      } else {
+        displayType = "standard"; // REGULAR, PATH treated as standard
+      }
+
+      acc[displayType] = (acc[displayType] || 0) + 1;
       return acc;
     },
-    {} as Record<SeatType["type"], number>,
+    {} as Record<"standard" | "vip" | "double", number>,
   );
 
   return (

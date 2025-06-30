@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui
 import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
 import { Separator } from "@/components/Shadcn/ui/separator";
-import type { BookingCreateRequest, Combo } from "@/interfaces/booking.interface";
-import { PaymentMethod } from "@/interfaces/booking.interface";
+import type { BookingCombo, BookingRequest, PaymentMethod } from "@/interfaces/booking.interface";
 import type { Member } from "@/interfaces/member.interface";
 import type { Movie, Showtime } from "@/interfaces/movies.interface";
 import { getMovieGenreLabel, transformMovieResponse, useMovies } from "@/services/movieService";
@@ -43,7 +42,7 @@ const StaffTicketSales: React.FC = () => {
   // State for data
   const [movies, setMovies] = useState<Movie[]>([]);
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
-  const [combos, setCombos] = useState<Combo[]>([]);
+  const [combos, setCombos] = useState<BookingCombo[]>([]);
   const [seats, setSeats] = useState<Seat[]>([]);
   const [snackItems, setSnackItems] = useState<SnackItem[]>([]);
 
@@ -61,7 +60,7 @@ const StaffTicketSales: React.FC = () => {
     email: "",
   });
   // State for payment
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.CASH);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [usePoints, setUsePoints] = useState(0);
   const [memberPhone, setMemberPhone] = useState("");
   const [memberInfo, setMemberInfo] = useState<Member | null>(null);
@@ -239,8 +238,8 @@ const StaffTicketSales: React.FC = () => {
   const calculateTotal = () => {
     const ticketCost = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
     const comboCost = Object.entries(selectedCombos).reduce((sum, [comboId, quantity]) => {
-      const combo = combos.find((c) => c.id === comboId);
-      return sum + (combo ? combo.price * quantity : 0);
+      const combo = combos.find((c) => c.id === parseInt(comboId));
+      return sum + (combo ? (combo.total_price || 0) * quantity : 0);
     }, 0);
     const snackCost = Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
       const snack = snackItems.find((s) => s.id === snackId);
@@ -265,37 +264,26 @@ const StaffTicketSales: React.FC = () => {
 
     try {
       setLoading(true);
-      const bookingData: BookingCreateRequest = {
-        movieId: selectedMovie.id?.toString() ?? "0",
-        showtimeId: selectedShowtime.id,
-        cinemaRoomId: selectedShowtime.cinemaRoomId,
-        seats: selectedSeats.map((seat) => seat.id),
-        customerInfo,
-        paymentMethod,
-        combos: [
-          // Include selected combos
-          ...Object.entries(selectedCombos)
-            .filter(([, quantity]) => quantity > 0)
-            .map(([comboId, quantity]) => ({
-              id: comboId,
-              quantity,
-            })),
-          // Include selected snacks as combos (since API expects combos)
-          ...Object.entries(selectedSnacks)
-            .filter(([, quantity]) => quantity > 0)
-            .map(([snackId, quantity]) => {
-              const snack = snackItems.find((s) => s.id === snackId);
-              return {
-                id: snackId,
-                name: snack?.name ?? "",
-                price: snack?.price ?? 0,
-                quantity,
-              };
-            }),
-        ],
-        usePoints: usePoints > 0 ? usePoints : undefined,
-        memberId: memberInfo?.id,
-        isStaffBooking: true, // Mark as staff booking for confirmed status
+      const bookingData: BookingRequest = {
+        user_id: memberInfo?.id,
+        showtime_id: parseInt(selectedShowtime.id) || 1, // Convert to number or use default
+        promotion_id: undefined, // Can be added later for promotions
+        loyalty_point_used: usePoints > 0 ? usePoints : undefined,
+        payment_method: paymentMethod,
+        staff_id: "STAFF001", // Mock staff ID - should come from auth context
+        seat_ids: selectedSeats.map((seat) => parseInt(seat.id)), // Convert to numbers
+        combos: Object.entries(selectedCombos)
+          .filter(([, quantity]) => quantity > 0)
+          .map(([comboId, quantity]) => ({
+            combo_id: parseInt(comboId),
+            quantity,
+          })),
+        snacks: Object.entries(selectedSnacks)
+          .filter(([, quantity]) => quantity > 0)
+          .map(([snackId, quantity]) => ({
+            snack_id: parseInt(snackId.replace("SN", "")), // Convert SN001 to 1
+            quantity,
+          })),
       };
 
       const booking = await bookingService.createBooking(bookingData);
@@ -575,23 +563,23 @@ const StaffTicketSales: React.FC = () => {
                             <div>
                               <h4 className="font-medium">{combo.name}</h4>
                               <p className="text-sm text-gray-600">{combo.description}</p>
-                              <p className="text-lg font-semibold text-red-600 mt-1">{combo.price.toLocaleString("vi-VN")} VNĐ</p>
+                              <p className="text-lg font-semibold text-red-600 mt-1">{(combo.total_price || 0).toLocaleString("vi-VN")} VNĐ</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-3 mt-3">
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleComboQuantityChange(combo.id, (selectedCombos[combo.id] || 0) - 1)}
-                              disabled={(selectedCombos[combo.id] || 0) === 0}
+                              onClick={() => handleComboQuantityChange(combo.id.toString(), (selectedCombos[combo.id.toString()] || 0) - 1)}
+                              disabled={(selectedCombos[combo.id.toString()] || 0) === 0}
                             >
                               <Minus className="h-4 w-4" />
                             </Button>
-                            <span className="w-8 text-center">{selectedCombos[combo.id] || 0}</span>
+                            <span className="w-8 text-center">{selectedCombos[combo.id.toString()] || 0}</span>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleComboQuantityChange(combo.id, (selectedCombos[combo.id] || 0) + 1)}
+                              onClick={() => handleComboQuantityChange(combo.id.toString(), (selectedCombos[combo.id.toString()] || 0) + 1)}
                             >
                               <Plus className="h-4 w-4" />
                             </Button>
@@ -741,13 +729,13 @@ const StaffTicketSales: React.FC = () => {
                     {Object.entries(selectedCombos)
                       .filter(([, quantity]) => quantity > 0)
                       .map(([comboId, quantity]) => {
-                        const combo = combos.find((c) => c.id === comboId);
+                        const combo = combos.find((c) => c.id === parseInt(comboId));
                         return combo ? (
                           <div key={comboId} className="flex justify-between">
                             <span>
                               {combo.name} x{quantity}:
                             </span>
-                            <span>{(combo.price * quantity).toLocaleString("vi-VN")} VNĐ</span>
+                            <span>{((combo.total_price || 0) * quantity).toLocaleString("vi-VN")} VNĐ</span>
                           </div>
                         ) : null;
                       })}
@@ -796,12 +784,10 @@ const StaffTicketSales: React.FC = () => {
                 {/* Payment Method */}
                 <div>
                   <h3 className="font-semibold mb-3">Phương Thức Thanh Toán</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                     {[
-                      { id: PaymentMethod.CASH, name: "Tiền mặt" },
-                      { id: PaymentMethod.CARD, name: "Thẻ" },
-                      { id: PaymentMethod.MOMO, name: "MoMo" },
-                      { id: PaymentMethod.BANKING, name: "Banking" },
+                      { id: "CASH" as PaymentMethod, name: "Tiền mặt" },
+                      { id: "BANKING" as PaymentMethod, name: "Banking" },
                     ].map((method) => (
                       <button
                         key={method.id}
@@ -864,13 +850,13 @@ const StaffTicketSales: React.FC = () => {
                   {Object.entries(selectedCombos)
                     .filter(([, quantity]) => quantity > 0)
                     .map(([comboId, quantity]) => {
-                      const combo = combos.find((c) => c.id === comboId);
+                      const combo = combos.find((c) => c.id === parseInt(comboId));
                       return combo ? (
                         <div key={comboId} className="text-sm flex justify-between">
                           <span>
                             {combo.name} x{quantity}
                           </span>
-                          <span>{(combo.price * quantity).toLocaleString("vi-VN")} VNĐ</span>
+                          <span>{((combo.total_price || 0) * quantity).toLocaleString("vi-VN")} VNĐ</span>
                         </div>
                       ) : null;
                     })}

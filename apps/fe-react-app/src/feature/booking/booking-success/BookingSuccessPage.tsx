@@ -29,7 +29,9 @@ const BookingSuccessPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const bookingData = await bookingService.getBookingById(bookingId);
+        // Convert string ID to number if needed
+        const id = typeof bookingId === "string" ? parseInt(bookingId) : bookingId;
+        const bookingData = await bookingService.getBookingById(id);
         setBooking(bookingData);
       } catch (error) {
         console.error("Error fetching booking:", error);
@@ -91,26 +93,53 @@ const BookingSuccessPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Trạng thái</p>
-                <p className="font-semibold text-green-600 capitalize">{booking.status}</p>
+                <p className="font-semibold text-green-600 capitalize">{booking.booking_status}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Ghế ngồi</p>
-                <p className="font-semibold">{booking.seats.join(", ")}</p>
+                <p className="font-semibold">{booking.booking_seats?.map((bs) => bs.seat?.name).join(", ") || "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Tổng tiền</p>
-                <p className="font-semibold text-red-600">{booking.totalAmount.toLocaleString("vi-VN")} VNĐ</p>
+                <p className="font-semibold text-red-600">{booking.total_price?.toLocaleString("vi-VN") || "0"} VNĐ</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Phương thức thanh toán</p>
-                <p className="font-semibold capitalize">{booking.paymentMethod}</p>
+                <p className="font-semibold capitalize">{booking.payment_method}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Thời gian đặt</p>
-                <p className="font-semibold">{new Date(booking.createdAt).toLocaleString("vi-VN")}</p>
+                <p className="font-semibold">{booking.booking_date_time ? new Date(booking.booking_date_time).toLocaleString("vi-VN") : "N/A"}</p>
               </div>
             </div>
           </div>
+
+          {/* Movie & Showtime Info */}
+          {booking.showtime && (
+            <div className="border rounded-lg p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Thông tin phim & suất chiếu</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Tên phim</p>
+                  <p className="font-semibold">{booking.showtime.movie?.name || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Phòng chiếu</p>
+                  <p className="font-semibold">Phòng {booking.showtime.cinema_room?.room_number || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Thời gian chiếu</p>
+                  <p className="font-semibold">
+                    {booking.showtime.show_date_time ? new Date(booking.showtime.show_date_time).toLocaleString("vi-VN") : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Thời lượng</p>
+                  <p className="font-semibold">{booking.showtime.movie?.duration || "N/A"} phút</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Customer Info */}
           <div className="border rounded-lg p-6 mb-6">
@@ -118,30 +147,65 @@ const BookingSuccessPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-gray-500">Họ và tên</p>
-                <p className="font-semibold">{booking.customerInfo.name}</p>
+                <p className="font-semibold">{booking.user?.full_name || "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Số điện thoại</p>
-                <p className="font-semibold">{booking.customerInfo.phone}</p>
+                <p className="font-semibold">{booking.user?.phone || "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Email</p>
-                <p className="font-semibold">{booking.customerInfo.email}</p>
+                <p className="font-semibold">{booking.user?.email || "N/A"}</p>
               </div>
             </div>
           </div>
 
-          {/* Combos (if any) */}
-          {booking.combos && booking.combos.length > 0 && (
+          {/* Combos and Snacks */}
+          {((booking.booking_combos && booking.booking_combos.length > 0) || (booking.booking_snacks && booking.booking_snacks.length > 0)) && (
             <div className="border rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Combo đồ ăn</h2>
-              {booking.combos.map((combo: { name: string; quantity: number; price: number }, index: number) => (
-                <div key={index} className="flex justify-between items-center py-2">
-                  <span>{combo.name}</span>
-                  <span>x{combo.quantity}</span>
-                  <span className="font-semibold">{(combo.price * combo.quantity).toLocaleString("vi-VN")} VNĐ</span>
+              <h2 className="text-xl font-semibold mb-4">Đồ ăn & Thức uống</h2>
+
+              {/* Combos */}
+              {booking.booking_combos?.map((bookingCombo, index) => (
+                <div key={`combo-${index}`} className="flex justify-between items-center py-2">
+                  <span>{bookingCombo.combo?.name || "Combo"}</span>
+                  <span>x{bookingCombo.quantity}</span>
+                  <span className="font-semibold">
+                    {((bookingCombo.combo?.total_price || 0) * bookingCombo.quantity).toLocaleString("vi-VN")} VNĐ
+                  </span>
                 </div>
               ))}
+
+              {/* Individual Snacks */}
+              {booking.booking_snacks?.map((bookingSnack, index) => (
+                <div key={`snack-${index}`} className="flex justify-between items-center py-2">
+                  <span>{bookingSnack.snack?.name || "Snack"}</span>
+                  <span>x{bookingSnack.quantity}</span>
+                  <span className="font-semibold">{((bookingSnack.snack?.price || 0) * bookingSnack.quantity).toLocaleString("vi-VN")} VNĐ</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Promotion & Loyalty Info */}
+          {(booking.promotion || (booking.loyalty_point_used && booking.loyalty_point_used > 0)) && (
+            <div className="border rounded-lg p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Khuyến mãi & Điểm thưởng</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {booking.promotion && (
+                  <div>
+                    <p className="text-sm text-gray-500">Khuyến mãi áp dụng</p>
+                    <p className="font-semibold text-green-600">{booking.promotion.title}</p>
+                    <p className="text-sm text-gray-600">Giảm {booking.promotion.discount_value.toLocaleString("vi-VN")} VNĐ</p>
+                  </div>
+                )}
+                {booking.loyalty_point_used && booking.loyalty_point_used > 0 && (
+                  <div>
+                    <p className="text-sm text-gray-500">Điểm thưởng sử dụng</p>
+                    <p className="font-semibold text-blue-600">{booking.loyalty_point_used.toLocaleString("vi-VN")} điểm</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

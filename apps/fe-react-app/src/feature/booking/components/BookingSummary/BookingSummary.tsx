@@ -3,13 +3,21 @@ import React from "react";
 
 import { useNavigate } from "react-router-dom";
 import type { MovieCardProps } from "../../../../components/movie/MovieCard/MovieCard.tsx";
-import type { SeatType } from "../../booking-page/BookingPage.tsx";
+
+// Interface for seats in booking context
+interface BookingSelectedSeat {
+  id: string;
+  row: string;
+  number: number;
+  type: "standard" | "vip" | "double";
+  status: "available" | "taken" | "selected";
+}
 
 interface BookingSummaryProps {
   movie: MovieCardProps;
   selection: { date: string; time: string; format: string };
   cinemaName: string;
-  selectedSeats: SeatType[];
+  selectedSeats: BookingSelectedSeat[];
   totalCost: number; // This is just ticket cost
   comboCost?: number; // Add combo cost
   pointsDiscount?: number; // Add points discount
