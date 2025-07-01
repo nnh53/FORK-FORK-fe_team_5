@@ -2,18 +2,16 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/Shadcn/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
+import { MovieStatus } from "@/interfaces/movies.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import type { Movie, MovieFormData } from "../../../interfaces/movies.interface";
-import { MovieGenre, MovieStatus, MovieVersion } from "../../../interfaces/movies.interface";
-import { movieGenreOptions } from "../../../services/movieService";
 
 interface MovieDetailProps {
   movie?: Movie;
@@ -30,11 +28,10 @@ const formSchema = z.object({
   studio: z.string().min(1, "Studio is required"),
   director: z.string().min(1, "Director is required"),
   duration: z.number().min(1, "Duration must be at least 1 minute").optional(),
-  version: z.nativeEnum(MovieVersion).optional(),
   trailer: z.string().optional(),
-  type: z.nativeEnum(MovieGenre).optional(),
+  categoryIds: z.array(z.number()).min(1, "At least one category is required"),
   description: z.string().min(1, "Description is required"),
-  status: z.nativeEnum(MovieStatus).optional(),
+  status: z.string().optional(),
   poster: z.string().optional(),
   showtimes: z
     .array(
@@ -72,9 +69,8 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
       studio: "",
       director: "",
       duration: 90,
-      version: MovieVersion["2D"],
       trailer: "",
-      type: MovieGenre.ACTION,
+      categoryIds: [],
       description: "",
       status: MovieStatus.ACTIVE,
       poster: "",
@@ -111,9 +107,8 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
         studio: movie.studio ?? "",
         director: movie.director ?? "",
         duration: movie.duration ?? 90,
-        version: movie.version ?? MovieVersion["2D"],
         trailer: movie.trailer ?? "",
-        type: movie.type ?? MovieGenre.ACTION,
+        categoryIds: movie.categoryIds ?? [],
         description: movie.description ?? "",
         status: movie.status ?? MovieStatus.ACTIVE,
         poster: movie.poster ?? "",
@@ -137,7 +132,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
       date: showtimeStartTime.split("T")[0], // Extract date from datetime-local
       startTime: showtimeStartTime,
       endTime: showtimeEndTime,
-      format: form.getValues("version") ?? MovieVersion["2D"],
+      format: "2D", // Default format
       availableSeats: 100, // Default value
       price: 100000, // Default value
     };
@@ -313,37 +308,19 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
 
             <FormField
               control={form.control}
-              name="version"
+              name="categoryIds"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Version*</FormLabel>
+                  <FormLabel>Categories*</FormLabel>
                   <FormControl>
-                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
-                      <FormItem className="flex items-center space-x-2">
-                        <FormControl>
-                          <RadioGroupItem value={MovieVersion["2D"]} />
-                        </FormControl>
-                        <FormLabel className="font-normal">2D</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-2">
-                        <FormControl>
-                          <RadioGroupItem value={MovieVersion["3D"]} />
-                        </FormControl>
-                        <FormLabel className="font-normal">3D</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-2">
-                        <FormControl>
-                          <RadioGroupItem value={MovieVersion["4D"]} />
-                        </FormControl>
-                        <FormLabel className="font-normal">4D</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-2">
-                        <FormControl>
-                          <RadioGroupItem value={MovieVersion.IMAX} />
-                        </FormControl>
-                        <FormLabel className="font-normal">IMAX</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
+                    <Input 
+                      placeholder="Category IDs (comma separated: 1,2,3)" 
+                      value={field.value?.join(", ") || ""}
+                      onChange={(e) => {
+                        const ids = e.target.value.split(",").map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+                        field.onChange(ids);
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -394,31 +371,6 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
               )}
             />
           </div>
-
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type/Genre*</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a genre" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {movieGenreOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <FormField
             control={form.control}

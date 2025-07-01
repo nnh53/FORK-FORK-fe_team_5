@@ -6,7 +6,7 @@ import MovieSearch from "@/components/MovieSearch.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import type { Movie } from "@/interfaces/movies.interface.ts";
 import UserLayout from "@/layouts/user/UserLayout.tsx";
-import { getMovieGenreLabel, transformMovieResponse, useMovies } from "@/services/movieService.ts";
+import { transformMovieResponse, useMovies } from "@/services/movieService.ts";
 import { showtimeService } from "@/services/showtimeService.ts";
 import type { MovieResponse } from "@/type-from-be";
 import { convertShowtimesToSchedulePerDay } from "@/utils/showtimeUtils.ts";
@@ -73,7 +73,7 @@ function MovieSelection() {
         id: movie.id ?? 0,
         title: movie.name ?? "Untitled",
         posterUrl: movie.poster ?? "",
-        genres: movie.type ? [getMovieGenreLabel(movie.type)] : [],
+        genres: movie.categories ? movie.categories.map(cat => cat.name ?? "") : [],
         duration: movie.duration ? `${movie.duration} phút` : "N/A",
         ageBadgeUrl: getAgeBadgeUrl(movie.ageRestrict),
         trailerUrl: movie.trailer ?? "",
@@ -182,7 +182,7 @@ function MovieSelection() {
           id: movie.id,
           name: movie.name,
           poster: movie.poster,
-          type: movie.type,
+          categories: movie.categories,
           director: movie.director,
           actor: movie.actor,
           studio: movie.studio,
@@ -192,7 +192,6 @@ function MovieSelection() {
           fromDate: movie.fromDate,
           toDate: movie.toDate,
           status: movie.status,
-          version: movie.version,
           ageRestrict: movie.ageRestrict,
           showtimes: movie.showtimes ?? [],
         },

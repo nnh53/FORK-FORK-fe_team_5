@@ -10,5 +10,6 @@ export type PageResponse = components["schemas"]["PageResponse"];
 export type PromotionResponse = components["schemas"]["PromotionResponse"];
 export type ShowtimeResponse = components["schemas"]["ShowtimeResponse"];
 export type MovieResponse = components["schemas"]["MovieResponse"];
+export type MovieCategoryResponse = components["schemas"]["MovieCategoryResponse"];
 export type IntrospectResponse = components["schemas"]["IntrospectResponse"];
 

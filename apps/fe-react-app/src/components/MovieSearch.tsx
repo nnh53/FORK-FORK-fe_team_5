@@ -3,7 +3,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Input } from "@/components/Shadcn/ui/input";
 import type { Movie } from "@/interfaces/movies.interface";
-import { getMovieGenreLabel, transformMovieResponse, useMovies } from "@/services/movieService";
+import { transformMovieResponse, useMovies } from "@/services/movieService";
 import type { MovieResponse } from "@/type-from-be";
 import { Calendar, Clock, Search, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -125,15 +125,12 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {movie.type && (
-                            <Badge variant="outline" className="text-xs">
-                              {getMovieGenreLabel(movie.type)}
-                            </Badge>
-                          )}
-                          {movie.version && (
-                            <Badge variant="outline" className="text-xs">
-                              {movie.version}
-                            </Badge>
+                          {movie.categories && movie.categories.length > 0 && (
+                            movie.categories.map(category => (
+                              <Badge key={category.id} variant="outline" className="text-xs">
+                                {category.name}
+                              </Badge>
+                            ))
                           )}
                         </div>
                       </div>

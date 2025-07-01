@@ -45,11 +45,11 @@ export interface Movie {
   studio?: string;
   director?: string;
   duration?: number;
-  version?: MovieVersion;
   trailer?: string;
-  type?: MovieGenre;
+  categories?: { id?: number; name?: string; description?: string }[]; // New categories field
+  categoryIds?: number[]; // For form submission
   description?: string;
-  status?: MovieStatus;
+  status?: string; // Changed from enum to string
   poster?: string;
   showtimes?: Showtime[]; // Mảng rỗng, không null
 }

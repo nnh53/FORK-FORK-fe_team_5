@@ -3,15 +3,14 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { Movie } from "@/interfaces/movies.interface";
-import { MovieStatus } from "@/interfaces/movies.interface";
-import { getMovieGenreLabel, useDeleteMovie } from "@/services/movieService";
+import { useDeleteMovie } from "@/services/movieService";
 import { Edit, Eye, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-const getStatusClassName = (status?: MovieStatus) => {
-  if (status === MovieStatus.ACTIVE) return "bg-green-100 text-green-800";
-  if (status === MovieStatus.UPCOMING) return "bg-blue-100 text-blue-800";
+const getStatusClassName = (status?: string) => {
+  if (status === "ACTIVE") return "bg-green-100 text-green-800";
+  if (status === "UPCOMING") return "bg-blue-100 text-blue-800";
   return "bg-red-100 text-red-800";
 };
 
@@ -88,9 +87,9 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
         <TableCell>{movie.director ?? "N/A"}</TableCell>
         <TableCell>{movie.studio ?? "N/A"}</TableCell>
         <TableCell>{movie.duration ? `${movie.duration} min` : "N/A"}</TableCell>
-        <TableCell>{movie.version ?? "N/A"}</TableCell>
+        <TableCell>2D</TableCell> {/* Default version */}
         <TableCell>{movie.ageRestrict ? `${movie.ageRestrict}+` : "N/A"}</TableCell>
-        <TableCell>{movie.type ? getMovieGenreLabel(movie.type) : "N/A"}</TableCell>
+        <TableCell>{movie.categories && movie.categories.length > 0 ? movie.categories.map(cat => cat.name).join(", ") : "N/A"}</TableCell>
         <TableCell>
           {movie.fromDate ? (
             <>
@@ -173,7 +172,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold">{movieToView.name ?? "Untitled"}</h3>
-                  <p className="text-sm text-gray-500">{movieToView.type ? getMovieGenreLabel(movieToView.type) : "No type specified"}</p>
+                  <p className="text-sm text-gray-500">{movieToView.categories && movieToView.categories.length > 0 ? movieToView.categories.map(cat => cat.name).join(", ") : "No categories specified"}</p>
                 </div>
 
                 {movieToView.poster && (
@@ -227,12 +226,8 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
                     <p>{movieToView.duration ? `${movieToView.duration} minutes` : "N/A"}</p>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium mb-1">Version</h4>
-                    <p>{movieToView.version ?? "N/A"}</p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium mb-1">Type/Genre</h4>
-                    <p>{movieToView.type ? getMovieGenreLabel(movieToView.type) : "N/A"}</p>
+                    <h4 className="text-sm font-medium mb-1">Categories</h4>
+                    <p>{movieToView.categories && movieToView.categories.length > 0 ? movieToView.categories.map(cat => cat.name).join(", ") : "N/A"}</p>
                   </div>
                 </div>
 

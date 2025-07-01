@@ -123,7 +123,7 @@ const MovieManagement = () => {
           movie.name?.toLowerCase().includes(lower) ||
           movie.director?.toLowerCase().includes(lower) ||
           movie.studio?.toLowerCase().includes(lower) ||
-          movie.type?.toLowerCase().includes(lower) ||
+          movie.categories?.some(cat => cat.name?.toLowerCase().includes(lower)) ||
           movie.description?.toLowerCase().includes(lower),
       );
     }
@@ -135,8 +135,8 @@ const MovieManagement = () => {
           switch (criteria.field) {
             case "status":
               return movie.status === criteria.value;
-            case "type":
-              return movie.type === criteria.value;
+            case "category":
+              return movie.categories?.some(cat => cat.name === criteria.value);
             default:
               return true;
           }
@@ -174,7 +174,7 @@ const MovieManagement = () => {
     if (!values.name) errors.push("Movie Name is required");
     if (!values.director) errors.push("Director is required");
     if (!values.studio) errors.push("Studio is required");
-    if (!values.type) errors.push("Type/Genre is required");
+    if (!values.categoryIds || values.categoryIds.length === 0) errors.push("At least one category is required");
     if (!values.description) errors.push("Description is required");
 
     // Age restriction validation (must be between 13-18)

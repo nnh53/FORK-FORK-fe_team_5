@@ -6,7 +6,7 @@ import { Separator } from "@/components/Shadcn/ui/separator";
 import type { BookingCombo, BookingRequest, PaymentMethod } from "@/interfaces/booking.interface";
 import type { Member } from "@/interfaces/member.interface";
 import type { Movie, Showtime } from "@/interfaces/movies.interface";
-import { getMovieGenreLabel, transformMovieResponse, useMovies } from "@/services/movieService";
+import { transformMovieResponse, useMovies } from "@/services/movieService";
 import type { MovieResponse } from "@/type-from-be";
 import { Clock, CreditCard, Film, Minus, Plus, ShoppingCart, Ticket, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -420,7 +420,7 @@ const StaffTicketSales: React.FC = () => {
                           />
                           <div>
                             <h3 className="font-semibold">{movie.name ?? "Untitled"}</h3>
-                            <p className="text-sm text-gray-500">{movie.type ? getMovieGenreLabel(movie.type) : "N/A"}</p>
+                            <p className="text-sm text-gray-500">{movie.categories && movie.categories.length > 0 ? movie.categories.map(cat => cat.name).join(", ") : "N/A"}</p>
                             <p className="text-sm text-gray-500">{movie.duration ? `${movie.duration} phút` : "N/A"}</p>
                           </div>
                         </div>

@@ -4,11 +4,10 @@ import pTagImage from "@/assets/pTag.png";
 import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/ShowDateSelector";
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
-import { MovieGenre } from "@/interfaces/movies.interface.ts";
 import UserLayout from "@/layouts/user/UserLayout";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getMovieGenreLabel, useMovie } from "../../../services/movieService";
+import { useMovie } from "../../../services/movieService";
 import { showtimeService } from "../../../services/showtimeService";
 import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "../../../utils/showtimeUtils";
 
@@ -23,13 +22,6 @@ const getYouTubeId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = regExp.exec(url);
   return match && match[2].length === 11 ? match[2] : null;
-};
-
-// Helper to safely convert string to MovieGenre
-const safeMapToMovieGenre = (type?: string): MovieGenre | undefined => {
-  if (!type) return undefined;
-  const typeUpper = type.toUpperCase();
-  return Object.values(MovieGenre).find((genre) => genre === typeUpper);
 };
 
 const MovieDetailPage: React.FC = () => {
@@ -98,7 +90,7 @@ const MovieDetailPage: React.FC = () => {
             id: movie.id,
             posterUrl: movie.poster,
             title: movie.name, // Use 'name' from new interface
-            genres: movie.type ? [getMovieGenreLabel(safeMapToMovieGenre(movie.type) ?? MovieGenre.ACTION)] : [],
+            genres: movie.categories ? movie.categories.map(cat => cat.name ?? "") : [],
             duration: `${movie.duration ?? 0} phút`,
             ageBadgeUrl: pTagImage,
             trailerUrl: movie.trailer, // Use 'trailer' from new interface
@@ -170,7 +162,7 @@ const MovieDetailPage: React.FC = () => {
                 <MovieInfoItem label="Diễn viên" value={movie.actor ?? "Đang cập nhật"} />
                 <MovieInfoItem
                   label="Thể loại"
-                  value={movie.type ? getMovieGenreLabel(safeMapToMovieGenre(movie.type) ?? MovieGenre.ACTION) : "Đang cập nhật"}
+                  value={movie.categories && movie.categories.length > 0 ? movie.categories.map(cat => cat.name).join(", ") : "Đang cập nhật"}
                 />
                 <MovieInfoItem label="Thời lượng" value={`${movie.duration ?? 0} phút`} />
                 <MovieInfoItem label="Studio" value={movie.studio ?? "Đang cập nhật"} />
