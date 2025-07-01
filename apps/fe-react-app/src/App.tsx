@@ -12,7 +12,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -22,7 +21,7 @@ function App() {
   if (isLoading) {
     return <Loading />;
   }
-  
+
   return (
     <AuthProvider>
       <div data-theme="aaaaaa">
