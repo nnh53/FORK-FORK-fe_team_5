@@ -90,7 +90,7 @@ const MovieDetailPage: React.FC = () => {
             id: movie.id,
             posterUrl: movie.poster,
             title: movie.name, // Use 'name' from new interface
-            genres: movie.categories ? movie.categories.map(cat => cat.name ?? "") : [],
+            genres: movie.categories ? movie.categories.map((cat) => cat.name ?? "") : [],
             duration: `${movie.duration ?? 0} phút`,
             ageBadgeUrl: pTagImage,
             trailerUrl: movie.trailer, // Use 'trailer' from new interface
@@ -162,7 +162,7 @@ const MovieDetailPage: React.FC = () => {
                 <MovieInfoItem label="Diễn viên" value={movie.actor ?? "Đang cập nhật"} />
                 <MovieInfoItem
                   label="Thể loại"
-                  value={movie.categories && movie.categories.length > 0 ? movie.categories.map(cat => cat.name).join(", ") : "Đang cập nhật"}
+                  value={movie.categories && movie.categories.length > 0 ? movie.categories.map((cat) => cat.name).join(", ") : "Đang cập nhật"}
                 />
                 <MovieInfoItem label="Thời lượng" value={`${movie.duration ?? 0} phút`} />
                 <MovieInfoItem label="Studio" value={movie.studio ?? "Đang cập nhật"} />

@@ -89,7 +89,7 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
         <TableCell>{movie.duration ? `${movie.duration} min` : "N/A"}</TableCell>
         <TableCell>2D</TableCell> {/* Default version */}
         <TableCell>{movie.ageRestrict ? `${movie.ageRestrict}+` : "N/A"}</TableCell>
-        <TableCell>{movie.categories && movie.categories.length > 0 ? movie.categories.map(cat => cat.name).join(", ") : "N/A"}</TableCell>
+        <TableCell>{movie.categories && movie.categories.length > 0 ? movie.categories.map((cat) => cat.name).join(", ") : "N/A"}</TableCell>
         <TableCell>
           {movie.fromDate ? (
             <>
@@ -172,7 +172,11 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold">{movieToView.name ?? "Untitled"}</h3>
-                  <p className="text-sm text-gray-500">{movieToView.categories && movieToView.categories.length > 0 ? movieToView.categories.map(cat => cat.name).join(", ") : "No categories specified"}</p>
+                  <p className="text-sm text-gray-500">
+                    {movieToView.categories && movieToView.categories.length > 0
+                      ? movieToView.categories.map((cat) => cat.name).join(", ")
+                      : "No categories specified"}
+                  </p>
                 </div>
 
                 {movieToView.poster && (
@@ -227,7 +231,9 @@ const MovieList = ({ movies, onEdit, onMoviesChange }: MovieListProps) => {
                   </div>
                   <div>
                     <h4 className="text-sm font-medium mb-1">Categories</h4>
-                    <p>{movieToView.categories && movieToView.categories.length > 0 ? movieToView.categories.map(cat => cat.name).join(", ") : "N/A"}</p>
+                    <p>
+                      {movieToView.categories && movieToView.categories.length > 0 ? movieToView.categories.map((cat) => cat.name).join(", ") : "N/A"}
+                    </p>
                   </div>
                 </div>
 

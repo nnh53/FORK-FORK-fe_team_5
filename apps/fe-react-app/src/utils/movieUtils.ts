@@ -10,7 +10,7 @@ export const convertMovieToMovieCard = (movie: Movie): MovieCardProps => {
     id: movie.id ?? 0,
     posterUrl: movie.poster ?? "",
     title: movie.name ?? "Untitled",
-    genres: movie.categories ? movie.categories.map(cat => cat.name ?? "") : ["Unknown"],
+    genres: movie.categories ? movie.categories.map((cat) => cat.name ?? "") : ["Unknown"],
     duration: movie.duration ? `${movie.duration} phút` : "N/A",
     isHot: false, // Since we don't have rating in new Movie interface
     ageBadgeUrl: pTagImage,

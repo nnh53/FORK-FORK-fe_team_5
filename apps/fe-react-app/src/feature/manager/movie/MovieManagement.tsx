@@ -123,7 +123,7 @@ const MovieManagement = () => {
           movie.name?.toLowerCase().includes(lower) ||
           movie.director?.toLowerCase().includes(lower) ||
           movie.studio?.toLowerCase().includes(lower) ||
-          movie.categories?.some(cat => cat.name?.toLowerCase().includes(lower)) ||
+          movie.categories?.some((cat) => cat.name?.toLowerCase().includes(lower)) ||
           movie.description?.toLowerCase().includes(lower),
       );
     }
@@ -136,7 +136,7 @@ const MovieManagement = () => {
             case "status":
               return movie.status === criteria.value;
             case "category":
-              return movie.categories?.some(cat => cat.name === criteria.value);
+              return movie.categories?.some((cat) => cat.name === criteria.value);
             default:
               return true;
           }

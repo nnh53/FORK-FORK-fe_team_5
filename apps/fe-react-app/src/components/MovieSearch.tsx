@@ -125,13 +125,13 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {movie.categories && movie.categories.length > 0 && (
-                            movie.categories.map(category => (
+                          {movie.categories &&
+                            movie.categories.length > 0 &&
+                            movie.categories.map((category) => (
                               <Badge key={category.id} variant="outline" className="text-xs">
                                 {category.name}
                               </Badge>
-                            ))
-                          )}
+                            ))}
                         </div>
                       </div>
                     </div>

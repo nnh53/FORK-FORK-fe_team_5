@@ -313,11 +313,14 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                 <FormItem>
                   <FormLabel>Categories*</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Category IDs (comma separated: 1,2,3)" 
+                    <Input
+                      placeholder="Category IDs (comma separated: 1,2,3)"
                       value={field.value?.join(", ") || ""}
                       onChange={(e) => {
-                        const ids = e.target.value.split(",").map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+                        const ids = e.target.value
+                          .split(",")
+                          .map((id) => parseInt(id.trim()))
+                          .filter((id) => !isNaN(id));
                         field.onChange(ids);
                       }}
                     />

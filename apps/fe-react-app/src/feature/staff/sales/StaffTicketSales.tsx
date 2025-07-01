@@ -420,7 +420,9 @@ const StaffTicketSales: React.FC = () => {
                           />
                           <div>
                             <h3 className="font-semibold">{movie.name ?? "Untitled"}</h3>
-                            <p className="text-sm text-gray-500">{movie.categories && movie.categories.length > 0 ? movie.categories.map(cat => cat.name).join(", ") : "N/A"}</p>
+                            <p className="text-sm text-gray-500">
+                              {movie.categories && movie.categories.length > 0 ? movie.categories.map((cat) => cat.name).join(", ") : "N/A"}
+                            </p>
                             <p className="text-sm text-gray-500">{movie.duration ? `${movie.duration} phút` : "N/A"}</p>
                           </div>
                         </div>

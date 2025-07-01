@@ -45,7 +45,7 @@ export const transformMovieResponse = (movieResponse: MovieResponse): Movie => {
     duration: movieResponse.duration,
     trailer: movieResponse.trailer,
     categories: movieResponse.categories ?? [],
-    categoryIds: movieResponse.categories?.map(cat => cat.id).filter(id => id !== undefined) as number[] ?? [],
+    categoryIds: (movieResponse.categories?.map((cat) => cat.id).filter((id) => id !== undefined) as number[]) ?? [],
     description: movieResponse.description,
     status: movieResponse.status,
     poster: movieResponse.poster,

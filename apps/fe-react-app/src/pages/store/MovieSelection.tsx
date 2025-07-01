@@ -73,7 +73,7 @@ function MovieSelection() {
         id: movie.id ?? 0,
         title: movie.name ?? "Untitled",
         posterUrl: movie.poster ?? "",
-        genres: movie.categories ? movie.categories.map(cat => cat.name ?? "") : [],
+        genres: movie.categories ? movie.categories.map((cat) => cat.name ?? "") : [],
         duration: movie.duration ? `${movie.duration} phút` : "N/A",
         ageBadgeUrl: getAgeBadgeUrl(movie.ageRestrict),
         trailerUrl: movie.trailer ?? "",
