@@ -65,8 +65,8 @@ export const AppRoutes = () => (
       <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
       <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
     </Route>
-    {/* User Account Routes - Protected for MEMBER role */}
-    <Route element={<RoleRoute allowedRoles={["MEMBER"]} />}>
+    {/* User Account Routes - Protected for any authenticated user */}
+    <Route element={<ProtectedRoute />}>
       <Route
         path={ROUTES.ACCOUNT}
         element={

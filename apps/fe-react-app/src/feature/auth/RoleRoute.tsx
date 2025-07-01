@@ -1,4 +1,5 @@
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
+import { ROUTES } from "@/routes/route.constants";
 import { getUserCookieToken } from "@/utils/auth.utils";
 import { getCookie, parseRoles } from "@/utils/cookie.utils";
 import React from "react";
@@ -8,12 +9,12 @@ import { useAuth } from "../../hooks/useAuth";
 export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
   switch (roleName) {
     case "ADMIN":
-      return "/admin";
+      return ROUTES.ADMIN.DASHBOARD;
     case "STAFF":
-      return "/staff";
+      return ROUTES.STAFF.DASHBOARD;
     case "MEMBER":
     default:
-      return "/";
+      return ROUTES.ACCOUNT;
   }
 }
 
