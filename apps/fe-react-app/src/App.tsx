@@ -12,20 +12,17 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading time for all resources to be ready
+
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000); // Adjust this time as needed (2 seconds)
-
-    // Cleanup timer on component unmount
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Show loading screen while app is initializing
   if (isLoading) {
     return <Loading />;
   }
-
+  
   return (
     <AuthProvider>
       <div data-theme="aaaaaa">

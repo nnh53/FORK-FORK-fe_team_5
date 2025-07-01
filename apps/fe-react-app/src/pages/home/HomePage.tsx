@@ -10,14 +10,13 @@ import CinemaExperience from "@/feature/views/CinemaExperience";
 import { FAQ } from "@/feature/views/FAQ";
 import WelcomePanel from "@/feature/views/HeroSection/components/WelcomePanel";
 import NowShowing from "@/feature/views/NowShowing/NowShowing";
+import ParallaxSection from "@/feature/views/ParallaxSection";
 import TrendingSection from "@/feature/views/TrendingSection/TrendingSection";
 import { useHomePageAnimations } from "@/hooks/useHomePageAnimations";
 import UserLayout from "@/layouts/user/UserLayout";
 import { ROUTES } from "@/routes/route.constants";
-import { clearAuthData } from "@/utils/auth.utils";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import "./styles/HomePage.css";
 
 const HomePage = () => {
@@ -39,12 +38,6 @@ const HomePage = () => {
     faqRef,
     parallaxRef,
   });
-
-  const handleLogout = () => {
-    clearAuthData();
-    toast.success("Đăng xuất thành công!");
-    navigate(ROUTES.AUTH.LOGIN);
-  };
 
   return (
     <UserLayout>
@@ -163,35 +156,7 @@ const HomePage = () => {
           {/* Featured Movies */}
           <NowShowing ref={featuredMoviesRef} />
           {/* Parallax Section */}
-          <section className="parallax-section" ref={parallaxRef}>
-            <div className="parallax-layer" data-depth="0.1"></div>
-            <div className="parallax-layer" data-depth="0.2"></div>
-            <div className="parallax-layer" data-depth="0.3"></div>{" "}
-            <div className="parallax-content">
-              <h2
-                style={{
-                  background: "linear-gradient(to right, #946b38, #392819)",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  color: "transparent",
-                  fontWeight: "800",
-                }}
-              >
-                The Ultimate Movie Experience
-              </h2>
-
-              {/* Logout Button */}
-              <div className="mt-6">
-                <Button
-                  onClick={handleLogout}
-                  variant="destructive"
-                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
-                >
-                  Đăng Xuất
-                </Button>
-              </div>
-            </div>{" "}
-          </section>
+          <ParallaxSection ref={parallaxRef} />
           {/* Cinema Experience */}
           <CinemaExperience ref={experienceRef} />
           {/* FAQ Section */}
