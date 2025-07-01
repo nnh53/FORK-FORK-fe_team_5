@@ -4,6 +4,7 @@ import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
 import { transformRegisterRequest, useRegister } from "@/services/userService";
@@ -26,6 +27,10 @@ const Register: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const registerQuery = useRegister();
+
+  // Business Rule: Redirect authenticated users away from register page
+  useAuthRedirect();
+
   const form = useForm<RegisterFormSchemaType>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -44,7 +49,6 @@ const Register: React.FC = () => {
     registerQuery.mutate({
       body: transformRegisterRequest(data),
     });
-
   };
 
   useEffect(() => {

@@ -1,5 +1,4 @@
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import AuthTestComponent from "@/components/shared/AuthTestComponent";
 import Loading from "@/components/shared/Loading";
 import { Test } from "@/components/shared/Test";
 import LogVIAReg from "@/feature/auth/LogVIAReg";
@@ -36,7 +35,6 @@ import About from "@/pages/static/attachment/About";
 import PrivacyPolicy from "@/pages/static/rule/PrivacyPolicy";
 import TermOfService from "@/pages/static/rule/TermOfService";
 import MovieSelection from "@/pages/store/MovieSelection";
-import ScrollFloatTest from "@/pages/test/ScrollFloatTest";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
 
@@ -105,7 +103,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.LOG_VIA_REG} element={<LogVIAReg />} />
     <Route path={ROUTES.INTERNAL_SERVER_ERROR} element={<InternalServerError />} />
     <Route path={ROUTES.TEST} element={<Test />} />
-    <Route path="/auth-test" element={<AuthTestComponent />} />
     <Route path="*" element={<NotFoundError />} />
     {/* Static Routes */}
     <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
@@ -122,7 +119,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
     <Route path={ROUTES.FLOWING_MENU_SECTION} element={<FlowingMenuSection />} />
     <Route path={ROUTES.MOVIE_GALLERY} element={<MovieGallery />} />
-    <Route path={ROUTES.SCROLL_FLOAT} element={<ScrollFloatTest />} />
     {/* Catch-all for unknown routes */}
   </Routes>
 );

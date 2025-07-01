@@ -5,3 +5,4 @@ export { useScrollVelocity } from "./useScrollVelocity";
 
 // Auth related hooks
 export { useAuthPageAnimation } from "./useAuthPageAnimation";
+export { useAuthRedirect } from "./useAuthRedirect";

@@ -4,6 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/Shadcn/ui/input";
 import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
@@ -25,6 +26,10 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const loginQuery = useLogin();
+
+  // Business Rule: Redirect authenticated users away from login page
+  useAuthRedirect();
+
   const form = useForm<LoginFormSchemaType>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
