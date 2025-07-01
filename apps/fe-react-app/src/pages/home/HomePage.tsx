@@ -1,4 +1,5 @@
 import ClickSpark from "@/components/Reactbits/reactbit-animations/ClickSpark/ClickSpark";
+import Magnet from "@/components/Reactbits/reactbit-animations/Magnet/Magnet";
 import ScrollFloat from "@/components/Reactbits/reactbit-animations/ScrollFloat/ScrollFloat";
 import ScrollReveal from "@/components/Reactbits/reactbit-animations/ScrollReveal/ScrollReveal";
 import Stack from "@/components/Reactbits/reactbit-components/Stack/Stack";
@@ -29,7 +30,6 @@ const HomePage = () => {
   const faqRef = useRef<HTMLElement | null>(null);
   const parallaxRef = useRef<HTMLElement | null>(null);
 
-  //Animation using hooks
   useHomePageAnimations({
     heroRef,
     carouselRef,
@@ -41,14 +41,9 @@ const HomePage = () => {
   });
 
   const handleLogout = () => {
-    // Clear auth data from localStorage
     clearAuthData();
-
-    // Show success message
     toast.success("Đăng xuất thành công!");
-
-    // Redirect to login page
-    navigate(ROUTES.AUTH.LOGIN || "/login");
+    navigate(ROUTES.AUTH.LOGIN);
   };
 
   return (
@@ -143,12 +138,20 @@ const HomePage = () => {
 
                 {/* Button Thử ngay */}
                 <div className="mt-8">
-                  <Button
-                    onClick={() => navigate(ROUTES.MOVIES_SELECTION)}
-                    className="bg-gradient-to-r from-amber-700 to-orange-800 hover:from-amber-800 hover:to-orange-900 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105"
+                  <Magnet
+                    padding={50}
+                    disabled={false}
+                    magnetStrength={3}
+                    activeTransition="transform 0.2s ease-out"
+                    inactiveTransition="transform 0.4s ease-in-out"
                   >
-                    Đặt phim ngay
-                  </Button>
+                    <Button
+                      onClick={() => navigate(ROUTES.MOVIES_SELECTION)}
+                      className="bg-gradient-to-r from-amber-700 to-orange-800 hover:from-amber-800 hover:to-orange-900 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105"
+                    >
+                      Đặt phim ngay
+                    </Button>{" "}
+                  </Magnet>
                 </div>
               </div>
             </div>
@@ -176,8 +179,7 @@ const HomePage = () => {
               >
                 The Ultimate Movie Experience
               </h2>
-              <p>Feel the magic of cinema</p>
-
+              
               {/* Logout Button */}
               <div className="mt-6">
                 <Button
@@ -194,7 +196,7 @@ const HomePage = () => {
           <CinemaExperience ref={experienceRef} />
           {/* FAQ Section */}
           <FAQ ref={faqRef} />
-          {/* Footer - Admin Team Stack */}
+          {/* Admin Team Stack */}
           <div className="h-screen flex items-center justify-center">
             <div className="text-center">
               <h2 className="text-3xl font-bold mb-8">Đội Ngũ Phát Triển</h2>
