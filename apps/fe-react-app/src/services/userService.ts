@@ -10,6 +10,17 @@ export const useRegister = () => {
   return $api.useMutation("post", "/users");
 };
 
+export const useGetUserById = (userId: string) => {
+  return $api.useQuery("get", "/users/{userId}", {
+    params: { path: { userId } },
+    enabled: !!userId,
+  });
+};
+
+export const useUpdateUser = () => {
+  return $api.useMutation("put", "/users/{userId}");
+};
+
 export const transformLoginRequest = (data: { email: string; password: string }): LoginDTO => ({
   email: data.email,
   password: data.password,
@@ -45,7 +56,7 @@ export const transformUserLoginResponse = (data: {
   token?: string;
   refresh_token?: string;
 }): UserLoginResponse => ({
-  id: data.id ? parseInt(data.id, 10) : 0,
+  id: data.id ?? "",
   fullName: data.fullName ?? "",
   roles: data.roles ? [data.roles as "ADMIN" | "STAFF" | "MEMBER"] : [],
   token: data.token ?? "",

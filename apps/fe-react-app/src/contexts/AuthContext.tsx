@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser({
         token,
         roles,
-        id: parseInt(id, 10),
+        id,
         fullName,
       });
       console.log("User logged in from cookies:", { roles, id, fullName });
@@ -52,13 +52,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const authData: AuthLoginData = {
       token: userData.token,
       roles: userData.roles,
-      id: userData.id || 0,
+      id: userData.id || "",
       fullName: userData.fullName || "",
     };
     setUser(authData);
     setCookie("access_token", userData.token, 1); // Set to expire in 1 day
     setCookie("user_roles", JSON.stringify(userData.roles), 1);
-    if (userData.id) setCookie("user_id", userData.id.toString(), 1);
+    if (userData.id) setCookie("user_id", userData.id, 1);
     if (userData.fullName) setCookie("fullName", userData.fullName, 1);
     if (userData.refresh_token) setCookie("refresh_token", userData.refresh_token, 7); // Set refresh token to expire in 7 days
   };

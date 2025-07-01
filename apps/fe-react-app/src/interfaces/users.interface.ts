@@ -104,7 +104,7 @@ export type Member = UserBase;
 export type Staff = UserBase;
 
 export type UserLoginResponse = {
-  id: number;
+  id: string;
   fullName: string;
   roles: ROLE_TYPE[];
   token: string;

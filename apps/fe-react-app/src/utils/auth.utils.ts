@@ -5,6 +5,10 @@ export const getUserCookieToken = (): string | null => {
   return getCookie("access_token");
 };
 
+export const getUserIdFromCookie = (): string | null => {
+  return getCookie("user_id");
+};
+
 export const isTokenValid = () => {
   const token = getUserCookieToken();
   return !!token; // Return true if token exists
@@ -13,9 +17,6 @@ export const isTokenValid = () => {
 export const saveAuthData = (authData: AuthenticationResponse) => {
   if (authData.token) {
     setCookie("access_token", authData.token, 1);
-  }
-  if (authData.refresh_token) {
-    setCookie("refresh_token", authData.refresh_token, 7);
   }
   if (authData.roles) {
     setCookie("user_roles", JSON.stringify([authData.roles]), 1);
