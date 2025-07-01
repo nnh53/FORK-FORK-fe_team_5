@@ -179,7 +179,7 @@ const HomePage = () => {
               >
                 The Ultimate Movie Experience
               </h2>
-              
+
               {/* Logout Button */}
               <div className="mt-6">
                 <Button

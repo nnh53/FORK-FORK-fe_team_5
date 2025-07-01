@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, type ReactNode, type HTMLAttributes } from "react";
+import React, { useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
 
 interface MagnetProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
@@ -62,12 +62,7 @@ const Magnet: React.FC<MagnetProps> = ({
   const transitionStyle = isActive ? activeTransition : inactiveTransition;
 
   return (
-    <div
-      ref={magnetRef}
-      className={wrapperClassName}
-      style={{ position: "relative", display: "inline-block" }}
-      {...props}
-    >
+    <div ref={magnetRef} className={wrapperClassName} style={{ position: "relative", display: "inline-block" }} {...props}>
       <div
         className={innerClassName}
         style={{
