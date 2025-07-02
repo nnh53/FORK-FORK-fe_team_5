@@ -1,7 +1,52 @@
 import { type ROLE_TYPE } from "./roles.interface.ts";
 
 export type USER_STATUS = "ACTIVE" | "BAN";
+export type USER_GENDER = "MALE" | "FEMALE" | "OTHER";
 
+// Interface phù hợp với schema của BE
+export interface User {
+  id: string;
+  email: string;
+  fullName: string;
+  phone?: string;
+  address?: string;
+  avatar?: string;
+  role: ROLE_TYPE;
+  status: string;
+  dateOfBirth?: string;
+  gender?: USER_GENDER;
+}
+
+export type UserRequest = {
+  email: string;
+  fullName: string;
+  password: string;
+  phone?: string;
+  role?: string;
+  dateOfBirth?: string;
+};
+
+export type UserUpdate = {
+  fullName?: string;
+  phone?: string;
+  address?: string;
+  avatar?: string;
+  role?: string;
+  status?: string;
+  gender?: USER_GENDER;
+  dateOfBirth?: string;
+};
+
+// Interface cho phản hồi từ API Authentication
+export interface AuthenticationResponse {
+  token: string;
+  freshToken: string;
+  roles: ROLE_TYPE;
+  fullName: string;
+  id: string;
+}
+
+// Giữ nguyên các interface cũ bên dưới
 export type UserDetailsResponse = UserBase & {
   created_at: string | null;
   updated_at: string | null;
