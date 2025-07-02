@@ -1,30 +1,74 @@
-import { ROLES } from "@/interfaces/roles.interface";
-import type { LoginDTO, UserLoginResponse } from "@/interfaces/users.interface";
+import { ROLES, type ROLE_TYPE } from "@/interfaces/roles.interface";
+import type { LoginDTO, User, UserLoginResponse, UserRequest, UserUpdate } from "@/interfaces/users.interface";
+import type { UserResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
 
+// ==================== USER API HOOKS ====================
+
+/**
+ * Hook for authentication (login)
+ */
 export const useLogin = () => {
   return $api.useMutation("post", "/auth/authenticate");
 };
 
+/**
+ * Hook for registering a new user
+ */
 export const useRegister = () => {
   return $api.useMutation("post", "/users");
 };
 
+/**
+ * Hook for getting all users
+ */
+export const useUsers = () => {
+  return $api.useQuery("get", "/users", {});
+};
+
+/**
+ * Hook for getting a user by ID
+ */
 export const useGetUserById = (userId: string) => {
   return $api.useQuery("get", "/users/{userId}", {
     params: { path: { userId } },
   });
 };
 
+/**
+ * Hook for updating a user
+ */
 export const useUpdateUser = () => {
   return $api.useMutation("put", "/users/{userId}");
 };
 
+/**
+ * Hook for deleting a user
+ */
+export const useDeleteUser = () => {
+  return $api.useMutation("delete", "/users/{userId}");
+};
+
+/**
+ * Hook for validating a token
+ */
+export const useIntrospect = () => {
+  return $api.useMutation("post", "/auth/introspect");
+};
+
+// ==================== TRANSFORM FUNCTIONS ====================
+
+/**
+ * Transform login request data
+ */
 export const transformLoginRequest = (data: { email: string; password: string }): LoginDTO => ({
   email: data.email,
   password: data.password,
 });
 
+/**
+ * Transform register request data
+ */
 export const transformRegisterRequest = (data: {
   fullName: string;
   email: string;
@@ -32,7 +76,8 @@ export const transformRegisterRequest = (data: {
   confirmPassword?: string;
   dateOfBirth?: Date | string;
   phone: string;
-}) => {
+  role?: ROLE_TYPE;
+}): UserRequest => {
   // Validate password match if confirmPassword is provided
   if (data.confirmPassword && data.password !== data.confirmPassword) {
     throw new Error("Mật khẩu không khớp");
@@ -42,11 +87,56 @@ export const transformRegisterRequest = (data: {
     fullName: data.fullName,
     email: data.email,
     password: data.password,
-    role: ROLES.MEMBER,
+    role: data.role ?? ROLES.MEMBER,
     dateOfBirth: data.dateOfBirth instanceof Date ? data.dateOfBirth.toISOString().split("T")[0] : data.dateOfBirth,
     phone: data.phone,
   };
 };
+
+/**
+ * Transform a user update request
+ */
+export const transformUserUpdateRequest = (data: Partial<User>): UserUpdate => {
+  return {
+    fullName: data.fullName,
+    phone: data.phone,
+    address: data.address,
+    avatar: data.avatar,
+    role: data.role,
+    status: data.status,
+    gender: data.gender,
+    dateOfBirth: data.dateOfBirth,
+  };
+};
+
+/**
+ * Transform a user response from the API to the User interface
+ */
+export const transformUserResponse = (userResponse: UserResponse): User => {
+  return {
+    id: userResponse.id ?? "",
+    email: userResponse.email ?? "",
+    fullName: userResponse.fullName ?? "",
+    phone: userResponse.phone ?? "",
+    address: userResponse.address ?? "",
+    avatar: userResponse.avatar ?? "",
+    role: (userResponse.role as ROLE_TYPE) ?? ROLES.MEMBER,
+    status: userResponse.status ?? "ACTIVE",
+    dateOfBirth: userResponse.dateOfBirth,
+    gender: userResponse.gender,
+  };
+};
+
+/**
+ * Transform an array of user responses to an array of User interfaces
+ */
+export const transformUsersResponse = (usersResponse: UserResponse[]): User[] => {
+  return usersResponse.map(transformUserResponse);
+};
+
+/**
+ * Transform authentication response data
+ */
 
 export const transformUserLoginResponse = (data: {
   id?: string;
@@ -61,3 +151,33 @@ export const transformUserLoginResponse = (data: {
   token: data.token ?? "",
   refresh_token: data.refresh_token ?? "",
 });
+// ==================== HELPER FUNCTIONS ====================
+
+/**
+ * Check if a user has a specific role
+ */
+export const hasRole = (user: User, role: ROLE_TYPE): boolean => {
+  return user.role === role;
+};
+
+/**
+ * Check if a user is active
+ */
+export const isUserActive = (user: User): boolean => {
+  return user.status === "ACTIVE";
+};
+
+/**
+ * Format user information for display
+ */
+export const formatUserName = (user: User): string => {
+  return user.fullName || user.email || "Unknown User";
+};
+
+/**
+ * Format a date string to a localized date
+ */
+export const formatUserDate = (dateString?: string): string => {
+  if (!dateString) return "N/A";
+  return new Date(dateString).toLocaleDateString("vi-VN");
+};
