@@ -1,7 +1,7 @@
 import AuthPageProtector from "@/components/auth/AuthPageProtector";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Loading from "@/components/shared/Loading";
-import { Test } from "@/components/shared/Test";
+import Test from "@/components/shared/Test";
 import LogVIAReg from "@/feature/auth/LogVIAReg";
 import RoleRoute from "@/feature/auth/RoleRoute";
 import Unauthorized from "@/feature/auth/unauth/Unauthor";
@@ -12,10 +12,8 @@ import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/Sc
 import MovieDetailPage from "@/feature/booking/movieDetail-page/MovieDetailPage.tsx";
 import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
-import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
-import ForgotPassword from "@/pages/authentication/ForgotPassword";
-// import StaffManagement from "@/feature/manager/staff/StaffManagement.tsx";
 import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
+import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import MovieGallery from "@/feature/views/CircularGallery/MovieGallery";
 import FAQ from "@/feature/views/FAQ/FAQ";
@@ -27,6 +25,7 @@ import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
 import UserLayout from "@/layouts/user/UserLayout";
+import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import Login from "@/pages/authentication/Login";
 import Register from "@/pages/authentication/Register";
 import InternalServerError from "@/pages/error/InternalServerError";

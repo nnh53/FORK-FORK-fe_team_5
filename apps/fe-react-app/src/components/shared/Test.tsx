@@ -3,7 +3,7 @@ import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from "
 import { Button } from "@/components/Shadcn/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { decode, encode } from "@jsquash/webp";
+import { encode } from "@jsquash/webp";
 import { CloudUpload, Paperclip } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { DropzoneOptions } from "react-dropzone";
@@ -28,9 +28,9 @@ const dropZoneConfig = {
   accept: {
     "image/*": [".jpg", ".jpeg", ".png"],
   },
-  maxFiles: 5,
+  maxFiles: 1,
   maxSize: 1024 * 1024 * 4,
-  multiple: true,
+  multiple: false,
 } satisfies DropzoneOptions;
 
 async function loadImage(src: File) {
@@ -50,8 +50,6 @@ async function loadImage(src: File) {
 export default function Test() {
   const [files, setFiles] = useState<File[] | null>(null);
   const [webpBufferFileArr, setWebpBufferFileArr] = useState<ArrayBuffer[] | null>(null);
-
-  const [webpBufferFileArrDecode, setWebpBufferFileArrDecode] = useState<ImageData[] | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -88,19 +86,12 @@ export default function Test() {
 
   useEffect(() => {
     console.log("files nè ", files);
-
-    if (webpBufferFileArr) {
-      webpBufferFileArr.forEach(async (item) => {
-        const imageData = await decode(item);
-        setWebpBufferFileArrDecode((prev) => [...(prev || []), imageData]);
-      });
-    }
   }, [webpBufferFileArr, files]);
 
   return (
     <div className="">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto py-10">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-3xl space-y-8 py-10">
           <FormField
             control={form.control}
             name="files"
@@ -112,11 +103,11 @@ export default function Test() {
                     value={files}
                     onValueChange={setFiles}
                     dropzoneOptions={dropZoneConfig}
-                    className="relative bg-background rounded-lg p-2"
+                    className="bg-background relative rounded-lg p-2"
                   >
                     <FileInput id="fileInput" className="outline-dashed outline-1 outline-slate-500">
-                      <div className="flex items-center justify-center flex-col p-8 w-full ">
-                        <CloudUpload className="text-gray-500 w-10 h-10" />
+                      <div className="flex w-full flex-col items-center justify-center p-8">
+                        <CloudUpload className="h-10 w-10 text-gray-500" />
                         <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
                           <span className="font-semibold">Click to upload</span>
                           &nbsp; or drag and drop
@@ -145,7 +136,7 @@ export default function Test() {
           <Button type="submit">Submit</Button>
         </form>
       </Form>
-      <div>{webpBufferFileArrDecode && webpBufferFileArrDecode.map((item, i) => <div key={i}>{item.data}</div>)}</div>
+      {/* <div>{webpBufferFileArrDecode && webpBufferFileArrDecode.map((item, i) => <div key={i}>{item.data}</div>)}</div> */}
     </div>
   );
 }
