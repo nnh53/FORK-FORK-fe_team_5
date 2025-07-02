@@ -61,7 +61,7 @@ export default function CinemaRoomEdit() {
 
         // Update form values
         form.reset({
-          roomNumber: data.roomNumber,
+          roomNumber: data.id, // Use id as roomNumber
           type: data.type,
           fee: data.fee,
           capacity: data.capacity,

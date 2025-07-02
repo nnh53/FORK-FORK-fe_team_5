@@ -61,14 +61,19 @@ const SeatMapManagement: React.FC = () => {
           const seatColumn = (col + 1).toString(); // 1, 2, 3, etc.
 
           const seat: Seat = {
-            id: `${room.id}-${seatRow}${seatColumn}`,
+            id: -(Date.now() + col * 1000 + row), // Generate temporary negative ID
             name: `${seatRow}${seatColumn}`,
-            seat_type_id: 1,
-            seat_column: seatColumn,
-            seat_row: seatRow,
+            roomId: room.id,
+            column: seatColumn,
+            row: seatRow,
             status: "AVAILABLE",
-            type: "REGULAR",
-            cinema_room_id: room.id,
+            type: {
+              id: 1,
+              name: "REGULAR",
+              price: 0,
+              seatCount: 1,
+            },
+            discarded: false,
           };
 
           defaultSeats.push(seat);
@@ -229,24 +234,20 @@ const SeatMapManagement: React.FC = () => {
       setSaving(true);
       setError(null);
 
-      // Save the seat map using the seats array directly
-      const success = await cinemaRoomService.saveSeatMap(roomId, seatMap.gridData);
-      if (success) {
-        setOriginalSeatMap(JSON.parse(JSON.stringify(seatMap)));
-        setHasChanges(false);
+      // Save the seat map using the complete SeatMap object
+      await cinemaRoomService.saveSeatMap(roomId, seatMap);
 
-        // Show success message
-        alert("Lưu sơ đồ ghế thành công!");
-        console.log("Lưu sơ đồ ghế thành công!");
+      setOriginalSeatMap(JSON.parse(JSON.stringify(seatMap)));
+      setHasChanges(false);
 
-        // Update room data
-        if (room) {
-          const updatedRoom = { ...room, seatMap };
-          setRoom(updatedRoom);
-        }
-      } else {
-        setError("Lỗi khi lưu sơ đồ ghế");
-        console.error("Lỗi khi lưu sơ đồ ghế");
+      // Show success message
+      alert("Lưu sơ đồ ghế thành công!");
+      console.log("Lưu sơ đồ ghế thành công!");
+
+      // Update room data
+      if (room) {
+        const updatedRoom = { ...room, seatMap };
+        setRoom(updatedRoom);
       }
     } catch (err) {
       console.error("Error saving seat map:", err);
@@ -335,7 +336,7 @@ const SeatMapManagement: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold">Quản lý sơ đồ ghế</h1>
             <p className="text-gray-600">
-              {room.name} - Phòng {room.roomNumber}
+              {room.name} - Room ID: {room.id}
             </p>
           </div>
         </div>

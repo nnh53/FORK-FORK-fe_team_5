@@ -4,10 +4,23 @@ import type { Seat, SeatMap } from "@/interfaces/seat.interface";
 import { Icon } from "@iconify/react";
 import React from "react";
 
+/**
+ * SeatMapEditorView Component
+ *
+ * CURRENT API STRUCTURE:
+ * - Row: Numeric (1, 2, 3, ...)
+ * - Column: Letter (A, B, C, ...)
+ *
+ * BACKUP CODE AVAILABLE:
+ * This file contains backup code for alternative API structure.
+ * Search for "BACKUP" comments throughout this file to find alternative implementations.
+ * See API_STRUCTURE_GUIDE.md for complete switching instructions.
+ */
+
 interface SeatMapEditorViewProps {
   seatMap: SeatMap | null;
-  selectedSeats?: string[];
-  onSeatSelect?: (seatId: string) => void;
+  selectedSeats?: number[]; // Changed to number[] to match new API
+  onSeatSelect?: (seatId: number) => void; // Changed to number
   showSelectable?: boolean;
   width?: number;
   length?: number;
@@ -32,8 +45,13 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
     let maxCol = 0;
 
     seats.forEach((seat) => {
-      const rowIndex = seat.seat_row.charCodeAt(0) - 65; // A=0, B=1, etc.
-      const colIndex = parseInt(seat.seat_column) - 1; // 1=0, 2=1, etc.
+      // API structure: row is numeric (1,2,3...), column is letter (A,B,C...)
+      const rowIndex = parseInt(seat.row) - 1; // 1=0, 2=1, etc.
+      const colIndex = seat.column.charCodeAt(0) - 65; // A=0, B=1, etc.
+
+      // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
+      // const rowIndex = seat.row.charCodeAt(0) - 65; // A=0, B=1, etc.
+      // const colIndex = parseInt(seat.column) - 1; // 1=0, 2=1, etc.
 
       maxRow = Math.max(maxRow, rowIndex);
       maxCol = Math.max(maxCol, colIndex);
@@ -52,13 +70,21 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
 
     // Sort seats by row and column to ensure proper grid order
     const sortedSeats = [...seats].sort((a, b) => {
-      const rowA = a.seat_row.charCodeAt(0);
-      const rowB = b.seat_row.charCodeAt(0);
+      const rowA = parseInt(a.row);
+      const rowB = parseInt(b.row);
       if (rowA !== rowB) return rowA - rowB;
 
-      const colA = parseInt(a.seat_column);
-      const colB = parseInt(b.seat_column);
+      const colA = a.column.charCodeAt(0);
+      const colB = b.column.charCodeAt(0);
       return colA - colB;
+
+      // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
+      // const rowA = a.row.charCodeAt(0);
+      // const rowB = b.row.charCodeAt(0);
+      // if (rowA !== rowB) return rowA - rowB;
+      // const colA = parseInt(a.column);
+      // const colB = parseInt(b.column);
+      // return colA - colB;
     });
 
     // Create display numbering system - consecutive numbers per row (couple seats share same number)
@@ -67,17 +93,17 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
     // Group seats by row
     const seatsByRow: Record<string, Seat[]> = {};
     sortedSeats.forEach((seat) => {
-      if (!seatsByRow[seat.seat_row]) {
-        seatsByRow[seat.seat_row] = [];
+      if (!seatsByRow[seat.row]) {
+        seatsByRow[seat.row] = [];
       }
-      seatsByRow[seat.seat_row].push(seat);
+      seatsByRow[seat.row].push(seat);
     });
 
     // Generate display numbers for each row
     Object.keys(seatsByRow).forEach((rowKey) => {
       const rowSeats = seatsByRow[rowKey]
-        .filter((s) => s.type !== "AISLE" && s.type !== "BLOCKED")
-        .sort((a, b) => parseInt(a.seat_column) - parseInt(b.seat_column));
+        .filter((s) => s.type.name !== "AISLE" && s.type.name !== "BLOCKED")
+        .sort((a, b) => a.column.charCodeAt(0) - b.column.charCodeAt(0)); // Sort by column letter
 
       let displayCounter = 1;
       let skipNext = false;
@@ -89,14 +115,14 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
         }
 
         const seat = rowSeats[i];
-        displayNumbering[`${seat.seat_row}-${seat.seat_column}`] = displayCounter;
+        displayNumbering[`${seat.row}-${seat.column}`] = displayCounter;
 
         // If this is a couple seat, check if it pairs with the next seat
-        if (seat.type === "COUPLE") {
+        if (seat.type.name === "COUPLE") {
           const nextSeat = rowSeats[i + 1];
-          if (nextSeat && nextSeat.type === "COUPLE" && parseInt(nextSeat.seat_column) === parseInt(seat.seat_column) + 1) {
+          if (nextSeat && nextSeat.type.name === "COUPLE" && nextSeat.column.charCodeAt(0) === seat.column.charCodeAt(0) + 1) {
             // Next seat is part of the same couple, give it the same display number
-            displayNumbering[`${nextSeat.seat_row}-${nextSeat.seat_column}`] = displayCounter;
+            displayNumbering[`${nextSeat.row}-${nextSeat.column}`] = displayCounter;
             skipNext = true;
           }
         }
@@ -115,15 +141,15 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
       }
 
       const seat = sortedSeats[i];
-      const displayNumber = displayNumbering[`${seat.seat_row}-${seat.seat_column}`];
+      const displayNumber = displayNumbering[`${seat.row}-${seat.column}`];
 
       // Check if this seat should be part of a double seat
-      if (seat.type === "COUPLE") {
+      if (seat.type.name === "COUPLE") {
         // Check if next seat is also COUPLE and in same row
         const nextSeat = sortedSeats[i + 1];
-        const currentCol = parseInt(seat.seat_column);
+        const currentColChar = seat.column.charCodeAt(0);
 
-        if (nextSeat && nextSeat.type === "COUPLE" && nextSeat.seat_row === seat.seat_row && parseInt(nextSeat.seat_column) === currentCol + 1) {
+        if (nextSeat && nextSeat.type.name === "COUPLE" && nextSeat.row === seat.row && nextSeat.column.charCodeAt(0) === currentColChar + 1) {
           // This is the start of a double seat - both seats share the same display number
           renderItems.push({
             type: "double",
@@ -132,7 +158,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
             span: 2,
             cellType: "seat" as const,
             displayCol: displayNumber.toString(),
-            displayRow: seat.seat_row,
+            displayRow: seat.row,
           });
           // Mark to skip the next seat since it's part of this double seat
           skipNext = true;
@@ -145,7 +171,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
             span: 1,
             cellType: "seat" as const,
             displayCol: displayNumber.toString(),
-            displayRow: seat.seat_row,
+            displayRow: seat.row,
           });
         }
       } else {
@@ -157,7 +183,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
           span: 1,
           cellType: "seat" as const,
           displayCol: displayNumber.toString(),
-          displayRow: seat.seat_row,
+          displayRow: seat.row,
         });
       }
     }
@@ -172,7 +198,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
       return `${baseClass} bg-blue-500 text-white border-blue-500 ring-2 ring-blue-300`;
     }
 
-    switch (seat.type) {
+    switch (seat.type.name) {
       case "REGULAR":
         return `${baseClass} bg-blue-100 border-blue-300 text-blue-800`;
       case "VIP":
@@ -190,7 +216,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
 
   const handleSeatClick = (seat: Seat) => {
     if (showSelectable && onSeatSelect && seat.id && seat.status === "AVAILABLE") {
-      onSeatSelect(seat.id as string);
+      onSeatSelect(seat.id);
     }
   };
 
@@ -206,7 +232,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
 
     seatMap.gridData.forEach((seat) => {
       total++;
-      switch (seat.type) {
+      switch (seat.type.name) {
         case "REGULAR":
           standard++;
           break;
@@ -264,7 +290,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
       <CardContent>
         {/* Screen */}
         <div className="mb-6">
-          <div className="w-full h-3 bg-gradient-to-r from-gray-300 via-gray-500 to-gray-300 rounded-full mb-2 shadow-lg"></div>
+          <div className="w-full h-1 bg-gradient-to-r from-gray-300 via-gray-500 to-gray-300 rounded-full mb-2 shadow-lg"></div>
           <p className="text-center text-sm text-gray-500 font-medium">MÀN HÌNH CHIẾU</p>
         </div>
 
@@ -299,7 +325,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
               >
                 {/* Using render items for proper double seat handling */}
                 {createRenderItems.map((item) => {
-                  const isSelected = item.seat.id ? selectedSeats.includes(item.seat.id as string) : false;
+                  const isSelected = item.seat.id ? selectedSeats.includes(item.seat.id) : false;
 
                   if (item.type === "double") {
                     return (
@@ -319,9 +345,9 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
                   } else {
                     // Render special content for aisle and blocked seats
                     let content: React.ReactNode = item.displayCol;
-                    if (item.seat.type === "AISLE") {
+                    if (item.seat.type.name === "AISLE") {
                       content = <Icon icon="mdi:walk" className="w-3 h-3" />;
-                    } else if (item.seat.type === "BLOCKED") {
+                    } else if (item.seat.type.name === "BLOCKED") {
                       content = <Icon icon="mdi:close" className="w-3 h-3" />;
                     }
 
@@ -364,7 +390,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
                 // Calculate how many display numbers we have based on the render items
                 const displayNumbers = new Set<number>();
                 createRenderItems.forEach((item) => {
-                  if (item.seat.type !== "AISLE" && item.seat.type !== "BLOCKED") {
+                  if (item.seat.type.name !== "AISLE" && item.seat.type.name !== "BLOCKED") {
                     const displayNum = parseInt(item.displayCol);
                     if (!isNaN(displayNum)) {
                       displayNumbers.add(displayNum);

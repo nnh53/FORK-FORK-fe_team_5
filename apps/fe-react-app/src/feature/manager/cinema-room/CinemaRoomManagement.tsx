@@ -21,7 +21,6 @@ type RoomStatus = "ACTIVE" | "MAINTENANCE" | "CLOSED";
 interface RoomFormData {
   name: string;
   type: string;
-  roomNumber: number;
   fee: number;
   width: number;
   length: number;
@@ -51,8 +50,7 @@ const CinemaRoomManagement: React.FC = () => {
   const [formData, setFormData] = useState<RoomFormData>({
     name: "",
     type: "Standard",
-    roomNumber: 1,
-    fee: 50000,
+    fee: 5,
     width: 16,
     length: 10,
   });
@@ -85,7 +83,6 @@ const CinemaRoomManagement: React.FC = () => {
     setFormData({
       name: room.name,
       type: room.type,
-      roomNumber: room.roomNumber || 1,
       fee: room.fee || 50000,
       width: room.width,
       length: room.length || 10,
@@ -108,7 +105,6 @@ const CinemaRoomManagement: React.FC = () => {
     setFormData({
       name: "",
       type: "Standard",
-      roomNumber: rooms.length + 1,
       fee: 50000,
       width: 16,
       length: 10,
@@ -123,7 +119,6 @@ const CinemaRoomManagement: React.FC = () => {
         await cinemaRoomService.updateRoom(selectedRoom.id, {
           name: formData.name,
           type: formData.type,
-          roomNumber: formData.roomNumber,
           fee: formData.fee,
           width: formData.width,
           length: formData.length,
@@ -134,7 +129,6 @@ const CinemaRoomManagement: React.FC = () => {
         await cinemaRoomService.createRoom({
           name: formData.name,
           type: formData.type,
-          roomNumber: formData.roomNumber,
           fee: formData.fee,
           width: formData.width,
           length: formData.length,
@@ -204,7 +198,7 @@ const CinemaRoomManagement: React.FC = () => {
     total: rooms.length,
     active: rooms.filter((r) => r.status === "ACTIVE").length,
     maintenance: rooms.filter((r) => r.status === "MAINTENANCE").length,
-    withSeatMap: rooms.filter((r) => r.seatMap !== null).length,
+    withSeatMap: rooms.filter((r) => r.seats && r.seats.length > 0).length,
   };
 
   if (loading) {
@@ -318,44 +312,42 @@ const CinemaRoomManagement: React.FC = () => {
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Tên phòng</Label>
+              <Label className="mb-1" htmlFor="name">
+                Tên phòng
+              </Label>
               <Input id="name" value={formData.name} onChange={(e) => handleFormChange("name", e.target.value)} placeholder="Ví dụ: Phòng 1" />
-            </div>
-
-            <div>
-              <Label htmlFor="type">Loại phòng</Label>
-              <Select value={formData.type} onValueChange={(value) => handleFormChange("type", value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Standard">Standard</SelectItem>
-                  <SelectItem value="VIP">VIP</SelectItem>
-                  <SelectItem value="IMAX">IMAX</SelectItem>
-                  <SelectItem value="4DX">4DX</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="roomNumber">Số phòng</Label>
-                <Input
-                  id="roomNumber"
-                  type="number"
-                  value={formData.roomNumber}
-                  onChange={(e) => handleFormChange("roomNumber", parseInt(e.target.value) || 1)}
-                />
+                <Label className="mb-1" htmlFor="type">
+                  Loại phòng
+                </Label>
+                <Select value={formData.type} onValueChange={(value) => handleFormChange("type", value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Standard">Standard</SelectItem>
+                    <SelectItem value="VIP">VIP</SelectItem>
+                    <SelectItem value="IMAX">IMAX</SelectItem>
+                    <SelectItem value="4DX">4DX</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <Label htmlFor="fee">Phí thuê</Label>
+                <Label className="mb-1" htmlFor="fee">
+                  Tỉ lệ giá
+                </Label>
                 <Input id="fee" type="number" value={formData.fee} onChange={(e) => handleFormChange("fee", parseInt(e.target.value) || 0)} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="width">Chiều rộng</Label>
+                <Label className="mb-1" htmlFor="width">
+                  Chiều rộng
+                </Label>
                 <Input
                   id="width"
                   type="number"
@@ -366,7 +358,9 @@ const CinemaRoomManagement: React.FC = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="length">Chiều dài</Label>
+                <Label className="mb-1" htmlFor="length">
+                  Chiều dài
+                </Label>
                 <Input
                   id="length"
                   type="number"
@@ -398,44 +392,42 @@ const CinemaRoomManagement: React.FC = () => {
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-name">Tên phòng</Label>
+              <Label className="mb-1" htmlFor="edit-name">
+                Tên phòng
+              </Label>
               <Input id="edit-name" value={formData.name} onChange={(e) => handleFormChange("name", e.target.value)} placeholder="Ví dụ: Phòng 1" />
-            </div>
-
-            <div>
-              <Label htmlFor="edit-type">Loại phòng</Label>
-              <Select value={formData.type} onValueChange={(value) => handleFormChange("type", value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Standard">Standard</SelectItem>
-                  <SelectItem value="VIP">VIP</SelectItem>
-                  <SelectItem value="IMAX">IMAX</SelectItem>
-                  <SelectItem value="4DX">4DX</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="edit-roomNumber">Số phòng</Label>
-                <Input
-                  id="edit-roomNumber"
-                  type="number"
-                  value={formData.roomNumber}
-                  onChange={(e) => handleFormChange("roomNumber", parseInt(e.target.value) || 1)}
-                />
+                <Label className="mb-1" htmlFor="edit-type">
+                  Loại phòng
+                </Label>
+                <Select value={formData.type} onValueChange={(value) => handleFormChange("type", value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Standard">Standard</SelectItem>
+                    <SelectItem value="VIP">VIP</SelectItem>
+                    <SelectItem value="IMAX">IMAX</SelectItem>
+                    <SelectItem value="4DX">4DX</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <Label htmlFor="edit-fee">Phí thuê</Label>
+                <Label className="mb-1" htmlFor="edit-fee">
+                  Tỉ lệ giá
+                </Label>
                 <Input id="edit-fee" type="number" value={formData.fee} onChange={(e) => handleFormChange("fee", parseInt(e.target.value) || 0)} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="edit-width">Chiều rộng</Label>
+                <Label className="mb-1" htmlFor="edit-width">
+                  Chiều rộng
+                </Label>
                 <Input
                   id="edit-width"
                   type="number"
@@ -446,7 +438,9 @@ const CinemaRoomManagement: React.FC = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="edit-length">Chiều dài</Label>
+                <Label className="mb-1" htmlFor="edit-length">
+                  Chiều dài
+                </Label>
                 <Input
                   id="edit-length"
                   type="number"
@@ -478,14 +472,16 @@ const CinemaRoomManagement: React.FC = () => {
 
           <div className="space-y-4">
             <div>
-              <Label>Trạng thái hiện tại</Label>
+              <Label className="mb-1">Trạng thái hiện tại</Label>
               <div className="mt-1">
                 <Badge variant={getStatusVariant(selectedRoom?.status || "")}>{selectedRoom?.status}</Badge>
               </div>
             </div>
 
             <div>
-              <Label htmlFor="status">Trạng thái mới</Label>
+              <Label className="mb-1" htmlFor="status">
+                Trạng thái mới
+              </Label>
               <Select value={newStatus} onValueChange={(value: RoomStatus) => setNewStatus(value)}>
                 <SelectTrigger>
                   <SelectValue />

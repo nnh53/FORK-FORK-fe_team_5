@@ -406,10 +406,10 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                   <div>End Time</div>
                 </div>
                 {form.getValues("showtimes")?.map((showtime, index) => {
-                  const room = cinemaRooms.find((r) => r.id === showtime.cinemaRoomId);
+                  const room = cinemaRooms.find((r) => r.id.toString() === showtime.cinemaRoomId);
                   return (
                     <div key={showtime.id ?? index} className="grid grid-cols-4 gap-2 items-center py-1 border-t">
-                      <div>{room?.roomNumber ?? showtime.cinemaRoomId}</div>
+                      <div>{room?.name || `Room ${showtime.cinemaRoomId}`}</div>
                       <div>{showtime.date}</div>
                       <div>{new Date(showtime.startTime).toLocaleTimeString()}</div>
                       <div className="flex items-center justify-between">
@@ -450,8 +450,8 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   {cinemaRooms.map((room) => (
-                    <SelectItem key={room.id} value={room.id}>
-                      {room.roomNumber}
+                    <SelectItem key={room.id} value={room.id.toString()}>
+                      {room.name || `Room ${room.id}`}
                     </SelectItem>
                   ))}
                 </SelectContent>

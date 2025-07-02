@@ -107,9 +107,9 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
             Seat Map
           </div>
           <div className="flex items-center">
-            <div className={`w-2 h-2 rounded-full mr-2 ${room.seatMap ? "bg-green-500" : "bg-red-500"}`}></div>
-            <span className={`font-medium text-sm ${room.seatMap ? "text-green-600" : "text-red-600"}`}>
-              {room.seatMap ? "Configured" : "Not configured"}
+            <div className={`w-2 h-2 rounded-full mr-2 ${room.seats && room.seats.length > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
+            <span className={`font-medium text-sm ${room.seats && room.seats.length > 0 ? "text-green-600" : "text-red-600"}`}>
+              {room.seats && room.seats.length > 0 ? "Configured" : "Not configured"}
             </span>
           </div>
         </div>
@@ -119,7 +119,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
         <Button
           onClick={(e) => {
             e.stopPropagation();
-            onRoomSelect(room.id);
+            onRoomSelect(room.id.toString());
           }}
           className="flex-1"
           size="sm"
@@ -197,7 +197,8 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
 }) => {
   // Filter rooms
   const filteredRooms = rooms.filter((room) => {
-    const matchesSearch = room.name.toLowerCase().includes(searchQuery.toLowerCase()) || room.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      room.name.toLowerCase().includes(searchQuery.toLowerCase()) || room.id.toString().toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSort = sortBy === "all" || room.type === sortBy;
     return matchesSearch && matchesSort;
   });

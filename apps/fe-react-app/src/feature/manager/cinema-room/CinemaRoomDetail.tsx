@@ -117,8 +117,8 @@ export default function CinemaRoomDetail() {
   const getSeatClassName = (seat: Seat, isSelected: boolean) => {
     if (seat.status !== "AVAILABLE") return "bg-gray-400 text-white";
     if (isSelected) return "bg-green-500 text-white";
-    if (seat.type === "VIP") return "bg-purple-100 text-purple-800";
-    if (seat.type === "COUPLE") return "bg-amber-100 text-amber-800";
+    if (seat.type.name === "VIP") return "bg-purple-100 text-purple-800";
+    if (seat.type.name === "COUPLE") return "bg-amber-100 text-amber-800";
     return "bg-blue-100 text-blue-800";
   };
 
@@ -136,7 +136,7 @@ export default function CinemaRoomDetail() {
             </Button>
             {/* show list */}
             <CardTitle>
-              Cinema Room {room.roomNumber} - {room.type}
+              Cinema Room {room.id} - {room.type}
             </CardTitle>
           </div>
           <div className="flex items-center gap-2">
@@ -181,7 +181,7 @@ export default function CinemaRoomDetail() {
                 const number = (index % columns) + 1;
                 const seatId = `${roomId}-${row}${number}`;
 
-                const seat = seats.find((s) => s.id === seatId);
+                const seat = seats.find((s) => s.id.toString() === seatId);
                 const isSelected = selectedSeats.includes(seatId);
 
                 if (!seat)
