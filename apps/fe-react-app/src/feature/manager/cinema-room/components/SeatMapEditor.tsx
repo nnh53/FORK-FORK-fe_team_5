@@ -1,9 +1,10 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Seat, SeatMap } from "@/interfaces/seat.interface";
-import { transformSeatResponse, transformSeatToRequest, useUpdateSeat } from "@/services/cinemaRoomService";
+import { transformSeatResponse, updateSeatToCouple, updateSeatType, useUpdateSeat } from "@/services/cinemaRoomService";
 import { Icon } from "@iconify/react";
 import React, { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 /**
  * SeatMapEditor Component
@@ -24,6 +25,7 @@ import React, { useMemo, useState } from "react";
 interface SeatMapEditorProps {
   seatMap: SeatMap | null;
   onSeatMapChange?: (seatMap: SeatMap) => void;
+  onRefetchRequired?: () => void; // Callback để yêu cầu refetch dữ liệu từ API
   readonly?: boolean;
   width?: number;
   length?: number;
@@ -31,7 +33,7 @@ interface SeatMapEditorProps {
 
 type EditorTool = "seat-standard" | "seat-vip" | "seat-double" | "aisle" | "blocked" | "eraser";
 
-const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange, width = 10, length = 10, readonly = false }) => {
+const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange, onRefetchRequired, width = 10, length = 10, readonly = false }) => {
   const [selectedTool, setSelectedTool] = useState<EditorTool>("seat-standard");
   const [currentSeatMap, setCurrentSeatMap] = useState<SeatMap | null>(seatMap);
   const [isUpdatingSeats, setIsUpdatingSeats] = useState(false);
@@ -72,16 +74,20 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     }
   };
 
-  // Helper function to find the actual couple partner of a seat
+  // Helper function to find the actual couple partner of a seat using API linkSeatId
   const findCouplePartner = (seatMap: SeatMap, seat: Seat): [Seat | null, number] => {
-    if (seat.type.name !== "COUPLE") return [null, -1];
+    if (seat.type.name !== "COUPLE" || !seat.linkSeatId) return [null, -1];
 
+    // Find partner using linkSeatId from API
+    const partner = seatMap.gridData.find((s) => s.id === seat.linkSeatId);
+
+    if (partner) {
+      const partnerIndex = seatMap.gridData.findIndex((s) => s.id === partner.id);
+      return [partner, partnerIndex];
+    }
+
+    // Fallback to position-based logic if linkSeatId is not working
     const currentCol = parseInt(seat.column);
-
-    // Logic: Ghế đôi luôn được tạo theo cặp (1,2), (3,4), (5,6), etc.
-    // Ghế có cột lẻ (1, 3, 5, ...) sẽ cặp với ghế cột chẵn bên phải (2, 4, 6, ...)
-    // Ghế có cột chẵn (2, 4, 6, ...) sẽ cặp với ghế cột lẻ bên trái (1, 3, 5, ...)
-
     let partnerCol: number;
     if (currentCol % 2 === 1) {
       // Ghế cột lẻ (1, 3, 5, ...) -> partner ở bên phải
@@ -92,13 +98,11 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     }
 
     const partnerColumn = partnerCol.toString();
+    const fallbackPartner = seatMap.gridData.find((s) => s.row === seat.row && s.column === partnerColumn && s.type.name === "COUPLE");
 
-    // Tìm ghế partner theo cột đã tính toán
-    const partner = seatMap.gridData.find((s) => s.row === seat.row && s.column === partnerColumn && s.type.name === "COUPLE");
-
-    if (partner) {
-      const partnerIndex = seatMap.gridData.findIndex((s) => s.id === partner.id);
-      return [partner, partnerIndex];
+    if (fallbackPartner) {
+      const partnerIndex = seatMap.gridData.findIndex((s) => s.id === fallbackPartner.id);
+      return [fallbackPartner, partnerIndex];
     }
 
     return [null, -1];
@@ -120,32 +124,38 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
   const canCreateCouple = (seatMap: SeatMap, seat: Seat): boolean => {
     const currentCol = parseInt(seat.column);
 
-    // Chỉ cho phép tạo ghế đôi từ ghế có cột lẻ (1, 3, 5, ... để đảm bảo luôn tạo cặp (1,2), (3,4), etc.)
-    if (currentCol % 2 !== 1) {
-      return false; // Ghế cột chẵn (2, 4, 6, ...) không thể làm điểm bắt đầu ghế đôi
+    // Cho phép tạo ghế đôi từ cả vị trí lẻ và chẵn
+    // Tạo cặp với ghế bên phải cho cột lẻ, ghế bên trái cho cột chẵn
+    let targetCol: number;
+    if (currentCol % 2 === 1) {
+      // Ghế cột lẻ (1, 3, 5, ...) -> tạo cặp với ghế bên phải
+      targetCol = currentCol + 1;
+    } else {
+      // Ghế cột chẵn (2, 4, 6, ...) -> tạo cặp với ghế bên trái
+      targetCol = currentCol - 1;
     }
 
-    // Check if next seat exists and is available for coupling
-    const nextColumn = (currentCol + 1).toString();
-    const nextSeat = seatMap.gridData.find((s) => s.row === seat.row && s.column === nextColumn);
+    // Check if target seat exists
+    const targetColumn = targetCol.toString();
+    const targetSeat = seatMap.gridData.find((s) => s.row === seat.row && s.column === targetColumn);
 
-    if (!nextSeat) return false;
+    if (!targetSeat) return false;
 
     // Can create couple if:
-    // 1. Next seat exists
-    // 2. Next seat is not aisle or blocked
-    // 3. Next seat is not already part of another couple pair
-    const nextSeatCanBePartOfCouple = nextSeat.type.name !== "AISLE" && nextSeat.type.name !== "BLOCKED";
+    // 1. Target seat exists
+    // 2. Target seat is not path or blocked
+    // 3. Target seat is not already part of another couple pair
+    const targetSeatCanBePartOfCouple = targetSeat.type.name !== "PATH" && targetSeat.type.name !== "BLOCK";
 
-    // Check if next seat is already part of a couple pair using the new logic
-    const [nextSeatPartner] = findCouplePartner(seatMap, nextSeat);
-    const nextSeatNotInCouple = !nextSeatPartner;
+    // Check if target seat is already part of a couple pair
+    const [targetSeatPartner] = findCouplePartner(seatMap, targetSeat);
+    const targetSeatNotInCouple = !targetSeatPartner;
 
-    return nextSeatCanBePartOfCouple && nextSeatNotInCouple;
+    return targetSeatCanBePartOfCouple && targetSeatNotInCouple;
   };
 
   // Helper function to convert both seats in a couple to the same type
-  const convertCoupleTo = (newSeatMap: SeatMap, seat: Seat, newType: "REGULAR" | "VIP" | "AISLE" | "BLOCKED") => {
+  const convertCoupleTo = (newSeatMap: SeatMap, seat: Seat, newType: "REGULAR" | "VIP" | "PATH" | "BLOCK") => {
     if (seat.type.name === "COUPLE") {
       // Find the partner and convert both seats
       const [partner, partnerIndex] = findCouplePartner(newSeatMap, seat);
@@ -174,27 +184,77 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
 
     // Check if we can create a couple seat
     if (!canCreateCouple(newSeatMap, seat)) {
-      const currentCol = parseInt(seat.column);
-      if (currentCol % 2 !== 1) {
-        alert(`Không thể tạo ghế đôi từ ghế ${seat.row}${seat.column}. Chỉ có thể tạo ghế đôi từ ghế có cột lẻ (1, 3, 5, ...).`);
-      } else {
-        alert(`Không thể tạo ghế đôi tại vị trí ${seat.row}${seat.column}. Ghế liền kề không khả dụng hoặc đã được sử dụng.`);
-      }
+      toast.error(`Không thể tạo ghế đôi tại vị trí ${seat.row}${seat.column}. Ghế liền kề không khả dụng hoặc đã được sử dụng.`);
       return false;
     }
 
-    // Break couple relationship for the next seat if it's already part of a couple
-    const nextColumn = (parseInt(seat.column) + 1).toString();
-    const nextSeat = newSeatMap.gridData.find((s) => s.row === seat.row && s.column === nextColumn);
+    // Find target seat for coupling
+    const currentCol = parseInt(seat.column);
+    let targetCol: number;
+    if (currentCol % 2 === 1) {
+      // Ghế cột lẻ -> cặp với ghế bên phải
+      targetCol = currentCol + 1;
+    } else {
+      // Ghế cột chẵn -> cặp với ghế bên trái
+      targetCol = currentCol - 1;
+    }
 
-    if (nextSeat && nextSeat.type.name === "COUPLE") {
-      // Use the proper erasure logic
-      handleCoupleErasure(newSeatMap, nextSeat);
+    const targetColumn = targetCol.toString();
+    const targetSeat = newSeatMap.gridData.find((s) => s.row === seat.row && s.column === targetColumn);
+
+    if (targetSeat && targetSeat.type.name === "COUPLE") {
+      // Use the proper erasure logic for target seat if it's already part of a couple
+      handleCoupleErasure(newSeatMap, targetSeat);
     }
 
     seat.type = { ...seat.type, name: "COUPLE" };
     handleCoupleSeatCreation(newSeatMap, seat);
     return true;
+  };
+
+  // Helper function to handle couple seat creation
+  const handleCoupleCreation = async (seat: Seat, newSeatMap: SeatMap) => {
+    // Validate couple seat creation
+    if (!canCreateCouple(newSeatMap, seat)) {
+      throw new Error(`Không thể tạo ghế đôi tại vị trí ${seat.row}${seat.column}. Ghế liền kề không khả dụng hoặc đã được sử dụng.`);
+    }
+
+    // Find the target seat to link with
+    const currentCol = parseInt(seat.column);
+    let targetCol: number;
+    if (currentCol % 2 === 1) {
+      // Ghế cột lẻ -> cặp với ghế bên phải
+      targetCol = currentCol + 1;
+    } else {
+      // Ghế cột chẵn -> cặp với ghế bên trái
+      targetCol = currentCol - 1;
+    }
+
+    const targetColumn = targetCol.toString();
+    const targetSeat = newSeatMap.gridData.find((s) => s.row === seat.row && s.column === targetColumn);
+
+    if (!targetSeat) {
+      throw new Error("Không tìm thấy ghế liền kề để tạo ghế đôi.");
+    }
+
+    // Convert single seat to couple with link
+    const seatUpdateRequest = updateSeatToCouple(seat, targetSeat.id);
+
+    // Update UI optimistically
+    handleDoubleSeatCreation(newSeatMap, seat);
+
+    return seatUpdateRequest;
+  };
+
+  // Helper function to handle couple-to-other type conversions
+  const handleCoupleToOtherConversion = (seat: Seat, targetType: string) => {
+    if (seat.type.name === "COUPLE") {
+      // Chuyển ghế đôi trực tiếp sang loại ghế mong muốn
+      // Backend sẽ tự động xử lý việc unlink và cập nhật cả 2 ghế
+      return updateSeatType(seat, targetType, null); // null để remove link
+    } else {
+      return updateSeatType(seat, targetType);
+    }
   };
 
   // Handle seat click to change seat type
@@ -211,111 +271,84 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     }
 
     const seat = { ...newSeatMap.gridData[seatIndex] };
-    const originalSeat = { ...seat }; // Store original for rollback
-
-    // Collect all seats that will be updated
-    const seatsToUpdate: Array<{ seat: Seat; newType: string }> = [];
-
-    // Helper function to collect affected seats for API updates
-    const collectAffectedSeats = (targetSeat: Seat, newType: string) => {
-      seatsToUpdate.push({ seat: targetSeat, newType });
-
-      // If it's a couple seat being converted, also collect its partner
-      if (targetSeat.type.name === "COUPLE") {
-        const [partner] = findCouplePartner(newSeatMap, targetSeat);
-        if (partner && !seatsToUpdate.find((s) => s.seat.id === partner.id)) {
-          seatsToUpdate.push({ seat: partner, newType: newType === "COUPLE" ? "COUPLE" : "REGULAR" });
-        }
-      }
-    };
-
-    // Change seat type based on selected tool
-    switch (selectedTool) {
-      case "seat-standard":
-      case "eraser": {
-        convertCoupleTo(newSeatMap, seat, "REGULAR");
-        collectAffectedSeats(seat, "REGULAR");
-        break;
-      }
-      case "seat-vip":
-        convertCoupleTo(newSeatMap, seat, "VIP");
-        collectAffectedSeats(seat, "VIP");
-        break;
-      case "seat-double": {
-        if (!handleDoubleSeatCreation(newSeatMap, seat)) {
-          setIsUpdatingSeats(false);
-          return; // Early return if double seat creation failed
-        }
-        collectAffectedSeats(seat, "COUPLE");
-        // Also add the adjacent seat for couple creation
-        const [nextSeat] = findAdjacentSeat(newSeatMap, seat, "next");
-        if (nextSeat && !seatsToUpdate.find((s) => s.seat.id === nextSeat.id)) {
-          collectAffectedSeats(nextSeat, "COUPLE");
-        }
-        break;
-      }
-      case "aisle":
-        convertCoupleTo(newSeatMap, seat, "AISLE");
-        collectAffectedSeats(seat, "AISLE");
-        break;
-      case "blocked":
-        convertCoupleTo(newSeatMap, seat, "BLOCKED");
-        collectAffectedSeats(seat, "BLOCKED");
-        break;
-      default:
-        setIsUpdatingSeats(false);
-        return;
-    }
-
-    // Update UI immediately for better UX
-    newSeatMap.gridData[seatIndex] = seat;
-    setCurrentSeatMap(newSeatMap);
+    const originalSeatMap = { ...currentSeatMap }; // Store original for rollback
 
     try {
-      // Update seats via API using React Query mutation
-      const updatePromises = seatsToUpdate.map(({ seat, newType }) =>
-        updateSeatMutation.mutateAsync({
-          params: { path: { id: seat.id } },
-          body: transformSeatToRequest({
-            type: newType as string,
-            status: seat.status,
-          }),
-        }),
-      );
+      let seatUpdateRequest;
 
-      const updatedSeats = await Promise.all(updatePromises);
-
-      // Transform API responses to Seat objects and update local state
-      updatedSeats.forEach((response) => {
-        if (response?.result) {
-          const transformedSeat = transformSeatResponse(response.result);
-          const index = newSeatMap.gridData.findIndex((s) => s.id === transformedSeat.id);
-          if (index !== -1) {
-            newSeatMap.gridData[index] = transformedSeat;
-          }
+      // Change seat type based on selected tool using new helper functions
+      switch (selectedTool) {
+        case "seat-standard":
+        case "eraser": {
+          seatUpdateRequest = handleCoupleToOtherConversion(seat, "REGULAR");
+          convertCoupleTo(newSeatMap, seat, "REGULAR");
+          break;
         }
-      });
-
-      setCurrentSeatMap(newSeatMap);
-
-      if (onSeatMapChange) {
-        onSeatMapChange(newSeatMap);
+        case "seat-vip": {
+          seatUpdateRequest = handleCoupleToOtherConversion(seat, "VIP");
+          convertCoupleTo(newSeatMap, seat, "VIP");
+          break;
+        }
+        case "seat-double": {
+          seatUpdateRequest = await handleCoupleCreation(seat, newSeatMap);
+          break;
+        }
+        case "aisle": {
+          seatUpdateRequest = handleCoupleToOtherConversion(seat, "PATH");
+          convertCoupleTo(newSeatMap, seat, "PATH");
+          break;
+        }
+        case "blocked": {
+          seatUpdateRequest = handleCoupleToOtherConversion(seat, "BLOCK");
+          convertCoupleTo(newSeatMap, seat, "BLOCK");
+          break;
+        }
+        default:
+          setIsUpdatingSeats(false);
+          return;
       }
 
-      console.log(`✅ Successfully updated ${updatedSeats.length} seat(s)`);
+      // Update UI immediately for better UX
+      setCurrentSeatMap(newSeatMap);
+
+      // Make primary API call
+      const response = await updateSeatMutation.mutateAsync({
+        params: { path: { id: seat.id } },
+        body: seatUpdateRequest,
+      });
+
+      // Transform API response and update local state
+      if (response?.result) {
+        const transformedSeat = transformSeatResponse(response.result);
+        const index = newSeatMap.gridData.findIndex((s) => s.id === transformedSeat.id);
+        if (index !== -1) {
+          newSeatMap.gridData[index] = transformedSeat;
+        }
+
+        setCurrentSeatMap(newSeatMap);
+        if (onSeatMapChange) {
+          onSeatMapChange(newSeatMap);
+        }
+
+        console.log(`✅ Successfully updated seat ${seat.id}`);
+
+        // Refetch toàn bộ dữ liệu từ API để đảm bảo UI được sync chính xác
+        // Đặc biệt quan trọng cho operations ghế đôi vì backend có thể cập nhật nhiều ghế
+        if (onRefetchRequired) {
+          // Delay nhẹ để đảm bảo backend đã xử lý xong
+          setTimeout(() => {
+            onRefetchRequired();
+          }, 100);
+        }
+      }
     } catch (error) {
       console.error("Failed to update seat:", error);
 
       // Rollback UI changes on API failure
-      const rollbackSeatMap = { ...currentSeatMap };
-      const rollbackIndex = rollbackSeatMap.gridData.findIndex((s) => s.id === seatId);
-      if (rollbackIndex !== -1) {
-        rollbackSeatMap.gridData[rollbackIndex] = originalSeat;
-        setCurrentSeatMap(rollbackSeatMap);
-      }
+      setCurrentSeatMap(originalSeatMap);
 
       // Show error message to user
-      alert(`Không thể cập nhật ghế: ${error instanceof Error ? error.message : "Lỗi không xác định"}`);
+      toast.error(`Không thể cập nhật ghế: ${error instanceof Error ? error.message : "Lỗi không xác định"}`);
     } finally {
       setIsUpdatingSeats(false);
     }
@@ -330,9 +363,9 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
         return "bg-yellow-100 border-yellow-300 text-yellow-800";
       case "COUPLE":
         return "bg-purple-100 border-purple-300 text-purple-800";
-      case "AISLE":
+      case "PATH":
         return "bg-gray-50 border-gray-200 text-gray-500";
-      case "BLOCKED":
+      case "BLOCK":
         return "bg-red-100 border-red-300 text-red-800";
       default:
         return "bg-gray-100 border-gray-300 text-gray-600";
@@ -342,7 +375,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
   // Create render items for grid display with proper double seat handling
   // Helper function to get display text for seats - use API name directly
   const getDisplayNumber = (seat: Seat) => {
-    if (!currentSeatMap || seat.type.name === "AISLE" || seat.type.name === "BLOCKED") {
+    if (!currentSeatMap || seat.type.name === "PATH" || seat.type.name === "BLOCK") {
       return null;
     }
 
@@ -526,13 +559,13 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
   ];
 
   const seatStats = useMemo(() => {
-    if (!currentSeatMap) return { total: 0, standard: 0, vip: 0, double: 0, aisle: 0, blocked: 0 };
+    if (!currentSeatMap) return { total: 0, standard: 0, vip: 0, double: 0, path: 0, blocked: 0 };
 
     let total = 0,
       standard = 0,
       vip = 0,
-      double = 0,
-      aisle = 0,
+      coupleSeats = 0, // Đếm số ghế COUPLE
+      path = 0,
       blocked = 0;
 
     currentSeatMap.gridData.forEach((seat: Seat) => {
@@ -545,25 +578,28 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
           vip++;
           break;
         case "COUPLE":
-          double++;
+          coupleSeats++;
           break;
-        case "AISLE":
-          aisle++;
+        case "PATH":
+          path++;
           break;
-        case "BLOCKED":
+        case "BLOCK":
           blocked++;
           break;
       }
     });
 
-    return { total, standard, vip, double, aisle, blocked };
+    // Tính số ghế đôi thực tế (2 ghế COUPLE = 1 ghế đôi)
+    const double = Math.floor(coupleSeats / 2);
+
+    return { total, standard, vip, double, path, blocked };
   }, [currentSeatMap]);
 
   if (!currentSeatMap) {
     return (
       <Card>
-        <CardContent className="text-center py-8">
-          <Icon icon="mdi:seat" className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+        <CardContent className="py-8 text-center">
+          <Icon icon="mdi:seat" className="mx-auto mb-4 h-16 w-16 text-gray-300" />
           <p className="text-gray-600">Không có dữ liệu sơ đồ ghế</p>
         </CardContent>
       </Card>
@@ -577,18 +613,18 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Icon icon="mdi:tools" className="w-5 h-5" />
+              <Icon icon="mdi:tools" className="h-5 w-5" />
               Công cụ chỉnh sửa
               <span className="text-sm font-normal text-gray-500">(Đang chọn: {tools.find((t) => t.id === selectedTool)?.label})</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="mb-3 p-2 bg-blue-50 rounded-lg">
+            <div className="mb-3 rounded-lg bg-blue-50 p-2">
               <p className="text-sm text-blue-700">
                 💡 <strong>Hướng dẫn:</strong> Chọn công cụ bên dưới, sau đó click vào ghế để thay đổi loại ghế.
               </p>
             </div>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+            <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
               {tools.map((tool) => (
                 <Button
                   key={tool.id}
@@ -596,18 +632,18 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                   size="sm"
                   onClick={() => setSelectedTool(tool.id)}
                   disabled={isUpdatingSeats}
-                  className="h-auto p-3 flex flex-col items-center gap-1"
+                  className="flex h-auto flex-col items-center gap-1 p-3"
                 >
-                  <Icon icon={tool.icon} className="w-5 h-5" />
+                  <Icon icon={tool.icon} className="h-5 w-5" />
                   <span className="text-xs">{tool.label}</span>
                 </Button>
               ))}
             </div>
 
             {/* Save instruction */}
-            <div className={`mt-4 p-3 rounded-lg border ${isUpdatingSeats ? "bg-blue-50 border-blue-200" : "bg-yellow-50 border-yellow-200"}`}>
+            <div className={`mt-4 rounded-lg border p-3 ${isUpdatingSeats ? "border-blue-200 bg-blue-50" : "border-yellow-200 bg-yellow-50"}`}>
               <div className={`flex items-center gap-2 ${isUpdatingSeats ? "text-blue-800" : "text-yellow-800"}`}>
-                <Icon icon={isUpdatingSeats ? "mdi:loading" : "mdi:information"} className={`w-4 h-4 ${isUpdatingSeats ? "animate-spin" : ""}`} />
+                <Icon icon={isUpdatingSeats ? "mdi:loading" : "mdi:information"} className={`h-4 w-4 ${isUpdatingSeats ? "animate-spin" : ""}`} />
                 <p className="text-sm">
                   <strong>{isUpdatingSeats ? "Đang cập nhật..." : "Thông báo:"}</strong>{" "}
                   {isUpdatingSeats ? "Vui lòng chờ trong khi ghế đang được cập nhật." : "Thay đổi sẽ được tự động lưu khi bạn chỉnh sửa ghế."}
@@ -621,7 +657,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       {/* Seat Statistics */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-center">
+          <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-6">
             <div>
               <div className="text-2xl font-bold text-blue-600">{seatStats.total}</div>
               <div className="text-sm text-gray-600">Tổng ô</div>
@@ -639,7 +675,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
               <div className="text-sm text-gray-600">Ghế đôi</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-600">{seatStats.aisle}</div>
+              <div className="text-2xl font-bold text-gray-600">{seatStats.path}</div>
               <div className="text-sm text-gray-600">Lối đi</div>
             </div>
             <div>
@@ -654,13 +690,13 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-1">
-            <Icon icon="mdi:view-grid" className="w-5 h-5" />
+            <Icon icon="mdi:view-grid" className="h-5 w-5" />
             Sơ đồ ghế - Phòng {currentSeatMap.roomId}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 p-4 bg-gray-800 text-white text-center rounded">
-            <Icon icon="mdi:movie" className="w-6 h-6 mx-auto mb-1" />
+          <div className="mb-4 rounded bg-gray-800 p-4 text-center text-white">
+            <Icon icon="mdi:movie" className="mx-auto mb-1 h-6 w-6" />
             <div className="text-sm font-medium">MÀN HÌNH</div>
           </div>
 
@@ -671,11 +707,11 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                 {/* Row labels (A, B, C...) */}
                 {/* BACKUP: If API returns row as number, column as letter (uncomment below and comment above) */}
                 {/* Row labels (1, 2, 3...) */}
-                <div className="flex flex-col mr-2">
+                <div className="mr-2 flex flex-col">
                   {Array.from({ length: actualDimensions.actualHeight }, (_, i) => (
                     <div
                       key={i}
-                      className="w-6 flex items-center justify-center text-sm font-medium text-gray-500"
+                      className="flex w-6 items-center justify-center text-sm font-medium text-gray-500"
                       style={{
                         height: "32px", // Match seat height exactly
                         marginBottom: i < actualDimensions.actualHeight - 1 ? "4px" : "0",
@@ -720,7 +756,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                       return (
                         <div
                           key={item.seat.id || `double-${index}`}
-                          className={`border rounded flex items-center justify-center text-xs cursor-pointer hover:opacity-80 ${getSeatColor(item.seat)}`}
+                          className={`flex cursor-pointer items-center justify-center rounded border text-xs hover:opacity-80 ${getSeatColor(item.seat)}`}
                           onClick={() => handleSeatClick(item.seat.id)}
                           style={{
                             gridRow: item.gridRow,
@@ -733,18 +769,18 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                         </div>
                       );
                     } else {
-                      // Render special content for aisle and blocked seats
+                      // Render special content for path and blocked seats
                       let content: React.ReactNode = getDisplayNumber(item.seat) || item.seat.name;
-                      if (item.seat.type.name === "AISLE") {
-                        content = <Icon icon="mdi:walk" className="w-3 h-3" />;
-                      } else if (item.seat.type.name === "BLOCKED") {
-                        content = <Icon icon="mdi:close" className="w-3 h-3" />;
+                      if (item.seat.type.name === "PATH") {
+                        content = <Icon icon="mdi:walk" className="h-3 w-3" />;
+                      } else if (item.seat.type.name === "BLOCK") {
+                        content = <Icon icon="mdi:close" className="h-3 w-3" />;
                       }
 
                       return (
                         <div
                           key={item.seat.id || `single-${index}`}
-                          className={`border rounded flex items-center justify-center text-xs cursor-pointer hover:opacity-80 ${getSeatColor(item.seat)}`}
+                          className={`flex cursor-pointer items-center justify-center rounded border text-xs hover:opacity-80 ${getSeatColor(item.seat)}`}
                           onClick={() => handleSeatClick(item.seat.id)}
                           style={{
                             gridRow: item.gridRow,
@@ -816,33 +852,33 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       {/* Legend */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-100 border-2 border-blue-300 rounded"></div>
+              <div className="h-4 w-4 rounded border-2 border-blue-300 bg-blue-100"></div>
               <span className="text-sm">Ghế thường</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-yellow-100 border-2 border-yellow-300 rounded"></div>
+              <div className="h-4 w-4 rounded border-2 border-yellow-300 bg-yellow-100"></div>
               <span className="text-sm">Ghế VIP</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-purple-100 border-2 border-purple-300 rounded"></div>
+              <div className="h-4 w-4 rounded border-2 border-purple-300 bg-purple-100"></div>
               <span className="text-sm">Ghế đôi</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gray-50 border-2 border-gray-200 rounded flex items-center justify-center">
-                <Icon icon="mdi:walk" className="w-3 h-3 text-gray-400" />
+              <div className="flex h-4 w-4 items-center justify-center rounded border-2 border-gray-200 bg-gray-50">
+                <Icon icon="mdi:walk" className="h-3 w-3 text-gray-400" />
               </div>
               <span className="text-sm">Lối đi</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-100 border-2 border-red-300 rounded flex items-center justify-center">
-                <Icon icon="mdi:close" className="w-3 h-3 text-red-500" />
+              <div className="flex h-4 w-4 items-center justify-center rounded border-2 border-red-300 bg-red-100">
+                <Icon icon="mdi:close" className="h-3 w-3 text-red-500" />
               </div>
               <span className="text-sm">Chặn</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-white border-2 border-gray-200 rounded"></div>
+              <div className="h-4 w-4 rounded border-2 border-gray-200 bg-white"></div>
               <span className="text-sm">Trống</span>
             </div>
           </div>

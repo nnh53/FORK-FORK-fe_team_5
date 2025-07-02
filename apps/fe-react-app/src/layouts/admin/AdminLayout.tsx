@@ -8,9 +8,9 @@ import CinemaRoomAdd from "@/feature/manager/cinema-room/CinemaRoomAdd";
 import CinemaRoomDetail from "@/feature/manager/cinema-room/CinemaRoomDetail";
 import CinemaRoomEdit from "@/feature/manager/cinema-room/CinemaRoomEdit";
 import CinemaRoomManagement from "@/feature/manager/cinema-room/CinemaRoomManagement";
-import SnackManagement from "@/feature/manager/food/snack/SnackManagement";
-import ComboManagement from "@/feature/manager/food/ComboManagement";
 import SeatMapManagement from "@/feature/manager/cinema-room/components/SeatMapManagement";
+import ComboManagement from "@/feature/manager/food/ComboManagement";
+import SnackManagement from "@/feature/manager/food/snack/SnackManagement";
 import MemberManagement from "@/feature/manager/member/MemberManagement";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import ShowtimeManagement from "@/feature/manager/show-time/ShowtimeManagement";
@@ -68,14 +68,6 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
           <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />
           <Route path="cinema-room/add" element={<CinemaRoomAdd />} />
           <Route path="cinema-room/edit/:id" element={<CinemaRoomEdit />} />
-          <Route
-            path="seat"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl font-bold">Seat Management</h1>
-              </div>
-            }
-          />
           <Route
             path="ticket"
             element={

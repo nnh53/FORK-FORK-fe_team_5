@@ -14,7 +14,6 @@ import {
 import {
   IconBox,
   IconCamera,
-  IconChairDirector,
   IconChartBar,
   IconClock,
   IconFileAi,
@@ -63,11 +62,6 @@ const data = {
       title: "Show Time",
       url: "/admin/showtime",
       icon: IconClock,
-    },
-    {
-      title: "Seat",
-      url: "/admin/seat",
-      icon: IconChairDirector,
     },
     {
       title: "Ticket",

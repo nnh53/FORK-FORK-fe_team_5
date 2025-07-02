@@ -1,5 +1,5 @@
 export type SeatStatus = "AVAILABLE" | "MAINTENANCE";
-export type SeatTypeEnum = "COUPLE" | "PATH" | "REGULAR" | "VIP" | "AISLE" | "BLOCKED";
+export type SeatTypeEnum = "REGULAR" | "VIP" | "PATH" | "BLOCK" | "COUPLE";
 export type BookingStatus = "AVAILABLE" | "MAINTENANCE" | "BOOKED" | "RESERVED";
 
 // Database seat entity - matches the real API response structure
@@ -12,7 +12,7 @@ export interface Seat {
   status: SeatStatus;
   type: SeatType;
   discarded: boolean;
-  seatLinkId?: number | null;
+  linkSeatId?: number | null;
 }
 
 export interface SeatType {
@@ -42,7 +42,7 @@ export interface SeatRequest {
   column: string;
   status: SeatStatus;
   type: SeatType;
-  seatLinkId?: number | null;
+  linkSeatId?: number | null;
 }
 
 export interface SeatUpdateRequest {
@@ -52,7 +52,7 @@ export interface SeatUpdateRequest {
   column?: string;
   status?: SeatStatus;
   type?: SeatType;
-  seatLinkId?: number | null;
+  linkSeatId?: number | null;
 }
 
 // Seat booking status for booking system

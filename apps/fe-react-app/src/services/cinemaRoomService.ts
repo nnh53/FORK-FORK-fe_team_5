@@ -6,7 +6,7 @@ import { $api } from "@/utils/api";
 // Type aliases for status enums
 type CinemaRoomStatus = "ACTIVE" | "MAINTENANCE" | "CLOSED";
 type SeatStatus = "AVAILABLE" | "MAINTENANCE";
-type SeatTypeEnum = "COUPLE" | "PATH" | "REGULAR" | "VIP" | "AISLE" | "BLOCKED";
+type SeatTypeEnum = "REGULAR" | "VIP" | "PATH" | "BLOCK" | "COUPLE";
 
 // React Query hooks using $api
 export const useCinemaRooms = () => {
@@ -66,7 +66,7 @@ export const transformSeatResponse = (seatResponse: SeatResponse): Seat => {
           seatCount: 1,
         },
     discarded: seatResponse.discarded ?? false,
-    seatLinkId: null, // SeatResponse doesn't have seatLinkId field, use null as default
+    linkSeatId: seatResponse.linkSeatId ?? null, // Use linkSeatId from API response
   };
 };
 
@@ -116,11 +116,11 @@ export const transformCinemaRoomToUpdateRequest = (room: Partial<CinemaRoom>): C
   };
 };
 
-export const transformSeatToRequest = (seat: { type?: string; status?: SeatStatus; seatLinkId?: number | null }): SeatRequest => {
+export const transformSeatToRequest = (seat: { type?: string; status?: SeatStatus; linkSeatId?: number | null }): SeatRequest => {
   return {
     type: seat.type,
     status: seat.status,
-    seatLinkId: seat.seatLinkId ?? undefined, // Convert null to undefined for API
+    linkSeatId: seat.linkSeatId ?? undefined, // Convert null to undefined for API
   };
 };
 
@@ -180,11 +180,11 @@ export const getSeatStatusLabel = (status: SeatStatus): string => {
 
 // Helper functions for couple seat operations
 export const updateSeatToCouple = (seat: Seat, linkedSeatId: number): SeatRequest => {
-  // Only need to update one seat with seatLinkId, backend handles the other
+  // Only need to update one seat with linkSeatId, backend handles the other
   return transformSeatToRequest({
     type: "COUPLE",
     status: seat.status,
-    seatLinkId: linkedSeatId,
+    linkSeatId: linkedSeatId,
   });
 };
 
@@ -193,7 +193,7 @@ export const updateCoupleToSingle = (seat: Seat): SeatRequest => {
   return transformSeatToRequest({
     type: "REGULAR", // Convert back to regular seat
     status: seat.status,
-    seatLinkId: null, // Remove link
+    linkSeatId: null, // Remove link
   });
 };
 
@@ -201,7 +201,7 @@ export const updateSeatType = (seat: Seat, newType: string, linkedSeatId?: numbe
   return transformSeatToRequest({
     type: newType,
     status: seat.status,
-    seatLinkId: newType === "COUPLE" ? linkedSeatId : null,
+    linkSeatId: newType === "COUPLE" ? linkedSeatId : null,
   });
 };
 

@@ -865,7 +865,7 @@ export interface components {
             type?: string;
             status?: string;
             /** Format: int32 */
-            seatLinkId?: number;
+            linkSeatId?: number;
         };
         ApiResponseSeatResponse: {
             /** Format: int32 */
@@ -885,7 +885,7 @@ export interface components {
             status?: string;
             discarded?: boolean;
             /** Format: int32 */
-            seatLinkId?: number;
+            linkSeatId?: number;
         };
         SeatTypeResponse: {
             /** Format: int32 */

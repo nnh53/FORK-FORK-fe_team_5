@@ -161,9 +161,9 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
         return `${baseClass} bg-yellow-100 border-yellow-300 text-yellow-800`;
       case "COUPLE":
         return `${baseClass} bg-purple-100 border-purple-300 text-purple-800`;
-      case "AISLE":
+      case "PATH":
         return `${baseClass} bg-gray-50 border-gray-200 text-gray-500`;
-      case "BLOCKED":
+      case "BLOCK":
         return `${baseClass} bg-red-100 border-red-300 text-red-800`;
       default:
         return `${baseClass} bg-gray-100 border-gray-300 text-gray-600`;
@@ -182,7 +182,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
     let total = 0,
       standard = 0,
       vip = 0,
-      double = 0,
+      coupleSeats = 0, // Đếm số ghế COUPLE
       available = 0,
       maintenance = 0;
 
@@ -196,7 +196,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
           vip++;
           break;
         case "COUPLE":
-          double++;
+          coupleSeats++;
           break;
       }
 
@@ -210,6 +210,9 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
       }
     });
 
+    // Tính số ghế đôi thực tế (2 ghế COUPLE = 1 ghế đôi)
+    const double = Math.floor(coupleSeats / 2);
+
     return { total, standard, vip, double, available, maintenance };
   }, [seatMap]);
 
@@ -217,7 +220,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
     return (
       <Card>
         <CardContent className="p-8 text-center">
-          <Icon icon="mdi:seat" className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <Icon icon="mdi:seat" className="mx-auto mb-4 h-16 w-16 text-gray-300" />
           <p className="text-gray-500">Không có dữ liệu sơ đồ ghế</p>
         </CardContent>
       </Card>
@@ -227,16 +230,16 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Sơ đồ ghế - Phòng {seatMap.roomId}</CardTitle>
           <div className="flex gap-2">
             <Badge variant="outline">
-              <Icon icon="mdi:seat" className="w-4 h-4 mr-1" />
+              <Icon icon="mdi:seat" className="mr-1 h-4 w-4" />
               {seatStats.total} ghế
             </Badge>
             {showSelectable && selectedSeats.length > 0 && (
               <Badge variant="default">
-                <Icon icon="mdi:check" className="w-4 h-4 mr-1" />
+                <Icon icon="mdi:check" className="mr-1 h-4 w-4" />
                 {selectedSeats.length} đã chọn
               </Badge>
             )}
@@ -246,8 +249,8 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
       <CardContent>
         {/* Screen */}
         <div className="mb-6">
-          <div className="w-full h-1 bg-gradient-to-r from-gray-300 via-gray-500 to-gray-300 rounded-full mb-2 shadow-lg"></div>
-          <p className="text-center text-sm text-gray-500 font-medium">MÀN HÌNH CHIẾU</p>
+          <div className="mb-2 h-1 w-full rounded-full bg-gradient-to-r from-gray-300 via-gray-500 to-gray-300 shadow-lg"></div>
+          <p className="text-center text-sm font-medium text-gray-500">MÀN HÌNH CHIẾU</p>
         </div>
 
         {/* Grid with row labels */}
@@ -255,11 +258,11 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
           <div className="flex justify-center">
             <div className="flex">
               {/* Row labels (A, B, C...) */}
-              <div className="flex flex-col mr-2">
+              <div className="mr-2 flex flex-col">
                 {Array.from({ length: actualDimensions.actualHeight }, (_, i) => (
                   <div
                     key={i}
-                    className="w-6 flex items-center justify-center text-sm font-medium text-gray-500"
+                    className="flex w-6 items-center justify-center text-sm font-medium text-gray-500"
                     style={{
                       height: "32px", // Match seat height exactly
                       marginBottom: i < actualDimensions.actualHeight - 1 ? "4px" : "0",
@@ -287,7 +290,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
                     return (
                       <div
                         key={item.seat.id || item.index}
-                        className={`border rounded flex items-center justify-center text-xs cursor-pointer hover:opacity-80 ${getSeatColor(item.seat, isSelected)}`}
+                        className={`flex cursor-pointer items-center justify-center rounded border text-xs hover:opacity-80 ${getSeatColor(item.seat, isSelected)}`}
                         onClick={() => handleSeatClick(item.seat)}
                         style={{
                           gridColumn: "span 2",
@@ -299,12 +302,12 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
                       </div>
                     );
                   } else {
-                    // Render special content for aisle and blocked seats
+                    // Render special content for path and blocked seats
                     let content: React.ReactNode = item.displayCol;
-                    if (item.seat.type.name === "AISLE") {
-                      content = <Icon icon="mdi:walk" className="w-3 h-3" />;
-                    } else if (item.seat.type.name === "BLOCKED") {
-                      content = <Icon icon="mdi:close" className="w-3 h-3" />;
+                    if (item.seat.type.name === "PATH") {
+                      content = <Icon icon="mdi:walk" className="h-3 w-3" />;
+                    } else if (item.seat.type.name === "BLOCK") {
+                      content = <Icon icon="mdi:close" className="h-3 w-3" />;
                     }
 
                     return (
@@ -362,22 +365,22 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
         </div>
 
         {/* Legend */}
-        <div className="mt-6 flex flex-wrap gap-4 justify-center">
+        <div className="mt-6 flex flex-wrap justify-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
+            <div className="h-4 w-4 rounded border border-blue-300 bg-blue-100"></div>
             <span className="text-sm">Ghế Thường ({seatStats.standard})</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
+            <div className="h-4 w-4 rounded border border-yellow-300 bg-yellow-100"></div>
             <span className="text-sm">Ghế VIP ({seatStats.vip})</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-4 bg-purple-100 border border-purple-300 rounded"></div>
+            <div className="h-4 w-8 rounded border border-purple-300 bg-purple-100"></div>
             <span className="text-sm">Ghế Đôi ({seatStats.double})</span>
           </div>
           {showSelectable && (
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-500 border border-blue-500 rounded"></div>
+              <div className="h-4 w-4 rounded border border-blue-500 bg-blue-500"></div>
               <span className="text-sm">Đã chọn</span>
             </div>
           )}
@@ -385,9 +388,9 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
 
         {/* Seat Statistics */}
         {seatStats.total > 0 && (
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Thống kê ghế</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <div className="mt-6 rounded-lg bg-gray-50 p-4">
+            <h4 className="mb-2 text-sm font-medium text-gray-700">Thống kê ghế</h4>
+            <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
               <div className="flex justify-between">
                 <span className="text-gray-600">Tổng số:</span>
                 <span className="font-medium">{seatStats.total}</span>

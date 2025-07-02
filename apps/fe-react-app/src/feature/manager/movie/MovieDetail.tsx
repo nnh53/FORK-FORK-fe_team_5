@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import type { Movie, MovieFormData } from "../../../interfaces/movies.interface";
 
@@ -121,7 +122,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
     const currentShowtimes = form.getValues("showtimes") || [];
 
     if (!selectedCinemaRoom || !showtimeStartTime || !showtimeEndTime) {
-      alert("Please fill in all showtime fields");
+      toast.error("Please fill in all showtime fields");
       return;
     }
 
@@ -169,8 +170,8 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="max-h-[60vh] space-y-4 overflow-y-auto pr-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <FormField
               control={form.control}
               name="name"
@@ -390,16 +391,16 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
           />
 
           <div className="space-y-2">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <FormLabel>Showtimes</FormLabel>
               <Button type="button" size="sm" onClick={() => setShowAddShowtimeDialog(true)}>
-                <Plus className="h-4 w-4 mr-1" /> Add Showtime
+                <Plus className="mr-1 h-4 w-4" /> Add Showtime
               </Button>
             </div>
 
             {form.getValues("showtimes")?.length ? (
-              <div className="border rounded-md p-3">
-                <div className="grid grid-cols-4 gap-2 font-medium text-sm mb-2">
+              <div className="rounded-md border p-3">
+                <div className="mb-2 grid grid-cols-4 gap-2 text-sm font-medium">
                   <div>Cinema Room</div>
                   <div>Date</div>
                   <div>Start Time</div>
@@ -408,7 +409,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                 {form.getValues("showtimes")?.map((showtime, index) => {
                   const room = cinemaRooms.find((r) => r.id.toString() === showtime.cinemaRoomId);
                   return (
-                    <div key={showtime.id ?? index} className="grid grid-cols-4 gap-2 items-center py-1 border-t">
+                    <div key={showtime.id ?? index} className="grid grid-cols-4 items-center gap-2 border-t py-1">
                       <div>{room?.name || `Room ${showtime.cinemaRoomId}`}</div>
                       <div>{showtime.date}</div>
                       <div>{new Date(showtime.startTime).toLocaleTimeString()}</div>
@@ -423,7 +424,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                 })}
               </div>
             ) : (
-              <div className="text-center py-4 text-gray-500 border rounded-md">No showtimes added yet</div>
+              <div className="rounded-md border py-4 text-center text-gray-500">No showtimes added yet</div>
             )}
           </div>
 

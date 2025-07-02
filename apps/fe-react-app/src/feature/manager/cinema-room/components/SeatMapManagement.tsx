@@ -7,6 +7,7 @@ import { Icon } from "@iconify/react";
 import { ArrowLeft, RotateCcw, Save, Settings } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 import type { Seat, SeatMap } from "@/interfaces/seat.interface";
 import { getSeatMapFromRoom, transformCinemaRoomResponse, useCinemaRoom } from "@/services/cinemaRoomService";
@@ -18,7 +19,7 @@ const SeatMapManagement: React.FC = () => {
   const navigate = useNavigate();
 
   // React Query hooks
-  const { data: roomData, isLoading: loading, error: queryError } = useCinemaRoom(parseInt(roomId || "0"));
+  const { data: roomData, isLoading: loading, error: queryError, refetch: refetchRoom } = useCinemaRoom(parseInt(roomId || "0"));
 
   // Transform data
   const room = roomData?.result ? transformCinemaRoomResponse(roomData.result) : null;
@@ -148,10 +149,10 @@ const SeatMapManagement: React.FC = () => {
       setHasChanges(false);
 
       // Show success message
-      alert("Lưu sơ đồ ghế thành công!");
+      toast.success("Lưu sơ đồ ghế thành công!");
     } catch {
       // Handle error appropriately - show user-friendly error message
-      alert("Có lỗi xảy ra khi lưu sơ đồ ghế!");
+      toast.error("Có lỗi xảy ra khi lưu sơ đồ ghế!");
     } finally {
       setSaving(false);
     }
@@ -181,11 +182,37 @@ const SeatMapManagement: React.FC = () => {
     }));
   };
 
+  // Callback để refetch dữ liệu từ API sau khi cập nhật ghế
+  const handleRefetchRequired = useCallback(async () => {
+    try {
+      // Refetch room data từ API
+      const { data: freshData } = await refetchRoom();
+
+      if (freshData?.result) {
+        // Transform và cập nhật state
+        const freshRoom = transformCinemaRoomResponse(freshData.result);
+        const freshSeats = getSeatMapFromRoom(freshRoom);
+
+        if (freshSeats.length > 0) {
+          const freshSeatMap: SeatMap = {
+            gridData: freshSeats,
+            roomId: freshRoom.id,
+          };
+
+          setSeatMap(freshSeatMap);
+          console.log("✅ Successfully refreshed seat map from API");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Failed to refresh seat map:", error);
+    }
+  }, [refetchRoom]);
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <Icon icon="mdi:loading" className="w-8 h-8 animate-spin mx-auto mb-2" />
+          <Icon icon="mdi:loading" className="mx-auto mb-2 h-8 w-8 animate-spin" />
           <p>Đang tải dữ liệu phòng chiếu...</p>
         </div>
       </div>
@@ -195,13 +222,13 @@ const SeatMapManagement: React.FC = () => {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Alert className="max-w-md mx-auto">
+        <Alert className="mx-auto max-w-md">
           <Icon icon="mdi:alert-circle" className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-        <div className="text-center mt-4">
+        <div className="mt-4 text-center">
           <Button onClick={handleBackToRooms} variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại danh sách phòng
           </Button>
         </div>
@@ -214,12 +241,12 @@ const SeatMapManagement: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="container mx-auto space-y-6 px-4 py-8">
       {/* Loading overlay for resetting */}
       {isResetting && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg flex items-center gap-3">
-            <Icon icon="mdi:loading" className="w-6 h-6 animate-spin text-blue-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="flex items-center gap-3 rounded-lg bg-white p-6">
+            <Icon icon="mdi:loading" className="h-6 w-6 animate-spin text-blue-600" />
             <span>Đang tạo sơ đồ ghế mới...</span>
           </div>
         </div>
@@ -229,7 +256,7 @@ const SeatMapManagement: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button onClick={handleBackToRooms} variant="outline" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại
           </Button>
           <div>
@@ -243,19 +270,19 @@ const SeatMapManagement: React.FC = () => {
         <div className="flex items-center gap-2">
           {hasChanges && (
             <Button onClick={handleResetSeatMap} variant="outline" size="sm">
-              <RotateCcw className="w-4 h-4 mr-2" />
+              <RotateCcw className="mr-2 h-4 w-4" />
               Khôi phục
             </Button>
           )}
 
           <Button onClick={() => setIsEditing(!isEditing)} variant={isEditing ? "default" : "outline"} size="sm">
-            <Settings className="w-4 h-4 mr-2" />
+            <Settings className="mr-2 h-4 w-4" />
             {isEditing ? "Xem" : "Chỉnh sửa"}
           </Button>
 
           {hasChanges && (
             <Button onClick={handleSaveSeatMap} disabled={saving} size="sm">
-              {saving ? <Icon icon="mdi:loading" className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {saving ? <Icon icon="mdi:loading" className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
               {saving ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           )}
@@ -266,12 +293,12 @@ const SeatMapManagement: React.FC = () => {
       {isEditing && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Icon icon="mdi:cog" className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Icon icon="mdi:cog" className="h-5 w-5" />
               Cài đặt phòng chiếu
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
               <Label htmlFor="room-width">Số cột (Chiều rộng)</Label>
               <Input
@@ -310,12 +337,12 @@ const SeatMapManagement: React.FC = () => {
       {/* Create New Seat Map */}
       {(!seatMap || seatMap.gridData.length === 0) && isEditing && (
         <Card>
-          <CardContent className="text-center py-8">
-            <Icon icon="mdi:seat" className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium mb-2">Chưa có sơ đồ ghế</h3>
-            <p className="text-gray-600 mb-4">Phòng này chưa có sơ đồ ghế. Tạo sơ đồ mới để bắt đầu thiết kế.</p>
+          <CardContent className="py-8 text-center">
+            <Icon icon="mdi:seat" className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+            <h3 className="mb-2 text-lg font-medium">Chưa có sơ đồ ghế</h3>
+            <p className="mb-4 text-gray-600">Phòng này chưa có sơ đồ ghế. Tạo sơ đồ mới để bắt đầu thiết kế.</p>
             <Button onClick={handleCreateNewSeatMap}>
-              <Icon icon="mdi:plus" className="w-4 h-4 mr-2" />
+              <Icon icon="mdi:plus" className="mr-2 h-4 w-4" />
               Tạo sơ đồ ghế mới
             </Button>
           </CardContent>
@@ -326,7 +353,14 @@ const SeatMapManagement: React.FC = () => {
       {seatMap && room && (
         <>
           {isEditing ? (
-            <SeatMapEditor seatMap={seatMap} onSeatMapChange={setSeatMap} readonly={false} width={roomSettings.width} length={roomSettings.height} />
+            <SeatMapEditor
+              seatMap={seatMap}
+              onSeatMapChange={setSeatMap}
+              onRefetchRequired={handleRefetchRequired}
+              readonly={false}
+              width={roomSettings.width}
+              length={roomSettings.height}
+            />
           ) : (
             <SeatMapEditorView seatMap={seatMap} showSelectable={false} width={roomSettings.width} length={roomSettings.height} />
           )}
