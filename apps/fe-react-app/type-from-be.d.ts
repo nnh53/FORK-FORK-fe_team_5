@@ -16,4 +16,9 @@ export type ShowtimeResponse = components["schemas"]["ShowtimeResponse"];
 export type MovieResponse = components["schemas"]["MovieResponse"];
 export type MovieCategoryResponse = components["schemas"]["MovieCategoryResponse"];
 export type IntrospectResponse = components["schemas"]["IntrospectResponse"];
+export type SnackResponse = components["schemas"]["SnackResponse"];
+export type ComboResponse = components["schemas"]["ComboResponse"];
+export type ComboSnackResponse = components["schemas"]["ComboSnackResponse"];
+
+
 
