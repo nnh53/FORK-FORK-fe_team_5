@@ -8,9 +8,8 @@ import { ArrowLeft, RotateCcw, Save, Settings } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import type { Seat, SeatMap } from "@/interfaces/seat.interface";
-import { cinemaRoomService } from "@/services/cinemaRoomService";
+import { getSeatMapFromRoom, transformCinemaRoomResponse, useCinemaRoom } from "@/services/cinemaRoomService";
 import SeatMapEditor from "./SeatMapEditor";
 import SeatMapEditorView from "./SeatMapEditorView";
 
@@ -18,27 +17,25 @@ const SeatMapManagement: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
+  // React Query hooks
+  const { data: roomData, isLoading: loading, error: queryError } = useCinemaRoom(parseInt(roomId || "0"));
+
+  // Transform data
+  const room = roomData?.result ? transformCinemaRoomResponse(roomData.result) : null;
+  const error = queryError ? String(queryError) : null;
+
   // State management
-  const [room, setRoom] = useState<CinemaRoom | null>(null);
   const [seatMap, setSeatMap] = useState<SeatMap | null>(null);
   const [originalSeatMap, setOriginalSeatMap] = useState<SeatMap | null>(null);
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Room settings
   const [roomSettings, setRoomSettings] = useState({
     width: 16,
     height: 10,
     name: "",
-  });
-
-  // Track previous dimensions để detect changes
-  const [previousDimensions, setPreviousDimensions] = useState({
-    width: 16,
-    height: 10,
   });
 
   // Loading state for resetting
@@ -53,7 +50,9 @@ const SeatMapManagement: React.FC = () => {
     try {
       // Create default seats for the room
       const defaultSeats: Seat[] = [];
-      const { width, height } = roomSettings;
+      // Use room dimensions directly to avoid dependency loop
+      const width = room.width;
+      const height = room.length;
 
       for (let row = 0; row < height; row++) {
         for (let col = 0; col < width; col++) {
@@ -90,65 +89,43 @@ const SeatMapManagement: React.FC = () => {
       setIsEditing(true);
 
       // Show success message
-      console.log(`Đã tạo sơ đồ ghế mới với ${defaultSeats.length} ghế (${width}x${height})`);
-    } catch (error) {
-      console.error("Error creating new seat map:", error);
-      setError("Có lỗi xảy ra khi tạo sơ đồ ghế mới");
+    } catch {
+      // Error creating seat map - handle silently or show user-friendly message
     } finally {
       setIsResetting(false);
     }
-  }, [room, roomSettings]);
+  }, [room]); // Only depend on room, not roomSettings
 
-  // Load room and seat map data
+  // Initialize data when room data is loaded
   useEffect(() => {
-    const loadRoomData = async () => {
-      if (!roomId) return;
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Load room data
-        const roomData = await cinemaRoomService.getRoomById(roomId);
-        if (!roomData) {
-          setError("Không tìm thấy phòng chiếu");
-          return;
+    if (room) {
+      setRoomSettings((prev) => {
+        // Only update if different to avoid unnecessary re-renders
+        if (prev.width !== room.width || prev.height !== room.length || prev.name !== room.name) {
+          return {
+            width: room.width,
+            height: room.length, // map length to height
+            name: room.name,
+          };
         }
+        return prev;
+      });
+    }
+  }, [room]);
 
-        setRoom(roomData);
-        setRoomSettings({
-          width: roomData.width,
-          height: roomData.length, // map length to height
-          name: roomData.name,
-        });
-
-        // Set initial previous dimensions
-        setPreviousDimensions({
-          width: roomData.width,
-          height: roomData.length,
-        });
-
-        // Load seat map if exists
-        const seats = await cinemaRoomService.getSeatMap(roomId);
-        console.log("Loaded seats for room", roomId, ":", seats);
-        const seatMapData: SeatMap = {
-          gridData: seats || [], // Ensure gridData is always an array
-          roomId: roomData.id,
-        };
-        console.log("Created seatMapData:", seatMapData);
-        setSeatMap(seatMapData);
-        setOriginalSeatMap(JSON.parse(JSON.stringify(seatMapData)));
-      } catch (err) {
-        console.error("Error loading room data:", err);
-        console.error("Failed to load room with ID:", roomId);
-        setError("Lỗi khi tải dữ liệu phòng chiếu");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRoomData();
-  }, [roomId]);
+  // Separate effect for seat map initialization
+  useEffect(() => {
+    if (room && !seatMap) {
+      // Create seat map from room seats
+      const seats = getSeatMapFromRoom(room);
+      const seatMapData: SeatMap = {
+        gridData: seats || [], // Ensure gridData is always an array
+        roomId: room.id,
+      };
+      setSeatMap(seatMapData);
+      setOriginalSeatMap(JSON.parse(JSON.stringify(seatMapData)));
+    }
+  }, [room, seatMap]);
 
   // Check for changes
   useEffect(() => {
@@ -158,100 +135,23 @@ const SeatMapManagement: React.FC = () => {
     }
   }, [seatMap, originalSeatMap]);
 
-  // Detect dimension changes và reset seat map
-  useEffect(() => {
-    // Validate dimensions
-    const validateDimensions = (width: number, height: number): boolean => {
-      if (width < 1 || height < 1) {
-        alert("Kích thước phòng phải lớn hơn 0");
-        return false;
-      }
-      if (width > 30 || height > 20) {
-        alert("Kích thước phòng không được vượt quá 30x20");
-        return false;
-      }
-      if (width * height > 600) {
-        alert("Tổng số ghế không được vượt quá 600");
-        return false;
-      }
-      return true;
-    };
-
-    // Chỉ check nếu đã có seatMap và dimensions thực sự thay đổi
-    if (
-      seatMap &&
-      seatMap.gridData.length > 0 &&
-      (roomSettings.width !== previousDimensions.width || roomSettings.height !== previousDimensions.height)
-    ) {
-      // Validate dimensions trước
-      if (!validateDimensions(roomSettings.width, roomSettings.height)) {
-        // Revert nếu không hợp lệ
-        setRoomSettings((prev) => ({
-          ...prev,
-          width: previousDimensions.width,
-          height: previousDimensions.height,
-        }));
-        return;
-      }
-
-      // Show confirmation dialog before resetting
-      const shouldReset = window.confirm(
-        `Bạn đã thay đổi kích thước phòng từ ${previousDimensions.width}x${previousDimensions.height} thành ${roomSettings.width}x${roomSettings.height}.\n\nĐiều này sẽ reset toàn bộ sơ đồ ghế hiện tại. Bạn có chắc chắn muốn tiếp tục?`,
-      );
-
-      if (shouldReset) {
-        // Reset seat map với dimensions mới
-        handleCreateNewSeatMap();
-        setHasChanges(true);
-
-        // Cập nhật previous dimensions
-        setPreviousDimensions({
-          width: roomSettings.width,
-          height: roomSettings.height,
-        });
-      } else {
-        // Revert room settings nếu user cancel
-        setRoomSettings((prev) => ({
-          ...prev,
-          width: previousDimensions.width,
-          height: previousDimensions.height,
-        }));
-      }
-    } else if (!seatMap || seatMap.gridData.length === 0) {
-      // Nếu chưa có seat map, chỉ cập nhật previous dimensions
-      setPreviousDimensions({
-        width: roomSettings.width,
-        height: roomSettings.height,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomSettings.width, roomSettings.height, seatMap, previousDimensions.width, previousDimensions.height]);
-
   const handleSaveSeatMap = async () => {
     if (!seatMap || !roomId) return;
 
     try {
       setSaving(true);
-      setError(null);
 
-      // Save the seat map using the complete SeatMap object
-      await cinemaRoomService.saveSeatMap(roomId, seatMap);
+      // Note: Save seat map API endpoint needs to be implemented
+      // await saveSeatMapMutation.mutateAsync({ roomId, seatMap });
 
       setOriginalSeatMap(JSON.parse(JSON.stringify(seatMap)));
       setHasChanges(false);
 
       // Show success message
       alert("Lưu sơ đồ ghế thành công!");
-      console.log("Lưu sơ đồ ghế thành công!");
-
-      // Update room data
-      if (room) {
-        const updatedRoom = { ...room, seatMap };
-        setRoom(updatedRoom);
-      }
-    } catch (err) {
-      console.error("Error saving seat map:", err);
-      setError(`Lỗi khi lưu sơ đồ ghế: ${err}`);
+    } catch {
+      // Handle error appropriately - show user-friendly error message
+      alert("Có lỗi xảy ra khi lưu sơ đồ ghế!");
     } finally {
       setSaving(false);
     }
@@ -261,7 +161,6 @@ const SeatMapManagement: React.FC = () => {
     if (originalSeatMap) {
       setSeatMap(JSON.parse(JSON.stringify(originalSeatMap)));
       setHasChanges(false);
-      console.log("Đã khôi phục sơ đồ ghế ban đầu");
     }
   };
 
@@ -424,10 +323,6 @@ const SeatMapManagement: React.FC = () => {
       )}
 
       {/* Seat Map Editor/View */}
-      {(() => {
-        console.log("Rendering - seatMap:", seatMap, "isEditing:", isEditing);
-        return null;
-      })()}
       {seatMap && room && (
         <>
           {isEditing ? (

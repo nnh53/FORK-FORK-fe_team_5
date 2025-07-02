@@ -1,6 +1,7 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Seat, SeatMap } from "@/interfaces/seat.interface";
+import { transformSeatResponse, transformSeatToRequest, useUpdateSeat } from "@/services/cinemaRoomService";
 import { Icon } from "@iconify/react";
 import React, { useMemo, useState } from "react";
 
@@ -8,13 +9,13 @@ import React, { useMemo, useState } from "react";
  * SeatMapEditor Component
  *
  * CURRENT API STRUCTURE:
- * - Row: Numeric (1, 2, 3, ...)
- * - Column: Letter (A, B, C, ...)
+ * - Row: Letter (A, B, C, ...)
+ * - Column: Numeric (1, 2, 3, ...)
  *
  * BACKUP CODE AVAILABLE:
  * This file contains backup code for alternative API structure where:
- * - Row: Letter (A, B, C, ...)
- * - Column: Numeric (1, 2, 3, ...)
+ * - Row: Numeric (1, 2, 3, ...)
+ * - Column: Letter (A, B, C, ...)
  *
  * Search for "BACKUP" comments throughout this file to find alternative implementations.
  * See API_STRUCTURE_GUIDE.md for complete switching instructions.
@@ -33,6 +34,8 @@ type EditorTool = "seat-standard" | "seat-vip" | "seat-double" | "aisle" | "bloc
 const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange, width = 10, length = 10, readonly = false }) => {
   const [selectedTool, setSelectedTool] = useState<EditorTool>("seat-standard");
   const [currentSeatMap, setCurrentSeatMap] = useState<SeatMap | null>(seatMap);
+  const [isUpdatingSeats, setIsUpdatingSeats] = useState(false);
+  const updateSeatMutation = useUpdateSeat();
 
   // Update local state when props change
   React.useEffect(() => {
@@ -41,17 +44,16 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
 
   // Helper functions for seat operations
   const findAdjacentSeat = (seatMap: SeatMap, seat: Seat, direction: "next" | "prev"): [Seat | null, number] => {
-    // Current API: row is number, column is letter
-    const currentColChar = seat.column.charCodeAt(0);
-    const targetColChar = direction === "next" ? currentColChar + 1 : currentColChar - 1;
-    const targetColumn = String.fromCharCode(targetColChar);
+    // Current API: row is letter, column is number
+    const currentCol = parseInt(seat.column);
+    const targetCol = direction === "next" ? currentCol + 1 : currentCol - 1;
+    const adjacentSeat = seatMap.gridData.find((s) => s.row === seat.row && parseInt(s.column) === targetCol);
 
-    const adjacentSeat = seatMap.gridData.find((s) => s.row === seat.row && s.column === targetColumn);
-
-    // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
-    // const currentCol = parseInt(seat.column);
-    // const targetCol = direction === "next" ? currentCol + 1 : currentCol - 1;
-    // const adjacentSeat = seatMap.gridData.find((s) => s.row === seat.row && parseInt(s.column) === targetCol);
+    // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
+    // const currentColChar = seat.column.charCodeAt(0);
+    // const targetColChar = direction === "next" ? currentColChar + 1 : currentColChar - 1;
+    // const targetColumn = String.fromCharCode(targetColChar);
+    // const adjacentSeat = seatMap.gridData.find((s) => s.row === seat.row && s.column === targetColumn);
 
     if (adjacentSeat) {
       const index = seatMap.gridData.findIndex((s) => s.id === adjacentSeat.id);
@@ -74,22 +76,22 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
   const findCouplePartner = (seatMap: SeatMap, seat: Seat): [Seat | null, number] => {
     if (seat.type.name !== "COUPLE") return [null, -1];
 
-    const currentColChar = seat.column.charCodeAt(0);
+    const currentCol = parseInt(seat.column);
 
-    // Logic: Ghế đôi luôn được tạo theo cặp (A,B), (C,D), (E,F), etc.
-    // Ghế có cột chẵn (A, C, E, ...) sẽ cặp với ghế cột lẻ bên phải (B, D, F, ...)
-    // Ghế có cột lẻ (B, D, F, ...) sẽ cặp với ghế cột chẵn bên trái (A, C, E, ...)
+    // Logic: Ghế đôi luôn được tạo theo cặp (1,2), (3,4), (5,6), etc.
+    // Ghế có cột lẻ (1, 3, 5, ...) sẽ cặp với ghế cột chẵn bên phải (2, 4, 6, ...)
+    // Ghế có cột chẵn (2, 4, 6, ...) sẽ cặp với ghế cột lẻ bên trái (1, 3, 5, ...)
 
-    let partnerColChar: number;
-    if ((currentColChar - 65) % 2 === 0) {
-      // Ghế cột chẵn (A=0, C=2, E=4, ...) -> partner ở bên phải
-      partnerColChar = currentColChar + 1;
+    let partnerCol: number;
+    if (currentCol % 2 === 1) {
+      // Ghế cột lẻ (1, 3, 5, ...) -> partner ở bên phải
+      partnerCol = currentCol + 1;
     } else {
-      // Ghế cột lẻ (B=1, D=3, F=5, ...) -> partner ở bên trái
-      partnerColChar = currentColChar - 1;
+      // Ghế cột chẵn (2, 4, 6, ...) -> partner ở bên trái
+      partnerCol = currentCol - 1;
     }
 
-    const partnerColumn = String.fromCharCode(partnerColChar);
+    const partnerColumn = partnerCol.toString();
 
     // Tìm ghế partner theo cột đã tính toán
     const partner = seatMap.gridData.find((s) => s.row === seat.row && s.column === partnerColumn && s.type.name === "COUPLE");
@@ -116,15 +118,15 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
 
   // Helper function to check if a seat can be converted to couple
   const canCreateCouple = (seatMap: SeatMap, seat: Seat): boolean => {
-    const currentColChar = seat.column.charCodeAt(0);
+    const currentCol = parseInt(seat.column);
 
-    // Chỉ cho phép tạo ghế đôi từ ghế có cột chẵn (A, C, E, ... để đảm bảo luôn tạo cặp (A,B), (C,D), etc.)
-    if ((currentColChar - 65) % 2 !== 0) {
-      return false; // Ghế cột lẻ (B, D, F, ...) không thể làm điểm bắt đầu ghế đôi
+    // Chỉ cho phép tạo ghế đôi từ ghế có cột lẻ (1, 3, 5, ... để đảm bảo luôn tạo cặp (1,2), (3,4), etc.)
+    if (currentCol % 2 !== 1) {
+      return false; // Ghế cột chẵn (2, 4, 6, ...) không thể làm điểm bắt đầu ghế đôi
     }
 
     // Check if next seat exists and is available for coupling
-    const nextColumn = String.fromCharCode(currentColChar + 1);
+    const nextColumn = (currentCol + 1).toString();
     const nextSeat = seatMap.gridData.find((s) => s.row === seat.row && s.column === nextColumn);
 
     if (!nextSeat) return false;
@@ -172,9 +174,9 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
 
     // Check if we can create a couple seat
     if (!canCreateCouple(newSeatMap, seat)) {
-      const currentColChar = seat.column.charCodeAt(0);
-      if ((currentColChar - 65) % 2 !== 0) {
-        alert(`Không thể tạo ghế đôi từ ghế ${seat.row}${seat.column}. Chỉ có thể tạo ghế đôi từ ghế có cột chẵn (A, C, E, ...).`);
+      const currentCol = parseInt(seat.column);
+      if (currentCol % 2 !== 1) {
+        alert(`Không thể tạo ghế đôi từ ghế ${seat.row}${seat.column}. Chỉ có thể tạo ghế đôi từ ghế có cột lẻ (1, 3, 5, ...).`);
       } else {
         alert(`Không thể tạo ghế đôi tại vị trí ${seat.row}${seat.column}. Ghế liền kề không khả dụng hoặc đã được sử dụng.`);
       }
@@ -182,7 +184,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     }
 
     // Break couple relationship for the next seat if it's already part of a couple
-    const nextColumn = String.fromCharCode(seat.column.charCodeAt(0) + 1);
+    const nextColumn = (parseInt(seat.column) + 1).toString();
     const nextSeat = newSeatMap.gridData.find((s) => s.row === seat.row && s.column === nextColumn);
 
     if (nextSeat && nextSeat.type.name === "COUPLE") {
@@ -196,49 +198,126 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
   };
 
   // Handle seat click to change seat type
-  const handleSeatClick = (seatId: number) => {
-    if (readonly || !currentSeatMap) return;
+  const handleSeatClick = async (seatId: number) => {
+    if (readonly || !currentSeatMap || isUpdatingSeats) return;
 
+    setIsUpdatingSeats(true);
     const newSeatMap = { ...currentSeatMap };
     const seatIndex = newSeatMap.gridData.findIndex((s) => s.id === seatId);
 
-    if (seatIndex === -1) return;
+    if (seatIndex === -1) {
+      setIsUpdatingSeats(false);
+      return;
+    }
 
     const seat = { ...newSeatMap.gridData[seatIndex] };
+    const originalSeat = { ...seat }; // Store original for rollback
+
+    // Collect all seats that will be updated
+    const seatsToUpdate: Array<{ seat: Seat; newType: string }> = [];
+
+    // Helper function to collect affected seats for API updates
+    const collectAffectedSeats = (targetSeat: Seat, newType: string) => {
+      seatsToUpdate.push({ seat: targetSeat, newType });
+
+      // If it's a couple seat being converted, also collect its partner
+      if (targetSeat.type.name === "COUPLE") {
+        const [partner] = findCouplePartner(newSeatMap, targetSeat);
+        if (partner && !seatsToUpdate.find((s) => s.seat.id === partner.id)) {
+          seatsToUpdate.push({ seat: partner, newType: newType === "COUPLE" ? "COUPLE" : "REGULAR" });
+        }
+      }
+    };
 
     // Change seat type based on selected tool
     switch (selectedTool) {
       case "seat-standard":
+      case "eraser": {
         convertCoupleTo(newSeatMap, seat, "REGULAR");
+        collectAffectedSeats(seat, "REGULAR");
         break;
+      }
       case "seat-vip":
         convertCoupleTo(newSeatMap, seat, "VIP");
+        collectAffectedSeats(seat, "VIP");
         break;
       case "seat-double": {
         if (!handleDoubleSeatCreation(newSeatMap, seat)) {
+          setIsUpdatingSeats(false);
           return; // Early return if double seat creation failed
+        }
+        collectAffectedSeats(seat, "COUPLE");
+        // Also add the adjacent seat for couple creation
+        const [nextSeat] = findAdjacentSeat(newSeatMap, seat, "next");
+        if (nextSeat && !seatsToUpdate.find((s) => s.seat.id === nextSeat.id)) {
+          collectAffectedSeats(nextSeat, "COUPLE");
         }
         break;
       }
       case "aisle":
         convertCoupleTo(newSeatMap, seat, "AISLE");
+        collectAffectedSeats(seat, "AISLE");
         break;
       case "blocked":
         convertCoupleTo(newSeatMap, seat, "BLOCKED");
+        collectAffectedSeats(seat, "BLOCKED");
         break;
-      case "eraser": {
-        convertCoupleTo(newSeatMap, seat, "REGULAR");
-        break;
-      }
       default:
+        setIsUpdatingSeats(false);
         return;
     }
 
+    // Update UI immediately for better UX
     newSeatMap.gridData[seatIndex] = seat;
     setCurrentSeatMap(newSeatMap);
 
-    if (onSeatMapChange) {
-      onSeatMapChange(newSeatMap);
+    try {
+      // Update seats via API using React Query mutation
+      const updatePromises = seatsToUpdate.map(({ seat, newType }) =>
+        updateSeatMutation.mutateAsync({
+          params: { path: { id: seat.id } },
+          body: transformSeatToRequest({
+            type: newType as string,
+            status: seat.status,
+          }),
+        }),
+      );
+
+      const updatedSeats = await Promise.all(updatePromises);
+
+      // Transform API responses to Seat objects and update local state
+      updatedSeats.forEach((response) => {
+        if (response?.result) {
+          const transformedSeat = transformSeatResponse(response.result);
+          const index = newSeatMap.gridData.findIndex((s) => s.id === transformedSeat.id);
+          if (index !== -1) {
+            newSeatMap.gridData[index] = transformedSeat;
+          }
+        }
+      });
+
+      setCurrentSeatMap(newSeatMap);
+
+      if (onSeatMapChange) {
+        onSeatMapChange(newSeatMap);
+      }
+
+      console.log(`✅ Successfully updated ${updatedSeats.length} seat(s)`);
+    } catch (error) {
+      console.error("Failed to update seat:", error);
+
+      // Rollback UI changes on API failure
+      const rollbackSeatMap = { ...currentSeatMap };
+      const rollbackIndex = rollbackSeatMap.gridData.findIndex((s) => s.id === seatId);
+      if (rollbackIndex !== -1) {
+        rollbackSeatMap.gridData[rollbackIndex] = originalSeat;
+        setCurrentSeatMap(rollbackSeatMap);
+      }
+
+      // Show error message to user
+      alert(`Không thể cập nhật ghế: ${error instanceof Error ? error.message : "Lỗi không xác định"}`);
+    } finally {
+      setIsUpdatingSeats(false);
     }
   };
 
@@ -261,65 +340,14 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
   };
 
   // Create render items for grid display with proper double seat handling
-  // Helper function to get display number for seats (consecutive numbering per row)
+  // Helper function to get display text for seats - use API name directly
   const getDisplayNumber = (seat: Seat) => {
     if (!currentSeatMap || seat.type.name === "AISLE" || seat.type.name === "BLOCKED") {
       return null;
     }
 
-    // Get all seats in the same row (excluding AISLE and BLOCKED)
-    const rowSeats = currentSeatMap.gridData
-      .filter((s) => s.row === seat.row && s.type.name !== "AISLE" && s.type.name !== "BLOCKED")
-      .sort((a, b) => a.column.charCodeAt(0) - b.column.charCodeAt(0)); // Sort by column letter
-
-    return calculateDisplayPosition(seat, rowSeats);
-  };
-
-  // Helper function to calculate display position
-  const calculateDisplayPosition = (targetSeat: Seat, rowSeats: Seat[]) => {
-    let displayNumber = 1;
-    let skipNext = false;
-
-    for (let i = 0; i < rowSeats.length; i++) {
-      if (skipNext) {
-        skipNext = false;
-        continue;
-      }
-
-      const currentSeat = rowSeats[i];
-
-      if (currentSeat.id === targetSeat.id) {
-        return displayNumber;
-      }
-
-      // Handle couple seat logic
-      skipNext = handleCoupleSeatLogic(currentSeat, rowSeats, i, targetSeat);
-
-      if (!skipNext || (skipNext && rowSeats[i + 1]?.id !== targetSeat.id)) {
-        displayNumber++;
-      }
-    }
-
-    return displayNumber;
-  };
-
-  // Helper function to handle couple seat logic
-  const handleCoupleSeatLogic = (currentSeat: Seat, rowSeats: Seat[], index: number, targetSeat: Seat) => {
-    if (currentSeat.type.name !== "COUPLE") return false;
-
-    const nextSeat = rowSeats[index + 1];
-    const isCouplePair =
-      nextSeat &&
-      nextSeat.type.name === "COUPLE" &&
-      nextSeat.row === currentSeat.row &&
-      nextSeat.column.charCodeAt(0) === currentSeat.column.charCodeAt(0) + 1;
-
-    if (isCouplePair && nextSeat.id === targetSeat.id) {
-      // If we're looking for the second seat of the couple, it should have the same display number
-      return false;
-    }
-
-    return isCouplePair;
+    // Use the name from API directly instead of calculating display position
+    return seat.name;
   };
 
   // Calculate actual dimensions based on seat data
@@ -333,13 +361,13 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     let maxCol = 0;
 
     seats.forEach((seat) => {
-      // API structure: row is numeric (1,2,3...), column is letter (A,B,C...)
-      const rowIndex = parseInt(seat.row) - 1; // 1=0, 2=1, etc.
-      const colIndex = seat.column.charCodeAt(0) - 65; // A=0, B=1, etc.
+      // API structure: row is letter (A,B,C...), column is number (1,2,3...)
+      const rowIndex = seat.row.charCodeAt(0) - 65; // A=0, B=1, etc.
+      const colIndex = parseInt(seat.column) - 1; // 1=0, 2=1, etc.
 
-      // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
-      // const rowIndex = seat.row.charCodeAt(0) - 65; // A=0, B=1, etc.
-      // const colIndex = parseInt(seat.column) - 1; // 1=0, 2=1, etc.
+      // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
+      // const rowIndex = parseInt(seat.row) - 1; // 1=0, 2=1, etc.
+      // const colIndex = seat.column.charCodeAt(0) - 65; // A=0, B=1, etc.
 
       maxRow = Math.max(maxRow, rowIndex);
       maxCol = Math.max(maxCol, colIndex);
@@ -358,9 +386,9 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     const createSeatMap = (seats: Seat[]) => {
       const seatMap = new Map<string, Seat>();
       seats.forEach((seat) => {
-        // API structure: row is numeric, column is letter
+        // API structure: row is letter, column is number
         const key = `${seat.row}-${seat.column}`;
-        // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
+        // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
         // const key = `${seat.row}-${seat.column}`;
         seatMap.set(key, seat);
       });
@@ -368,13 +396,19 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     };
 
     const isDoubleSeatStart = (seat: Seat, nextSeat: Seat | undefined) => {
-      // For API structure: check if column letters are consecutive (A->B, B->C, etc.)
+      // For API structure: check if column numbers are consecutive (1->2, 2->3, etc.)
       return (
-        seat.type.name === "COUPLE" && nextSeat && nextSeat.type.name === "COUPLE" && seat.column.charCodeAt(0) === nextSeat.column.charCodeAt(0) - 1
+        seat.type.name === "COUPLE" &&
+        nextSeat &&
+        nextSeat.type.name === "COUPLE" &&
+        parseInt(seat.column) % 2 === 1 &&
+        parseInt(nextSeat.column) === parseInt(seat.column) + 1
       );
 
-      // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
-      // return seat.type.name === "COUPLE" && nextSeat && nextSeat.type.name === "COUPLE" && parseInt(seat.column) % 2 === 1;
+      // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
+      // return (
+      //   seat.type.name === "COUPLE" && nextSeat && nextSeat.type.name === "COUPLE" && seat.column.charCodeAt(0) === nextSeat.column.charCodeAt(0) - 1
+      // );
     };
 
     const createGridItem = (
@@ -384,14 +418,14 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       seatMap: Map<string, Seat>,
       processedPositions: Set<string>,
     ) => {
-      const rowNumber = (rowIndex + 1).toString();
-      const colLetter = String.fromCharCode(65 + colIndex);
-      const key = `${rowNumber}-${colLetter}`;
+      const rowLetter = String.fromCharCode(65 + rowIndex);
+      const colNumber = (colIndex + 1).toString();
+      const key = `${rowLetter}-${colNumber}`;
 
-      // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
-      // const rowLetter = String.fromCharCode(65 + rowIndex);
-      // const colNumber = (colIndex + 1).toString();
-      // const key = `${rowLetter}-${colNumber}`;
+      // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
+      // const rowNumber = (rowIndex + 1).toString();
+      // const colLetter = String.fromCharCode(65 + colIndex);
+      // const key = `${rowNumber}-${colLetter}`;
 
       if (!seat) {
         return {
@@ -404,12 +438,12 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       }
 
       // Check for double seat (consecutive columns)
-      const nextColLetter = String.fromCharCode(65 + colIndex + 1);
-      // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
-      // const nextColNumber = (colIndex + 2).toString();
-      const nextKey = `${rowNumber}-${nextColLetter}`;
-      // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
-      // const nextKey = `${rowLetter}-${nextColNumber}`;
+      const nextColNumber = (colIndex + 2).toString();
+      // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
+      // const nextColLetter = String.fromCharCode(65 + colIndex + 1);
+      const nextKey = `${rowLetter}-${nextColNumber}`;
+      // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
+      // const nextKey = `${rowNumber}-${nextColLetter}`;
       const nextSeat = seatMap.get(nextKey);
 
       if (isDoubleSeatStart(seat, nextSeat)) {
@@ -426,12 +460,12 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
 
       if (seat.type.name === "COUPLE" && colIndex > 0) {
         // This might be the second seat of a couple, check if previous was processed
-        const prevColLetter = String.fromCharCode(65 + colIndex - 1);
-        const prevKey = `${rowNumber}-${prevColLetter}`;
-        // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
+        const prevColNumber = colIndex.toString();
+        const prevKey = `${rowLetter}-${prevColNumber}`;
+        // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
         // if (seat.type.name === "COUPLE" && parseInt(seat.column) % 2 === 0) {
-        //   const prevColNumber = (colIndex).toString();
-        //   const prevKey = `${rowLetter}-${prevColNumber}`;
+        //   const prevColLetter = String.fromCharCode(65 + colIndex - 1);
+        //   const prevKey = `${rowNumber}-${prevColLetter}`;
         if (processedPositions.has(prevKey)) {
           processedPositions.add(key);
           return null; // Skip second seat of couple pair
@@ -455,16 +489,16 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     const processedPositions = new Set<string>();
 
     for (let rowIndex = 0; rowIndex < actualDimensions.actualHeight; rowIndex++) {
-      const rowNumber = (rowIndex + 1).toString();
-      // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
-      // const rowLetter = String.fromCharCode(65 + rowIndex);
+      const rowLetter = String.fromCharCode(65 + rowIndex);
+      // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
+      // const rowNumber = (rowIndex + 1).toString();
 
       for (let colIndex = 0; colIndex < actualDimensions.actualWidth; colIndex++) {
-        const colLetter = String.fromCharCode(65 + colIndex);
-        const key = `${rowNumber}-${colLetter}`;
-        // BACKUP: If API returns row as letter, column as number (uncomment below and comment above)
-        // const colNumber = (colIndex + 1).toString();
-        // const key = `${rowLetter}-${colNumber}`;
+        const colNumber = (colIndex + 1).toString();
+        const key = `${rowLetter}-${colNumber}`;
+        // BACKUP: If API returns row as number, column as letter (uncomment below and comment above)
+        // const colLetter = String.fromCharCode(65 + colIndex);
+        // const key = `${rowNumber}-${colLetter}`;
 
         if (processedPositions.has(key)) {
           continue;
@@ -561,6 +595,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                   variant={selectedTool === tool.id ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedTool(tool.id)}
+                  disabled={isUpdatingSeats}
                   className="h-auto p-3 flex flex-col items-center gap-1"
                 >
                   <Icon icon={tool.icon} className="w-5 h-5" />
@@ -570,11 +605,12 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
             </div>
 
             {/* Save instruction */}
-            <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-              <div className="flex items-center gap-2 text-yellow-800">
-                <Icon icon="mdi:information" className="w-4 h-4" />
+            <div className={`mt-4 p-3 rounded-lg border ${isUpdatingSeats ? "bg-blue-50 border-blue-200" : "bg-yellow-50 border-yellow-200"}`}>
+              <div className={`flex items-center gap-2 ${isUpdatingSeats ? "text-blue-800" : "text-yellow-800"}`}>
+                <Icon icon={isUpdatingSeats ? "mdi:loading" : "mdi:information"} className={`w-4 h-4 ${isUpdatingSeats ? "animate-spin" : ""}`} />
                 <p className="text-sm">
-                  <strong>Thông báo:</strong> Thay đổi sẽ được tự động phát hiện. Nhấn nút "Lưu thay đổi" ở trên để lưu vào hệ thống.
+                  <strong>{isUpdatingSeats ? "Đang cập nhật..." : "Thông báo:"}</strong>{" "}
+                  {isUpdatingSeats ? "Vui lòng chờ trong khi ghế đang được cập nhật." : "Thay đổi sẽ được tự động lưu khi bạn chỉnh sửa ghế."}
                 </p>
               </div>
             </div>
@@ -632,9 +668,9 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
           <div className="overflow-auto">
             <div className="flex justify-center">
               <div className="flex">
-                {/* Row labels (1, 2, 3...) */}
-                {/* BACKUP: If API returns row as letter, column as number (uncomment below and comment above) */}
                 {/* Row labels (A, B, C...) */}
+                {/* BACKUP: If API returns row as number, column as letter (uncomment below and comment above) */}
+                {/* Row labels (1, 2, 3...) */}
                 <div className="flex flex-col mr-2">
                   {Array.from({ length: actualDimensions.actualHeight }, (_, i) => (
                     <div
@@ -645,8 +681,8 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                         marginBottom: i < actualDimensions.actualHeight - 1 ? "4px" : "0",
                       }}
                     >
-                      {i + 1}
-                      {/* BACKUP for API reverse: String.fromCharCode(65 + i) */}
+                      {String.fromCharCode(65 + i)}
+                      {/* BACKUP for API reverse: i + 1 */}
                     </div>
                   ))}
                 </div>{" "}
@@ -693,12 +729,12 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                             width: "auto",
                           }}
                         >
-                          {getDisplayNumber(item.seat) || `${item.seat.row}${item.seat.column}`}
+                          {getDisplayNumber(item.seat) || item.seat.name}
                         </div>
                       );
                     } else {
                       // Render special content for aisle and blocked seats
-                      let content: React.ReactNode = getDisplayNumber(item.seat) || `${item.seat.row}${item.seat.column}`;
+                      let content: React.ReactNode = getDisplayNumber(item.seat) || item.seat.name;
                       if (item.seat.type.name === "AISLE") {
                         content = <Icon icon="mdi:walk" className="w-3 h-3" />;
                       } else if (item.seat.type.name === "BLOCKED") {
@@ -727,17 +763,17 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
             </div>
           </div>
 
-          {/* Column labels (A, B, C...) */}
-          {/* BACKUP: If API returns row as letter, column as number (uncomment below and comment above) */}
           {/* Column labels (1, 2, 3...) */}
+          {/* BACKUP: If API returns row as number, column as letter (uncomment below and comment above) */}
+          {/* Column labels (A, B, C...) */}
           <div className="mt-4 flex justify-center">
             <div className="flex">
               {/* Space for row labels */}
               <div className="w-8"></div>
 
-              {/* Column letters */}
-              {/* BACKUP: If API returns row as letter, column as number (uncomment below and comment above) */}
               {/* Column numbers */}
+              {/* BACKUP: If API returns row as number, column as letter (uncomment below and comment above) */}
+              {/* Column letters */}
               <div
                 className="grid"
                 style={{
@@ -755,8 +791,8 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                       height: "24px",
                     }}
                   >
-                    {String.fromCharCode(65 + i)}
-                    {/* BACKUP for API reverse: i + 1 */}
+                    {i + 1}
+                    {/* BACKUP for API reverse: String.fromCharCode(65 + i) */}
                   </div>
                 ))}
               </div>

@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/snacks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSnackById"];
+        put: operations["updateSnack"];
+        post?: never;
+        delete: operations["deleteSnack"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/showtimes/{id}": {
         parameters: {
             query?: never;
@@ -31,6 +47,38 @@ export interface paths {
         put: operations["updateShowtime"];
         post?: never;
         delete: operations["deleteShowtime"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/seats/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSeatById"];
+        put: operations["updateSeat"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/seat-types/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSeatTypeById"];
+        put: operations["updateSeatType"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -52,6 +100,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/order/{orderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getOrderById"];
+        put: operations["cancelOrder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/movies/{id}": {
         parameters: {
             query?: never;
@@ -63,6 +127,54 @@ export interface paths {
         put: operations["update_1"];
         post?: never;
         delete: operations["delete_1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/movie-categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMovieCategoryById"];
+        put: operations["updateMovieCategory"];
+        post?: never;
+        delete: operations["deleteMovieCategory"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/combos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getComboById"];
+        put: operations["updateCombo"];
+        post?: never;
+        delete: operations["deleteCombo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/combo-snacks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getComboSnackById"];
+        put: operations["updateComboSnack"];
+        post?: never;
+        delete: operations["deleteComboSnack"];
         options?: never;
         head?: never;
         patch?: never;
@@ -84,103 +196,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/snacks/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getSnackById"];
-        put: operations["updateSnack"];
-        post?: never;
-        delete: operations["deleteSnack"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/seats/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getSeatById"];
-        put: operations["updateSeat"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/seat-types/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getSeatTypeById"];
-        put: operations["updateSeatType"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/movie-categories/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getMovieCategoryById"];
-        put: operations["updateMovieCategory"];
-        post?: never;
-        delete: operations["deleteMovieCategory"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/combos/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getComboById"];
-        put: operations["updateCombo"];
-        post?: never;
-        delete: operations["deleteCombo"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/combo-snacks/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getComboSnackById"];
-        put: operations["updateComboSnack"];
-        post?: never;
-        delete: operations["deleteComboSnack"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/bookings/{id}": {
+    "/bookings/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -209,6 +225,22 @@ export interface paths {
         get: operations["getUsers"];
         put?: never;
         post: operations["createUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/snacks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAllSnacks"];
+        put?: never;
+        post: operations["createSnack"];
         delete?: never;
         options?: never;
         head?: never;
@@ -247,6 +279,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/payment/payos_transfer_handler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["payosTransferHandler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/order/create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPaymentLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/order/confirm-webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["confirmWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/movies": {
         parameters: {
             query?: never;
@@ -279,6 +359,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/movie-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAllMovieCategories"];
+        put?: never;
+        post: operations["createMovieCategory"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["uploadImage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/combos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAllCombos"];
+        put?: never;
+        post: operations["createCombo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/combos/{comboId}/snacks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["addSnacksToCombo"];
+        delete: operations["removeSnacksFromCombo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/combo-snacks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAllComboSnacks"];
+        put?: never;
+        post: operations["createComboSnack"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/cinema-rooms": {
         parameters: {
             query?: never;
@@ -289,6 +449,24 @@ export interface paths {
         get: operations["getAll_1"];
         put?: never;
         post: operations["create_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all bookings */
+        get: operations["getAllBookings"];
+        put?: never;
+        /** Create a new booking */
+        post: operations["createBooking"];
         delete?: never;
         options?: never;
         head?: never;
@@ -321,120 +499,6 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["authenticate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/snacks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAllSnacks"];
-        put?: never;
-        post: operations["createSnack"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/movie-categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAllMovieCategories"];
-        put?: never;
-        post: operations["createMovieCategory"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/media/upload": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["uploadImage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/combos": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAllCombos"];
-        put?: never;
-        post: operations["createCombo"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/combos/{comboId}/snacks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["addSnacksToCombo"];
-        delete: operations["removeSnacksFromCombo"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/combo-snacks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAllComboSnacks"];
-        put?: never;
-        post: operations["createComboSnack"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/bookings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all bookings */
-        get: operations["getAllBookings"];
-        put?: never;
-        /** Create a new booking */
-        post: operations["createBooking"];
         delete?: never;
         options?: never;
         head?: never;
@@ -505,7 +569,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/seats": {
+    "/seats": {
         parameters: {
             query?: never;
             header?: never;
@@ -521,7 +585,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/seats/showtime/{showtimeId}": {
+    "/seats/showtime/{showtimeId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -537,7 +601,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/seats/room/{roomId}": {
+    "/seats/room/{roomId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -553,7 +617,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/seat-types": {
+    "/seat-types": {
         parameters: {
             query?: never;
             header?: never;
@@ -569,7 +633,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/combo-snacks/snack/{snackId}": {
+    "/combo-snacks/snack/{snackId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -585,7 +649,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/combo-snacks/combo/{comboId}": {
+    "/combo-snacks/combo/{comboId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -601,7 +665,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/combo-snacks/combo/{comboId}/snack/{snackId}": {
+    "/combo-snacks/combo/{comboId}/snack/{snackId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -617,7 +681,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/bookings/user/{userId}": {
+    "/bookings/user/{userId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -634,7 +698,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/bookings/user/{userId}/status/{status}": {
+    "/bookings/user/{userId}/status/{status}": {
         parameters: {
             query?: never;
             header?: never;
@@ -651,7 +715,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/bookings/status/{status}": {
+    "/bookings/status/{status}": {
         parameters: {
             query?: never;
             header?: never;
@@ -668,7 +732,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/bookings/showtime/{showtimeId}": {
+    "/bookings/showtime/{showtimeId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -685,7 +749,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/bookings/payment-status/{paymentStatus}": {
+    "/bookings/payment-status/{paymentStatus}": {
         parameters: {
             query?: never;
             header?: never;
@@ -702,7 +766,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/bookings/date-range": {
+    "/bookings/date-range": {
         parameters: {
             query?: never;
             header?: never;
@@ -730,12 +794,45 @@ export interface components {
             avatar?: string;
             role?: string;
             status?: string;
+            gender?: string;
+            /** Format: date */
+            dateOfBirth?: string;
         };
         ApiResponseVoid: {
             /** Format: int32 */
             code?: number;
             message?: string;
             result?: unknown;
+        };
+        SnackRequest: {
+            category?: string;
+            name?: string;
+            size?: string;
+            flavor?: string;
+            /** Format: float */
+            price?: number;
+            description?: string;
+            img?: string;
+            status?: string;
+        };
+        ApiResponseSnackResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["SnackResponse"];
+        };
+        SnackResponse: {
+            /** Format: int32 */
+            id?: number;
+            category?: string;
+            name?: string;
+            size?: string;
+            flavor?: string;
+            /** Format: float */
+            price?: number;
+            description?: string;
+            img?: string;
+            status?: string;
         };
         ShowtimeUpdateRequest: {
             /** Format: date-time */
@@ -763,6 +860,54 @@ export interface components {
             /** Format: date-time */
             endDateTime?: string;
             status?: string;
+        };
+        SeatRequest: {
+            type?: string;
+            status?: string;
+            /** Format: int32 */
+            seatLinkId?: number;
+        };
+        ApiResponseSeatResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["SeatResponse"];
+        };
+        SeatResponse: {
+            /** Format: int32 */
+            id?: number;
+            /** Format: int32 */
+            roomId?: number;
+            row?: string;
+            column?: string;
+            name?: string;
+            type?: components["schemas"]["SeatTypeResponse"];
+            status?: string;
+            discarded?: boolean;
+            /** Format: int32 */
+            seatLinkId?: number;
+        };
+        SeatTypeResponse: {
+            /** Format: int32 */
+            id?: number;
+            /** @enum {string} */
+            name?: "VIP" | "REGULAR" | "COUPLE" | "PATH" | "BLOCK";
+            /** Format: float */
+            price?: number;
+            /** Format: int32 */
+            seatCount?: number;
+        };
+        SeatTypeRequest: {
+            /** @enum {string} */
+            name: "VIP" | "REGULAR" | "COUPLE" | "PATH" | "BLOCK";
+            /** Format: float */
+            price: number;
+        };
+        ApiResponseSeatTypeResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["SeatTypeResponse"];
         };
         PromotionUpdateRequest: {
             image?: string;
@@ -853,119 +998,6 @@ export interface components {
             poster?: string;
             showtimes?: components["schemas"]["ShowtimeResponse"][];
         };
-        CinemaRoomUpdateRequest: {
-            name?: string;
-            type?: string;
-            /** Format: double */
-            fee?: number;
-            /** Format: int32 */
-            capacity?: number;
-            status?: string;
-            /** Format: int32 */
-            width?: number;
-            /** Format: int32 */
-            length?: number;
-        };
-        ApiResponseCinemaRoomResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["CinemaRoomResponse"];
-        };
-        CinemaRoomResponse: {
-            /** Format: int32 */
-            id?: number;
-            name?: string;
-            type?: string;
-            /** Format: double */
-            fee?: number;
-            /** Format: int32 */
-            capacity?: number;
-            status?: string;
-            /** Format: int32 */
-            width?: number;
-            /** Format: int32 */
-            length?: number;
-            seats?: components["schemas"]["SeatResponse"][];
-        };
-        SeatResponse: {
-            /** Format: int32 */
-            id?: number;
-            /** Format: int32 */
-            roomId?: number;
-            row?: string;
-            column?: string;
-            name?: string;
-            type?: components["schemas"]["SeatTypeResponse"];
-            status?: string;
-            discarded?: boolean;
-            /** Format: int32 */
-            seatLinkId?: number;
-        };
-        SeatTypeResponse: {
-            /** Format: int32 */
-            id?: number;
-            /** @enum {string} */
-            name?: "VIP" | "REGULAR" | "COUPLE" | "PATH" | "BLOCK";
-            /** Format: float */
-            price?: number;
-            /** Format: int32 */
-            seatCount?: number;
-        };
-        SnackRequest: {
-            category?: string;
-            name?: string;
-            size?: string;
-            flavor?: string;
-            /** Format: float */
-            price?: number;
-            description?: string;
-            img?: string;
-            status?: string;
-        };
-        ApiResponseSnackResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["SnackResponse"];
-        };
-        SnackResponse: {
-            /** Format: int32 */
-            id?: number;
-            category?: string;
-            name?: string;
-            size?: string;
-            flavor?: string;
-            /** Format: float */
-            price?: number;
-            description?: string;
-            img?: string;
-            status?: string;
-        };
-        SeatRequest: {
-            type?: string;
-            status?: string;
-            /** Format: int32 */
-            seatLinkId?: number;
-        };
-        ApiResponseSeatResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["SeatResponse"];
-        };
-        SeatTypeRequest: {
-            /** @enum {string} */
-            name: "VIP" | "REGULAR" | "COUPLE" | "PATH" | "BLOCK";
-            /** Format: float */
-            price: number;
-        };
-        ApiResponseSeatTypeResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["SeatTypeResponse"];
-        };
         MovieCategoryRequest: {
             name?: string;
             description?: string;
@@ -1030,6 +1062,41 @@ export interface components {
             combo?: components["schemas"]["ComboResponse"];
             snack?: components["schemas"]["SnackResponse"];
         };
+        CinemaRoomUpdateRequest: {
+            name?: string;
+            type?: string;
+            /** Format: double */
+            fee?: number;
+            /** Format: int32 */
+            capacity?: number;
+            status?: string;
+            /** Format: int32 */
+            width?: number;
+            /** Format: int32 */
+            length?: number;
+        };
+        ApiResponseCinemaRoomResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["CinemaRoomResponse"];
+        };
+        CinemaRoomResponse: {
+            /** Format: int32 */
+            id?: number;
+            name?: string;
+            type?: string;
+            /** Format: double */
+            fee?: number;
+            /** Format: int32 */
+            capacity?: number;
+            status?: string;
+            /** Format: int32 */
+            width?: number;
+            /** Format: int32 */
+            length?: number;
+            seats?: components["schemas"]["SeatResponse"][];
+        };
         BookingUpdate: {
             /** @enum {string} */
             status?: "PENDING" | "SUCCESS" | "CANCELLED";
@@ -1064,6 +1131,10 @@ export interface components {
             avatar?: string;
             role?: string;
             status?: string;
+            /** Format: date */
+            dateOfBirth?: string;
+            /** @enum {string} */
+            gender?: "MALE" | "FEMALE" | "OTHER";
         };
         ShowtimeRequest: {
             /** Format: int32 */
@@ -1090,6 +1161,14 @@ export interface components {
             description: string;
             status: string;
         };
+        CreatePaymentLinkRequest: {
+            productName?: string;
+            description?: string;
+            returnUrl?: string;
+            /** Format: int32 */
+            price?: number;
+            cancelUrl?: string;
+        };
         MovieRequest: {
             name: string;
             /** Format: int32 */
@@ -1109,6 +1188,12 @@ export interface components {
             status: string;
             poster: string;
         };
+        ApiResponseString: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: string;
+        };
         CinemaRoomRequest: {
             name: string;
             type: string;
@@ -1120,42 +1205,6 @@ export interface components {
             width: number;
             /** Format: int32 */
             length: number;
-        };
-        IntrospectRequest: {
-            token?: string;
-        };
-        ApiResponseIntrospectResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["IntrospectResponse"];
-        };
-        IntrospectResponse: {
-            valid?: boolean;
-        };
-        AuthenticationRequest: {
-            email: string;
-            password: string;
-        };
-        ApiResponseAuthenticationResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["AuthenticationResponse"];
-        };
-        AuthenticationResponse: {
-            token?: string;
-            freshToken?: string;
-            /** @enum {string} */
-            roles?: "ADMIN" | "MANAGER" | "MEMBER" | "STAFF";
-            fullName?: string;
-            id?: string;
-        };
-        ApiResponseString: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: string;
         };
         BookingComboRequest: {
             /** Format: int32 */
@@ -1236,11 +1285,47 @@ export interface components {
             /** Format: float */
             totalPrice?: number;
         };
+        IntrospectRequest: {
+            token?: string;
+        };
+        ApiResponseIntrospectResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["IntrospectResponse"];
+        };
+        IntrospectResponse: {
+            valid?: boolean;
+        };
+        AuthenticationRequest: {
+            email: string;
+            password: string;
+        };
+        ApiResponseAuthenticationResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["AuthenticationResponse"];
+        };
+        AuthenticationResponse: {
+            token?: string;
+            freshToken?: string;
+            /** @enum {string} */
+            roles?: "ADMIN" | "MANAGER" | "MEMBER" | "STAFF";
+            fullName?: string;
+            id?: string;
+        };
         ApiResponseListUserResponse: {
             /** Format: int32 */
             code?: number;
             message?: string;
             result?: components["schemas"]["UserResponse"][];
+        };
+        ApiResponseListSnackResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["SnackResponse"][];
         };
         ApiResponseListShowtimeResponse: {
             /** Format: int32 */
@@ -1272,30 +1357,6 @@ export interface components {
             totalPages?: number;
             last?: boolean;
         };
-        ApiResponseListPromotionResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["PromotionResponse"][];
-        };
-        ApiResponseListMovieResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["MovieResponse"][];
-        };
-        ApiResponseListCinemaRoomResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["CinemaRoomResponse"][];
-        };
-        ApiResponseListSnackResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["SnackResponse"][];
-        };
         ApiResponseListPickingSeatResponse: {
             /** Format: int32 */
             code?: number;
@@ -1320,6 +1381,18 @@ export interface components {
             message?: string;
             result?: components["schemas"]["SeatTypeResponse"][];
         };
+        ApiResponseListPromotionResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["PromotionResponse"][];
+        };
+        ApiResponseListMovieResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["MovieResponse"][];
+        };
         ApiResponseListMovieCategoryResponse: {
             /** Format: int32 */
             code?: number;
@@ -1337,6 +1410,12 @@ export interface components {
             code?: number;
             message?: string;
             result?: components["schemas"]["ComboSnackResponse"][];
+        };
+        ApiResponseListCinemaRoomResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["CinemaRoomResponse"][];
         };
         ApiResponseListBookingResponse: {
             /** Format: int32 */
@@ -1423,286 +1502,6 @@ export interface operations {
             };
         };
     };
-    getShowtime: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseShowtimeResponse"];
-                };
-            };
-        };
-    };
-    updateShowtime: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ShowtimeUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseShowtimeResponse"];
-                };
-            };
-        };
-    };
-    deleteShowtime: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseVoid"];
-                };
-            };
-        };
-    };
-    getPromotion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponsePromotionResponse"];
-                };
-            };
-        };
-    };
-    updatePromotion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PromotionUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponsePromotionResponse"];
-                };
-            };
-        };
-    };
-    deletePromotion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseVoid"];
-                };
-            };
-        };
-    };
-    get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseMovieResponse"];
-                };
-            };
-        };
-    };
-    update_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MovieUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseMovieResponse"];
-                };
-            };
-        };
-    };
-    delete_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseVoid"];
-                };
-            };
-        };
-    };
-    get_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                roomId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseCinemaRoomResponse"];
-                };
-            };
-        };
-    };
-    update_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                roomId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CinemaRoomUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseCinemaRoomResponse"];
-                };
-            };
-        };
-    };
-    delete_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                roomId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseVoid"];
-                };
-            };
-        };
-    };
     getSnackById: {
         parameters: {
             query?: never;
@@ -1752,6 +1551,76 @@ export interface operations {
         };
     };
     deleteSnack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    getShowtime: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseShowtimeResponse"];
+                };
+            };
+        };
+    };
+    updateShowtime: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShowtimeUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseShowtimeResponse"];
+                };
+            };
+        };
+    };
+    deleteShowtime: {
         parameters: {
             query?: never;
             header?: never;
@@ -1865,6 +1734,190 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseSeatTypeResponse"];
+                };
+            };
+        };
+    };
+    getPromotion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponsePromotionResponse"];
+                };
+            };
+        };
+    };
+    updatePromotion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromotionUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponsePromotionResponse"];
+                };
+            };
+        };
+    };
+    deletePromotion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    getOrderById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    cancelOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseMovieResponse"];
+                };
+            };
+        };
+    };
+    update_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MovieUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseMovieResponse"];
+                };
+            };
+        };
+    };
+    delete_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -2079,6 +2132,76 @@ export interface operations {
             };
         };
     };
+    get_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseCinemaRoomResponse"];
+                };
+            };
+        };
+    };
+    update_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CinemaRoomUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseCinemaRoomResponse"];
+                };
+            };
+        };
+    };
+    delete_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
     getBookingById: {
         parameters: {
             query?: never;
@@ -2193,6 +2316,50 @@ export interface operations {
             };
         };
     };
+    getAllSnacks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListSnackResponse"];
+                };
+            };
+        };
+    };
+    createSnack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SnackRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseSnackResponse"];
+                };
+            };
+        };
+    };
     getAllShowtimes: {
         parameters: {
             query?: never;
@@ -2277,6 +2444,80 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponsePromotionResponse"];
+                };
+            };
+        };
+    };
+    payosTransferHandler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    createPaymentLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePaymentLinkRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    confirmWebhook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
                 };
             };
         };
@@ -2373,142 +2614,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseMovieResponse"];
-                };
-            };
-        };
-    };
-    getAll_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseListCinemaRoomResponse"];
-                };
-            };
-        };
-    };
-    create_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CinemaRoomRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseCinemaRoomResponse"];
-                };
-            };
-        };
-    };
-    introspect: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IntrospectRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseIntrospectResponse"];
-                };
-            };
-        };
-    };
-    authenticate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AuthenticationRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseAuthenticationResponse"];
-                };
-            };
-        };
-    };
-    getAllSnacks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseListSnackResponse"];
-                };
-            };
-        };
-    };
-    createSnack: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SnackRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseSnackResponse"];
                 };
             };
         };
@@ -2724,6 +2829,50 @@ export interface operations {
             };
         };
     };
+    getAll_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListCinemaRoomResponse"];
+                };
+            };
+        };
+    };
+    create_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CinemaRoomRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseCinemaRoomResponse"];
+                };
+            };
+        };
+    };
     getAllBookings: {
         parameters: {
             query?: never;
@@ -2764,6 +2913,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseBookingResponse"];
+                };
+            };
+        };
+    };
+    introspect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IntrospectRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseIntrospectResponse"];
+                };
+            };
+        };
+    };
+    authenticate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuthenticationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseAuthenticationResponse"];
                 };
             };
         };

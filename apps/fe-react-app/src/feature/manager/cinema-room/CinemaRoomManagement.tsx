@@ -8,11 +8,20 @@ import { Label } from "@/components/Shadcn/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Icon } from "@iconify/react";
 import { AlertCircle, Plus } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
-import { cinemaRoomService } from "@/services/cinemaRoomService";
+import {
+  calculateRoomStats,
+  transformCinemaRoomToRequest,
+  transformCinemaRoomToUpdateRequest,
+  transformCinemaRoomsResponse,
+  useCinemaRooms,
+  useCreateCinemaRoom,
+  useDeleteCinemaRoom,
+  useUpdateCinemaRoom,
+} from "@/services/cinemaRoomService";
 import { RoomListView } from "./components/RoomListView";
 
 type SortOption = "all" | "Standard" | "VIP" | "IMAX" | "4DX";
@@ -29,10 +38,15 @@ interface RoomFormData {
 const CinemaRoomManagement: React.FC = () => {
   const navigate = useNavigate();
 
-  // State management
-  const [rooms, setRooms] = useState<CinemaRoom[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // React Query hooks
+  const { data: roomsData, isLoading: loading, error: queryError, refetch } = useCinemaRooms();
+  const createRoomMutation = useCreateCinemaRoom();
+  const updateRoomMutation = useUpdateCinemaRoom();
+  const deleteRoomMutation = useDeleteCinemaRoom();
+
+  // Transform data
+  const rooms = roomsData?.result ? transformCinemaRoomsResponse(roomsData.result) : [];
+  const error = queryError ? String(queryError) : null;
 
   // Search and filter
   const [searchQuery, setSearchQuery] = useState("");
@@ -54,25 +68,6 @@ const CinemaRoomManagement: React.FC = () => {
     width: 16,
     length: 10,
   });
-
-  // Load rooms data
-  useEffect(() => {
-    loadRooms();
-  }, []);
-
-  const loadRooms = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const roomsData = await cinemaRoomService.getAllRooms();
-      setRooms(roomsData);
-    } catch (err) {
-      console.error("Error loading rooms:", err);
-      setError("Lỗi khi tải danh sách phòng chiếu");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleRoomSelect = (roomId: string) => {
     navigate(`/admin/cinema-room/${roomId}/seat-map`);
@@ -116,17 +111,22 @@ const CinemaRoomManagement: React.FC = () => {
     try {
       if (isEdit && selectedRoom) {
         // Update room logic
-        await cinemaRoomService.updateRoom(selectedRoom.id, {
+        const updateData = transformCinemaRoomToUpdateRequest({
           name: formData.name,
           type: formData.type,
           fee: formData.fee,
           width: formData.width,
           length: formData.length,
         });
+
+        await updateRoomMutation.mutateAsync({
+          params: { path: { roomId: selectedRoom.id } },
+          body: updateData,
+        });
         setShowEditDialog(false);
       } else {
         // Create room logic
-        await cinemaRoomService.createRoom({
+        const createData = transformCinemaRoomToRequest({
           name: formData.name,
           type: formData.type,
           fee: formData.fee,
@@ -135,14 +135,18 @@ const CinemaRoomManagement: React.FC = () => {
           capacity: formData.width * formData.length, // Calculate capacity
           status: "ACTIVE", // Default status
         });
+
+        await createRoomMutation.mutateAsync({
+          body: createData,
+        });
         setShowAddDialog(false);
       }
 
-      await loadRooms(); // Reload rooms
+      refetch(); // Reload rooms
       console.log(isEdit ? "Cập nhật phòng thành công!" : "Tạo phòng mới thành công!");
     } catch (err) {
       console.error("Error saving room:", err);
-      setError(isEdit ? "Lỗi khi cập nhật phòng" : "Lỗi khi tạo phòng mới");
+      // Error handling can be done through React Query's error states
     }
   };
 
@@ -150,13 +154,19 @@ const CinemaRoomManagement: React.FC = () => {
     if (!selectedRoom) return;
 
     try {
-      await cinemaRoomService.updateRoomStatus(selectedRoom.id, newStatus);
+      const updateData = transformCinemaRoomToUpdateRequest({
+        status: newStatus,
+      });
+
+      await updateRoomMutation.mutateAsync({
+        params: { path: { roomId: selectedRoom.id } },
+        body: updateData,
+      });
       setShowStatusDialog(false);
-      await loadRooms();
+      refetch();
       console.log("Cập nhật trạng thái phòng thành công!");
     } catch (err) {
       console.error("Error updating room status:", err);
-      setError("Lỗi khi cập nhật trạng thái phòng");
     }
   };
 
@@ -164,13 +174,14 @@ const CinemaRoomManagement: React.FC = () => {
     if (!selectedRoom) return;
 
     try {
-      await cinemaRoomService.deleteRoom(selectedRoom.id);
+      await deleteRoomMutation.mutateAsync({
+        params: { path: { roomId: selectedRoom.id } },
+      });
       setShowDeleteDialog(false);
-      await loadRooms();
+      refetch();
       console.log("Xóa phòng thành công!");
     } catch (err) {
       console.error("Error deleting room:", err);
-      setError("Lỗi khi xóa phòng");
     }
   };
 
@@ -194,12 +205,7 @@ const CinemaRoomManagement: React.FC = () => {
     }));
   };
 
-  const roomStats = {
-    total: rooms.length,
-    active: rooms.filter((r) => r.status === "ACTIVE").length,
-    maintenance: rooms.filter((r) => r.status === "MAINTENANCE").length,
-    withSeatMap: rooms.filter((r) => r.seats && r.seats.length > 0).length,
-  };
+  const roomStats = calculateRoomStats(rooms);
 
   if (loading) {
     return (

@@ -1,122 +1,131 @@
-import { API_CONFIG } from "@/config/api.config";
 import type { CinemaRoom, CinemaRoomWithSeatMap } from "@/interfaces/cinemarooms.interface";
 import type { Seat, SeatMap, SeatType } from "@/interfaces/seat.interface";
-
-const API_BASE_URL = API_CONFIG.MOCK_API.BASE_URL;
-const REAL_API_BASE_URL = API_CONFIG.REAL_API.BASE_URL;
+import type { CinemaRoomRequest, CinemaRoomResponse, CinemaRoomUpdateRequest, SeatRequest, SeatResponse, SeatTypeResponse } from "@/type-from-be";
+import { $api } from "@/utils/api";
 
 // Type aliases for status enums
 type CinemaRoomStatus = "ACTIVE" | "MAINTENANCE" | "CLOSED";
 type SeatStatus = "AVAILABLE" | "MAINTENANCE";
 type SeatTypeEnum = "COUPLE" | "PATH" | "REGULAR" | "VIP" | "AISLE" | "BLOCKED";
 
-// Real API response interfaces to match the actual backend structure
-interface RealApiResponse<T> {
-  code: number;
-  message: string;
-  result: T;
-}
+// React Query hooks using $api
+export const useCinemaRooms = () => {
+  return $api.useQuery("get", "/cinema-rooms", {});
+};
 
-// Mock API interfaces for backward compatibility
-interface MockApiRoom {
-  id: string;
-  name: string;
-  type: string;
-  fee: number;
-  capacity: number;
-  status: string;
-  width: number;
-  length: number;
-}
+export const useCinemaRoom = (roomId: number) => {
+  return $api.useQuery("get", "/cinema-rooms/{roomId}", {
+    params: { path: { roomId } },
+  });
+};
 
-interface MockApiSeat {
-  id: string;
-  name: string;
-  seat_row: string;
-  seat_column: string;
-  status: string;
-  type: string;
-  seat_type_id: number;
-  seat_link_id?: string;
-}
+export const useCreateCinemaRoom = () => {
+  return $api.useMutation("post", "/cinema-rooms");
+};
 
-interface MockApiSeatMap {
-  gridData: MockApiSeat[];
-  roomId: string;
-}
-interface RealApiSeatType {
-  id: number;
-  name: string;
-  price: number;
-  seatCount: number;
-}
+export const useUpdateCinemaRoom = () => {
+  return $api.useMutation("put", "/cinema-rooms/{roomId}");
+};
 
-interface RealApiSeat {
-  id: number;
-  roomId: number;
-  row: string;
-  column: string;
-  name: string;
-  type: RealApiSeatType;
-  status: string;
-  discarded: boolean;
-  seatLinkId?: number | null;
-}
+export const useDeleteCinemaRoom = () => {
+  return $api.useMutation("delete", "/cinema-rooms/{roomId}");
+};
 
-interface RealApiCinemaRoom {
-  id: number;
-  name: string;
-  type: string;
-  fee: number;
-  capacity: number;
-  status: string;
-  width: number;
-  length: number;
-  seats: RealApiSeat[];
-}
+export const useSeatTypes = () => {
+  return $api.useQuery("get", "/seat-types", {});
+};
 
-// Helper function to convert real API seat type to our interface
-function convertRealApiSeatType(apiType: RealApiSeatType): SeatType {
+export const useUpdateSeat = () => {
+  return $api.useMutation("put", "/seats/{id}");
+};
+
+// Utility functions to transform API responses to our interfaces
+export const transformSeatTypeResponse = (seatTypeResponse: SeatTypeResponse): SeatType => {
   return {
-    id: apiType.id,
-    name: apiType.name as SeatTypeEnum,
-    price: apiType.price,
-    seatCount: apiType.seatCount,
+    id: seatTypeResponse.id ?? 0,
+    name: seatTypeResponse.name as SeatTypeEnum,
+    price: seatTypeResponse.price ?? 0,
+    seatCount: seatTypeResponse.seatCount ?? 1,
   };
-}
+};
 
-// Helper function to convert real API seat to our interface
-function convertRealApiSeat(apiSeat: RealApiSeat): Seat {
+export const transformSeatResponse = (seatResponse: SeatResponse): Seat => {
   return {
-    id: apiSeat.id,
-    name: apiSeat.name,
-    roomId: apiSeat.roomId,
-    row: apiSeat.row,
-    column: apiSeat.column,
-    status: apiSeat.status as SeatStatus,
-    type: convertRealApiSeatType(apiSeat.type),
-    discarded: apiSeat.discarded,
-    seatLinkId: apiSeat.seatLinkId,
+    id: seatResponse.id ?? 0,
+    name: seatResponse.name ?? "",
+    roomId: seatResponse.roomId ?? 0,
+    row: seatResponse.row ?? "",
+    column: seatResponse.column ?? "",
+    status: seatResponse.status as SeatStatus,
+    type: seatResponse.type
+      ? transformSeatTypeResponse(seatResponse.type)
+      : {
+          id: 0,
+          name: "REGULAR" as SeatTypeEnum,
+          price: 0,
+          seatCount: 1,
+        },
+    discarded: seatResponse.discarded ?? false,
+    seatLinkId: null, // SeatResponse doesn't have seatLinkId field, use null as default
   };
-}
+};
 
-// Helper function to convert real API cinema room to our interface
-function convertRealApiCinemaRoom(apiRoom: RealApiCinemaRoom): CinemaRoom {
+export const transformCinemaRoomResponse = (roomResponse: CinemaRoomResponse): CinemaRoom => {
   return {
-    id: apiRoom.id,
-    name: apiRoom.name,
-    type: apiRoom.type,
-    fee: apiRoom.fee,
-    capacity: apiRoom.capacity,
-    status: apiRoom.status as CinemaRoomStatus,
-    width: apiRoom.width,
-    length: apiRoom.length,
-    seats: apiRoom.seats ? apiRoom.seats.map(convertRealApiSeat) : [],
+    id: roomResponse.id ?? 0,
+    name: roomResponse.name ?? "",
+    type: roomResponse.type ?? "",
+    fee: roomResponse.fee ?? 0,
+    capacity: roomResponse.capacity ?? 0,
+    status: roomResponse.status as CinemaRoomStatus,
+    width: roomResponse.width ?? 0,
+    length: roomResponse.length ?? 0,
+    seats: roomResponse.seats ? roomResponse.seats.map(transformSeatResponse) : [],
   };
-}
+};
+
+export const transformCinemaRoomsResponse = (roomsResponse: CinemaRoomResponse[]): CinemaRoom[] => {
+  return roomsResponse.map(transformCinemaRoomResponse);
+};
+
+export const transformSeatTypesResponse = (seatTypesResponse: SeatTypeResponse[]): SeatType[] => {
+  return seatTypesResponse.map(transformSeatTypeResponse);
+};
+
+// Utility function to transform CinemaRoom to backend format
+export const transformCinemaRoomToRequest = (room: Partial<CinemaRoom>): CinemaRoomRequest => {
+  return {
+    name: room.name ?? "",
+    type: room.type ?? "",
+    fee: room.fee ?? 0,
+    capacity: room.capacity ?? 0,
+    width: room.width ?? 0,
+    length: room.length ?? 0,
+  };
+};
+
+export const transformCinemaRoomToUpdateRequest = (room: Partial<CinemaRoom>): CinemaRoomUpdateRequest => {
+  return {
+    name: room.name,
+    type: room.type,
+    fee: room.fee,
+    capacity: room.capacity,
+    status: room.status,
+    width: room.width,
+    length: room.length,
+  };
+};
+
+export const transformSeatToRequest = (seat: { type?: string; status?: SeatStatus; seatLinkId?: number | null }): SeatRequest => {
+  return {
+    type: seat.type,
+    status: seat.status,
+    seatLinkId: seat.seatLinkId ?? undefined, // Convert null to undefined for API
+  };
+};
 
 // Helper function to convert cinema room with seat map for UI components
-function convertToRoomWithSeatMap(room: CinemaRoom): CinemaRoomWithSeatMap {
+export const convertToRoomWithSeatMap = (room: CinemaRoom): CinemaRoomWithSeatMap => {
   const seatMap: SeatMap = {
     gridData: room.seats,
     roomId: room.id,
@@ -126,361 +135,98 @@ function convertToRoomWithSeatMap(room: CinemaRoom): CinemaRoomWithSeatMap {
     ...room,
     seatMap: room.seats.length > 0 ? seatMap : null,
   };
-}
-
-export const cinemaRoomService = {
-  // Get all cinema rooms (automatically uses configured API)
-  async getAllRooms(): Promise<CinemaRoom[]> {
-    try {
-      const useRealApi = API_CONFIG.USE_REAL_API;
-      const baseUrl = useRealApi ? REAL_API_BASE_URL : API_BASE_URL;
-      const endpoint = `${baseUrl}/cinema-rooms`;
-
-      console.log(`🌐 Fetching cinema rooms from: ${endpoint} (Real API: ${useRealApi})`);
-
-      const response = await fetch(endpoint);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      if (useRealApi) {
-        // Handle real API response format (wrapped response)
-        const responseData: RealApiResponse<RealApiCinemaRoom[]> = await response.json();
-        console.log(`✅ Real API response: ${responseData.message}, ${responseData.result.length} rooms`);
-        return responseData.result.map(convertRealApiCinemaRoom);
-      } else {
-        // Handle mock API response format - convert old structure to new
-        const rooms: MockApiRoom[] = await response.json();
-        console.log(`✅ Mock API response: ${rooms.length} rooms`);
-
-        // Convert mock API rooms to new structure
-        return rooms.map((room) => ({
-          id: parseInt(room.id),
-          name: room.name,
-          type: room.type,
-          fee: room.fee,
-          capacity: room.capacity,
-          status: room.status as CinemaRoomStatus,
-          width: room.width,
-          length: room.length,
-          seats: [], // Mock API doesn't include seats in room list
-        }));
-      }
-    } catch (error) {
-      console.error("Error fetching cinema rooms:", error);
-      throw error;
-    }
-  },
-
-  // Get a specific cinema room by ID (automatically uses configured API)
-  async getRoomById(id: string | number): Promise<CinemaRoom | null> {
-    try {
-      const useRealApi = API_CONFIG.USE_REAL_API;
-      const baseUrl = useRealApi ? REAL_API_BASE_URL : API_BASE_URL;
-      const response = await fetch(`${baseUrl}/cinema-rooms/${id}`);
-
-      console.log(`🌐 Fetching room ${id} from: ${baseUrl}/cinema-rooms/${id} (Real API: ${useRealApi})`);
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          return null;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      if (useRealApi) {
-        // Handle real API response format (wrapped response)
-        const responseData: RealApiResponse<RealApiCinemaRoom> = await response.json();
-        console.log(`✅ Real API room response: ${responseData.message}`);
-        return convertRealApiCinemaRoom(responseData.result);
-      } else {
-        // Handle mock API response format
-        const room: MockApiRoom = await response.json();
-        console.log(`✅ Mock API room response for room ${id}`);
-
-        // Try to get seats for this room
-        let seats: Seat[] = [];
-        try {
-          seats = await this.getSeatMap(id.toString());
-        } catch (error) {
-          console.warn(`Could not load seats for room ${id}:`, error);
-        }
-
-        return {
-          id: parseInt(room.id),
-          name: room.name,
-          type: room.type,
-          fee: room.fee,
-          capacity: room.capacity,
-          status: room.status as CinemaRoomStatus,
-          width: room.width,
-          length: room.length,
-          seats: seats,
-        };
-      }
-    } catch (error) {
-      console.error(`Error fetching cinema room ${id}:`, error);
-      throw error;
-    }
-  },
-
-  // Create a new cinema room
-  async createRoom(roomData: Omit<CinemaRoom, "id" | "seats">): Promise<CinemaRoom> {
-    try {
-      const useRealApi = API_CONFIG.USE_REAL_API;
-      const baseUrl = useRealApi ? REAL_API_BASE_URL : API_BASE_URL;
-
-      const requestBody = useRealApi
-        ? roomData
-        : {
-            ...roomData,
-            id: Date.now().toString(), // Generate ID for mock API
-          };
-
-      const response = await fetch(`${baseUrl}/cinema-rooms`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      if (useRealApi) {
-        const responseData: RealApiResponse<RealApiCinemaRoom> = await response.json();
-        return convertRealApiCinemaRoom(responseData.result);
-      } else {
-        const room: MockApiRoom = await response.json();
-        return {
-          id: parseInt(room.id),
-          name: room.name,
-          type: room.type,
-          fee: room.fee,
-          capacity: room.capacity,
-          status: room.status as CinemaRoomStatus,
-          width: room.width,
-          length: room.length,
-          seats: [],
-        };
-      }
-    } catch (error) {
-      console.error("Error creating cinema room:", error);
-      throw error;
-    }
-  },
-
-  // Update an existing cinema room
-  async updateRoom(id: string | number, roomData: Partial<CinemaRoom>): Promise<CinemaRoom> {
-    try {
-      const useRealApi = API_CONFIG.USE_REAL_API;
-      const baseUrl = useRealApi ? REAL_API_BASE_URL : API_BASE_URL;
-
-      const response = await fetch(`${baseUrl}/cinema-rooms/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(roomData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      if (useRealApi) {
-        const responseData: RealApiResponse<RealApiCinemaRoom> = await response.json();
-        return convertRealApiCinemaRoom(responseData.result);
-      } else {
-        const room: MockApiRoom = await response.json();
-        return {
-          id: parseInt(room.id),
-          name: room.name,
-          type: room.type,
-          fee: room.fee,
-          capacity: room.capacity,
-          status: room.status as CinemaRoomStatus,
-          width: room.width,
-          length: room.length,
-          seats: [],
-        };
-      }
-    } catch (error) {
-      console.error(`Error updating cinema room ${id}:`, error);
-      throw error;
-    }
-  },
-
-  // Delete a cinema room
-  async deleteRoom(id: string | number): Promise<boolean> {
-    try {
-      const useRealApi = API_CONFIG.USE_REAL_API;
-      const baseUrl = useRealApi ? REAL_API_BASE_URL : API_BASE_URL;
-
-      const response = await fetch(`${baseUrl}/cinema-rooms/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          return false; // Room not found
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return true;
-    } catch (error) {
-      console.error(`Error deleting cinema room ${id}:`, error);
-      return false;
-    }
-  },
-
-  // Get seat map for a specific room (for backward compatibility with mock API)
-  async getSeatMap(roomId: string): Promise<Seat[]> {
-    try {
-      const useRealApi = API_CONFIG.USE_REAL_API;
-
-      if (useRealApi) {
-        // For real API, seats are included in room data
-        const room = await this.getRoomById(roomId);
-        return room?.seats || [];
-      } else {
-        // For mock API, use separate seat map endpoint
-        const response = await fetch(`${API_BASE_URL}/seat-map/${roomId}`);
-        if (!response.ok) {
-          if (response.status === 404) {
-            return [];
-          }
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const seatMapData: MockApiSeatMap = await response.json();
-
-        // Convert mock seat data to new interface format
-        if (seatMapData.gridData) {
-          return seatMapData.gridData.map((seat: MockApiSeat) => ({
-            id: parseInt(seat.id),
-            name: seat.name,
-            roomId: parseInt(roomId),
-            row: seat.seat_row,
-            column: seat.seat_column,
-            status: seat.status as SeatStatus,
-            type: {
-              id: seat.seat_type_id,
-              name: seat.type as SeatTypeEnum,
-              price: 50000, // Default price for mock data
-              seatCount: 1,
-            },
-            discarded: false,
-            seatLinkId: seat.seat_link_id ? parseInt(seat.seat_link_id) : null,
-          }));
-        }
-
-        return [];
-      }
-    } catch (error) {
-      console.error(`Error fetching seat map for room ${roomId}:`, error);
-      return [];
-    }
-  },
-
-  // Get cinema room statistics
-  async getRoomStats(): Promise<{
-    total: number;
-    active: number;
-    maintenance: number;
-    withSeatMap: number;
-  }> {
-    try {
-      const rooms = await this.getAllRooms();
-
-      return {
-        total: rooms.length,
-        active: rooms.filter((room) => room.status === "ACTIVE").length,
-        maintenance: rooms.filter((room) => room.status === "MAINTENANCE").length,
-        withSeatMap: rooms.filter((room) => room.seats.length > 0).length,
-      };
-    } catch (error) {
-      console.error("Error fetching room stats:", error);
-      throw error;
-    }
-  },
-
-  // Get seat types (for real API)
-  async getSeatTypes(): Promise<SeatType[]> {
-    try {
-      const useRealApi = API_CONFIG.USE_REAL_API;
-
-      if (useRealApi) {
-        const response = await fetch(`${REAL_API_BASE_URL}/seat-types`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const responseData: RealApiResponse<RealApiSeatType[]> = await response.json();
-        return responseData.result.map(convertRealApiSeatType);
-      } else {
-        // Return default seat types for mock API
-        return [
-          { id: 1, name: "REGULAR" as SeatTypeEnum, price: 50000, seatCount: 1 },
-          { id: 2, name: "VIP" as SeatTypeEnum, price: 75000, seatCount: 1 },
-          { id: 3, name: "COUPLE" as SeatTypeEnum, price: 100000, seatCount: 2 },
-        ] as SeatType[];
-      }
-    } catch (error) {
-      console.error("Error fetching seat types:", error);
-      throw error;
-    }
-  },
-
-  // Save seat map for a room (primarily for mock API)
-  async saveSeatMap(roomId: string, seatMapData: SeatMap): Promise<void> {
-    try {
-      const useRealApi = API_CONFIG.USE_REAL_API;
-      const baseUrl = useRealApi ? REAL_API_BASE_URL : API_BASE_URL;
-
-      const response = await fetch(`${baseUrl}/seat-map/${roomId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(seatMapData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      console.error(`Error saving seat map for room ${roomId}:`, error);
-      throw error;
-    }
-  },
-
-  // Helper method to get room with seat map for UI components that need it
-  async getRoomWithSeatMap(id: string | number): Promise<CinemaRoomWithSeatMap | null> {
-    const room = await this.getRoomById(id);
-    if (!room) return null;
-
-    return convertToRoomWithSeatMap(room);
-  },
-
-  // Helper method to get all rooms with seat maps for UI components that need it
-  async getAllRoomsWithSeatMap(): Promise<CinemaRoomWithSeatMap[]> {
-    const rooms = await this.getAllRooms();
-    return rooms.map(convertToRoomWithSeatMap);
-  },
-
-  // Update room status specifically
-  async updateRoomStatus(id: string | number, status: CinemaRoomStatus): Promise<boolean> {
-    try {
-      await this.updateRoom(id, { status });
-      return true;
-    } catch (error) {
-      console.error(`Error updating room status for ${id}:`, error);
-      return false;
-    }
-  },
 };
+
+// Helper functions for statistics
+export const calculateRoomStats = (rooms: CinemaRoom[]) => {
+  return {
+    total: rooms.length,
+    active: rooms.filter((room) => room.status === "ACTIVE").length,
+    maintenance: rooms.filter((room) => room.status === "MAINTENANCE").length,
+    withSeatMap: rooms.filter((room) => room.seats.length > 0).length,
+  };
+};
+
+// Helper function to get seat map from room
+export const getSeatMapFromRoom = (room: CinemaRoom): Seat[] => {
+  return room.seats || [];
+};
+
+// Helper function to get room status label
+export const getRoomStatusLabel = (status: CinemaRoomStatus): string => {
+  switch (status) {
+    case "ACTIVE":
+      return "Hoạt động";
+    case "MAINTENANCE":
+      return "Bảo trì";
+    case "CLOSED":
+      return "Đóng cửa";
+    default:
+      return status;
+  }
+};
+
+// Helper function to get seat status label
+export const getSeatStatusLabel = (status: SeatStatus): string => {
+  switch (status) {
+    case "AVAILABLE":
+      return "Có sẵn";
+    case "MAINTENANCE":
+      return "Bảo trì";
+    default:
+      return status;
+  }
+};
+
+// Helper functions for couple seat operations
+export const updateSeatToCouple = (seat: Seat, linkedSeatId: number): SeatRequest => {
+  // Only need to update one seat with seatLinkId, backend handles the other
+  return transformSeatToRequest({
+    type: "COUPLE",
+    status: seat.status,
+    seatLinkId: linkedSeatId,
+  });
+};
+
+export const updateCoupleToSingle = (seat: Seat): SeatRequest => {
+  // Only need to update one seat, backend automatically handles the linked seat
+  return transformSeatToRequest({
+    type: "REGULAR", // Convert back to regular seat
+    status: seat.status,
+    seatLinkId: null, // Remove link
+  });
+};
+
+export const updateSeatType = (seat: Seat, newType: string, linkedSeatId?: number | null): SeatRequest => {
+  return transformSeatToRequest({
+    type: newType,
+    status: seat.status,
+    seatLinkId: newType === "COUPLE" ? linkedSeatId : null,
+  });
+};
+
+/**
+ * Example usage in components:
+ *
+ * // Convert single seat to couple
+ * const updateSeatMutation = useUpdateSeat();
+ * const seatUpdate = updateSeatToCouple(currentSeat, targetSeat.id);
+ * await updateSeatMutation.mutateAsync({
+ *   params: { path: { id: currentSeat.id } },
+ *   body: seatUpdate,
+ * });
+ *
+ * // Convert couple seat back to single
+ * const seatUpdate = updateCoupleToSingle(currentSeat);
+ * await updateSeatMutation.mutateAsync({
+ *   params: { path: { id: currentSeat.id } },
+ *   body: seatUpdate,
+ * });
+ *
+ * // Update any seat type with optional linking
+ * const seatUpdate = updateSeatType(currentSeat, "VIP", null);
+ * await updateSeatMutation.mutateAsync({
+ *   params: { path: { id: currentSeat.id } },
+ *   body: seatUpdate,
+ * });
+ */
