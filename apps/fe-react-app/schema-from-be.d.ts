@@ -521,6 +521,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/seats/showtime/{showtimeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSeatsByShowtimeId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/seats/room/{roomId}": {
         parameters: {
             query?: never;
@@ -743,6 +759,7 @@ export interface components {
             showDateTime?: string;
             /** Format: int32 */
             roomId?: number;
+            roomName?: string;
             /** Format: date-time */
             endDateTime?: string;
             status?: string;
@@ -882,6 +899,8 @@ export interface components {
             type?: components["schemas"]["SeatTypeResponse"];
             status?: string;
             discarded?: boolean;
+            /** Format: int32 */
+            seatLinkId?: number;
         };
         SeatTypeResponse: {
             /** Format: int32 */
@@ -926,6 +945,8 @@ export interface components {
         SeatRequest: {
             type?: string;
             status?: string;
+            /** Format: int32 */
+            seatLinkId?: number;
         };
         ApiResponseSeatResponse: {
             /** Format: int32 */
@@ -1274,6 +1295,24 @@ export interface components {
             code?: number;
             message?: string;
             result?: components["schemas"]["SnackResponse"][];
+        };
+        ApiResponseListPickingSeatResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["PickingSeatResponse"][];
+        };
+        PickingSeatResponse: {
+            /** Format: int32 */
+            id?: number;
+            /** Format: int32 */
+            roomId?: number;
+            row?: string;
+            column?: string;
+            name?: string;
+            type?: components["schemas"]["SeatTypeResponse"];
+            status?: string;
+            selected?: boolean;
         };
         ApiResponseListSeatTypeResponse: {
             /** Format: int32 */
@@ -2839,6 +2878,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseListSeatResponse"];
+                };
+            };
+        };
+    };
+    getSeatsByShowtimeId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                showtimeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListPickingSeatResponse"];
                 };
             };
         };

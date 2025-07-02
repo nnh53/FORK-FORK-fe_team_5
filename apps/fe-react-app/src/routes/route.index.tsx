@@ -1,3 +1,4 @@
+import AuthPageProtector from "@/components/auth/AuthPageProtector";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Loading from "@/components/shared/Loading";
 import { Test } from "@/components/shared/Test";
@@ -49,11 +50,13 @@ export const AppRoutes = () => (
     <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
     <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
     {/* Auth Routes - grouped under /auth path prefix */}
-    <Route path={ROUTES.AUTH.ROOT}>
-      <Route index element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
-      <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
-      <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
-      <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
+    <Route element={<AuthPageProtector />}>
+      <Route path={ROUTES.AUTH.ROOT}>
+        <Route index element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
+        <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
+        <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
+        <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
+      </Route>
     </Route>
     {/* Legacy auth routes for backward compatibility */}
     <Route path={ROUTES.LEGACY_AUTH.LOGIN} element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />

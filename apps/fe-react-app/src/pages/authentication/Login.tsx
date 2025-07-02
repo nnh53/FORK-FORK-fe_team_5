@@ -4,7 +4,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/Shadcn/ui/input";
 import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
 import { useAuth } from "@/hooks/useAuth";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
@@ -26,9 +25,6 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const loginQuery = useLogin();
-
-  // Business Rule: Redirect authenticated users away from login page
-  useAuthRedirect();
 
   const form = useForm<LoginFormSchemaType>({
     resolver: zodResolver(loginFormSchema),
@@ -60,14 +56,12 @@ const Login: React.FC = () => {
         console.log("Auth data saved to cookies via AuthContext");
       }
 
-      setMessage("Đăng nhập thành công!");
       toast.success("Đăng nhập thành công!");
       form.reset();
       setTimeout(() => {
         navigate(RoleRouteToEachPage(authData?.roles as ROLE_TYPE));
       }, 2000);
     } else if (loginQuery.isError) {
-      setError((loginQuery.error as CustomAPIResponse).message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
       toast.error((loginQuery.error as CustomAPIResponse).message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
     }
   }, [form, navigate, authLogin, loginQuery.error, loginQuery.isError, loginQuery.isSuccess, loginQuery.status, loginQuery.data?.result]);

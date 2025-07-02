@@ -13,7 +13,6 @@ export const useRegister = () => {
 export const useGetUserById = (userId: string) => {
   return $api.useQuery("get", "/users/{userId}", {
     params: { path: { userId } },
-    enabled: !!userId,
   });
 };
 
