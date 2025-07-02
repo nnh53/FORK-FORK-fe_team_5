@@ -69,6 +69,9 @@ deploy_pages:
     - job: ci
       artifacts: true
 
+  before_script:
+    - curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh | sh
+
   # MODIFIED: Updated rule to trigger deployment for both 'main' and 'dev' branches
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "dev"'
@@ -78,5 +81,5 @@ deploy_pages:
     # - ls -R
     - echo "🚀 Starting deployment for branch $CI_COMMIT_BRANCH"
     - npm install --global wrangler
-    - wrangler pages deploy apps/fe-react-app/dist/ --project-name="fcinema" --branch="$CI_COMMIT_BRANCH"  --commit-dirty=true
+    - doppler run --token=${DOPPLER_TOKEN} -- wrangler pages deploy apps/fe-react-app/dist/ --project-name="fcinema" --branch="$CI_COMMIT_BRANCH"  --commit-dirty=true
     - echo "✅ Deployment successful!"
