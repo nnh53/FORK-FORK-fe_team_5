@@ -5,12 +5,13 @@ export enum ShowtimeStatus {
 }
 
 export interface Showtime {
-  showtime_id: string;
-  movie_id: string;
-  room_id: string;
-  show_date_time: string;
-  show_end_time: string;
-  status: ShowtimeStatus;
+  id: number;
+  movieId: number;
+  roomId: number | undefined; // Changed from null to undefined to match backend API
+  roomName?: string; // Từ backend
+  showDateTime: string; // Thay đổi từ show_date_time
+  endDateTime: string; // Thay đổi từ show_end_time
+  status: string; // Backend trả về string, không phải enum
 }
 
-export type ShowtimeFormData = Omit<Showtime, "showtime_id">;
+export type ShowtimeFormData = Omit<Showtime, "id" | "roomName">;

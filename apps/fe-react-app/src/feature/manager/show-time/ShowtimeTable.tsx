@@ -39,7 +39,7 @@ const formatDateTime = (dateTimeString: string): string => {
   });
 };
 
-const getStatusDisplay = (status: ShowtimeStatus) => {
+const getStatusDisplay = (status: string) => {
   switch (status) {
     case ShowtimeStatus.SCHEDULE:
       return { label: "Đã lên lịch", variant: "outline" as const, className: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" };
@@ -112,25 +112,25 @@ const ShowtimeTable = ({ showtimes, onEdit, onDelete, onView, movieNames, roomNa
                 <TableHead>
                   <div className="flex items-center gap-1">
                     Phim
-                    <SortButton {...getSortProps("movie_id")} />
+                    <SortButton {...getSortProps("movieId")} />
                   </div>
                 </TableHead>
                 <TableHead>
                   <div className="flex items-center gap-1">
                     Phòng chiếu
-                    <SortButton {...getSortProps("room_id")} />
+                    <SortButton {...getSortProps("roomId")} />
                   </div>
                 </TableHead>
                 <TableHead>
                   <div className="flex items-center gap-1">
                     Thời gian bắt đầu
-                    <SortButton {...getSortProps("show_date_time")} />
+                    <SortButton {...getSortProps("showDateTime")} />
                   </div>
                 </TableHead>
                 <TableHead>
                   <div className="flex items-center gap-1">
                     Thời gian kết thúc
-                    <SortButton {...getSortProps("show_end_time")} />
+                    <SortButton {...getSortProps("endDateTime")} />
                   </div>
                 </TableHead>
                 <TableHead>
@@ -151,12 +151,12 @@ const ShowtimeTable = ({ showtimes, onEdit, onDelete, onView, movieNames, roomNa
                 </TableRow>
               ) : (
                 currentPageData.map((showtime) => (
-                  <TableRow key={showtime.showtime_id}>
-                    <TableCell>{showtime.showtime_id}</TableCell>
-                    <TableCell>{movieNames[showtime.movie_id] || "Không xác định"}</TableCell>
-                    <TableCell>{roomNames[showtime.room_id] || "Không xác định"}</TableCell>
-                    <TableCell>{formatDateTime(showtime.show_date_time)}</TableCell>
-                    <TableCell>{formatDateTime(showtime.show_end_time)}</TableCell>
+                  <TableRow key={showtime.id}>
+                    <TableCell>{showtime.id}</TableCell>
+                    <TableCell>{movieNames[showtime.movieId] ?? "Không xác định"}</TableCell>
+                    <TableCell>{roomNames[showtime.roomId ?? 0] ?? showtime.roomName ?? "Không xác định"}</TableCell>
+                    <TableCell>{formatDateTime(showtime.showDateTime)}</TableCell>
+                    <TableCell>{formatDateTime(showtime.endDateTime)}</TableCell>
                     <TableCell>
                       <Badge variant={getStatusDisplay(showtime.status).variant} className={getStatusDisplay(showtime.status).className}>
                         {getStatusDisplay(showtime.status).label}

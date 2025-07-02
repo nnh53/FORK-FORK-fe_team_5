@@ -5,23 +5,22 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Filter, type FilterCriteria } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { type Showtime, type ShowtimeFormData, ShowtimeStatus } from "@/interfaces/showtime.interface";
+import { transformMoviesResponse, useMovies } from "@/services/movieService";
+import { transformRoomsResponse, useRooms } from "@/services/roomService";
+import {
+  prepareCreateShowtimeData,
+  prepareUpdateShowtimeData,
+  transformShowtimesResponse,
+  useCreateShowtime,
+  useDeleteShowtime,
+  useShowtimes,
+  useUpdateShowtime,
+} from "@/services/showtimeService";
 import { AlertCircle, Plus, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import ShowtimeForm from "./ShowtimeForm";
 import ShowtimeTable from "./ShowtimeTable";
-import { createShowtime, deleteShowtime, getShowtimes, updateShowtime } from "./services/showtimeApi";
-
-// Placeholder for movie and room data fetching
-interface Movie {
-  id: string;
-  title: string;
-}
-
-interface Room {
-  id: string;
-  name: string;
-}
 
 // Thay thế hàm filterBySearch bằng filterByGlobalSearch đơn giản hơn
 const filterByGlobalSearch = (
@@ -34,9 +33,9 @@ const filterByGlobalSearch = (
 
   const lowerSearchValue = searchValue.toLowerCase().trim();
   return (
-    showtime.showtime_id.toString().includes(lowerSearchValue) ||
-    (movieNames[showtime.movie_id] || "").toLowerCase().includes(lowerSearchValue) ||
-    (roomNames[showtime.room_id] || "").toLowerCase().includes(lowerSearchValue) ||
+    showtime.id.toString().includes(lowerSearchValue) ||
+    (movieNames[showtime.movieId] ?? "").toLowerCase().includes(lowerSearchValue) ||
+    (roomNames[showtime.roomId ?? 0] ?? "").toLowerCase().includes(lowerSearchValue) ||
     showtime.status.toLowerCase().includes(lowerSearchValue)
   );
 };
@@ -47,11 +46,11 @@ const filterByDateRange = (showtime: Showtime, field: string, range: { from: Dat
 
   let dateValue;
   switch (field) {
-    case "show_date_time_range":
-      dateValue = showtime.show_date_time ? new Date(showtime.show_date_time) : null;
+    case "showDateTime_range":
+      dateValue = showtime.showDateTime ? new Date(showtime.showDateTime) : null;
       break;
-    case "show_end_time_range":
-      dateValue = showtime.show_end_time ? new Date(showtime.show_end_time) : null;
+    case "endDateTime_range":
+      dateValue = showtime.endDateTime ? new Date(showtime.endDateTime) : null;
       break;
     default:
       return true;
@@ -67,11 +66,17 @@ const filterByStatus = (showtime: Showtime, status: string): boolean => {
 };
 
 const ShowtimeManagement = () => {
-  const [showtimes, setShowtimes] = useState<Showtime[]>([]);
-  const [loading, setLoading] = useState(false);
+  // React Query hooks
+  const showtimesQuery = useShowtimes();
+  const moviesQuery = useMovies();
+  const roomsQuery = useRooms();
+  const createShowtimeMutation = useCreateShowtime();
+  const updateShowtimeMutation = useUpdateShowtime();
+  const deleteShowtimeMutation = useDeleteShowtime();
+
+  // State management
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShowtime, setSelectedShowtime] = useState<Showtime | undefined>();
-  // Thay đổi từ searchCriteria sang searchTerm
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -79,24 +84,58 @@ const ShowtimeManagement = () => {
   const [viewDetailOpen, setViewDetailOpen] = useState(false);
   const [showtimeToView, setShowtimeToView] = useState<Showtime | null>(null);
 
-  // Giữ nguyên phần dữ liệu mẫu cho movies và rooms
-  const [movies] = useState<Movie[]>([
-    { id: "1", title: "Inception" },
-    { id: "2", title: "The Dark Knight" },
-    { id: "3", title: "Interstellar" },
-  ]);
+  // Transform data from API responses
+  const showtimes = useMemo(() => {
+    if (showtimesQuery.data?.result) {
+      return transformShowtimesResponse(showtimesQuery.data.result);
+    }
+    return [];
+  }, [showtimesQuery.data]);
 
-  const [rooms] = useState<Room[]>([
-    { id: "1", name: "Phòng 1" },
-    { id: "2", name: "Phòng 2" },
-    { id: "3", name: "Phòng VIP" },
-  ]);
+  const movies = useMemo(() => {
+    if (moviesQuery.data?.result) {
+      return transformMoviesResponse(moviesQuery.data.result);
+    }
+    return [];
+  }, [moviesQuery.data]);
+
+  const rooms = useMemo(() => {
+    if (roomsQuery.data?.result) {
+      return transformRoomsResponse(roomsQuery.data.result);
+    }
+    return [];
+  }, [roomsQuery.data]);
+
+  // Filter and transform movies and rooms to ensure valid IDs for the form
+  const validMovies = useMemo(() => {
+    return (
+      movies
+        ?.filter((movie): movie is typeof movie & { id: number } => movie.id !== undefined && movie.id !== null)
+        .map((movie) => ({
+          id: movie.id,
+          name: movie.name ?? "",
+        })) ?? []
+    );
+  }, [movies]);
+
+  const validRooms = useMemo(() => {
+    return (
+      rooms
+        ?.filter((room): room is typeof room & { id: number } => room.id !== undefined && room.id !== null)
+        .map((room) => ({
+          id: room.id,
+          name: room.name ?? "",
+        })) ?? []
+    );
+  }, [rooms]);
 
   // Create lookup maps for movie and room names
   const movieNames = useMemo(() => {
     const map: Record<string, string> = {};
     movies.forEach((movie) => {
-      map[movie.id] = movie.title;
+      if (movie.id !== undefined && movie.id !== null) {
+        map[movie.id] = movie.name ?? "";
+      }
     });
     return map;
   }, [movies]);
@@ -104,10 +143,15 @@ const ShowtimeManagement = () => {
   const roomNames = useMemo(() => {
     const map: Record<string, string> = {};
     rooms.forEach((room) => {
-      map[room.id] = room.name;
+      if (room.id !== undefined && room.id !== null) {
+        map[room.id] = room.name ?? "";
+      }
     });
     return map;
   }, [rooms]);
+
+  // Loading state
+  const loading = showtimesQuery.isLoading ?? moviesQuery.isLoading ?? roomsQuery.isLoading;
 
   // Xóa searchOptions vì không cần nữa
 
@@ -115,12 +159,12 @@ const ShowtimeManagement = () => {
   const filterOptions = [
     {
       label: "Khoảng thời gian bắt đầu",
-      value: "show_date_time_range",
+      value: "showDateTime_range",
       type: "dateRange" as const,
     },
     {
       label: "Khoảng thời gian kết thúc",
-      value: "show_end_time_range",
+      value: "endDateTime_range",
       type: "dateRange" as const,
     },
     {
@@ -152,8 +196,8 @@ const ShowtimeManagement = () => {
       result = result.filter((showtime) => {
         return filterCriteria.every((criteria) => {
           switch (criteria.field) {
-            case "show_date_time_range":
-            case "show_end_time_range": {
+            case "showDateTime_range":
+            case "endDateTime_range": {
               const range = criteria.value as { from: Date | undefined; to: Date | undefined };
               return filterByDateRange(showtime, criteria.field, range);
             }
@@ -169,27 +213,6 @@ const ShowtimeManagement = () => {
 
     return result;
   }, [showtimes, searchTerm, filterCriteria, movieNames, roomNames]);
-
-  const fetchShowtimes = async () => {
-    setLoading(true);
-    try {
-      const data = await getShowtimes();
-      setShowtimes(data);
-    } catch (err) {
-      toast.error("Lỗi khi tải danh sách suất chiếu");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load showtimes on component mount
-  useEffect(() => {
-    fetchShowtimes();
-    // Uncomment when you have the actual API calls
-    // fetchMovies();
-    // fetchRooms();
-  }, []);
 
   const handleCreate = () => {
     setSelectedShowtime(undefined);
@@ -214,19 +237,25 @@ const ShowtimeManagement = () => {
   const handleSubmit = async (values: ShowtimeFormData | Showtime) => {
     try {
       if (selectedShowtime) {
-        const updatedShowtime = {
-          ...selectedShowtime,
-          ...values,
-        };
-        await updateShowtime(updatedShowtime as Showtime);
+        // Update showtime
+        const updateData = prepareUpdateShowtimeData(values as Showtime);
+        await updateShowtimeMutation.mutateAsync({
+          params: { path: { id: selectedShowtime.id } },
+          body: updateData,
+        });
         toast.success("Cập nhật suất chiếu thành công");
       } else {
-        await createShowtime(values as ShowtimeFormData);
+        // Create new showtime
+        const createData = prepareCreateShowtimeData(values as ShowtimeFormData);
+        await createShowtimeMutation.mutateAsync({
+          body: createData,
+        });
         toast.success("Thêm suất chiếu thành công");
       }
       setIsModalOpen(false);
       setSelectedShowtime(undefined);
-      fetchShowtimes();
+      // Refetch data
+      showtimesQuery.refetch();
     } catch (error) {
       console.error("Lỗi khi lưu suất chiếu:", error);
       toast.error("Lỗi khi lưu suất chiếu");
@@ -241,9 +270,12 @@ const ShowtimeManagement = () => {
   const handleDeleteConfirm = async () => {
     if (showtimeToDelete) {
       try {
-        await deleteShowtime(showtimeToDelete.showtime_id);
+        await deleteShowtimeMutation.mutateAsync({
+          params: { path: { id: showtimeToDelete.id } },
+        });
         toast.success("Xóa suất chiếu thành công");
-        fetchShowtimes();
+        // Refetch data
+        showtimesQuery.refetch();
       } catch (error) {
         console.error("Lỗi khi xóa suất chiếu:", error);
         toast.error("Lỗi khi xóa suất chiếu");
@@ -330,7 +362,7 @@ const ShowtimeManagement = () => {
           <DialogHeader>
             <DialogTitle>{selectedShowtime ? "Chỉnh sửa suất chiếu" : "Thêm suất chiếu mới"}</DialogTitle>
           </DialogHeader>
-          <ShowtimeForm showtime={selectedShowtime} onSubmit={handleSubmit} onCancel={handleCancel} movies={movies} rooms={rooms} />
+          <ShowtimeForm showtime={selectedShowtime} onSubmit={handleSubmit} onCancel={handleCancel} movies={validMovies} rooms={validRooms} />
         </DialogContent>
       </Dialog>
 
@@ -363,29 +395,29 @@ const ShowtimeManagement = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500">ID</p>
-                  <p>{showtimeToView.showtime_id}</p>
+                  <p>{showtimeToView.id}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Phim</p>
-                  <p>{movieNames[showtimeToView.movie_id] || "Không xác định"}</p>
+                  <p>{movieNames[showtimeToView.movieId] ?? "Không xác định"}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Phòng chiếu</p>
-                  <p>{roomNames[showtimeToView.room_id] || "Không xác định"}</p>
+                  <p>{roomNames[showtimeToView.roomId ?? 0] ?? showtimeToView.roomName ?? "Không xác định"}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Thời gian bắt đầu</p>
-                  <p>{formatDateTime(showtimeToView.show_date_time)}</p>
+                  <p>{formatDateTime(showtimeToView.showDateTime)}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Thời gian kết thúc</p>
-                  <p>{formatDateTime(showtimeToView.show_end_time)}</p>
+                  <p>{formatDateTime(showtimeToView.endDateTime)}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Trạng thái</p>
                   <p>
                     {(() => {
-                      const { label, className } = getStatusDisplay(showtimeToView.status);
+                      const { label, className } = getStatusDisplay(showtimeToView.status as ShowtimeStatus);
                       return <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>;
                     })()}
                   </p>

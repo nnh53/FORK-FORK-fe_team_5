@@ -10,12 +10,12 @@ import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 interface Movie {
-  id: string;
-  title: string;
+  id: number;
+  name: string;
 }
 
 interface Room {
-  id: string;
+  id: number;
   name: string;
 }
 
@@ -30,10 +30,10 @@ interface ShowtimeFormProps {
 const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeFormProps) => {
   const form = useForm<ShowtimeFormData | Showtime>({
     defaultValues: showtime || {
-      movie_id: "",
-      room_id: "",
-      show_date_time: "",
-      show_end_time: "",
+      movieId: 0,
+      roomId: undefined,
+      showDateTime: "",
+      endDateTime: "",
       status: ShowtimeStatus.SCHEDULE,
     },
   });
@@ -41,15 +41,15 @@ const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeF
   const { control, handleSubmit, reset, watch } = form;
 
   // Watch form values to enable validation between dependent fields
-  const showDateTimeValue = watch("show_date_time");
+  const showDateTimeValue = watch("showDateTime");
 
   useEffect(() => {
     if (showtime) {
       // Ensure date fields are formatted correctly for datetime-local inputs
       const formattedShowtime = {
         ...showtime,
-        show_date_time: formatDateTimeForInput(showtime.show_date_time),
-        show_end_time: formatDateTimeForInput(showtime.show_end_time),
+        showDateTime: formatDateTimeForInput(showtime.showDateTime),
+        endDateTime: formatDateTimeForInput(showtime.endDateTime),
       };
       reset(formattedShowtime);
     }
@@ -209,7 +209,7 @@ const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeF
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Movie selection */}
         <Controller
-          name="movie_id"
+          name="movieId"
           control={control}
           rules={{ required: "Phim là bắt buộc" }}
           render={({ field, fieldState: { error } }) => (
@@ -217,14 +217,18 @@ const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeF
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="movie-select">
                 Phim*
               </label>
-              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+              <Select
+                onValueChange={(value) => field.onChange(parseInt(value))}
+                defaultValue={field.value?.toString()}
+                value={field.value?.toString()}
+              >
                 <SelectTrigger id="movie-select" className={error ? "border-red-500" : ""}>
                   <SelectValue placeholder="Chọn phim" />
                 </SelectTrigger>
                 <SelectContent>
                   {movies.map((movie) => (
-                    <SelectItem key={movie.id} value={movie.id}>
-                      {movie.title}
+                    <SelectItem key={movie.id} value={movie.id.toString()}>
+                      {movie.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -236,7 +240,7 @@ const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeF
 
         {/* Room selection */}
         <Controller
-          name="room_id"
+          name="roomId"
           control={control}
           rules={{ required: "Phòng chiếu là bắt buộc" }}
           render={({ field, fieldState: { error } }) => (
@@ -244,13 +248,17 @@ const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeF
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="room-select">
                 Phòng chiếu*
               </label>
-              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+              <Select
+                onValueChange={(value) => field.onChange(parseInt(value))}
+                defaultValue={field.value?.toString()}
+                value={field.value?.toString()}
+              >
                 <SelectTrigger id="room-select" className={error ? "border-red-500" : ""}>
                   <SelectValue placeholder="Chọn phòng chiếu" />
                 </SelectTrigger>
                 <SelectContent>
                   {rooms.map((room) => (
-                    <SelectItem key={room.id} value={room.id}>
+                    <SelectItem key={room.id} value={room.id.toString()}>
                       {room.name}
                     </SelectItem>
                   ))}
@@ -263,7 +271,7 @@ const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeF
 
         {/* Show date time */}
         <Controller
-          name="show_date_time"
+          name="showDateTime"
           control={control}
           rules={{ required: "Thời gian bắt đầu là bắt buộc" }}
           render={({ field, fieldState: { error } }) => (
@@ -271,7 +279,7 @@ const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeF
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="start-time-picker-date">
                 Thời gian bắt đầu*
               </label>
-              <EnhancedDateTimePicker value={field.value} onChange={field.onChange} error={!!error} id="start-time-picker" />
+              <EnhancedDateTimePicker value={field.value || ""} onChange={field.onChange} error={!!error} id="start-time-picker" />
               {error && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
             </div>
           )}
@@ -279,7 +287,7 @@ const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeF
 
         {/* Show end time */}
         <Controller
-          name="show_end_time"
+          name="endDateTime"
           control={control}
           rules={{
             required: "Thời gian kết thúc là bắt buộc",
@@ -298,7 +306,7 @@ const ShowtimeForm = ({ showtime, onSubmit, onCancel, movies, rooms }: ShowtimeF
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="end-time-picker-date">
                 Thời gian kết thúc*
               </label>
-              <EnhancedDateTimePicker value={field.value} onChange={field.onChange} error={!!error} id="end-time-picker" />
+              <EnhancedDateTimePicker value={field.value || ""} onChange={field.onChange} error={!!error} id="end-time-picker" />
               {error && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
             </div>
           )}
