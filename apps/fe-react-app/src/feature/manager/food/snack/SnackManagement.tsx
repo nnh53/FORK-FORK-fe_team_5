@@ -5,10 +5,18 @@ import { Filter, type FilterCriteria } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import type { Snack } from "@/interfaces/snacks.interface";
+import {
+  snackCategoryOptions,
+  transformSnacksResponse,
+  transformSnackToRequest,
+  useCreateSnack,
+  useDeleteSnack,
+  useSnacks,
+  useUpdateSnack,
+} from "@/services/snackService";
 import { Plus } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { createSnack, deleteSnack, getSnacks, updateSnack } from "../services/snackApi";
 import SnackForm from "./SnackForm";
 import SnackTable from "./SnackTable";
 
@@ -68,6 +76,12 @@ const SnackManagement: React.FC = () => {
   const [snackToDelete, setSnackToDelete] = useState<Snack | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
+  // React Query hooks
+  const snacksQuery = useSnacks();
+  const createSnackMutation = useCreateSnack();
+  const updateSnackMutation = useUpdateSnack();
+  const deleteSnackMutation = useDeleteSnack();
+
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [
     { value: "id", label: "ID" },
@@ -94,10 +108,7 @@ const SnackManagement: React.FC = () => {
       label: "Loại sản phẩm",
       value: "category",
       type: "select" as const,
-      selectOptions: [
-        { value: "DRINK", label: "Đồ uống" },
-        { value: "FOOD", label: "Thức ăn" },
-      ],
+      selectOptions: snackCategoryOptions,
       placeholder: "Chọn loại sản phẩm",
     },
     {
@@ -123,22 +134,25 @@ const SnackManagement: React.FC = () => {
     },
   ];
 
-  const fetchSnacks = async () => {
-    setLoading(true);
-    try {
-      const data = await getSnacks();
-      setSnacks(data);
-    } catch (error) {
-      toast.error("Lỗi khi tải danh sách thực phẩm");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchSnacks = useCallback(() => {
+    // Refetch the data
+    snacksQuery.refetch();
+  }, [snacksQuery]);
 
   useEffect(() => {
+    // Set loading state based on query status
+    setLoading(snacksQuery.isLoading);
+
+    // When data is available, update the snacks state
+    if (snacksQuery.data?.result) {
+      setSnacks(transformSnacksResponse(snacksQuery.data.result));
+    }
+  }, [snacksQuery.data, snacksQuery.isLoading]);
+
+  // Call fetchSnacks when the component mounts
+  useEffect(() => {
     fetchSnacks();
-  }, []);
+  }, [fetchSnacks]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {
@@ -205,10 +219,17 @@ const SnackManagement: React.FC = () => {
   const handleSubmit = async (data: Omit<Snack, "id">) => {
     try {
       if (selectedSnack) {
-        await updateSnack({ ...selectedSnack, ...data });
+        // Update existing snack
+        await updateSnackMutation.mutateAsync({
+          params: { path: { id: selectedSnack.id } },
+          body: transformSnackToRequest({ ...selectedSnack, ...data }),
+        });
         toast.success("Cập nhật thực phẩm thành công");
       } else {
-        await createSnack(data);
+        // Create new snack
+        await createSnackMutation.mutateAsync({
+          body: transformSnackToRequest(data),
+        });
         toast.success("Thêm thực phẩm thành công");
       }
       setIsModalOpen(false);
@@ -231,7 +252,9 @@ const SnackManagement: React.FC = () => {
   const handleDeleteConfirm = async () => {
     if (snackToDelete) {
       try {
-        await deleteSnack(snackToDelete.id);
+        await deleteSnackMutation.mutateAsync({
+          params: { path: { id: snackToDelete.id } },
+        });
         toast.success("Xóa thực phẩm thành công");
         fetchSnacks();
       } catch (error) {

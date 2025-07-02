@@ -5,6 +5,7 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
 import type { Snack } from "@/interfaces/snacks.interface";
+import { snackCategoryOptions, snackSizeOptions, snackStatusOptions } from "@/services/snackService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageIcon, Upload, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -280,8 +281,12 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="FOOD">🍽️ Thức ăn</SelectItem>
-                              <SelectItem value="DRINK">🥤 Đồ uống</SelectItem>
+                              {snackCategoryOptions.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.value === "FOOD" ? "🍽️ " : "🥤 "}
+                                  {option.label}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -303,9 +308,11 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="SMALL">Nhỏ</SelectItem>
-                              <SelectItem value="MEDIUM">Vừa</SelectItem>
-                              <SelectItem value="LARGE">Lớn</SelectItem>
+                              {snackSizeOptions.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -353,24 +360,14 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="AVAILABLE">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                  Có sẵn
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="SOLD_OUT">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                  Hết hàng
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="UNAVAILABLE">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                                  Ngừng bán
-                                </div>
-                              </SelectItem>
+                              {snackStatusOptions.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 ${option.value === "AVAILABLE" ? "bg-green-500" : "bg-gray-500"} rounded-full`}></div>
+                                    {option.label}
+                                  </div>
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />

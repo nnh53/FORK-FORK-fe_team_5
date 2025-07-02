@@ -2,6 +2,7 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Snack } from "@/interfaces/snacks.interface";
+import { getSnackCategoryLabel, getSnackSizeLabel, getSnackStatusLabel } from "@/services/snackService";
 import { cn } from "@/utils/utils";
 import { Edit, Trash, Utensils } from "lucide-react";
 
@@ -15,61 +16,52 @@ interface SnackCardProps {
 const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode = "grid" }) => {
   // Badge trạng thái
   const StatusBadge = () => {
-    if (snack.status === "UNAVAILABLE") {
-      return (
-        <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-800">
-          Ngừng bán
-        </Badge>
-      );
-    }
+    const statusLabel = getSnackStatusLabel(snack.status);
+    const isAvailable = snack.status === "AVAILABLE";
+
     return (
-      <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-        Có sẵn
+      <Badge variant="secondary" className={`text-xs ${isAvailable ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+        {statusLabel}
       </Badge>
     );
   };
 
   // Badge danh mục (Food/Drink)
   const CategoryBadge = () => {
-    if (snack.category === "FOOD")
-      return (
-        <Badge variant="secondary" className="text-xs bg-blue-200 text-blue-800">
-          FOOD
-        </Badge>
-      );
-    if (snack.category === "DRINK")
-      return (
-        <Badge variant="secondary" className="text-xs bg-yellow-400 text-green-800">
-          DRINK
-        </Badge>
-      );
-    return null;
+    const categoryLabel = getSnackCategoryLabel(snack.category);
+    const isFood = snack.category === "FOOD";
+
+    return (
+      <Badge variant="secondary" className={`text-xs ${isFood ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}>
+        {categoryLabel}
+      </Badge>
+    );
   };
 
   // Badge kích cỡ
   const SizeBadge = () => {
+    const sizeLabel = getSnackSizeLabel(snack.size);
+    let bgClass;
+
     switch (snack.size) {
       case "SMALL":
-        return (
-          <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-800">
-            NHỎ
-          </Badge>
-        );
+        bgClass = "bg-gray-200 text-gray-800";
+        break;
       case "MEDIUM":
-        return (
-          <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800">
-            VỪA
-          </Badge>
-        );
+        bgClass = "bg-yellow-100 text-yellow-800";
+        break;
       case "LARGE":
-        return (
-          <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800">
-            LỚN
-          </Badge>
-        );
+        bgClass = "bg-purple-100 text-purple-800";
+        break;
       default:
-        return null;
+        bgClass = "bg-gray-200 text-gray-800"; // Gán giá trị mặc định
     }
+
+    return (
+      <Badge variant="secondary" className={`text-xs ${bgClass}`}>
+        {sizeLabel.toUpperCase()}
+      </Badge>
+    );
   };
 
   const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
@@ -167,16 +159,19 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
                 <span className="text-sm text-gray-500">Kích cỡ</span>
                 <SizeBadge />
               </div>
-              <div className="flex items-center gap-2 mb-2">
-                <p className="text-sm font-semibold ">Hương vị:</p>
+              <div className="flex justify-between">
+                <p className="text-sm text-gray-500">Hương vị:</p>
                 <p className="text-sm text-blue-600">{snack.flavor || "Không có"}</p>
               </div>
             </div>
           </div>
+
           <div className="p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-gray-200 shadow-sm">
+            <div className="flex items-center gap-2">
+              <Utensils className="h-4 w-4 mt-1" />
+              <p className="text-sm font-semibold">Mô tả:</p>
+            </div>
             <div className="flex items-start gap-2">
-              <Utensils className="h-4 w-4 text-green-600 mt-1" />
-              <p className="text-sm font-semibold text-green-700">Mô tả:</p>
               <p className="text-sm italic text-green-600 leading-relaxed">{snack.description}</p>
             </div>
           </div>
@@ -206,7 +201,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
           </div>
           <div className="col-span-2 line-clamp-1 flex items-center gap-1">
             <Utensils className="h-4 w-4 text-blue-600" />
-            <span className="font-semibold text-blue-700">Hương vị:</span>
+            <span>Hương vị:</span>
             <span className="italic text-blue-600">{snack.flavor || "Không có"}</span>
           </div>
           <div className="col-span-2 line-clamp-1 flex items-center gap-1">
