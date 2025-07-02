@@ -11,24 +11,22 @@ import {
 } from "@/components/Shadcn/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { SortButton } from "@/components/shared/SortButton";
-import { getPageInfo, usePagination } from "@/hooks/usePagination";
+import { usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
-import type { MEMBERSHIP_LEVEL, USER_STATUS, UserBase } from "@/interfaces/users.interface";
+import type { MEMBERSHIP_LEVEL, User } from "@/interfaces/users.interface";
 import { Edit, Eye, Trash } from "lucide-react";
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 
-// Add inline formatter functions since the module is missing
-const formatDate = (dateString: string): string => {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("vi-VN", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-};
+// Extended User interface to include membership data
+interface UserWithMembership extends User {
+  membershipLevel?: MEMBERSHIP_LEVEL;
+  totalSpent?: number;
+  loyalty_point?: number;
+}
 
-const formatCurrency = (value: number): string => {
+// Format functions
+const formatCurrency = (value?: number): string => {
+  if (!value) return "0 ₫";
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
@@ -37,25 +35,25 @@ const formatCurrency = (value: number): string => {
 };
 
 interface MemberTableProps {
-  members: UserBase[];
-  onEdit: (member: UserBase) => void;
-  onDelete: (member: UserBase) => void;
-  onView?: (member: UserBase) => void;
+  members: UserWithMembership[];
+  onEdit: (member: UserWithMembership) => void;
+  onDelete: (member: UserWithMembership) => void;
+  onView?: (member: UserWithMembership) => void;
 }
 
-const getStatusDisplay = (status: USER_STATUS) => {
+const getStatusDisplay = (status: string) => {
   switch (status) {
     case "ACTIVE":
       return { label: "Đã xác minh", className: "bg-green-100 text-green-800" };
     case "BAN":
       return { label: "Bị cấm", className: "bg-red-100 text-red-800" };
     default:
-      return { label: "Không xác định", className: "bg-yellow-100 text-yellow-800" };
+      return { label: status, className: "bg-gray-100 text-gray-800" };
   }
 };
 
-const getMembershipBadge = (level: MEMBERSHIP_LEVEL) => {
-  if (!level) return null;
+const getMembershipBadge = (level?: MEMBERSHIP_LEVEL) => {
+  if (!level) return <span className="text-gray-500 text-xs">Chưa có</span>;
 
   const badgeColors: Record<string, string> = {
     Silver: "bg-gray-200 text-gray-800",
@@ -64,12 +62,12 @@ const getMembershipBadge = (level: MEMBERSHIP_LEVEL) => {
     Diamond: "bg-purple-100 text-purple-800",
   };
 
-  return <Badge className={badgeColors[level] || "bg-gray-100"}>{level}</Badge>;
+  return <Badge className={`${badgeColors[level] || "bg-gray-100"} py-1 px-2 text-xs font-medium`}>{level}</Badge>;
 };
 
 // Sửa MemberTable component để có thể forward ref và expose resetPagination
-const MemberTable = forwardRef(({ members, onEdit, onDelete, onView }: MemberTableProps, ref) => {
-  const { sortedData, getSortProps } = useSortable<UserBase>(members);
+const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps>(({ members, onEdit, onDelete, onView }, ref) => {
+  const { sortedData, getSortProps } = useSortable<UserWithMembership>(members);
 
   // Pagination configuration
   const pagination = usePagination({
@@ -89,176 +87,125 @@ const MemberTable = forwardRef(({ members, onEdit, onDelete, onView }: MemberTab
     return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
-  // Render pagination numbers
-  const renderPaginationItems = () => {
-    return pagination.visiblePages.map((page, index) => {
-      if (page === "ellipsis") {
-        return (
-          <PaginationItem key={`ellipsis-${index}`}>
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      return (
-        <PaginationItem key={page}>
-          <PaginationLink
-            href="#"
-            isActive={page === pagination.currentPage}
-            onClick={(e) => {
-              e.preventDefault();
-              pagination.setPage(page);
-            }}
-          >
-            {page}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    });
-  };
-
   return (
     <div className="space-y-4">
-      {/* Table */}
-      <div className="w-full overflow-hidden rounded-md border">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-red-50 hover:bg-red-100">
-                <TableHead className="w-[60px]">ID</TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    Tên
-                    <SortButton {...getSortProps("full_name")} />
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    Email
-                    <SortButton {...getSortProps("email")} />
-                  </div>
-                </TableHead>
-                <TableHead>Avatar</TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    Ngày sinh
-                    <SortButton {...getSortProps("date_of_birth")} />
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    Điểm tích lũy
-                    <SortButton {...getSortProps("loyalty_point")} />
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    Tổng chi tiêu
-                    <SortButton {...getSortProps("totalSpent")} />
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    Hạng thành viên
-                    <SortButton {...getSortProps("membershipLevel")} />
-                  </div>
-                </TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead className="text-center">Hành động</TableHead>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50">
+              <TableHead className="w-16 text-center">STT</TableHead>
+              <TableHead className="w-16">
+                <SortButton {...getSortProps("id")}>ID</SortButton>
+              </TableHead>
+              <TableHead>
+                <SortButton {...getSortProps("fullName")}>Họ tên</SortButton>
+              </TableHead>
+              <TableHead>
+                <SortButton {...getSortProps("email")}>Email</SortButton>
+              </TableHead>
+              <TableHead className="w-28">
+                <SortButton {...getSortProps("status")}>Trạng thái</SortButton>
+              </TableHead>
+              <TableHead className="w-28">
+                <SortButton {...getSortProps("membershipLevel")}>Hạng thành viên</SortButton>
+              </TableHead>
+              <TableHead className="w-32 text-right">
+                <SortButton {...getSortProps("totalSpent")}>Tổng chi tiêu</SortButton>
+              </TableHead>
+              <TableHead className="w-20 text-center">
+                <SortButton {...getSortProps("loyalty_point")}>Điểm</SortButton>
+              </TableHead>
+              <TableHead className="w-24 text-center">Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {currentPageData.length > 0 ? (
+              currentPageData.map((member, index) => {
+                const statusDisplay = getStatusDisplay(member.status);
+
+                return (
+                  <TableRow key={member.id}>
+                    <TableCell className="text-center font-medium">{pagination.startIndex + index + 1}</TableCell>
+                    <TableCell>{member.id}</TableCell>
+                    <TableCell>{member.fullName}</TableCell>
+                    <TableCell>{member.email}</TableCell>
+                    <TableCell>
+                      <Badge className={statusDisplay.className}>{statusDisplay.label}</Badge>
+                    </TableCell>
+                    <TableCell>{getMembershipBadge(member.membershipLevel)}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(member.totalSpent)}</TableCell>
+                    <TableCell className="text-center">{member.loyalty_point ?? 0}</TableCell>
+                    <TableCell>
+                      <div className="flex justify-center gap-1">
+                        {onView && (
+                          <Button variant="ghost" size="icon" onClick={() => onView(member)} title="Xem chi tiết">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(member)} title="Chỉnh sửa">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => onDelete(member)} title="Xóa">
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center">
+                  Không có dữ liệu
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentPageData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8 text-gray-500">
-                    {sortedData.length === 0 ? "Không tìm thấy thành viên" : "Không có dữ liệu trang này"}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                currentPageData.map((member) => {
-                  const { label, className } = getStatusDisplay(member.status_name);
-                  return (
-                    <TableRow key={member.id}>
-                      <TableCell>{member.id}</TableCell>
-                      <TableCell>{member.full_name}</TableCell>
-                      <TableCell>{member.email}</TableCell>
-                      <TableCell>
-                        {member.avatar_url ? <img src={member.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full" /> : "Chưa cập nhật"}
-                      </TableCell>
-                      <TableCell>{member.date_of_birth ? formatDate(member.date_of_birth) : "Chưa cập nhật"}</TableCell>
-                      <TableCell>{member.loyalty_point}</TableCell>
-                      <TableCell>{formatCurrency(member.totalSpent)}</TableCell>
-                      <TableCell>{getMembershipBadge(member.membershipLevel)}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex justify-center space-x-2">
-                          {onView && (
-                            <Button variant="ghost" size="icon" onClick={() => onView(member)}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button variant="ghost" size="icon" onClick={() => onEdit(member)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => onDelete(member)}>
-                            <Trash className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </div>
+            )}
+          </TableBody>
+        </Table>
       </div>
 
-      {/* Pagination Info and Controls */}
+      {/* Pagination */}
       {sortedData.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Pagination Info */}
-          <div className="text-sm text-gray-600 w-1/10">{getPageInfo(pagination)}</div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => pagination.prevPage()}
+                className={`cursor-pointer ${pagination.currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
+              />
+            </PaginationItem>
 
-          {/* Pagination Controls */}
-          {pagination.totalPages > 1 && (
-            <Pagination>
-              <PaginationContent>
-                {/* Previous Button */}
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      pagination.prevPage();
-                    }}
-                    className={!pagination.hasPrevPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
+            {pagination.visiblePages.map((page, i) => {
+              if (page === "ellipsis") {
+                return (
+                  <PaginationItem key={`ellipsis-${i}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                );
+              }
+
+              return (
+                <PaginationItem key={page}>
+                  <PaginationLink onClick={() => pagination.setPage(page)} isActive={page === pagination.currentPage} className="cursor-pointer">
+                    {page}
+                  </PaginationLink>
                 </PaginationItem>
+              );
+            })}
 
-                {/* Page Numbers */}
-                {renderPaginationItems()}
-
-                {/* Next Button */}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      pagination.nextPage();
-                    }}
-                    className={!pagination.hasNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
-        </div>
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => pagination.nextPage()}
+                className={`cursor-pointer ${pagination.currentPage === pagination.totalPages ? "pointer-events-none opacity-50" : ""}`}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );
 });
+
+MemberTable.displayName = "MemberTable";
 
 export default MemberTable;

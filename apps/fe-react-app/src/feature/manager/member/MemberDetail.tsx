@@ -2,13 +2,21 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Separator } from "@/components/Shadcn/ui/separator";
-import type { MEMBERSHIP_LEVEL, USER_STATUS, UserBase } from "@/interfaces/users.interface";
+import type { MEMBERSHIP_LEVEL, User } from "@/interfaces/users.interface";
+import { formatUserDate } from "@/services/userService";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { Calendar, CheckCircle, Clock, DollarSign, Mail, Star, User, UserCheck, XCircle } from "lucide-react";
+import { Calendar, CheckCircle, Clock, DollarSign, Mail, Star, UserCheck, User as UserIcon, XCircle } from "lucide-react";
+
+// Extended User interface for display purposes (mapping old fields to new)
+interface UserWithMembershipDetails extends User {
+  membershipLevel?: MEMBERSHIP_LEVEL;
+  totalSpent?: number;
+  loyalty_point?: number;
+}
 
 interface MemberDetailProps {
-  member: UserBase;
+  member: UserWithMembershipDetails;
   onClose?: () => void;
 }
 
@@ -20,14 +28,13 @@ const MemberDetail = ({ member, onClose }: MemberDetailProps) => {
     try {
       return format(new Date(dateString), "dd MMMM yyyy", { locale: vi });
     } catch {
-      // Xử lý lỗi đúng cách: Trả về thông báo lỗi cụ thể thay vì bỏ qua exception
       return "Định dạng ngày không hợp lệ";
     }
   };
 
   // Get status badge styles
-  const getStatusBadge = (status: USER_STATUS) => {
-    const styles: Record<USER_STATUS, { className: string; label: string }> = {
+  const getStatusBadge = (status: string) => {
+    const styles: Record<string, { className: string; label: string }> = {
       ACTIVE: { className: "bg-green-100 text-green-800 border-green-200", label: "Đã xác minh" },
       BAN: { className: "bg-red-100 text-red-800 border-red-200", label: "Bị cấm" },
     };
@@ -49,143 +56,110 @@ const MemberDetail = ({ member, onClose }: MemberDetailProps) => {
   };
 
   // Status badge for current member
-  const statusBadge = getStatusBadge(member.status_name);
+  const statusBadge = getStatusBadge(member.status);
 
   return (
     <DialogContent className="sm:max-w-3xl">
-      <DialogHeader className="space-y-2">
-        <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-          <User className="h-6 w-6 text-blue-600" />
-          Chi tiết thành viên
+      <DialogHeader>
+        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+          <UserIcon className="h-5 w-5" />
+          Thông tin chi tiết thành viên
         </DialogTitle>
-        <p className="text-sm text-gray-500">Thông tin chi tiết về thành viên {member.full_name}</p>
-        <Separator />
       </DialogHeader>
 
-      {/* Avatar display at top if available */}
-      {member.avatar_url && (
-        <div className="flex justify-center -mt-2 mb-4">
-          <div className="relative">
-            <img
-              src={member.avatar_url}
-              alt={`Avatar của ${member.full_name}`}
-              className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md"
-            />
-            <Badge className={`absolute bottom-0 right-0 ${statusBadge.className} px-2 py-1 shadow-sm`}>{statusBadge.label}</Badge>
-          </div>
-        </div>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Cột 1: Thông tin cá nhân */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-md">Thông tin cá nhân</h3>
+          <Separator />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Thông tin cơ bản */}
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-700">
-            <UserCheck className="h-5 w-5" />
-            Thông tin cơ bản
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-start">
-              <span className="font-medium w-32 text-gray-500 text-sm">ID:</span>
-              <span className="font-mono bg-gray-100 px-2 py-0.5 rounded">{member.id}</span>
+          {member.avatar && (
+            <div className="mb-4 flex justify-center">
+              <img src={member.avatar} alt={member.fullName} className="h-32 w-32 rounded-full object-cover border-2 border-gray-200" />
             </div>
-            <div className="flex items-start">
-              <span className="font-medium w-32 text-gray-500 text-sm">Họ và tên:</span>
-              <span className="font-semibold">{member.full_name}</span>
+          )}
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <UserIcon className="h-4 w-4 text-gray-500" />
+              <span className="font-medium">{member.fullName || "Chưa cập nhật"}</span>
             </div>
-            <div className="flex items-start">
-              <span className="font-medium w-32 text-gray-500 text-sm">Email:</span>
-              <div className="flex items-center gap-1">
-                <Mail className="h-4 w-4 text-gray-500" />
-                <a href={`mailto:${member.email}`} className="text-blue-600 hover:underline">
-                  {member.email}
-                </a>
-              </div>
+
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-gray-500" />
+              <span>{member.email}</span>
             </div>
-            <div className="flex items-start">
-              <span className="font-medium w-32 text-gray-500 text-sm">Ngày sinh:</span>
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4 text-gray-500" />
-                <span>{formatDate(member.date_of_birth)}</span>
-              </div>
+
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-gray-500" />
+              <span>{formatDate(member.dateOfBirth)}</span>
             </div>
-            <div className="flex items-start">
-              <span className="font-medium w-32 text-gray-500 text-sm">Trạng thái:</span>
-              <Badge className={`${statusBadge.className} py-1`}>{statusBadge.label}</Badge>
+
+            <div className="flex items-center gap-2">
+              <Badge className={statusBadge.className}>{statusBadge.label}</Badge>
             </div>
           </div>
         </div>
 
-        {/* Thông tin thành viên */}
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-700">
-            <Star className="h-5 w-5" />
-            Thông tin thành viên
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-dashed">
-              <span className="font-medium text-gray-500 text-sm">Hạng thành viên:</span>
-              {getMembershipBadge(member.membershipLevel) || <span className="text-gray-500 italic">Không có</span>}
+        {/* Cột 2: Thông tin tài khoản */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-md">Thông tin tài khoản</h3>
+          <Separator />
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <UserCheck className="h-4 w-4 text-gray-500" />
+              <span>
+                ID: <span className="font-medium">{member.id}</span>
+              </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-500 text-sm">Điểm tích lũy:</span>
-              <div className="flex items-center gap-1">
-                <span className="font-semibold">{member.loyalty_point.toLocaleString("vi-VN")}</span>
-                <span className="text-xs text-gray-500">điểm</span>
-              </div>
+
+            <div className="flex items-center gap-2">
+              {member.status === "ACTIVE" ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}
+              <span>
+                Trạng thái: <span className="font-medium">{statusBadge.label}</span>
+              </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-500 text-sm">Tổng chi tiêu:</span>
-              <div className="flex items-center gap-1">
-                <DollarSign className="h-4 w-4 text-green-600" />
-                <span className="font-semibold text-green-700">{member.totalSpent.toLocaleString("vi-VN")} VND</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-500 text-sm">Kích hoạt:</span>
-              <div className="flex items-center gap-1">
-                {member.is_active ? (
-                  <>
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-green-700">Đã kích hoạt</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="h-4 w-4 text-gray-500" />
-                    <span className="text-gray-700">Chưa kích hoạt</span>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-500 text-sm">Đăng ký thông báo:</span>
-              <div className="flex items-center gap-1">
-                {member.is_subscription ? (
-                  <>
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-green-700">Đã đăng ký</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="h-4 w-4 text-gray-500" />
-                    <span className="text-gray-700">Chưa đăng ký</span>
-                  </>
-                )}
-              </div>
+
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-gray-500" />
+              <span>
+                Ngày tạo: <span className="font-medium">{formatUserDate(member.dateOfBirth)}</span>
+              </span>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Thông tin thời gian */}
-      <div className="mt-2 pt-3 border-t border-gray-200">
-        <div className="flex flex-col sm:flex-row justify-between text-xs text-gray-500">
-          <div className="flex items-center gap-1 mb-1 sm:mb-0">
-            <Clock className="h-3 w-3" />
-            <span>Ngày tạo: {formatDate(member.createdAt)}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            <span>Cập nhật lần cuối: {formatDate(member.updatedAt)}</span>
+        {/* Cột 3: Thông tin thành viên */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-md">Thông tin thành viên</h3>
+          <Separator />
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-gray-500" />
+              <span>
+                Hạng thành viên:{" "}
+                {member.membershipLevel ? getMembershipBadge(member.membershipLevel) : <span className="text-gray-500">Chưa có</span>}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-gray-500" />
+              <span>
+                Tổng chi tiêu:{" "}
+                <span className="font-medium">
+                  {member.totalSpent ? new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(member.totalSpent) : "0 ₫"}
+                </span>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-gray-500" />
+              <span>
+                Điểm tích lũy: <span className="font-medium">{member.loyalty_point || 0} điểm</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>

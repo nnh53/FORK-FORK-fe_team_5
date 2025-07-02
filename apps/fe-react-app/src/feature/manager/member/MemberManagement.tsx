@@ -4,46 +4,47 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Filter, type FilterCriteria, type FilterGroup } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
-import type { StaffRegisterDTO, UserBase } from "@/interfaces/users.interface";
+import { ROLES } from "@/interfaces/roles.interface";
+import type { User, USER_GENDER, UserRequest, UserUpdate } from "@/interfaces/users.interface";
+import {
+  transformRegisterRequest,
+  transformUserResponse,
+  transformUserUpdateRequest,
+  useDeleteUser,
+  useRegister,
+  useUpdateUser,
+  useUsers,
+} from "@/services/userService";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import MemberDetail from "./MemberDetail";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
-import { createMember, deleteMember, getMembers, updateMember } from "./services/memberApi";
 
 // Sửa lại hàm filterByGlobalSearch để xử lý undefined/null
-const filterByGlobalSearch = (member: UserBase, searchValue: string): boolean => {
+const filterByGlobalSearch = (member: User, searchValue: string): boolean => {
   if (!searchValue) return true;
   if (!member) return false;
 
   const lowerSearchValue = searchValue.toLowerCase();
   return (
     (member.id?.toString() || "").includes(searchValue.trim()) ||
-    (member.full_name?.toLowerCase() || "").includes(lowerSearchValue.trim()) ||
+    (member.fullName?.toLowerCase() || "").includes(lowerSearchValue.trim()) ||
     (member.email?.toLowerCase() || "").includes(lowerSearchValue.trim())
   );
 };
 
 // Sửa lại các hàm filter khác
-const filterByDateRange = (member: UserBase, field: string, range: { from: Date | undefined; to: Date | undefined }): boolean => {
+const filterByDateRange = (member: User, field: string, range: { from: Date | undefined; to: Date | undefined }): boolean => {
   if (!range.from && !range.to) return true;
   if (!member) return false;
 
-  let dateValue;
-  switch (field) {
-    case "birth_date_range":
-      dateValue = member.date_of_birth ? new Date(member.date_of_birth) : null;
-      break;
-    case "created_date_range":
-      dateValue = member.createdAt ? new Date(member.createdAt) : null;
-      break;
-    case "updated_date_range":
-      dateValue = member.updatedAt ? new Date(member.updatedAt) : null;
-      break;
-    default:
-      return true;
+  let dateValue = null;
+  if (field === "birth_date_range") {
+    dateValue = member.dateOfBirth ? new Date(member.dateOfBirth) : null;
+  } else {
+    return true;
   }
 
   if (!dateValue) return false;
@@ -51,39 +52,12 @@ const filterByDateRange = (member: UserBase, field: string, range: { from: Date 
   return !(range.from && dateValue < range.from) && !(range.to && dateValue > range.to);
 };
 
-const filterByStatus = (member: UserBase, status: string): boolean => {
-  return member.status_name.toLowerCase() === status.toLowerCase();
+const filterByStatus = (member: User, status: string): boolean => {
+  return member.status.toLowerCase() === status.toLowerCase();
 };
 
-const filterByMembership = (member: UserBase, level: string): boolean => {
-  if (level === "none") return member.membershipLevel === null;
-  return member.membershipLevel === level;
-};
-
-const filterByActive = (member: UserBase, active: string): boolean => {
-  return member.is_active === parseInt(active);
-};
-
-const filterBySubscription = (member: UserBase, subscription: string): boolean => {
-  return member.is_subscription === parseInt(subscription);
-};
-
-const filterByNumberRange = (member: UserBase, field: string, range: { min?: number; max?: number }): boolean => {
-  if (!range.min && !range.max) return true;
-
-  let value;
-  switch (field) {
-    case "loyalty_point_range":
-      value = member.loyalty_point;
-      break;
-    case "total_spent_range":
-      value = member.totalSpent;
-      break;
-    default:
-      return true;
-  }
-
-  return (range.min === undefined || value >= range.min) && (range.max === undefined || value <= range.max);
+const filterByGender = (member: User, gender: string): boolean => {
+  return member.gender === (gender as USER_GENDER);
 };
 
 // Cập nhật định nghĩa nhóm filter
@@ -95,16 +69,6 @@ const filterGroups: FilterGroup[] = [
       {
         label: "Ngày sinh",
         value: "birth_date_range",
-        type: "dateRange" as const,
-      },
-      {
-        label: "Ngày tạo",
-        value: "created_date_range",
-        type: "dateRange" as const,
-      },
-      {
-        label: "Ngày cập nhật",
-        value: "updated_date_range",
         type: "dateRange" as const,
       },
     ],
@@ -120,116 +84,68 @@ const filterGroups: FilterGroup[] = [
         selectOptions: [
           { value: "ACTIVE", label: "Đã xác minh" },
           { value: "BAN", label: "Bị cấm" },
-          { value: "UNVERIFY", label: "Chưa xác minh" },
         ],
         placeholder: "Chọn trạng thái",
       },
       {
-        label: "Kích hoạt",
-        value: "active",
+        label: "Giới tính",
+        value: "gender",
         type: "select" as const,
         selectOptions: [
-          { value: "1", label: "Đã kích hoạt" },
-          { value: "0", label: "Chưa kích hoạt" },
+          { value: "MALE", label: "Nam" },
+          { value: "FEMALE", label: "Nữ" },
+          { value: "OTHER", label: "Khác" },
         ],
-        placeholder: "Chọn trạng thái kích hoạt",
-      },
-      {
-        label: "Đăng ký thông báo",
-        value: "subscription",
-        type: "select" as const,
-        selectOptions: [
-          { value: "1", label: "Đã đăng ký" },
-          { value: "0", label: "Chưa đăng ký" },
-        ],
-        placeholder: "Chọn trạng thái đăng ký",
-      },
-    ],
-  },
-  {
-    name: "membership",
-    label: "Thành viên",
-    options: [
-      {
-        label: "Hạng thành viên",
-        value: "membership",
-        type: "select" as const,
-        selectOptions: [
-          { value: "none", label: "Không có" },
-          { value: "Silver", label: "Silver" },
-          { value: "Gold", label: "Gold" },
-          { value: "Platinum", label: "Platinum" },
-          { value: "Diamond", label: "Diamond" },
-        ],
-        placeholder: "Chọn hạng thành viên",
-      },
-      {
-        label: "Điểm tích lũy",
-        value: "loyalty_point_range",
-        type: "numberRange" as const,
-        numberRangeConfig: {
-          min: 0,
-          max: 1000,
-          step: 50,
-          fromPlaceholder: "Từ điểm",
-          toPlaceholder: "Đến điểm",
-        },
-      },
-      {
-        label: "Tổng chi tiêu",
-        value: "total_spent_range",
-        type: "numberRange" as const,
-        numberRangeConfig: {
-          min: 0,
-          max: 5000000,
-          step: 100000,
-          fromPlaceholder: "Từ số tiền",
-          toPlaceholder: "Đến số tiền",
-          suffix: " đ",
-        },
+        placeholder: "Chọn giới tính",
       },
     ],
   },
 ];
 
 const MemberManagement = () => {
-  const [members, setMembers] = useState<UserBase[]>([]);
+  const [members, setMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<UserBase | undefined>();
+  const [selectedMember, setSelectedMember] = useState<User | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<UserBase | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState<User | null>(null);
   const [viewDetailOpen, setViewDetailOpen] = useState(false);
-  const [memberToView, setMemberToView] = useState<UserBase | null>(null);
+  const [memberToView, setMemberToView] = useState<User | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
+
+  // React Query hooks
+  const usersQuery = useUsers();
+  const registerMutation = useRegister();
+  const updateUserMutation = useUpdateUser();
+  const deleteUserMutation = useDeleteUser();
 
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [
     { value: "id", label: "ID" },
-    { value: "full_name", label: "Tên" },
+    { value: "fullName", label: "Tên" },
     { value: "email", label: "Email" },
   ];
 
-  const fetchMembers = async () => {
-    setLoading(true);
-    try {
-      const data = await getMembers();
-      // Filter to only show members with role_name "Member"
-      const memberData = data.filter((member) => member.role_name === "MEMBER");
-      setMembers(memberData);
-    } catch (err) {
-      toast.error("Lỗi khi tải danh sách thành viên");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchMembers();
-  }, []);
+    if (usersQuery.data?.result) {
+      // Transform API response to User[] and filter for MEMBER role
+      let transformedUsers: User[] = [];
+
+      if (Array.isArray(usersQuery.data.result)) {
+        transformedUsers = usersQuery.data.result.map(transformUserResponse).filter((user) => user.role === ROLES.MEMBER);
+      } else if (usersQuery.data.result) {
+        const user = transformUserResponse(usersQuery.data.result);
+        if (user.role === ROLES.MEMBER) {
+          transformedUsers = [user];
+        }
+      }
+
+      setMembers(transformedUsers);
+    }
+    setLoading(usersQuery.isLoading);
+  }, [usersQuery.data, usersQuery.isLoading]);
 
   const filteredMembers = useMemo(() => {
     if (!members) return [];
@@ -246,28 +162,15 @@ const MemberManagement = () => {
       result = result.filter((member) => {
         return filterCriteria.every((criteria) => {
           switch (criteria.field) {
-            case "birth_date_range":
-            case "created_date_range":
-            case "updated_date_range": {
+            case "birth_date_range": {
               const range = criteria.value as { from: Date | undefined; to: Date | undefined };
               return filterByDateRange(member, criteria.field, range);
             }
             case "status": {
               return filterByStatus(member, criteria.value as string);
             }
-            case "membership": {
-              return filterByMembership(member, criteria.value as string);
-            }
-            case "active": {
-              return filterByActive(member, criteria.value as string);
-            }
-            case "subscription": {
-              return filterBySubscription(member, criteria.value as string);
-            }
-            case "loyalty_point_range":
-            case "total_spent_range": {
-              const range = criteria.value as { min?: number; max?: number };
-              return filterByNumberRange(member, criteria.field, range);
+            case "gender": {
+              return filterByGender(member, criteria.value as string);
             }
             default:
               return true;
@@ -284,7 +187,7 @@ const MemberManagement = () => {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (member: UserBase) => {
+  const handleEdit = (member: User) => {
     setSelectedMember(member);
     setIsModalOpen(true);
   };
@@ -294,36 +197,50 @@ const MemberManagement = () => {
     setSelectedMember(undefined);
   };
 
-  const handleView = (member: UserBase) => {
+  const handleView = (member: User) => {
     setMemberToView(member);
     setViewDetailOpen(true);
   };
 
-  const handleSubmit = async (values: StaffRegisterDTO | UserBase) => {
+  const handleSubmit = async (values: UserRequest) => {
     try {
-      // Ensure role_name is always "Member"
-      const memberData = {
-        ...values,
-        role_name: "MEMBER",
-      };
-
       if (selectedMember) {
-        await updateMember({ ...selectedMember, ...memberData } as UserBase);
+        // Update existing member
+        const updateData: UserUpdate = transformUserUpdateRequest({
+          ...values,
+          role: ROLES.MEMBER,
+        });
+
+        await updateUserMutation.mutateAsync({
+          params: { path: { userId: selectedMember.id } },
+          body: updateData,
+        });
+
         toast.success("Cập nhật thành viên thành công");
       } else {
-        await createMember(memberData as StaffRegisterDTO);
+        // Create new member
+        const registerData: UserRequest = transformRegisterRequest({
+          ...values,
+          role: ROLES.MEMBER,
+          phone: values.phone ?? "",
+        });
+
+        await registerMutation.mutateAsync({
+          body: registerData,
+        });
+
         toast.success("Thêm thành viên thành công");
       }
       setIsModalOpen(false);
       setSelectedMember(undefined);
-      fetchMembers();
+      usersQuery.refetch();
     } catch (error) {
       console.error("Lỗi khi lưu thành viên:", error);
       toast.error("Lỗi khi lưu thành viên");
     }
   };
 
-  const handleDeleteClick = (member: UserBase) => {
+  const handleDeleteClick = (member: User) => {
     setMemberToDelete(member);
     setDeleteDialogOpen(true);
   };
@@ -331,9 +248,12 @@ const MemberManagement = () => {
   const handleDeleteConfirm = async () => {
     if (memberToDelete) {
       try {
-        await deleteMember(memberToDelete.id);
+        await deleteUserMutation.mutateAsync({
+          params: { path: { userId: memberToDelete.id } },
+        });
+
         toast.success("Xóa thành viên thành công");
-        fetchMembers();
+        usersQuery.refetch();
       } catch (error) {
         console.error("Lỗi khi xóa thành viên:", error);
         toast.error("Lỗi khi xóa thành viên");
