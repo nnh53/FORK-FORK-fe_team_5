@@ -223,11 +223,17 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
             <SelectValue placeholder={option.placeholder || `Chọn ${option.label.toLowerCase()}`} />
           </SelectTrigger>
           <SelectContent>
-            {option.selectOptions?.map((selectOption) => (
-              <SelectItem key={selectOption.value} value={selectOption.value}>
-                {selectOption.label}
+            {option.selectOptions ? (
+              option.selectOptions.map((selectOption) => (
+                <SelectItem key={selectOption.value} value={selectOption.value}>
+                  {selectOption.label}
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="" disabled>
+                Không có lựa chọn
               </SelectItem>
-            ))}
+            )}
           </SelectContent>
         </Select>
       </div>
