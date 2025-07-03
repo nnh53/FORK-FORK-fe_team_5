@@ -18,7 +18,6 @@ import {
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import MemberDetail from "./MemberDetail";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 
@@ -111,8 +110,6 @@ const MemberManagement = () => {
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<User | null>(null);
-  const [viewDetailOpen, setViewDetailOpen] = useState(false);
-  const [memberToView, setMemberToView] = useState<User | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
   // React Query hooks
@@ -197,11 +194,6 @@ const MemberManagement = () => {
     setSelectedMember(undefined);
   };
 
-  const handleView = (member: User) => {
-    setMemberToView(member);
-    setViewDetailOpen(true);
-  };
-
   const handleSubmit = async (values: UserRequest) => {
     try {
       if (selectedMember) {
@@ -274,7 +266,7 @@ const MemberManagement = () => {
         <Card className="w-full">
           <CardHeader className="space-y-4">
             {/* Title and Add button */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <CardTitle className="text-2xl font-bold">Danh sách thành viên</CardTitle>
               <Button onClick={handleCreate} className="shrink-0">
                 <Plus className="mr-2 h-4 w-4" />
@@ -283,7 +275,7 @@ const MemberManagement = () => {
             </div>
 
             {/* Search and Filter row */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               {/* SearchBar - Thêm resetPagination prop */}
               <SearchBar
                 searchOptions={searchOptions}
@@ -311,7 +303,7 @@ const MemberManagement = () => {
           </CardHeader>
 
           <CardContent>
-            <MemberTable ref={tableRef} members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} onView={handleView} />
+            <MemberTable ref={tableRef} members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} />
           </CardContent>
         </Card>
       </div>
@@ -348,13 +340,6 @@ const MemberManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Member Detail Dialog - using the new component */}
-      {memberToView && (
-        <Dialog open={viewDetailOpen} onOpenChange={setViewDetailOpen}>
-          <MemberDetail member={memberToView} />
-        </Dialog>
-      )}
     </>
   );
 };

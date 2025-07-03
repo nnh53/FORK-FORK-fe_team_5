@@ -14,7 +14,7 @@ import { SortButton } from "@/components/shared/SortButton";
 import { usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { MEMBERSHIP_LEVEL, User } from "@/interfaces/users.interface";
-import { Edit, Eye, Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 
 // Extended User interface to include membership data
@@ -38,7 +38,6 @@ interface MemberTableProps {
   members: UserWithMembership[];
   onEdit: (member: UserWithMembership) => void;
   onDelete: (member: UserWithMembership) => void;
-  onView?: (member: UserWithMembership) => void;
 }
 
 const getStatusDisplay = (status: string) => {
@@ -53,7 +52,7 @@ const getStatusDisplay = (status: string) => {
 };
 
 const getMembershipBadge = (level?: MEMBERSHIP_LEVEL) => {
-  if (!level) return <span className="text-gray-500 text-xs">Chưa có</span>;
+  if (!level) return <span className="text-xs text-gray-500">Chưa có</span>;
 
   const badgeColors: Record<string, string> = {
     Silver: "bg-gray-200 text-gray-800",
@@ -62,11 +61,11 @@ const getMembershipBadge = (level?: MEMBERSHIP_LEVEL) => {
     Diamond: "bg-purple-100 text-purple-800",
   };
 
-  return <Badge className={`${badgeColors[level] || "bg-gray-100"} py-1 px-2 text-xs font-medium`}>{level}</Badge>;
+  return <Badge className={`${badgeColors[level] || "bg-gray-100"} px-2 py-1 text-xs font-medium`}>{level}</Badge>;
 };
 
 // Sửa MemberTable component để có thể forward ref và expose resetPagination
-const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps>(({ members, onEdit, onDelete, onView }, ref) => {
+const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps>(({ members, onEdit, onDelete }, ref) => {
   const { sortedData, getSortProps } = useSortable<UserWithMembership>(members);
 
   // Pagination configuration
@@ -84,19 +83,21 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
+    // Sắp xếp theo ID (giả định ID mới nhất sẽ lớn nhất)
+    const sortedByDate = [...sortedData].sort((a, b) => {
+      return String(b.id).localeCompare(String(a.id));
+    });
+
+    return sortedByDate.slice(pagination.startIndex, pagination.endIndex + 1);
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <div className="w-full overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="w-16 text-center">STT</TableHead>
-              <TableHead className="w-16">
-                <SortButton {...getSortProps("id")}>ID</SortButton>
-              </TableHead>
               <TableHead>
                 <SortButton {...getSortProps("fullName")}>Họ tên</SortButton>
               </TableHead>
@@ -105,15 +106,6 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
               </TableHead>
               <TableHead className="w-28">
                 <SortButton {...getSortProps("status")}>Trạng thái</SortButton>
-              </TableHead>
-              <TableHead className="w-28">
-                <SortButton {...getSortProps("membershipLevel")}>Hạng thành viên</SortButton>
-              </TableHead>
-              <TableHead className="w-32 text-right">
-                <SortButton {...getSortProps("totalSpent")}>Tổng chi tiêu</SortButton>
-              </TableHead>
-              <TableHead className="w-20 text-center">
-                <SortButton {...getSortProps("loyalty_point")}>Điểm</SortButton>
               </TableHead>
               <TableHead className="w-24 text-center">Thao tác</TableHead>
             </TableRow>
@@ -126,22 +118,13 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                 return (
                   <TableRow key={member.id}>
                     <TableCell className="text-center font-medium">{pagination.startIndex + index + 1}</TableCell>
-                    <TableCell>{member.id}</TableCell>
                     <TableCell>{member.fullName}</TableCell>
                     <TableCell>{member.email}</TableCell>
                     <TableCell>
                       <Badge className={statusDisplay.className}>{statusDisplay.label}</Badge>
                     </TableCell>
-                    <TableCell>{getMembershipBadge(member.membershipLevel)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(member.totalSpent)}</TableCell>
-                    <TableCell className="text-center">{member.loyalty_point ?? 0}</TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-1">
-                        {onView && (
-                          <Button variant="ghost" size="icon" onClick={() => onView(member)} title="Xem chi tiết">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        )}
                         <Button variant="ghost" size="icon" onClick={() => onEdit(member)} title="Chỉnh sửa">
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -155,7 +138,7 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
@@ -178,7 +161,7 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
             {pagination.visiblePages.map((page, i) => {
               if (page === "ellipsis") {
                 return (
-                  <PaginationItem key={`ellipsis-${i}`}>
+                  <PaginationItem key={`ellipsis-${page}-${i}`}>
                     <PaginationEllipsis />
                   </PaginationItem>
                 );
