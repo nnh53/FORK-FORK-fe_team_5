@@ -10,7 +10,7 @@ import NowShowing from "@/feature/views/NowShowing/NowShowing";
 import ParallaxSection from "@/feature/views/ParallaxSection";
 import TrendingSection from "@/feature/views/TrendingSection/TrendingSection";
 import { useHomePageAnimations } from "@/hooks/useHomePageAnimations";
-import UserLayout from "@/layouts/user/UserLayout";
+
 import { ROUTES } from "@/routes/route.constants";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +37,7 @@ const HomePage = () => {
   });
 
   return (
-    <UserLayout>
+    <div>
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="home-page">
           {/* New Releases Carousel Section */}
@@ -96,7 +96,7 @@ const HomePage = () => {
           </div>
         </div>
       </ClickSpark>
-    </UserLayout>
+    </div>
   );
 };
 

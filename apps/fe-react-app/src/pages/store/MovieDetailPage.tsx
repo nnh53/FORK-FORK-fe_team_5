@@ -6,7 +6,6 @@ import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/Showtime
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
 import type { Showtime as OldShowtime } from "@/interfaces/movies.interface";
 import type { Showtime as NewShowtime } from "@/interfaces/showtime.interface";
-import UserLayout from "@/layouts/user/UserLayout";
 import { useMovie } from "@/services/movieService";
 import { transformShowtimesResponse, useShowtimesByMovie } from "@/services/showtimeService";
 import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "@/utils/showtimeUtils";
@@ -125,29 +124,29 @@ const MovieDetailPage: React.FC = () => {
   // Loading state
   if (isLoading || showtimesLoading) {
     return (
-      <UserLayout>
+      <div>
         <div className="flex items-center justify-center py-20">
           <div className="text-xl text-white">Đang tải thông tin phim...</div>
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
   // Error state
   if (error || showtimesError || !movie) {
     return (
-      <UserLayout>
+      <div>
         <div className="flex items-center justify-center py-20">
           <div className="text-xl text-red-500">{showtimesError ? "Không tải được lịch chiếu" : "Không tìm thấy thông tin phim"}</div>
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
   const embedUrl = movie.trailer && getYouTubeId(movie.trailer) ? `https://www.youtube.com/embed/${getYouTubeId(movie.trailer)}?autoplay=0` : "";
 
   return (
-    <UserLayout>
+    <div>
       <div className="bg-gray-50 py-10">
         <div className="mx-auto max-w-6xl px-4">
           {/* Breadcrumbs */}
@@ -223,7 +222,7 @@ const MovieDetailPage: React.FC = () => {
           )}
         </div>
       </div>
-    </UserLayout>
+    </div>
   );
 };
 

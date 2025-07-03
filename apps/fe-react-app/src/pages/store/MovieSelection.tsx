@@ -4,7 +4,6 @@ import MovieSearch from "@/components/MovieSearch.tsx";
 import SplitText from "@/components/Reactbits/reactbit-text-animations/SplitText/SplitText.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import type { Movie } from "@/interfaces/movies.interface.ts";
-import UserLayout from "@/layouts/user/UserLayout.tsx";
 import { transformMovieResponse, useMovies } from "@/services/movieService.ts";
 import { transformShowtimesResponse } from "@/services/showtimeService.ts";
 import type { MovieResponse } from "@/type-from-be";
@@ -259,7 +258,7 @@ function MovieSelection() {
   };
 
   return (
-    <UserLayout>
+    <div>
       {/* Movie Search Section */}
       <div className="mx-auto max-w-4xl px-4 py-8">
         <div className="mb-6 text-center">
@@ -366,7 +365,7 @@ function MovieSelection() {
           trailerUrl={selectedTrailerUrl}
         />
       )}
-    </UserLayout>
+    </div>
   );
 }
 

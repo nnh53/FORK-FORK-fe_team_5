@@ -187,6 +187,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
 
       <SidebarInset>
         <SiteHeader />
+
         <Routes>
           <Route
             path="/admin/dashboard"
@@ -232,7 +233,6 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
           <Route path="staffs" element={<StaffManagement />} />
           <Route path="combo" element={<ComboManagement />} />
           <Route path="/snacks" element={<SnackManagement />} />
-
           <Route
             path="settings"
             element={

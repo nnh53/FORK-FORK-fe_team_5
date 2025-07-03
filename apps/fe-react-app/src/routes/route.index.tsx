@@ -41,45 +41,39 @@ import { ROUTES } from "./route.constants";
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
   <Routes>
-    {" "}
-    {/* Root redirect */}
-    <Route index element={<Navigate to={ROUTES.HOME} replace />} />
-    {/* Public Routes */}
-    <Route path={ROUTES.HOME} element={<HomePage />} />
-    <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
-    <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
-    {/* Auth Routes - grouped under /auth path prefix */}
-    <Route element={<AuthPageProtector />}>
-      <Route path={ROUTES.AUTH.ROOT}>
-        <Route index element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
-        <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
-        <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
-        <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
+    {/* User Routes - All routes that use UserLayout */}
+    <Route path="/" element={<UserLayout />}>
+      {/* Root redirect */}
+      <Route index element={<Navigate to={ROUTES.HOME} replace />} />
+      {/* Public Routes */}
+      <Route path={ROUTES.HOME} element={<HomePage />} />
+      <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
+      <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
+      {/* Auth Routes - grouped under /auth path prefix */}
+      <Route element={<AuthPageProtector />}>
+        <Route path={ROUTES.AUTH.ROOT}>
+          <Route index element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
+          <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
+          <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
+          <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
+        </Route>
       </Route>
+      {/* Protected Routes for Booking - require authentication */}
+      <Route element={<ProtectedRoute />}>
+        <Route path={ROUTES.BOOKING} element={<BookingPage />} />
+        <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
+        <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
+        <Route path={ROUTES.ACCOUNT} element={<MyUserManagement />} />
+      </Route>
+      {/* Legacy route for backward compatibility */}
+      <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
+      <Route path={ROUTES.LEGACY_AUTH.LOGIN} element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
+      <Route path={ROUTES.LEGACY_AUTH.REGISTER} element={<Navigate to={ROUTES.AUTH.REGISTER} replace />} />
+      <Route path={ROUTES.LEGACY_AUTH.FORGOT_PASSWORD} element={<Navigate to={ROUTES.AUTH.FORGOT_PASSWORD} replace />} />
     </Route>
-    {/* Legacy auth routes for backward compatibility */}
-    <Route path={ROUTES.LEGACY_AUTH.LOGIN} element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
-    <Route path={ROUTES.LEGACY_AUTH.REGISTER} element={<Navigate to={ROUTES.AUTH.REGISTER} replace />} />
-    <Route path={ROUTES.LEGACY_AUTH.FORGOT_PASSWORD} element={<Navigate to={ROUTES.AUTH.FORGOT_PASSWORD} replace />} />
-    {/* Protected Routes for Booking - require authentication */}
-    <Route element={<ProtectedRoute />}>
-      <Route path={ROUTES.BOOKING} element={<BookingPage />} />
-      <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
-      <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
-    </Route>
-    {/* User Account Routes - Protected for any authenticated user */}
-    <Route element={<ProtectedRoute />}>
-      <Route
-        path={ROUTES.ACCOUNT}
-        element={
-          <UserLayout>
-            <MyUserManagement />
-          </UserLayout>
-        }
-      />
-    </Route>
-    {/* Legacy route for backward compatibility */}
-    <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
+    {/*----------------------------------- Ở TRÊN LÀ MEMBER VÀ GUEST ---------------------------------------*/}
+    {/* --------------------------------------------------------------------------------------------------- */}
+    {/*----------------------------------- Ở DƯỚI LÀ ADMIN VÀ STAFF ---------------------------------------*/}
     {/* Admin Routes - Protected for ADMIN role */}
     <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
       <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
@@ -98,6 +92,9 @@ export const AppRoutes = () => (
       <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
     </Route>
     {/* <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} /> */}
+    {/* --------------------------------------------------------------------------------------------------- */}
+    {/*----------------------------------- Ở DƯỚI LÀ UTILITY VÀ STATIC VÀ TEST ---------------------------------------*/}
+    {/* --------------------------------------------------------------------------------------------------- */}
     {/* Utility Routes */}
     <Route path={ROUTES.LOADING} element={<Loading />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />

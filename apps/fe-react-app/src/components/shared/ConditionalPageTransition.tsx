@@ -1,6 +1,5 @@
 import React, { type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
-import PageTransition from "./PageTransition";
 
 interface ConditionalPageTransitionProps {
   children: ReactNode;
@@ -15,11 +14,11 @@ const ConditionalPageTransition: React.FC<ConditionalPageTransitionProps> = ({ c
     location.pathname === "/forgot-password" ||
     location.pathname === "/logviareg" ||
     location.pathname.includes("auth");
-    
+
   if (isAuthRoute) {
     return <>{children}</>;
   }
-  return <PageTransition>{children}</PageTransition>;
+  return <>{children}</>;
 };
 
 export default ConditionalPageTransition;
