@@ -7,6 +7,7 @@ import { Textarea } from "@/components/Shadcn/ui/textarea";
 import type { Snack } from "@/interfaces/snacks.interface";
 import { snackCategoryOptions, snackSizeOptions, snackStatusOptions } from "@/services/snackService";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Icon } from "@iconify/react";
 import { ImageIcon, Upload, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -126,17 +127,17 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
           <div className="grid grid-cols-5 gap-8">
             {/* Upload ảnh (2/5 width) */}
             <div className="col-span-2">
-              <Card className="border-2 border-dashed border-gray-300 hover:border-primary transition-colors h-full">
+              <Card className="hover:border-primary h-full border-2 border-dashed border-gray-300 transition-colors">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <ImageIcon className="h-5 w-5" />
                     Hình ảnh
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 h-full flex flex-col">
+                <CardContent className="flex h-full flex-col space-y-4">
                   <div
-                    className={`relative border-2 border-dashed rounded-lg transition-all duration-200 overflow-hidden flex-1 ${
-                      dragActive ? "border-primary bg-primary/5" : "border-gray-300 hover:border-primary"
+                    className={`relative flex-1 overflow-hidden rounded-lg border-2 border-dashed transition-all duration-200 ${
+                      dragActive ? "border-primary bg-primary/5" : "hover:border-primary border-gray-300"
                     }`}
                     style={{ minHeight: "200px" }}
                     onDragEnter={handleDrag}
@@ -145,17 +146,17 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                     onDrop={handleDrop}
                   >
                     {currentImage ? (
-                      <div className="relative w-full h-full group">
+                      <div className="group relative h-full w-full">
                         <img
                           src={currentImage}
                           alt="Snack preview"
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover"
                           onError={() => {
                             form.setError("img", { message: "Invalid image URL" });
                           }}
                         />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                          <div className="text-white text-center space-y-2">
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          <div className="space-y-2 text-center text-white">
                             <Upload className="mx-auto h-5 w-5" />
                             <p className="text-xs font-medium">Kéo thả để thay đổi</p>
                             <p className="text-xs">hoặc click chọn file</p>
@@ -165,22 +166,22 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                           type="button"
                           variant="destructive"
                           size="sm"
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 h-6 w-6 p-0"
+                          className="absolute right-2 top-2 h-6 w-6 p-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                           onClick={clearImage}
                         >
                           <X className="h-3 w-3" />
                         </Button>
                         <input
                           type="file"
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                           accept="image/*"
                           onChange={handleFileChange}
                         />
                       </div>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center p-4">
+                      <div className="flex h-full w-full items-center justify-center p-4">
                         <div className="text-center">
-                          <Upload className="mx-auto h-8 w-8 text-gray-400 mb-3" />
+                          <Upload className="mx-auto mb-3 h-8 w-8 text-gray-400" />
                           <div className="space-y-1">
                             <label htmlFor="file-upload" className="cursor-pointer">
                               <span className="block text-sm font-medium text-gray-900">
@@ -215,13 +216,13 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
             <div className="col-span-3 h-full">
               <Card className="h-full">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     {snack ? "Nhập thông tin cần chỉnh sửa" : "Nhập thông tin đồ ăn mới"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Tên đồ ăn */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="name"
@@ -266,7 +267,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                   />
 
                   {/* Danh mục, Kích thước, Trạng thái */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     {/* Cập nhật các giá trị enum của category */}
                     <FormField
                       control={form.control}
@@ -283,7 +284,12 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                             <SelectContent>
                               {snackCategoryOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
-                                  {option.value === "FOOD" ? "🍽️ " : "🥤 "}
+                                  {option.value === "FOOD" ? (
+                                    <Icon icon="lucide:popcorn" className="text-shadow-background mx-auto mb-0.5" />
+                                  ) : (
+                                    <Icon icon="ri:drinks-2-line" className="text-shadow-background mx-auto mb-0.5" />
+                                  )}
+
                                   {option.label}
                                 </SelectItem>
                               ))}
@@ -324,7 +330,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                   </div>
 
                   {/* Giá bán, Số lượng tồn kho */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="price"
@@ -340,7 +346,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                                 onChange={(e) => field.onChange(Number(e.target.value))}
                                 className="h-11 pr-12"
                               />
-                              <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground font-medium">₫</span>
+                              <span className="text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2 transform font-medium">₫</span>
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -363,7 +369,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                               {snackStatusOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 ${option.value === "AVAILABLE" ? "bg-green-500" : "bg-gray-500"} rounded-full`}></div>
+                                    <div className={`h-2 w-2 ${option.value === "AVAILABLE" ? "bg-green-500" : "bg-gray-500"} rounded-full`}></div>
                                     {option.label}
                                   </div>
                                 </SelectItem>
@@ -381,7 +387,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
           </div>
 
           {/* Nút hành động */}
-          <div className="flex justify-end space-x-4 pt-4 border-t">
+          <div className="flex justify-end space-x-4 border-t pt-4">
             <Button variant="outline" onClick={onCancel} className="px-8 py-2">
               Hủy bỏ
             </Button>

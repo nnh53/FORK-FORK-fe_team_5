@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui
 import type { Snack } from "@/interfaces/snacks.interface";
 import { getSnackCategoryLabel, getSnackSizeLabel, getSnackStatusLabel } from "@/services/snackService";
 import { cn } from "@/utils/utils";
+import { Icon } from "@iconify/react";
 import { Edit, Trash, Utensils } from "lucide-react";
 
 interface SnackCardProps {
@@ -32,7 +33,15 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
     const isFood = snack.category === "FOOD";
 
     return (
-      <Badge variant="secondary" className={`text-xs ${isFood ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}>
+      <Badge
+        variant="secondary"
+        className={`flex items-center gap-1 text-xs ${isFood ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}
+      >
+        {isFood ? (
+          <Icon icon="lucide:popcorn" className="text-shadow-background h-4 w-4" />
+        ) : (
+          <Icon icon="ri:drinks-2-line" className="text-shadow-background h-4 w-4" />
+        )}
         {categoryLabel}
       </Badge>
     );
@@ -70,7 +79,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
     <>
       {onEdit && (
         <Button size="sm" variant="outline" onClick={() => onEdit(snack)} className={isFullWidth ? "flex-1" : "h-8 w-8 p-0"}>
-          <Edit className={isFullWidth ? "h-3 w-3 mr-1" : "h-4 w-4"} />
+          <Edit className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
           {isFullWidth && "Chỉnh sửa"}
         </Button>
       )}
@@ -79,9 +88,9 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
           size="sm"
           variant="destructive"
           onClick={() => onDelete(snack.id)}
-          className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 hover:border-red-200"}
+          className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:border-red-200 hover:bg-red-50 hover:text-red-600"}
         >
-          <Trash className={isFullWidth ? "h-3 w-3 mr-1" : "h-4 w-4"} />
+          <Trash className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
           {isFullWidth && "Xóa"}
         </Button>
       )}
@@ -95,16 +104,16 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
         <img
           src={snack.img}
           alt={snack.name}
-          className="w-full h-32 object-cover rounded-lg border border-gray-200"
+          className="h-32 w-full rounded-lg border border-gray-200 object-cover"
           style={{ aspectRatio: "5 / 4" }}
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/placeholder-food.jpg";
           }}
         />
       ) : (
-        <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded-lg border border-gray-200">
+        <div className="flex h-32 w-full flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-100">
           <Utensils className="h-8 w-8 text-gray-400" />
-          <span className="text-sm text-gray-500 mt-2">Không có hình ảnh</span>
+          <span className="mt-2 text-sm text-gray-500">Không có hình ảnh</span>
         </div>
       )}
     </div>
@@ -112,18 +121,18 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
 
   // List View Image
   const ListImageComponent = () => (
-    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+    <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg">
       {snack.img ? (
         <img
           src={snack.img}
           alt={snack.name}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/placeholder-food.jpg";
           }}
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-gray-200">
+        <div className="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
           <Utensils className="h-6 w-6 text-gray-400" />
         </div>
       )}
@@ -133,17 +142,17 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
   // Grid View
   if (viewMode === "grid") {
     return (
-      <Card className={cn("w-full max-w-md transition-all duration-200 hover:shadow-lg p-4")}>
+      <Card className={cn("w-full max-w-md p-4 transition-all duration-200 hover:shadow-lg")}>
         <CardHeader className="p-0">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-xl font-bold line-clamp-2">{snack.name}</CardTitle>
-            <div className="flex gap-2 items-center">
+          <div className="flex items-center justify-between">
+            <CardTitle className="line-clamp-2 text-xl font-bold">{snack.name}</CardTitle>
+            <div className="flex items-center gap-2">
               <CategoryBadge />
               <StatusBadge />
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0 space-y-2">
+        <CardContent className="space-y-2 p-0">
           <div className="grid grid-cols-2 gap-2">
             <GridImageComponent />
             <div className="space-y-3">
@@ -166,13 +175,13 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
             </div>
           </div>
 
-          <div className="p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-gray-200 shadow-sm">
+          <div className="rounded-lg border border-gray-200 bg-gradient-to-r from-blue-50 to-green-50 p-4 shadow-sm">
             <div className="flex items-center gap-2">
-              <Utensils className="h-4 w-4 mt-1" />
+              <Utensils className="mt-1 h-4 w-4" />
               <p className="text-sm font-semibold">Mô tả:</p>
             </div>
             <div className="flex items-start gap-2">
-              <p className="text-sm italic text-green-600 leading-relaxed">{snack.description}</p>
+              <p className="text-sm italic leading-relaxed text-green-600">{snack.description}</p>
             </div>
           </div>
           {(onEdit || onDelete) && (
@@ -188,15 +197,15 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
   // List View
   return (
     <Card className="w-full transition-all duration-200 hover:bg-gray-50">
-      <CardContent className="p-4 flex items-center gap-4">
+      <CardContent className="flex items-center gap-4 p-4">
         <ListImageComponent />
-        <div className="flex-1 grid grid-cols-12 gap-2 items-center text-sm">
+        <div className="grid flex-1 grid-cols-12 items-center gap-2 text-sm">
           <div className="col-span-3 flex flex-col gap-1">
-            <div className="flex gap-1 items-center">
+            <div className="flex items-center gap-1">
               <CategoryBadge />
               <StatusBadge />
             </div>
-            <h3 className="font-semibold line-clamp-1">{snack.name}</h3>
+            <h3 className="line-clamp-1 font-semibold">{snack.name}</h3>
             <p className="text-xs text-gray-500">ID: #{snack.id}</p>
           </div>
           <div className="col-span-2 line-clamp-1 flex items-center gap-1">
@@ -204,16 +213,18 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
             <span>Hương vị:</span>
             <span className="italic text-blue-600">{snack.flavor || "Không có"}</span>
           </div>
-          <div className="col-span-2 line-clamp-1 flex items-center gap-1">
-            <Utensils className="h-4 w-4 text-green-600" />
-            <span className="font-semibold text-green-700">Mô tả:</span>
-            <span className="italic text-green-600">{snack.description}</span>
+          <div className="flex items-center gap-2">
+            <Utensils className="h-4 w-4" />
+            <p className="text-sm font-semibold">Mô tả:</p>
+          </div>
+          <div className="col-span-2 flex items-start gap-2">
+            <p className="text-sm italic leading-relaxed text-green-600">{snack.description}</p>
           </div>
           <div className="col-span-1">
             <SizeBadge />
           </div>
           <div className="col-span-1 font-bold text-green-600">{formatPrice(snack.price)}</div>
-          <div className="col-span-3 flex justify-end gap-1">
+          <div className="col-span-2 flex justify-end gap-1">
             <ActionButtons isFullWidth={false} />
           </div>
         </div>

@@ -276,7 +276,7 @@ const SnackManagement: React.FC = () => {
         <Card className="w-full">
           <CardHeader className="space-y-4">
             {/* Tiêu đề và nút thêm */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <CardTitle className="text-2xl font-bold">Quản lý thực phẩm</CardTitle>
                 <p className="text-muted-foreground mt-1">Quản lý danh sách thực phẩm và đồ uống của bạn</p>
@@ -288,12 +288,12 @@ const SnackManagement: React.FC = () => {
             </div>
 
             {/* Thanh tìm kiếm và bộ lọc */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <SearchBar
                 searchOptions={searchOptions}
                 onSearchChange={setSearchTerm}
                 placeholder="Tìm kiếm theo ID, tên, mô tả..."
-                className="w-full sm:w-auto flex-1"
+                className="w-full flex-1 sm:w-auto"
                 resetPagination={() => tableRef.current?.resetPagination()}
               />
 

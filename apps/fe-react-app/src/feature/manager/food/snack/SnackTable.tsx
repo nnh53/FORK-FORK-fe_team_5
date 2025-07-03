@@ -15,6 +15,7 @@ import { SortButton } from "@/components/shared/SortButton";
 import { getPageInfo, usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { Snack } from "@/interfaces/snacks.interface";
+import { Icon } from "@iconify/react";
 import { Grid3X3, List } from "lucide-react";
 import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import SnackCard from "./SnackCard";
@@ -49,7 +50,7 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
+    return sortedData.reverse().slice(pagination.startIndex, pagination.endIndex + 1);
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
   // Render pagination items
@@ -83,15 +84,15 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
   return (
     <div className="space-y-6">
       {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-4">
           <h2 className="text-xl font-semibold">Danh sách thực phẩm ({snacks.length})</h2>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Sort Controls */}
-          <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
-            <span className="text-sm font-medium px-2">Sắp xếp:</span>
+          <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-1">
+            <span className="px-2 text-sm font-medium">Sắp xếp:</span>
             <SortButton {...getSortProps("name")} label="Tên" />
             <SortButton {...getSortProps("price")} label="Giá" />
           </div>
@@ -110,7 +111,7 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
           </Select>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center border rounded-lg">
+          <div className="flex items-center rounded-lg border">
             <Button variant={viewMode === "grid" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("grid")} className="rounded-r-none">
               <Grid3X3 className="h-4 w-4" />
             </Button>
@@ -125,15 +126,15 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
       {currentPageData.length === 0 ? (
         <Card>
           <CardContent className="py-12">
-            <div className="text-center text-muted-foreground">
-              <div className="text-4xl mb-4">🍽️</div>
-              <div className="text-lg font-medium mb-2">Không tìm thấy thực phẩm</div>
+            <div className="text-muted-foreground text-center">
+              <Icon icon="lucide:popcorn" className="text-shadow-background mx-auto mb-0.5" />{" "}
+              <div className="mb-2 text-lg font-medium">Không tìm thấy thực phẩm</div>
               <div className="text-sm">Hãy thử thay đổi bộ lọc hoặc thêm thực phẩm mới</div>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-3"}>
+        <div className={viewMode === "grid" ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "space-y-3"}>
           {currentPageData.map((snack) => (
             <SnackCard key={snack.id} snack={snack} onEdit={onEdit} onDelete={onDelete} viewMode={viewMode} />
           ))}
@@ -142,9 +143,9 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
 
       {/* Pagination */}
       {sortedData.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           {/* Pagination Info */}
-          <div className="text-sm text-muted-foreground">{getPageInfo(pagination)}</div>
+          <div className="text-muted-foreground text-sm">{getPageInfo(pagination)}</div>
 
           {/* Pagination Controls */}
           {pagination.totalPages > 1 && (
