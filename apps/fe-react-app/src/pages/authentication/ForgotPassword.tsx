@@ -88,7 +88,7 @@ const ForgotPassword: React.FC = () => {
   return (
     <animated.div style={pageAnimation} className="flex h-screen">
       {/* Left Banner */}
-      <div className="w-1/2 bg-red-700 text-white flex flex-col justify-center p-12 relative overflow-hidden">
+      <div className="relative flex w-1/2 flex-col justify-center overflow-hidden bg-red-700 p-12 text-white">
         {transitions((style, i) => (
           <animated.div
             key={i}
@@ -111,26 +111,26 @@ const ForgotPassword: React.FC = () => {
         </div>
       </div>
       {/* Right Banner */}
-      <div className="w-1/2 flex items-center justify-center p-12">
+      <div className="flex w-1/2 items-center justify-center p-12">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
+          <div className="mb-8 text-center">
             <AuthLogo />
             <h3 className="text-2xl font-semibold">Tạo mật khẩu mới</h3>
             <p className="text-gray-600">Nhập mật khẩu mới cho tài khoản của bạn</p>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && (
-              <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-400 rounded-md" role="alert">
+              <div className="rounded-md border border-red-400 bg-red-100 p-3 text-sm text-red-700" role="alert">
                 {error}
               </div>
             )}
             {message && (
-              <div className="p-3 text-sm text-green-700 bg-green-100 border border-green-400 rounded-md" role="alert">
+              <div className="rounded-md border border-green-400 bg-green-100 p-3 text-sm text-green-700" role="alert">
                 {message}
               </div>
             )}
             <div className="relative">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 text-left mb-1">
+              <label htmlFor="password" className="mb-1 block text-left text-sm font-medium text-gray-700">
                 Mật khẩu mới
               </label>
               <div className="relative">
@@ -140,7 +140,7 @@ const ForgotPassword: React.FC = () => {
                   {...register("password")}
                   placeholder="Nhập mật khẩu mới"
                   disabled={loading}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10 ${
+                  className={`w-full rounded-md border px-3 py-2 pr-10 focus:outline-none focus:ring-2 ${
                     errors.password ? "border-red-500 focus:ring-red-500" : "border-blue-300 hover:border-blue-500 focus:ring-blue-500"
                   }`}
                 />
@@ -149,19 +149,19 @@ const ForgotPassword: React.FC = () => {
                   onMouseDown={() => setShowPassword(true)}
                   onMouseUp={() => setShowPassword(false)}
                   onMouseLeave={() => setShowPassword(false)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 transform text-gray-500 hover:text-gray-700"
                 >
                   <img
                     src={showPassword ? "/icons/eye-open.svg" : "/icons/eye-closed.svg"}
                     alt="toggle password visibility"
-                    className="w-5 h-5 cursor-pointer"
+                    className="h-5 w-5 cursor-pointer"
                   />
                 </button>
               </div>
-              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message as string}</p>}
+              {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password.message as string}</p>}
             </div>
             <div className="relative">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 text-left mb-1">
+              <label htmlFor="confirmPassword" className="mb-1 block text-left text-sm font-medium text-gray-700">
                 Xác nhận mật khẩu
               </label>
               <div className="relative">
@@ -171,7 +171,7 @@ const ForgotPassword: React.FC = () => {
                   {...register("confirmPassword")}
                   placeholder="Nhập lại mật khẩu mới"
                   disabled={loading}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 pr-10 ${
+                  className={`w-full rounded-md border px-3 py-2 pr-10 focus:outline-none focus:ring-2 ${
                     errors.confirmPassword ? "border-red-500 focus:ring-red-500" : "border-blue-300 hover:border-blue-500 focus:ring-blue-500"
                   }`}
                 />
@@ -180,24 +180,23 @@ const ForgotPassword: React.FC = () => {
                   onMouseDown={() => setShowConfirmPassword(true)}
                   onMouseUp={() => setShowConfirmPassword(false)}
                   onMouseLeave={() => setShowConfirmPassword(false)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 transform text-gray-500 hover:text-gray-700"
                 >
                   <img
                     src={showConfirmPassword ? "/icons/eye-open.svg" : "/icons/eye-closed.svg"}
                     alt="toggle password visibility"
-                    className="w-5 h-5 cursor-pointer"
+                    className="h-5 w-5 cursor-pointer"
                   />
                 </button>
               </div>
-              {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message as string}</p>}
+              {errors.confirmPassword && <p className="mt-1 text-sm text-red-500">{errors.confirmPassword.message as string}</p>}
             </div>
-            <NavigateButton to="/" text="Đổi mật khẩu" className="w-full bg-red-600 text-red py-2 rounded-md hover:bg-red-700 transition-colors" />
+            <NavigateButton to="/" text="Đổi mật khẩu" className="text-red w-full rounded-md bg-red-600 py-2 transition-colors hover:bg-red-700" />
 
-            <div className="text-center mt-4">
-              <NavigateButton text="Quay lại đăng nhập" to="/login" className="text-sm text-red-600 hover:underline mx-auto" />
+            <div className="mt-4 text-center">
+              <NavigateButton text="Quay lại đăng nhập" to="/login" className="mx-auto text-sm text-red-600 hover:underline" />
             </div>
           </form>
-
         </div>
       </div>
     </animated.div>
