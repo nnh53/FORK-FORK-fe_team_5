@@ -1,7 +1,7 @@
 import type { AuthLoginData } from "@/interfaces/auth.interface";
 import type { UserLoginResponse } from "@/interfaces/users.interface";
-import { doLogout } from "@/utils/api.utils";
-import { eraseCookie, getCookie, parseRoles, setCookie } from "@/utils/cookie.utils";
+import { clearAuthData } from "@/utils/auth.utils";
+import { getCookie, parseRoles, setCookie } from "@/utils/cookie.utils";
 import React, { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -63,18 +63,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (userData.refresh_token) setCookie("refresh_token", userData.refresh_token, 7); // Set refresh token to expire in 7 days
   };
 
-  const authLogout = async () => {
-    const token = getCookie("access_token");
-    if (token) {
-      await doLogout(token);
-    }
+  const authLogout = () => {
+    console.log("Logging out user...");
+
+    // Clear all local auth data
     setIsLoggedIn(false);
     setUser(null);
-    eraseCookie("access_token");
-    eraseCookie("user_roles");
-    eraseCookie("user_id");
-    eraseCookie("fullName");
-    eraseCookie("refresh_token");
+    clearAuthData(); // This will clear all cookies
+
+    console.log("User logged out successfully");
+
+    // Redirect to home page
     navigate("/");
   };
 
