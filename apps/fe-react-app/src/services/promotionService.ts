@@ -3,8 +3,8 @@ import type { PromotionResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
 
 // Type aliases for union types
-type PromotionStatus = "ACTIVE" | "INACTIVE" | "EXPIRED";
-type PromotionType = "PERCENTAGE" | "FIXED_AMOUNT" | "FREE_ITEM";
+type PromotionStatus = "ACTIVE" | "INACTIVE";
+type PromotionType = "PERCENTAGE" | "AMOUNT";
 
 // ==================== PROMOTION API HOOKS ====================
 
@@ -98,7 +98,6 @@ export const transformPromotionToRequest = (promotion: Partial<Promotion>) => {
 export const promotionStatusOptions = [
   { value: "ACTIVE" as PromotionStatus, label: "Đang hoạt động" },
   { value: "INACTIVE" as PromotionStatus, label: "Chưa hoạt động" },
-  { value: "EXPIRED" as PromotionStatus, label: "Đã hết hạn" },
 ];
 
 /**
@@ -106,8 +105,7 @@ export const promotionStatusOptions = [
  */
 export const promotionTypeOptions = [
   { value: "PERCENTAGE" as PromotionType, label: "Giảm theo phần trăm" },
-  { value: "FIXED_AMOUNT" as PromotionType, label: "Giảm số tiền cố định" },
-  { value: "FREE_ITEM" as PromotionType, label: "Tặng sản phẩm" },
+  { value: "AMOUNT" as PromotionType, label: "Giảm số tiền cố định" },
 ];
 
 // ==================== HELPER FUNCTIONS ====================
@@ -116,14 +114,14 @@ export const promotionTypeOptions = [
  * Check if a string is a valid promotion status
  */
 export const isValidPromotionStatus = (status: string): status is PromotionStatus => {
-  return ["ACTIVE", "INACTIVE", "EXPIRED"].includes(status);
+  return ["ACTIVE", "INACTIVE"].includes(status);
 };
 
 /**
  * Check if a string is a valid promotion type
  */
 export const isValidPromotionType = (type: string): type is PromotionType => {
-  return ["PERCENTAGE", "FIXED_AMOUNT", "FREE_ITEM"].includes(type);
+  return ["PERCENTAGE", "AMOUNT"].includes(type);
 };
 
 /**
@@ -191,7 +189,7 @@ export const calculateDiscount = (promotion: Promotion, purchaseAmount: number):
     // Cap the percentage at 100%
     const percentage = Math.min(promotion.discountValue, 100);
     return (purchaseAmount * percentage) / 100;
-  } else if (promotion.type === "FIXED_AMOUNT") {
+  } else if (promotion.type === "AMOUNT") {
     // Fixed amount can't be more than the purchase amount
     return Math.min(promotion.discountValue, purchaseAmount);
   }

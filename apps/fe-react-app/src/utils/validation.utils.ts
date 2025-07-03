@@ -95,29 +95,26 @@ export function formatDateTime(isoString: string): string[] {
 }
 
 export const promotionValidationSchema = Yup.object({
-  image: Yup.string().url("Must be a valid URL").required("Image URL is required"),
-  title: Yup.string().min(3, "Title must be at least 3 characters").max(100, "Title must be less than 100 characters").required("Title is required"),
-  type: Yup.string().oneOf(["percentage", "fixed", "buy_one_get_one", "free_shipping"], "Invalid promotion type").required("Type is required"),
-  minPurchase: Yup.number().min(0, "Minimum purchase must be at least 0").required("Minimum purchase is required"),
+  image: Yup.mixed().nullable(),
+  title: Yup.string().min(3, "Tiêu đề phải có ít nhất 3 ký tự").max(100, "Tiêu đề không quá 100 ký tự").required("Tiêu đề là bắt buộc"),
+  type: Yup.string().oneOf(["PERCENTAGE", "AMOUNT"], "Loại khuyến mãi không hợp lệ").required("Loại khuyến mãi là bắt buộc"),
+  minPurchase: Yup.number().min(0, "Đơn tối thiểu phải lớn hơn hoặc bằng 0").required("Đơn tối thiểu là bắt buộc"),
   discountValue: Yup.number()
-    .min(0, "Discount value must be at least 0")
+    .min(0, "Giá trị giảm giá phải lớn hơn hoặc bằng 0")
     .when("type", {
-      is: "percentage",
-      then: (schema) => schema.max(100, "Percentage discount cannot exceed 100%"),
+      is: "PERCENTAGE",
+      then: (schema) => schema.max(100, "Phần trăm giảm giá không được vượt quá 100%"),
       otherwise: (schema) => schema,
     })
-    .required("Discount value is required"),
-  startTime: Yup.string().required("Start time is required"),
+    .required("Giá trị giảm giá là bắt buộc"),
+  startTime: Yup.string().required("Thời gian bắt đầu là bắt buộc"),
   endTime: Yup.string()
-    .required("End time is required")
-    .test("end-after-start", "End time must be after start time", function (value) {
+    .required("Thời gian kết thúc là bắt buộc")
+    .test("end-after-start", "Thời gian kết thúc phải sau thời gian bắt đầu", function (value) {
       const { startTime } = this.parent;
       if (!startTime || !value) return true;
       return new Date(value) > new Date(startTime);
     }),
-  description: Yup.string()
-    .min(10, "Description must be at least 10 characters")
-    .max(500, "Description must be less than 500 characters")
-    .required("Description is required"),
-  status: Yup.string().oneOf(["active", "inactive", "scheduled", "expired"], "Invalid status").required("Status is required"),
+  description: Yup.string().min(10, "Mô tả phải có ít nhất 10 ký tự").max(500, "Mô tả không quá 500 ký tự").required("Mô tả là bắt buộc"),
+  status: Yup.string().oneOf(["ACTIVE", "INACTIVE"], "Trạng thái không hợp lệ").required("Trạng thái là bắt buộc"),
 });

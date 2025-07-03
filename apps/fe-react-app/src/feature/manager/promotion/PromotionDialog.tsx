@@ -9,30 +9,41 @@ interface PromotionDialogProps {
   setOpen: (open: boolean) => void;
   selectedPromotion?: Promotion;
   setSelectedPromotion: (promotion?: Promotion) => void;
+  onSuccess?: () => void;
 }
 
-export const PromotionDialog: React.FC<PromotionDialogProps> = ({ open, setOpen, selectedPromotion, setSelectedPromotion }) => {
+export const PromotionDialog: React.FC<PromotionDialogProps> = ({ open, setOpen, selectedPromotion, setSelectedPromotion, onSuccess }) => {
+  const handleSuccess = () => {
+    // Clear selected promotion and close dialog
+    setSelectedPromotion(undefined);
+    setOpen(false);
+
+    // Call the parent success handler if provided
+    if (onSuccess) {
+      onSuccess();
+    }
+  };
+
+  const handleClose = () => {
+    setSelectedPromotion(undefined);
+    setOpen(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
-        className="max-h-[90vh] overflow-y-auto sm:max-w-2x1 min-w-[50%]"
+        className="sm:max-w-2x1 max-h-[90vh] min-w-[50%] overflow-y-auto"
         onCloseAutoFocus={() => {
           setSelectedPromotion(undefined);
         }}
       >
         <DialogHeader>
-          <DialogTitle>{selectedPromotion ? "Edit Promotion" : "Add New Promotion"}</DialogTitle>
+          <DialogTitle>{selectedPromotion ? "Chỉnh sửa khuyến mãi" : "Thêm khuyến mãi mới"}</DialogTitle>
         </DialogHeader>
-        <PromotionForm selectedPromotion={selectedPromotion} />
+        <PromotionForm selectedPromotion={selectedPromotion} onSuccess={handleSuccess} />
         <DialogFooter className="mt-4">
-          <Button
-            onClick={() => {
-              setSelectedPromotion(undefined);
-              setOpen(false);
-            }}
-            variant="outline"
-          >
-            Close
+          <Button onClick={handleClose} variant="outline">
+            Đóng
           </Button>
         </DialogFooter>
       </DialogContent>
