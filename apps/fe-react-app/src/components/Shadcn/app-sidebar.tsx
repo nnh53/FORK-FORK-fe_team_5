@@ -13,6 +13,7 @@ import {
 } from "@/components/Shadcn/ui/sidebar";
 import {
   IconBox,
+  IconBrandAmongUs,
   IconCamera,
   IconChartBar,
   IconClock,
@@ -25,6 +26,7 @@ import {
   IconSettings,
   IconSpeakerphone,
   IconTicket,
+  IconToolsKitchen3,
   IconUserHeart,
   IconUsers,
 } from "@tabler/icons-react";
@@ -153,12 +155,12 @@ const data = {
     {
       name: "Combo",
       url: "/admin/combo",
-      icon: IconBox,
+      icon: IconBrandAmongUs,
     },
     {
       name: "Snack",
       url: "/admin/snacks",
-      icon: IconBox,
+      icon: IconToolsKitchen3,
     },
   ],
 };
