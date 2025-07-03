@@ -7,11 +7,13 @@ import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal
 import type { Movie } from "@/interfaces/movies.interface.ts";
 import UserLayout from "@/layouts/user/UserLayout.tsx";
 import { transformMovieResponse, useMovies } from "@/services/movieService.ts";
-import { showtimeService } from "@/services/showtimeService.ts";
+import { transformShowtimesResponse } from "@/services/showtimeService.ts";
 import type { MovieResponse } from "@/type-from-be";
 import { convertShowtimesToSchedulePerDay } from "@/utils/showtimeUtils.ts";
+import createFetchClient from "openapi-fetch";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { paths } from "../../../schema-from-be";
 import type { SchedulePerDay } from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
 import ShowtimesModal from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
 import TicketConfirmModal from "../../feature/booking/components/TicketConfirmModal/TicketConfirmModal.tsx";
@@ -25,6 +27,25 @@ interface FinalSelection {
 
 function MovieSelection() {
   const navigate = useNavigate();
+
+  // Create fetch client for manual API calls
+  const fetchClient = createFetchClient<paths>({
+    baseUrl: `${import.meta.env.VITE_API_URL}/movie_theater/`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  // Add auth token to requests
+  fetchClient.use({
+    onRequest({ request }) {
+      const token = localStorage.getItem("token");
+      if (token) {
+        request.headers.set("Authorization", `Bearer ${token}`);
+      }
+      return request;
+    },
+  });
 
   // Use React Query hook to fetch movies
   const moviesQuery = useMovies();
@@ -92,22 +113,48 @@ function MovieSelection() {
       setMovies(transformedMovies);
     }
   }, [moviesQuery.data, convertMovieToMovieCard]);
+
   const handleBuyTicketClick = async (movie: MovieCardProps) => {
     setSelectedMovie(movie);
     setIsShowtimesModalOpen(true);
+    setShowtimesLoading(true);
+    setShowtimesError(null);
 
-    // Fetch showtimes for the selected movie
     try {
-      setShowtimesLoading(true);
-      setShowtimesError(null);
+      // Use fetchClient to fetch showtimes manually
+      const movieId = typeof movie.id === "string" ? parseInt(movie.id) : movie.id;
+      const response = await fetchClient.GET("/showtimes/movie/{movieId}", {
+        params: { path: { movieId } },
+      });
 
-      const showtimesData = await showtimeService.getShowtimesByMovieId(movie.id.toString());
-      const scheduleData = convertShowtimesToSchedulePerDay(showtimesData);
-      setShowtimes(scheduleData);
+      if (response.data?.result) {
+        const transformedShowtimes = transformShowtimesResponse(response.data.result);
+        // Convert to old format for utility functions
+        const oldFormatShowtimes = transformedShowtimes.map((newShowtime) => {
+          const showDate = new Date(newShowtime.showDateTime);
+          const endDate = new Date(newShowtime.endDateTime);
+
+          return {
+            id: newShowtime.id.toString(),
+            movieId: newShowtime.movieId,
+            cinemaRoomId: newShowtime.roomId?.toString() ?? "1",
+            date: showDate.toISOString().split("T")[0],
+            startTime: showDate.toTimeString().split(" ")[0].slice(0, 5),
+            endTime: endDate.toTimeString().split(" ")[0].slice(0, 5),
+            format: "2D",
+            availableSeats: 50,
+            price: 100000,
+          };
+        });
+
+        const scheduleData = convertShowtimesToSchedulePerDay(oldFormatShowtimes);
+        setShowtimes(scheduleData);
+      } else {
+        setShowtimes([]);
+      }
     } catch (err) {
       console.error("Error fetching showtimes:", err);
       setShowtimesError("Failed to load showtimes. Please try again later.");
-      // Keep empty array if API fails
       setShowtimes([]);
     } finally {
       setShowtimesLoading(false);

@@ -5,10 +5,12 @@ import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/Show
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
 import UserLayout from "@/layouts/user/UserLayout";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import type { Showtime as OldShowtime } from "../../../interfaces/movies.interface";
+import type { Showtime as NewShowtime } from "../../../interfaces/showtime.interface";
 import { useMovie } from "../../../services/movieService";
-import { showtimeService } from "../../../services/showtimeService";
+import { transformShowtimesResponse, useShowtimesByMovie } from "../../../services/showtimeService";
 import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "../../../utils/showtimeUtils";
 
 const MovieInfoItem = ({ label, value }: { label: string; value: string | string[] }) => (
@@ -24,6 +26,24 @@ const getYouTubeId = (url: string) => {
   return match && match[2].length === 11 ? match[2] : null;
 };
 
+// Convert new Showtime format to old format for utility functions
+const convertToOldShowtimeFormat = (newShowtime: NewShowtime): OldShowtime => {
+  const showDate = new Date(newShowtime.showDateTime);
+  const endDate = new Date(newShowtime.endDateTime);
+
+  return {
+    id: newShowtime.id.toString(),
+    movieId: newShowtime.movieId,
+    cinemaRoomId: newShowtime.roomId?.toString() ?? "1",
+    date: showDate.toISOString().split("T")[0], // Format: YYYY-MM-DD
+    startTime: showDate.toTimeString().split(" ")[0].slice(0, 5), // Format: HH:MM
+    endTime: endDate.toTimeString().split(" ")[0].slice(0, 5), // Format: HH:MM
+    format: "2D", // Default format since it's not in new format
+    availableSeats: 50, // Default available seats since it's not in new format
+    price: 100000, // Default price since it's not in new format
+  };
+};
+
 const MovieDetailPage: React.FC = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const navigate = useNavigate();
@@ -31,54 +51,48 @@ const MovieDetailPage: React.FC = () => {
   // Use React Query to fetch movie data
   const { data: movieResponse, isLoading, error } = useMovie(Number(movieId));
 
+  // Use React Query to fetch showtimes for this movie
+  const { data: showtimesResponse, isLoading: showtimesLoading, error: showtimesError } = useShowtimesByMovie(Number(movieId));
+
   // Extract movie from response
   const movie = movieResponse?.result;
 
-  // State for showtimes
+  // Transform showtimes data using useMemo
+  const showtimes = useMemo(() => {
+    if (!showtimesResponse?.result) return [];
+    return transformShowtimesResponse(showtimesResponse.result);
+  }, [showtimesResponse]);
+
+  // Convert to old format for utility functions
+  const oldFormatShowtimes = useMemo(() => {
+    return showtimes.map(convertToOldShowtimeFormat);
+  }, [showtimes]);
+
+  // State for schedule data
   const [scheduleData, setScheduleData] = useState<SchedulePerDay[]>([]);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [showtimesLoading, setShowtimesLoading] = useState(true);
-  const [showtimesError, setShowtimesError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchShowtimes = async () => {
-      if (!movieId) {
-        setShowtimesError("Movie ID is required");
-        setShowtimesLoading(false);
-        return;
+    if (oldFormatShowtimes.length > 0) {
+      // Convert showtimes to schedule format
+      const schedulePerDay = convertShowtimesToSchedulePerDay(oldFormatShowtimes);
+      setScheduleData(schedulePerDay);
+
+      // Get available dates
+      const dates = getAvailableDatesFromShowtimes(oldFormatShowtimes);
+      setAvailableDates(dates);
+
+      // Set default selected date
+      if (dates.length > 0) {
+        setSelectedDate(dates[0]);
       }
-
-      try {
-        setShowtimesLoading(true);
-
-        // Fetch showtimes for this movie
-        const showtimesData = await showtimeService.getShowtimesByMovieId(movieId);
-
-        // Convert showtimes to schedule format
-        const schedulePerDay = convertShowtimesToSchedulePerDay(showtimesData);
-        setScheduleData(schedulePerDay);
-
-        // Get available dates
-        const dates = getAvailableDatesFromShowtimes(showtimesData);
-        setAvailableDates(dates);
-
-        // Set default selected date
-        if (dates.length > 0) {
-          setSelectedDate(dates[0]);
-        }
-
-        setShowtimesError(null);
-      } catch (err) {
-        console.error("Error fetching showtimes:", err);
-        setShowtimesError("Failed to load showtimes. Please try again.");
-      } finally {
-        setShowtimesLoading(false);
-      }
-    };
-
-    fetchShowtimes();
-  }, [movieId]);
+    } else {
+      setScheduleData([]);
+      setAvailableDates([]);
+      setSelectedDate(null);
+    }
+  }, [oldFormatShowtimes]);
 
   const scheduleForSelectedDay = scheduleData.find((d) => d.date === selectedDate);
 
@@ -110,8 +124,8 @@ const MovieDetailPage: React.FC = () => {
   if (isLoading || showtimesLoading) {
     return (
       <UserLayout>
-        <div className="flex justify-center items-center py-20">
-          <div className="text-white text-xl">Đang tải thông tin phim...</div>
+        <div className="flex items-center justify-center py-20">
+          <div className="text-xl text-white">Đang tải thông tin phim...</div>
         </div>
       </UserLayout>
     );
@@ -121,8 +135,8 @@ const MovieDetailPage: React.FC = () => {
   if (error || showtimesError || !movie) {
     return (
       <UserLayout>
-        <div className="flex justify-center items-center py-20">
-          <div className="text-red-500 text-xl">{showtimesError ?? "Không tìm thấy thông tin phim"}</div>
+        <div className="flex items-center justify-center py-20">
+          <div className="text-xl text-red-500">{showtimesError ? "Không tải được lịch chiếu" : "Không tìm thấy thông tin phim"}</div>
         </div>
       </UserLayout>
     );
@@ -133,15 +147,15 @@ const MovieDetailPage: React.FC = () => {
   return (
     <UserLayout>
       <div className="bg-gray-50 py-10">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="mx-auto max-w-6xl px-4">
           {/* Breadcrumbs */}
-          <div className="text-sm breadcrumbs mb-6">
+          <div className="breadcrumbs mb-6 text-sm">
             <ul>
               <li>
                 <button
                   type="button"
                   onClick={() => navigate("/")}
-                  className="hover:underline cursor-pointer bg-transparent border-none p-0 text-current"
+                  className="cursor-pointer border-none bg-transparent p-0 text-current hover:underline"
                 >
                   Trang chủ
                 </button>
@@ -151,12 +165,12 @@ const MovieDetailPage: React.FC = () => {
           </div>
 
           {/* Movie Details */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
             <div className="md:col-span-3">
-              <img src={movie.poster} alt={movie.name ?? "Movie poster"} className="w-full h-auto rounded-lg shadow-lg" />
+              <img src={movie.poster} alt={movie.name ?? "Movie poster"} className="h-auto w-full rounded-lg shadow-lg" />
             </div>
             <div className="md:col-span-9">
-              <h1 className="text-3xl font-bold text-red-600 mb-4">{movie.name}</h1>
+              <h1 className="mb-4 text-3xl font-bold text-red-600">{movie.name}</h1>
               <div className="space-y-2">
                 <MovieInfoItem label="Đạo diễn" value={movie.director ?? "Đang cập nhật"} />
                 <MovieInfoItem label="Diễn viên" value={movie.actor ?? "Đang cập nhật"} />
@@ -168,28 +182,28 @@ const MovieDetailPage: React.FC = () => {
                 <MovieInfoItem label="Studio" value={movie.studio ?? "Đang cập nhật"} />
                 <MovieInfoItem label="Giới hạn tuổi" value={movie.ageRestrict ? `${movie.ageRestrict}+` : "Đang cập nhật"} />
               </div>
-              <p className="mt-4 text-sm text-gray-700 leading-relaxed">{movie.description ?? "Chưa có mô tả"}</p>
+              <p className="mt-4 text-sm leading-relaxed text-gray-700">{movie.description ?? "Chưa có mô tả"}</p>
             </div>
           </div>
 
           {/* Showtimes */}
-          <div className="mt-12 bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">LỊCH CHIẾU</h2>
+          <div className="mt-12 rounded-lg bg-white p-6 shadow-md">
+            <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">LỊCH CHIẾU</h2>
             {availableDates.length > 0 ? (
               <>
                 <ShowDateSelector dates={availableDates} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
                 <ShowtimesGroup scheduleForDay={scheduleForSelectedDay} onSelectShowtime={handleShowtimeSelection} />
               </>
             ) : (
-              <div className="text-center py-8 text-gray-500">Hiện tại chưa có lịch chiếu cho phim này</div>
+              <div className="py-8 text-center text-gray-500">Hiện tại chưa có lịch chiếu cho phim này</div>
             )}
           </div>
 
           {/* Trailer Section */}
           {movie.trailer && (
             <div className="mt-12">
-              <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">TRAILER</h2>
-              <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
+              <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">TRAILER</h2>
+              <div className="aspect-video overflow-hidden rounded-lg bg-black shadow-lg">
                 {embedUrl ? (
                   <iframe
                     src={embedUrl}
@@ -197,10 +211,10 @@ const MovieDetailPage: React.FC = () => {
                     style={{ border: 0 }}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                    className="w-full h-full"
+                    className="h-full w-full"
                   ></iframe>
                 ) : (
-                  <div className="text-center text-white py-20">Không thể phát trailer.</div>
+                  <div className="py-20 text-center text-white">Không thể phát trailer.</div>
                 )}
               </div>
             </div>
