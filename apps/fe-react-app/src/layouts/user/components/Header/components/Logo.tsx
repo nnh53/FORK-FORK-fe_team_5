@@ -1,4 +1,4 @@
-import FCinemaLogo from "@/assets/FCinema_Logo.png";
+import FCinemaLogo from "@/assets/FCinema_Logo.webp";
 
 interface LogoProps {
   className?: string;

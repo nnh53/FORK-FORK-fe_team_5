@@ -1,5 +1,5 @@
-import nowShowing from "@/assets/nowShowingText.png";
-import upComingText from "@/assets/upComingText.png";
+import nowShowing from "@/assets/nowShowingText.webp";
+import upComingText from "@/assets/upComingText.webp";
 import type { MovieCardProps } from "@/components/movie/MovieCard/MovieCard.tsx";
 import MovieList from "@/components/movie/MovieList/MovieList.tsx";
 import MovieSearch from "@/components/MovieSearch.tsx";
@@ -202,33 +202,26 @@ function MovieSelection() {
   return (
     <UserLayout>
       {/* Movie Search Section */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-white mb-2">Tìm Kiếm Phim</h2>
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <div className="mb-6 text-center">
+          <h2 className="mb-2 text-3xl font-bold text-white">Tìm Kiếm Phim</h2>
           <p className="text-gray-300">Tìm kiếm và đặt vé phim nhanh chóng</p>
         </div>
-        <MovieSearch onMovieSelect={handleMovieSearchSelect} placeholder="Nhập tên phim để tìm kiếm..." className="max-w-md mx-auto" />
+        <MovieSearch onMovieSelect={handleMovieSearchSelect} placeholder="Nhập tên phim để tìm kiếm..." className="mx-auto max-w-md" />
       </div>
-      <div
-        className="
-          flex items-center justify-center
-          p-2 h-48
-          bg-gradient-to-r from-black/40 via-transparent to-black/40
-        "
-        id="now-showing"
-      >
+      <div className="flex h-48 items-center justify-center bg-gradient-to-r from-black/40 via-transparent to-black/40 p-2" id="now-showing">
         <img src={nowShowing} className="h-24" alt="Phim sắp chiếu" />
       </div>
       {/* Loading state */}
       {moviesQuery.isLoading && (
-        <div className="flex justify-center items-center py-12">
-          <div className="text-white text-lg">Đang tải phim...</div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-lg text-white">Đang tải phim...</div>
         </div>
       )}
       {/* Error state */}
       {moviesQuery.error && (
-        <div className="flex justify-center items-center py-12">
-          <div className="text-red-500 text-lg">Có lỗi xảy ra khi tải danh sách phim</div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-lg text-red-500">Có lỗi xảy ra khi tải danh sách phim</div>
         </div>
       )}
       {/* Movies list */}
@@ -242,14 +235,7 @@ function MovieSelection() {
           onMovieBuyTicketClick={handleBuyTicketClick}
         />
       )}
-      <div
-        className="
-          flex items-center justify-center
-          p-2 h-48
-          bg-gradient-to-r from-black/40 via-transparent to-black/40
-        "
-        id="coming-soon"
-      >
+      <div className="flex h-48 items-center justify-center bg-gradient-to-r from-black/40 via-transparent to-black/40 p-2" id="coming-soon">
         <img src={upComingText} className="h-24" alt="Phim sắp chiếu" />
       </div>
       {/* Upcoming movies - for now, show same movies but could be filtered differently */}

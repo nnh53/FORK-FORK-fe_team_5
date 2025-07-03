@@ -1,4 +1,4 @@
-import FCinemaLogo from "@/assets/FCinema_Logo.png";
+import FCinemaLogo from "@/assets/FCinema_Logo.webp";
 import React from "react";
 import SocialLinks from "./SocialLinks";
 

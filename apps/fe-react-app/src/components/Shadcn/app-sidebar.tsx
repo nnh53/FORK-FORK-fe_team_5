@@ -1,4 +1,4 @@
-import FCinemaLogo from "@/assets/FCinema_Logo.png";
+import FCinemaLogo from "@/assets/FCinema_Logo.webp";
 import { NavDocuments } from "@/components/Shadcn/nav-documents";
 import { NavMain } from "@/components/Shadcn/nav-main";
 import { NavUser } from "@/components/Shadcn/nav-user";

@@ -15,6 +15,85 @@ import { toast } from "sonner";
 import MovieDetail from "./MovieDetail";
 import MovieList from "./MovieList";
 
+// SearchBar options
+const searchOptions = [
+  { value: "id", label: "ID" },
+  { value: "name", label: "Tên phim" },
+  { value: "actor", label: "Diễn viên" },
+  { value: "director", label: "Đạo diễn" },
+  { value: "studio", label: "Hãng phim" },
+  { value: "description", label: "Mô tả" },
+];
+
+// Filter options
+const filterOptions = [
+  {
+    label: "Trạng thái",
+    value: "status",
+    type: "select" as const,
+    selectOptions: [
+      { value: MovieStatus.ACTIVE, label: "Đang chiếu" },
+      { value: MovieStatus.UPCOMING, label: "Sắp chiếu" },
+      { value: MovieStatus.INACTIVE, label: "Ngừng chiếu" },
+    ],
+    placeholder: "Chọn trạng thái",
+  },
+  {
+    label: "Thể loại",
+    value: "type",
+    type: "select" as const,
+    selectOptions: Object.values(MovieGenre).map((genre) => ({
+      value: genre,
+      label: genre.charAt(0) + genre.slice(1).toLowerCase(), // hoặc map sang tiếng Việt nếu muốn
+    })),
+    placeholder: "Chọn thể loại",
+  },
+  {
+    label: "Phiên bản",
+    value: "version",
+    type: "select" as const,
+    selectOptions: Object.values(MovieVersion).map((ver) => ({
+      value: ver,
+      label: ver,
+    })),
+    placeholder: "Chọn phiên bản",
+  },
+  {
+    label: "Độ tuổi giới hạn",
+    value: "ageRestrict",
+    type: "numberRange" as const,
+    numberRangeConfig: {
+      fromPlaceholder: "Từ tuổi",
+      toPlaceholder: "Đến tuổi",
+      min: 13,
+      max: 18,
+      step: 1,
+    },
+  },
+  {
+    label: "Thời lượng (phút)",
+    value: "duration",
+    type: "numberRange" as const,
+    numberRangeConfig: {
+      fromPlaceholder: "Từ phút",
+      toPlaceholder: "Đến phút",
+      min: 1,
+      step: 1,
+    },
+  },
+  {
+    label: "Ngày khởi chiếu",
+    value: "fromDate",
+    type: "dateRange" as const,
+  },
+  {
+    label: "Ngày kết thúc",
+    value: "toDate",
+    type: "dateRange" as const,
+  },
+  // Nếu muốn, có thể thêm filter cho studio, director, actor dạng select hoặc text
+];
+
 const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | undefined>();
@@ -31,85 +110,6 @@ const MovieManagement = () => {
   const movies: Movie[] = moviesQuery.data?.result
     ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
     : [];
-
-  // SearchBar options
-  const searchOptions = [
-    { value: "id", label: "ID" },
-    { value: "name", label: "Tên phim" },
-    { value: "actor", label: "Diễn viên" },
-    { value: "director", label: "Đạo diễn" },
-    { value: "studio", label: "Hãng phim" },
-    { value: "description", label: "Mô tả" },
-  ];
-
-  // Filter options
-  const filterOptions = [
-    {
-      label: "Trạng thái",
-      value: "status",
-      type: "select" as const,
-      selectOptions: [
-        { value: MovieStatus.ACTIVE, label: "Đang chiếu" },
-        { value: MovieStatus.UPCOMING, label: "Sắp chiếu" },
-        { value: MovieStatus.INACTIVE, label: "Ngừng chiếu" },
-      ],
-      placeholder: "Chọn trạng thái",
-    },
-    {
-      label: "Thể loại",
-      value: "type",
-      type: "select" as const,
-      selectOptions: Object.values(MovieGenre).map((genre) => ({
-        value: genre,
-        label: genre.charAt(0) + genre.slice(1).toLowerCase(), // hoặc map sang tiếng Việt nếu muốn
-      })),
-      placeholder: "Chọn thể loại",
-    },
-    {
-      label: "Phiên bản",
-      value: "version",
-      type: "select" as const,
-      selectOptions: Object.values(MovieVersion).map((ver) => ({
-        value: ver,
-        label: ver,
-      })),
-      placeholder: "Chọn phiên bản",
-    },
-    {
-      label: "Độ tuổi giới hạn",
-      value: "ageRestrict",
-      type: "numberRange" as const,
-      numberRangeConfig: {
-        fromPlaceholder: "Từ tuổi",
-        toPlaceholder: "Đến tuổi",
-        min: 13,
-        max: 18,
-        step: 1,
-      },
-    },
-    {
-      label: "Thời lượng (phút)",
-      value: "duration",
-      type: "numberRange" as const,
-      numberRangeConfig: {
-        fromPlaceholder: "Từ phút",
-        toPlaceholder: "Đến phút",
-        min: 1,
-        step: 1,
-      },
-    },
-    {
-      label: "Ngày khởi chiếu",
-      value: "fromDate",
-      type: "dateRange" as const,
-    },
-    {
-      label: "Ngày kết thúc",
-      value: "toDate",
-      type: "dateRange" as const,
-    },
-    // Nếu muốn, có thể thêm filter cho studio, director, actor dạng select hoặc text
-  ];
 
   // Lọc phim theo searchTerm và filterCriteria
   const filteredMovies = useMemo(() => {
@@ -295,7 +295,7 @@ const MovieManagement = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="mb-6 flex flex-col md:flex-row gap-4">
+            <div className="mb-6 flex flex-col gap-4 md:flex-row">
               {/* SearchBar */}
               <SearchBar
                 searchOptions={searchOptions}
@@ -331,7 +331,7 @@ const MovieManagement = () => {
             if (!open) handleCancel();
           }}
         >
-          <DialogContent className="sm:max-w-2xl">
+          <DialogContent className="min-w-[80vw]">
             <DialogHeader>
               <DialogTitle>{selectedMovie ? "Edit Movie" : "Add New Movie"}</DialogTitle>
             </DialogHeader>
