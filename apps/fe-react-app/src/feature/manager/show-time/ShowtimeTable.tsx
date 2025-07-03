@@ -11,7 +11,7 @@ import {
 } from "@/components/Shadcn/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { SortButton } from "@/components/shared/SortButton";
-import { getPageInfo, usePagination } from "@/hooks/usePagination";
+import { usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import { type Showtime, ShowtimeStatus } from "@/interfaces/showtime.interface";
 import { Edit, Eye, Trash } from "lucide-react";
@@ -72,34 +72,6 @@ const ShowtimeTable = ({ showtimes, onEdit, onDelete, onView, movieNames, roomNa
     return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
-  // Render pagination numbers
-  const renderPaginationItems = () => {
-    return pagination.visiblePages.map((page, index) => {
-      if (page === "ellipsis") {
-        return (
-          <PaginationItem key={`ellipsis-page-${pagination.visiblePages[index - 1]}-${pagination.visiblePages[index + 1]}`}>
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      return (
-        <PaginationItem key={page}>
-          <PaginationLink
-            href="#"
-            isActive={page === pagination.currentPage}
-            onClick={(e) => {
-              e.preventDefault();
-              pagination.setPage(page);
-            }}
-          >
-            {page}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    });
-  };
-
   return (
     <div className="space-y-4">
       {/* Table */}
@@ -109,7 +81,7 @@ const ShowtimeTable = ({ showtimes, onEdit, onDelete, onView, movieNames, roomNa
             <TableHeader>
               <TableRow className="bg-slate-50 hover:bg-slate-100">
                 <TableHead className="w-[60px]">ID</TableHead>
-                <TableHead>
+                <TableHead className="w-[200px]">
                   <div className="flex items-center gap-1">
                     Phim
                     <SortButton {...getSortProps("movieId")} />
@@ -145,7 +117,7 @@ const ShowtimeTable = ({ showtimes, onEdit, onDelete, onView, movieNames, roomNa
             <TableBody>
               {currentPageData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={7} className="py-8 text-center text-gray-500">
                     {sortedData.length === 0 ? "Không tìm thấy suất chiếu" : "Không có dữ liệu trang này"}
                   </TableCell>
                 </TableRow>
@@ -153,7 +125,11 @@ const ShowtimeTable = ({ showtimes, onEdit, onDelete, onView, movieNames, roomNa
                 currentPageData.map((showtime) => (
                   <TableRow key={showtime.id}>
                     <TableCell>{showtime.id}</TableCell>
-                    <TableCell>{movieNames[showtime.movieId] ?? "Không xác định"}</TableCell>
+                    <TableCell>
+                      <div className="max-w-[200px] truncate" title={movieNames[showtime.movieId] ?? "Không xác định"}>
+                        {movieNames[showtime.movieId] ?? "Không xác định"}
+                      </div>
+                    </TableCell>
                     <TableCell>{roomNames[showtime.roomId ?? 0] ?? showtime.roomName ?? "Không xác định"}</TableCell>
                     <TableCell>{formatDateTime(showtime.showDateTime)}</TableCell>
                     <TableCell>{formatDateTime(showtime.endDateTime)}</TableCell>
@@ -185,46 +161,43 @@ const ShowtimeTable = ({ showtimes, onEdit, onDelete, onView, movieNames, roomNa
         </div>
       </div>
 
-      {/* Pagination Info and Controls */}
+      {/* Pagination */}
       {sortedData.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Pagination Info */}
-          <div className="text-sm text-gray-600 w-1/10">{getPageInfo(pagination)}</div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => pagination.prevPage()}
+                className={`cursor-pointer ${pagination.currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
+              />
+            </PaginationItem>
 
-          {/* Pagination Controls */}
-          {pagination.totalPages > 1 && (
-            <Pagination>
-              <PaginationContent>
-                {/* Previous Button */}
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      pagination.prevPage();
-                    }}
-                    className={!pagination.hasPrevPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
+            {pagination.visiblePages.map((page) => {
+              if (page === "ellipsis") {
+                return (
+                  <PaginationItem key={`ellipsis-page-${pagination.currentPage}-${pagination.totalPages}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                );
+              }
+
+              return (
+                <PaginationItem key={page}>
+                  <PaginationLink onClick={() => pagination.setPage(page)} isActive={page === pagination.currentPage} className="cursor-pointer">
+                    {page}
+                  </PaginationLink>
                 </PaginationItem>
+              );
+            })}
 
-                {/* Page Numbers */}
-                {renderPaginationItems()}
-
-                {/* Next Button */}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      pagination.nextPage();
-                    }}
-                    className={!pagination.hasNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
-        </div>
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => pagination.nextPage()}
+                className={`cursor-pointer ${pagination.currentPage === pagination.totalPages ? "pointer-events-none opacity-50" : ""}`}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );

@@ -31,17 +31,25 @@ const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles }) => {
   if (!isLoggedIn || !token) {
     return <Navigate to="/auth/login" replace />;
   }
-
   const roles = user?.roles || parseRoles(storedRoles);
 
   console.log("Current user roles:", roles);
   console.log("Allowed roles:", allowedRoles);
 
   const hasAllowedRole = roles.some((role: ROLE_TYPE) => allowedRoles.includes(role));
-  console.log("Has allowed role:", hasAllowedRole);
+  const isAdmin = roles.some((role: ROLE_TYPE) => role === "ADMIN");
 
-  // If user doesn't have required role, redirect to unauthorized page
+  console.log("Has allowed role:", hasAllowedRole);
+  console.log("Is Admin:", isAdmin);
+
+  // If user doesn't have required role
   if (!hasAllowedRole) {
+    // If user is admin but trying to access staff routes, redirect to admin dashboard
+    if (isAdmin && allowedRoles.includes("STAFF")) {
+      console.log("Admin trying to access staff route, redirecting to admin dashboard");
+      return <Navigate to={RoleRouteToEachPage("ADMIN")} replace />;
+    }
+
     console.log("Access denied: User roles do not match allowed roles");
     return <Navigate to="/unauthorized" replace />;
   }
