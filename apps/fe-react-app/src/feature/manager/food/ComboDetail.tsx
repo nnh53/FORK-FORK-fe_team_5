@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/Shadcn/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import { type Combo, type ComboSnack } from "@/interfaces/combo.interface";
 import { calculateComboPrice, formatPrice, getComboStatusLabel } from "@/services/comboService";
+import { Icon } from "@iconify/react";
 import { Edit, Info, ShoppingBag, Utensils, X } from "lucide-react";
 import { useState } from "react";
 import ComboDetailForm from "./ComboDetailForm";
@@ -46,16 +47,16 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onEdit,
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-[700px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
             <ShoppingBag className="h-5 w-5" />
             Chi tiết combo
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col">
-          <TabsList className="grid grid-cols-2 w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-1 flex-col">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="details" className="flex items-center gap-1">
               <Info className="h-4 w-4" />
               Thông tin
@@ -66,12 +67,12 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onEdit,
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="details" className="flex-1 mt-4">
+          <TabsContent value="details" className="mt-4 flex-1">
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold">{combo.name}</h3>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${isAvailable ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${isAvailable ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
                 >
                   {statusLabel}
                 </span>
@@ -79,15 +80,15 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onEdit,
 
               <div className="flex items-center justify-between">
                 <div className="text-lg font-semibold text-gray-700">Giá combo:</div>
-                <div className="text-xl font-bold text-primary">{formatPrice(totalPrice)}</div>
+                <div className="text-primary text-xl font-bold">{formatPrice(totalPrice)}</div>
               </div>
 
               {combo.img && (
-                <div className="w-full h-48 rounded-lg overflow-hidden border border-gray-200">
+                <div className="h-48 w-full overflow-hidden rounded-lg border border-gray-200">
                   <img
                     src={combo.img}
                     alt={combo.name}
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = "/placeholder-combo.jpg";
                     }}
@@ -98,20 +99,20 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onEdit,
               {combo.description && (
                 <div className="space-y-2">
                   <h4 className="font-medium text-gray-700">Mô tả:</h4>
-                  <p className="text-gray-600 whitespace-pre-line">{combo.description}</p>
+                  <p className="whitespace-pre-line text-gray-600">{combo.description}</p>
                 </div>
               )}
             </div>
           </TabsContent>
 
-          <TabsContent value="snacks" className="flex-1 mt-4 flex flex-col">
+          <TabsContent value="snacks" className="mt-4 flex flex-1 flex-col">
             {!editMode ? (
               <>
-                <div className="flex justify-between items-center mb-4">
+                <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Danh sách thực phẩm trong combo</h3>
                   {onAddSnack && onUpdateSnack && (
                     <Button variant="outline" size="sm" onClick={handleEditSnacks}>
-                      <Edit className="h-4 w-4 mr-1" />
+                      <Edit className="mr-1 h-4 w-4" />
                       Chỉnh sửa
                     </Button>
                   )}
@@ -121,14 +122,14 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onEdit,
                   {combo.snacks?.length === 0 ? (
                     <Card>
                       <CardContent className="py-8">
-                        <div className="text-center text-muted-foreground">
-                          <div className="text-4xl mb-4">🍽️</div>
-                          <div className="text-lg font-medium mb-2">Không có thực phẩm trong combo</div>
+                        <div className="text-muted-foreground text-center">
+                          <Icon icon="lucide:popcorn" className="text-shadow-background mx-auto mb-0.5" />
+                          <div className="mb-2 text-lg font-medium">Không có thực phẩm trong combo</div>
                         </div>
                       </CardContent>
                     </Card>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       {combo.snacks?.map((comboSnack) => (
                         <SnackCard
                           key={comboSnack.id}
@@ -165,12 +166,12 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onEdit,
         <DialogFooter className="mt-4">
           {onEdit && (
             <Button variant="outline" onClick={handleEditClick} className="mr-2">
-              <Edit className="h-4 w-4 mr-1" />
+              <Edit className="mr-1 h-4 w-4" />
               Chỉnh sửa combo
             </Button>
           )}
           <Button variant="outline" onClick={onClose}>
-            <X className="h-4 w-4 mr-1" />
+            <X className="mr-1 h-4 w-4" />
             Đóng
           </Button>
         </DialogFooter>

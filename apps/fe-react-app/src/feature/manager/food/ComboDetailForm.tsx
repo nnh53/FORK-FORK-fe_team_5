@@ -8,6 +8,7 @@ import { type Combo, type ComboSnack } from "@/interfaces/combo.interface";
 import { type Snack } from "@/interfaces/snacks.interface";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Icon } from "@iconify/react";
 import { Edit, ListPlus, MinusCircle, Plus, Save, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -152,11 +153,11 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Quản lý thực phẩm trong combo</h3>
         {!isAddingSnack && (
           <Button size="sm" variant="outline" onClick={handleAddNewSnack}>
-            <Plus className="h-4 w-4 mr-1" />
+            <Plus className="mr-1 h-4 w-4" />
             Thêm thực phẩm
           </Button>
         )}
@@ -165,8 +166,8 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       {isAddingSnack ? (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center">
-              <ListPlus className="h-5 w-5 mr-2" />
+            <CardTitle className="flex items-center text-lg">
+              <ListPlus className="mr-2 h-5 w-5" />
               {selectedComboSnack ? "Cập nhật thực phẩm" : "Thêm thực phẩm mới"}
             </CardTitle>
           </CardHeader>
@@ -266,11 +267,11 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
 
                 <div className="flex justify-end gap-2 pt-2">
                   <Button type="button" variant="outline" onClick={handleCancelAddEdit}>
-                    <X className="h-4 w-4 mr-1" />
+                    <X className="mr-1 h-4 w-4" />
                     Hủy
                   </Button>
                   <Button type="submit">
-                    <Save className="h-4 w-4 mr-1" />
+                    <Save className="mr-1 h-4 w-4" />
                     {selectedComboSnack ? "Cập nhật" : "Thêm"}
                   </Button>
                 </div>
@@ -283,12 +284,12 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
           {combo.snacks?.length === 0 ? (
             <Card>
               <CardContent className="py-8">
-                <div className="text-center text-muted-foreground">
-                  <div className="text-4xl mb-4">🍽️</div>
-                  <div className="text-lg font-medium mb-2">Chưa có thực phẩm trong combo</div>
-                  <div className="text-sm mb-4">Hãy thêm thực phẩm để hoàn thiện combo</div>
+                <div className="text-muted-foreground text-center">
+                  <Icon icon="lucide:popcorn" className="text-shadow-background mx-auto mb-0.5" />{" "}
+                  <div className="mb-2 text-lg font-medium">Chưa có thực phẩm trong combo</div>
+                  <div className="mb-4 text-sm">Hãy thêm thực phẩm để hoàn thiện combo</div>
                   <Button onClick={handleAddNewSnack}>
-                    <Plus className="h-4 w-4 mr-1" />
+                    <Plus className="mr-1 h-4 w-4" />
                     Thêm thực phẩm
                   </Button>
                 </div>
@@ -343,7 +344,7 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
 
       <div className="flex justify-end gap-2 pt-4">
         <Button variant="outline" onClick={onCancel}>
-          <X className="h-4 w-4 mr-1" />
+          <X className="mr-1 h-4 w-4" />
           Đóng
         </Button>
       </div>
