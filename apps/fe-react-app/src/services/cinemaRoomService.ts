@@ -124,6 +124,15 @@ export const transformSeatToRequest = (seat: { type?: string; status?: SeatStatu
   };
 };
 
+// Helper function to create seat status update request
+export const updateSeatStatus = (seat: Seat, newStatus: SeatStatus): SeatRequest => {
+  return transformSeatToRequest({
+    status: newStatus,
+    type: seat.type.name,
+    linkSeatId: seat.linkSeatId,
+  });
+};
+
 // Helper function to convert cinema room with seat map for UI components
 export const convertToRoomWithSeatMap = (room: CinemaRoom): CinemaRoomWithSeatMap => {
   const seatMap: SeatMap = {

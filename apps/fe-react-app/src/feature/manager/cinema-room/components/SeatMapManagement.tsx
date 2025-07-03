@@ -5,12 +5,18 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
 import { Icon } from "@iconify/react";
 import { ArrowLeft, RotateCcw, Save, Settings } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import type { Seat, SeatMap } from "@/interfaces/seat.interface";
-import { getSeatMapFromRoom, transformCinemaRoomResponse, useCinemaRoom } from "@/services/cinemaRoomService";
+import {
+  getSeatMapFromRoom,
+  transformCinemaRoomResponse,
+  transformCinemaRoomToUpdateRequest,
+  useCinemaRoom,
+  useUpdateCinemaRoom,
+} from "@/services/cinemaRoomService";
 import SeatMapEditor from "./SeatMapEditor";
 import SeatMapEditorView from "./SeatMapEditorView";
 
@@ -18,8 +24,9 @@ const SeatMapManagement: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
-  // React Query hooks
+  // React Query hooks - enable automatic refetch when component mounts/navigates back
   const { data: roomData, isLoading: loading, error: queryError, refetch: refetchRoom } = useCinemaRoom(parseInt(roomId || "0"));
+  const updateRoomMutation = useUpdateCinemaRoom();
 
   // Transform data
   const room = roomData?.result ? transformCinemaRoomResponse(roomData.result) : null;
@@ -32,7 +39,7 @@ const SeatMapManagement: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Room settings
+  // Room settings - local state for editing
   const [roomSettings, setRoomSettings] = useState({
     width: 16,
     height: 10,
@@ -41,6 +48,12 @@ const SeatMapManagement: React.FC = () => {
 
   // Loading state for resetting
   const [isResetting, setIsResetting] = useState(false);
+
+  // Track previous room dimensions to detect changes
+  const prevRoomDimensionsRef = useRef<{ width: number; length: number } | null>(null);
+
+  // Track if room settings have been initialized to prevent overwriting user changes
+  const roomSettingsInitialized = useRef(false);
 
   // Function to create new seat map with current room settings
   const handleCreateNewSeatMap = useCallback(async () => {
@@ -97,24 +110,7 @@ const SeatMapManagement: React.FC = () => {
     }
   }, [room]); // Only depend on room, not roomSettings
 
-  // Initialize data when room data is loaded
-  useEffect(() => {
-    if (room) {
-      setRoomSettings((prev) => {
-        // Only update if different to avoid unnecessary re-renders
-        if (prev.width !== room.width || prev.height !== room.length || prev.name !== room.name) {
-          return {
-            width: room.width,
-            height: room.length, // map length to height
-            name: room.name,
-          };
-        }
-        return prev;
-      });
-    }
-  }, [room]);
-
-  // Separate effect for seat map initialization
+  // Initialize data when room data is loaded - seat map initialization only
   useEffect(() => {
     if (room && !seatMap) {
       // Create seat map from room seats
@@ -128,6 +124,101 @@ const SeatMapManagement: React.FC = () => {
     }
   }, [room, seatMap]);
 
+  // Initialize room settings only once when room data is first loaded
+  useEffect(() => {
+    if (room && !roomSettingsInitialized.current) {
+      // Only initialize if roomSettings hasn't been set yet
+      setRoomSettings({
+        width: room.width,
+        height: room.length,
+        name: room.name,
+      });
+      roomSettingsInitialized.current = true;
+    }
+  }, [room]);
+
+  // Force refetch room data when component mounts to ensure fresh data
+  useEffect(() => {
+    refetchRoom();
+  }, [refetchRoom]);
+
+  // Reset seat map when room dimensions change (using ref to prevent infinite loop)
+  useEffect(() => {
+    if (room) {
+      const currentDimensions = { width: room.width, length: room.length };
+
+      // Check if this is the first time setting dimensions
+      if (prevRoomDimensionsRef.current === null) {
+        prevRoomDimensionsRef.current = currentDimensions;
+        return;
+      }
+
+      // Check if dimensions have actually changed
+      const dimensionsChanged =
+        prevRoomDimensionsRef.current.width !== currentDimensions.width || prevRoomDimensionsRef.current.length !== currentDimensions.length;
+
+      if (dimensionsChanged && seatMap && seatMap.gridData.length > 0) {
+        // Room dimensions have changed, recreate seat map
+        const seats = getSeatMapFromRoom(room);
+        const newSeatMap: SeatMap = {
+          gridData: seats || [],
+          roomId: room.id,
+        };
+        setSeatMap(newSeatMap);
+        setOriginalSeatMap(JSON.parse(JSON.stringify(newSeatMap)));
+        toast.info("Kích thước phòng đã thay đổi. Sơ đồ ghế đã được cập nhật.");
+      }
+
+      // Update ref with current dimensions
+      prevRoomDimensionsRef.current = currentDimensions;
+    }
+  }, [room, seatMap]);
+
+  // Auto-recreate seat map when local room settings dimensions change
+  useEffect(() => {
+    if (room && (roomSettings.width !== room.width || roomSettings.height !== room.length)) {
+      // User has changed dimensions locally, recreate seat map preview
+      if (seatMap && seatMap.gridData.length > 0) {
+        const defaultSeats: Seat[] = [];
+        const width = roomSettings.width;
+        const height = roomSettings.height;
+
+        for (let row = 0; row < height; row++) {
+          for (let col = 0; col < width; col++) {
+            const seatRow = String.fromCharCode(65 + row); // A, B, C, etc.
+            const seatColumn = (col + 1).toString(); // 1, 2, 3, etc.
+
+            const seat: Seat = {
+              id: -(Date.now() + col * 1000 + row), // Generate temporary negative ID
+              name: `${seatRow}${seatColumn}`,
+              roomId: room.id,
+              column: seatColumn,
+              row: seatRow,
+              status: "AVAILABLE",
+              type: {
+                id: 1,
+                name: "REGULAR",
+                price: 0,
+                seatCount: 1,
+              },
+              discarded: false,
+            };
+
+            defaultSeats.push(seat);
+          }
+        }
+
+        const newSeatMap: SeatMap = {
+          gridData: defaultSeats,
+          roomId: room.id,
+        };
+
+        setSeatMap(newSeatMap);
+        // Don't update originalSeatMap here to preserve the "hasChanges" state
+      }
+    }
+  }, [roomSettings.width, roomSettings.height, room, seatMap]);
+
   // Check for changes
   useEffect(() => {
     if (seatMap && originalSeatMap) {
@@ -135,6 +226,10 @@ const SeatMapManagement: React.FC = () => {
       setHasChanges(hasChanged);
     }
   }, [seatMap, originalSeatMap]);
+
+  // Check if room settings have changed from original
+  const hasRoomSettingsChanges =
+    room && (roomSettings.width !== room.width || roomSettings.height !== room.length || roomSettings.name !== room.name);
 
   const handleSaveSeatMap = async () => {
     if (!seatMap || !roomId) return;
@@ -180,6 +275,42 @@ const SeatMapManagement: React.FC = () => {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleResetRoomSettings = () => {
+    if (room) {
+      setRoomSettings({
+        width: room.width,
+        height: room.length,
+        name: room.name,
+      });
+      toast.info("Đã khôi phục cài đặt phòng về giá trị ban đầu");
+    }
+  };
+
+  const handleSaveRoomSettings = async () => {
+    if (!room) return;
+
+    try {
+      const updateData = transformCinemaRoomToUpdateRequest({
+        name: roomSettings.name,
+        width: roomSettings.width,
+        length: roomSettings.height, // Map height to length
+      });
+
+      await updateRoomMutation.mutateAsync({
+        params: { path: { roomId: room.id } },
+        body: updateData,
+      });
+
+      // Refetch room data to get updated info
+      await refetchRoom();
+
+      toast.success("Cập nhật thông tin phòng chiếu thành công!");
+    } catch (error) {
+      console.error("Error updating room:", error);
+      toast.error("Có lỗi xảy ra khi cập nhật thông tin phòng chiếu!");
+    }
   };
 
   // Callback để refetch dữ liệu từ API sau khi cập nhật ghế
@@ -289,16 +420,43 @@ const SeatMapManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Room Settings */}
+      {/* Room Settings - Editable Form */}
       {isEditing && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Icon icon="mdi:cog" className="h-5 w-5" />
-              Cài đặt phòng chiếu
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Icon icon="mdi:cog" className="h-5 w-5" />
+                Cài đặt phòng chiếu
+              </CardTitle>
+              <div className="flex gap-2">
+                <Button onClick={handleResetRoomSettings} size="sm" variant="ghost" disabled={!hasRoomSettingsChanges}>
+                  <Icon icon="mdi:restore" className="mr-2 h-4 w-4" />
+                  Reset
+                </Button>
+                <Button
+                  onClick={handleSaveRoomSettings}
+                  size="sm"
+                  variant={hasRoomSettingsChanges ? "default" : "outline"}
+                  disabled={!hasRoomSettingsChanges}
+                >
+                  <Icon icon="mdi:content-save" className="mr-2 h-4 w-4" />
+                  {hasRoomSettingsChanges ? "Lưu thay đổi" : "Lưu cài đặt"}
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {hasRoomSettingsChanges && (
+              <div className="col-span-full mb-4 rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3">
+                <div className="flex items-center gap-2 text-blue-800">
+                  <Icon icon="mdi:information" className="h-4 w-4" />
+                  <p className="text-sm">
+                    <strong>Có thay đổi chưa lưu:</strong> Nhấn "Lưu thay đổi" để áp dụng hoặc "Reset" để hủy.
+                  </p>
+                </div>
+              </div>
+            )}
             <div>
               <Label htmlFor="room-width">Số cột (Chiều rộng)</Label>
               <Input
@@ -309,6 +467,7 @@ const SeatMapManagement: React.FC = () => {
                 value={roomSettings.width}
                 onChange={(e) => handleRoomSettingsChange("width", parseInt(e.target.value) || 5)}
               />
+              <p className="mt-1 text-xs text-gray-500">Từ 5 đến 30 cột</p>
             </div>
             <div>
               <Label htmlFor="room-height">Số hàng (Chiều cao)</Label>
@@ -320,6 +479,7 @@ const SeatMapManagement: React.FC = () => {
                 value={roomSettings.height}
                 onChange={(e) => handleRoomSettingsChange("height", parseInt(e.target.value) || 3)}
               />
+              <p className="mt-1 text-xs text-gray-500">Từ 3 đến 20 hàng</p>
             </div>
             <div>
               <Label htmlFor="room-name">Tên phòng</Label>
@@ -329,6 +489,7 @@ const SeatMapManagement: React.FC = () => {
                 onChange={(e) => handleRoomSettingsChange("name", e.target.value)}
                 placeholder="Nhập tên phòng"
               />
+              <p className="mt-1 text-xs text-gray-500">Tên hiển thị của phòng chiếu</p>
             </div>
           </CardContent>
         </Card>

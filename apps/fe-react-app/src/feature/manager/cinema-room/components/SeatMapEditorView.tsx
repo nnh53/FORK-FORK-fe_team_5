@@ -146,28 +146,40 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
 
     return renderItems;
   }, [seatMap]);
-  // Function to get seat color based on seat type
+  // Function to get seat color based on seat type and status
   const getSeatColor = (seat: Seat, isSelected: boolean = false): string => {
-    const baseClass = "border rounded flex items-center justify-center text-xs cursor-pointer hover:opacity-80";
+    const baseClass = "border rounded flex items-center justify-center text-xs cursor-pointer hover:opacity-80 relative";
 
     if (isSelected) {
       return `${baseClass} bg-blue-500 text-white border-blue-500 ring-2 ring-blue-300`;
     }
 
+    // Determine base color based on seat type
+    let baseColor: string;
     switch (seat.type.name) {
       case "REGULAR":
-        return `${baseClass} bg-blue-100 border-blue-300 text-blue-800`;
+        baseColor = `${baseClass} bg-blue-100 border-blue-300 text-blue-800`;
+        break;
       case "VIP":
-        return `${baseClass} bg-yellow-100 border-yellow-300 text-yellow-800`;
+        baseColor = `${baseClass} bg-yellow-100 border-yellow-300 text-yellow-800`;
+        break;
       case "COUPLE":
-        return `${baseClass} bg-purple-100 border-purple-300 text-purple-800`;
+        baseColor = `${baseClass} bg-purple-100 border-purple-300 text-purple-800`;
+        break;
       case "PATH":
-        return `${baseClass} bg-gray-50 border-gray-200 text-gray-500`;
+        baseColor = `${baseClass} bg-gray-50 border-gray-200 text-gray-500`;
+        break;
       case "BLOCK":
-        return `${baseClass} bg-red-100 border-red-300 text-red-800`;
+        baseColor = `${baseClass} bg-red-100 border-red-300 text-red-800`;
+        break;
       default:
-        return `${baseClass} bg-gray-100 border-gray-300 text-gray-600`;
+        baseColor = `${baseClass} bg-gray-100 border-gray-300 text-gray-600`;
     }
+
+    // Apply maintenance overlay if needed
+    const maintenanceOverlay = seat.status === "MAINTENANCE" ? "opacity-50" : "";
+
+    return `${baseColor} ${maintenanceOverlay}`;
   };
 
   const handleSeatClick = (seat: Seat) => {
@@ -299,6 +311,14 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
                         }}
                       >
                         {item.displayCol}
+                        {/* Maintenance icon overlay for double seats */}
+                        {item.seat.status === "MAINTENANCE" && (
+                          <Icon
+                            icon="mdi:wrench"
+                            className="absolute right-0 top-0 h-3 w-3 text-orange-600"
+                            style={{ transform: "translate(25%, -25%)" }}
+                          />
+                        )}
                       </div>
                     );
                   } else {
@@ -321,6 +341,14 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
                         }}
                       >
                         {content}
+                        {/* Maintenance icon overlay for single seats */}
+                        {item.seat.status === "MAINTENANCE" && (
+                          <Icon
+                            icon="mdi:wrench"
+                            className="absolute right-0 top-0 h-3 w-3 text-orange-600"
+                            style={{ transform: "translate(25%, -25%)" }}
+                          />
+                        )}
                       </div>
                     );
                   }
@@ -377,6 +405,24 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
           <div className="flex items-center gap-2">
             <div className="h-4 w-8 rounded border border-purple-300 bg-purple-100"></div>
             <span className="text-sm">Ghế Đôi ({seatStats.double})</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex h-4 w-4 items-center justify-center rounded border border-gray-200 bg-gray-50">
+              <Icon icon="mdi:walk" className="h-3 w-3 text-gray-400" />
+            </div>
+            <span className="text-sm">Lối đi</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex h-4 w-4 items-center justify-center rounded border border-red-300 bg-red-100">
+              <Icon icon="mdi:close" className="h-3 w-3 text-red-500" />
+            </div>
+            <span className="text-sm">Chặn</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative h-4 w-4 rounded border border-blue-300 bg-blue-100 opacity-50">
+              <Icon icon="mdi:wrench" className="absolute right-0 top-0 h-2 w-2 text-orange-600" style={{ transform: "translate(25%, -25%)" }} />
+            </div>
+            <span className="text-sm">Bảo trì ({seatStats.maintenance})</span>
           </div>
           {showSelectable && (
             <div className="flex items-center gap-2">

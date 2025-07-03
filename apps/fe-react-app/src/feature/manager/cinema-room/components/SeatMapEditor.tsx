@@ -1,7 +1,7 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Seat, SeatMap } from "@/interfaces/seat.interface";
-import { transformSeatResponse, updateSeatToCouple, updateSeatType, useUpdateSeat } from "@/services/cinemaRoomService";
+import { transformSeatResponse, updateSeatStatus, updateSeatToCouple, updateSeatType, useUpdateSeat } from "@/services/cinemaRoomService";
 import { Icon } from "@iconify/react";
 import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ interface SeatMapEditorProps {
   length?: number;
 }
 
-type EditorTool = "seat-standard" | "seat-vip" | "seat-double" | "aisle" | "blocked" | "eraser";
+type EditorTool = "seat-standard" | "seat-vip" | "seat-double" | "aisle" | "blocked" | "maintenance" | "available" | "eraser";
 
 const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange, onRefetchRequired, width = 10, length = 10, readonly = false }) => {
   const [selectedTool, setSelectedTool] = useState<EditorTool>("seat-standard");
@@ -154,27 +154,6 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     return targetSeatCanBePartOfCouple && targetSeatNotInCouple;
   };
 
-  // Helper function to convert both seats in a couple to the same type
-  const convertCoupleTo = (newSeatMap: SeatMap, seat: Seat, newType: "REGULAR" | "VIP" | "PATH" | "BLOCK") => {
-    if (seat.type.name === "COUPLE") {
-      // Find the partner and convert both seats
-      const [partner, partnerIndex] = findCouplePartner(newSeatMap, seat);
-
-      if (partner && partnerIndex !== -1) {
-        // Convert partner to new type
-        const updatedPartner = { ...partner };
-        updatedPartner.type = { ...partner.type, name: newType };
-        newSeatMap.gridData[partnerIndex] = updatedPartner;
-      }
-
-      // Convert current seat to new type
-      seat.type = { ...seat.type, name: newType };
-    } else {
-      // Not a couple seat, just convert normally
-      seat.type = { ...seat.type, name: newType };
-    }
-  };
-
   // Helper function to handle double seat creation logic
   const handleDoubleSeatCreation = (newSeatMap: SeatMap, seat: Seat): boolean => {
     // First break any existing couple relationship for this seat
@@ -257,119 +236,165 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     }
   };
 
+  // Helper function to determine seat update request and refetch needs
+  const determineSeatUpdateRequest = async (seat: Seat, tool: EditorTool) => {
+    const wasCouple = seat.type.name === "COUPLE";
+
+    switch (tool) {
+      case "seat-standard":
+      case "eraser":
+        return {
+          request: handleCoupleToOtherConversion(seat, "REGULAR"),
+          needsFullRefetch: wasCouple,
+        };
+      case "seat-vip":
+        return {
+          request: handleCoupleToOtherConversion(seat, "VIP"),
+          needsFullRefetch: wasCouple,
+        };
+      case "seat-double": {
+        const newSeatMap = JSON.parse(JSON.stringify(currentSeatMap));
+        const request = await handleCoupleCreation(seat, newSeatMap);
+        return {
+          request,
+          needsFullRefetch: true,
+        };
+      }
+      case "aisle":
+        return {
+          request: handleCoupleToOtherConversion(seat, "PATH"),
+          needsFullRefetch: wasCouple,
+        };
+      case "blocked":
+        return {
+          request: handleCoupleToOtherConversion(seat, "BLOCK"),
+          needsFullRefetch: wasCouple,
+        };
+      case "maintenance":
+        return {
+          request: updateSeatStatus(seat, "MAINTENANCE"),
+          needsFullRefetch: false, // Status change doesn't affect other seats
+        };
+      case "available":
+        return {
+          request: updateSeatStatus(seat, "AVAILABLE"),
+          needsFullRefetch: false, // Status change doesn't affect other seats
+        };
+      default:
+        throw new Error("Invalid tool selected");
+    }
+  };
+
+  // Helper function to update UI with API response
+  const updateUIWithAPIResponse = (response: unknown) => {
+    if (!response || typeof response !== "object" || !("result" in response) || !currentSeatMap) return false;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const apiResponse = response as { result: any }; // Using any for API response type flexibility
+    const transformedSeat = transformSeatResponse(apiResponse.result);
+    const updatedSeatMap = { ...currentSeatMap };
+    updatedSeatMap.gridData = [...currentSeatMap.gridData];
+
+    // Update the modified seat
+    const index = updatedSeatMap.gridData.findIndex((s) => s.id === transformedSeat.id);
+    if (index !== -1) {
+      updatedSeatMap.gridData[index] = transformedSeat;
+    }
+
+    // Update UI immediately with API response
+    setCurrentSeatMap(updatedSeatMap);
+    if (onSeatMapChange) {
+      onSeatMapChange(updatedSeatMap);
+    }
+
+    return true;
+  };
+
+  // Helper function to handle errors and rollback
+  const handleSeatUpdateError = (error: unknown, originalSeatMap: SeatMap) => {
+    console.error("Failed to update seat:", error);
+
+    // Rollback to original state on API failure
+    setCurrentSeatMap(originalSeatMap);
+    if (onSeatMapChange) {
+      onSeatMapChange(originalSeatMap);
+    }
+
+    // Show error message to user
+    toast.error(`Không thể cập nhật ghế: ${error instanceof Error ? error.message : "Lỗi không xác định"}`);
+  };
+
   // Handle seat click to change seat type
   const handleSeatClick = async (seatId: number) => {
     if (readonly || !currentSeatMap || isUpdatingSeats) return;
 
     setIsUpdatingSeats(true);
-    const newSeatMap = { ...currentSeatMap };
-    const seatIndex = newSeatMap.gridData.findIndex((s) => s.id === seatId);
+    const seatIndex = currentSeatMap.gridData.findIndex((s) => s.id === seatId);
 
     if (seatIndex === -1) {
       setIsUpdatingSeats(false);
       return;
     }
 
-    const seat = { ...newSeatMap.gridData[seatIndex] };
-    const originalSeatMap = { ...currentSeatMap }; // Store original for rollback
+    const seat = { ...currentSeatMap.gridData[seatIndex] };
+    const originalSeatMap = JSON.parse(JSON.stringify(currentSeatMap)); // Deep clone for rollback
 
     try {
-      let seatUpdateRequest;
+      // Determine what API request to make
+      const { request: seatUpdateRequest, needsFullRefetch } = await determineSeatUpdateRequest(seat, selectedTool);
 
-      // Change seat type based on selected tool using new helper functions
-      switch (selectedTool) {
-        case "seat-standard":
-        case "eraser": {
-          seatUpdateRequest = handleCoupleToOtherConversion(seat, "REGULAR");
-          convertCoupleTo(newSeatMap, seat, "REGULAR");
-          break;
-        }
-        case "seat-vip": {
-          seatUpdateRequest = handleCoupleToOtherConversion(seat, "VIP");
-          convertCoupleTo(newSeatMap, seat, "VIP");
-          break;
-        }
-        case "seat-double": {
-          seatUpdateRequest = await handleCoupleCreation(seat, newSeatMap);
-          break;
-        }
-        case "aisle": {
-          seatUpdateRequest = handleCoupleToOtherConversion(seat, "PATH");
-          convertCoupleTo(newSeatMap, seat, "PATH");
-          break;
-        }
-        case "blocked": {
-          seatUpdateRequest = handleCoupleToOtherConversion(seat, "BLOCK");
-          convertCoupleTo(newSeatMap, seat, "BLOCK");
-          break;
-        }
-        default:
-          setIsUpdatingSeats(false);
-          return;
-      }
-
-      // Update UI immediately for better UX
-      setCurrentSeatMap(newSeatMap);
-
-      // Make primary API call
+      // Make API call
       const response = await updateSeatMutation.mutateAsync({
         params: { path: { id: seat.id } },
         body: seatUpdateRequest,
       });
 
-      // Transform API response and update local state
-      if (response?.result) {
-        const transformedSeat = transformSeatResponse(response.result);
-        const index = newSeatMap.gridData.findIndex((s) => s.id === transformedSeat.id);
-        if (index !== -1) {
-          newSeatMap.gridData[index] = transformedSeat;
-        }
+      // Update UI with API response
+      const updateSuccess = updateUIWithAPIResponse(response);
 
-        setCurrentSeatMap(newSeatMap);
-        if (onSeatMapChange) {
-          onSeatMapChange(newSeatMap);
-        }
-
+      if (updateSuccess) {
         console.log(`✅ Successfully updated seat ${seat.id}`);
 
-        // Refetch toàn bộ dữ liệu từ API để đảm bảo UI được sync chính xác
-        // Đặc biệt quan trọng cho operations ghế đôi vì backend có thể cập nhật nhiều ghế
-        if (onRefetchRequired) {
-          // Delay nhẹ để đảm bảo backend đã xử lý xong
-          setTimeout(() => {
-            onRefetchRequired();
-          }, 100);
+        // Only refetch when necessary (couple seat operations that affect multiple seats)
+        if (needsFullRefetch && onRefetchRequired) {
+          onRefetchRequired();
         }
       }
     } catch (error) {
-      console.error("Failed to update seat:", error);
-
-      // Rollback UI changes on API failure
-      setCurrentSeatMap(originalSeatMap);
-
-      // Show error message to user
-      toast.error(`Không thể cập nhật ghế: ${error instanceof Error ? error.message : "Lỗi không xác định"}`);
+      handleSeatUpdateError(error, originalSeatMap);
     } finally {
       setIsUpdatingSeats(false);
     }
   };
 
-  // Function to get seat color based on seat type
+  // Function to get seat color based on seat type and status
   const getSeatColor = (seat: Seat) => {
+    // Handle maintenance status with visual overlay
+    const maintenanceOverlay = seat.status === "MAINTENANCE" ? "opacity-50 bg-stripes" : "";
+
+    let baseColor = "";
     switch (seat.type.name) {
       case "REGULAR":
-        return "bg-blue-100 border-blue-300 text-blue-800";
+        baseColor = "bg-blue-100 border-blue-300 text-blue-800";
+        break;
       case "VIP":
-        return "bg-yellow-100 border-yellow-300 text-yellow-800";
+        baseColor = "bg-yellow-100 border-yellow-300 text-yellow-800";
+        break;
       case "COUPLE":
-        return "bg-purple-100 border-purple-300 text-purple-800";
+        baseColor = "bg-purple-100 border-purple-300 text-purple-800";
+        break;
       case "PATH":
-        return "bg-gray-50 border-gray-200 text-gray-500";
+        baseColor = "bg-gray-50 border-gray-200 text-gray-500";
+        break;
       case "BLOCK":
-        return "bg-red-100 border-red-300 text-red-800";
+        baseColor = "bg-red-100 border-red-300 text-red-800";
+        break;
       default:
-        return "bg-gray-100 border-gray-300 text-gray-600";
+        baseColor = "bg-gray-100 border-gray-300 text-gray-600";
+        break;
     }
+
+    return `${baseColor} ${maintenanceOverlay}`;
   };
 
   // Create render items for grid display with proper double seat handling
@@ -555,18 +580,21 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     { id: "seat-double" as const, label: "Ghế đôi", icon: "mdi:seat-individual-suite", color: "purple" },
     { id: "aisle" as const, label: "Lối đi", icon: "mdi:walk", color: "gray" },
     { id: "blocked" as const, label: "Chặn", icon: "mdi:close", color: "red" },
-    { id: "eraser" as const, label: "Xóa", icon: "mdi:eraser", color: "orange" },
+    { id: "maintenance" as const, label: "Bảo trì", icon: "mdi:wrench", color: "orange" },
+    { id: "available" as const, label: "Khả dụng", icon: "mdi:check-circle", color: "green" },
+    { id: "eraser" as const, label: "Xóa", icon: "mdi:eraser", color: "slate" },
   ];
 
   const seatStats = useMemo(() => {
-    if (!currentSeatMap) return { total: 0, standard: 0, vip: 0, double: 0, path: 0, blocked: 0 };
+    if (!currentSeatMap) return { total: 0, standard: 0, vip: 0, double: 0, path: 0, blocked: 0, maintenance: 0 };
 
     let total = 0,
       standard = 0,
       vip = 0,
       coupleSeats = 0, // Đếm số ghế COUPLE
       path = 0,
-      blocked = 0;
+      blocked = 0,
+      maintenance = 0;
 
     currentSeatMap.gridData.forEach((seat: Seat) => {
       total++;
@@ -587,12 +615,17 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
           blocked++;
           break;
       }
+
+      // Count maintenance seats
+      if (seat.status === "MAINTENANCE") {
+        maintenance++;
+      }
     });
 
     // Tính số ghế đôi thực tế (2 ghế COUPLE = 1 ghế đôi)
     const double = Math.floor(coupleSeats / 2);
 
-    return { total, standard, vip, double, path, blocked };
+    return { total, standard, vip, double, path, blocked, maintenance };
   }, [currentSeatMap]);
 
   if (!currentSeatMap) {
@@ -657,7 +690,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       {/* Seat Statistics */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-6">
+          <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-7">
             <div>
               <div className="text-2xl font-bold text-blue-600">{seatStats.total}</div>
               <div className="text-sm text-gray-600">Tổng ô</div>
@@ -681,6 +714,10 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
             <div>
               <div className="text-2xl font-bold text-red-600">{seatStats.blocked}</div>
               <div className="text-sm text-gray-600">Chặn</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-orange-600">{seatStats.maintenance}</div>
+              <div className="text-sm text-gray-600">Bảo trì</div>
             </div>
           </div>
         </CardContent>
@@ -756,7 +793,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                       return (
                         <div
                           key={item.seat.id || `double-${index}`}
-                          className={`flex cursor-pointer items-center justify-center rounded border text-xs hover:opacity-80 ${getSeatColor(item.seat)}`}
+                          className={`relative flex cursor-pointer items-center justify-center rounded border text-xs hover:opacity-80 ${getSeatColor(item.seat)}`}
                           onClick={() => handleSeatClick(item.seat.id)}
                           style={{
                             gridRow: item.gridRow,
@@ -766,6 +803,12 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                           }}
                         >
                           {getDisplayNumber(item.seat) || item.seat.name}
+                          {item.seat.status === "MAINTENANCE" && (
+                            <Icon icon="mdi:wrench" className="absolute right-0 top-0 h-2 w-2 text-orange-600" />
+                          )}
+                          {selectedTool === "available" && item.seat.status === "MAINTENANCE" && (
+                            <Icon icon="mdi:check-circle" className="absolute left-0 top-0 h-2 w-2 text-green-600" />
+                          )}
                         </div>
                       );
                     } else {
@@ -780,7 +823,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                       return (
                         <div
                           key={item.seat.id || `single-${index}`}
-                          className={`flex cursor-pointer items-center justify-center rounded border text-xs hover:opacity-80 ${getSeatColor(item.seat)}`}
+                          className={`relative flex cursor-pointer items-center justify-center rounded border text-xs hover:opacity-80 ${getSeatColor(item.seat)}`}
                           onClick={() => handleSeatClick(item.seat.id)}
                           style={{
                             gridRow: item.gridRow,
@@ -790,6 +833,12 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                           }}
                         >
                           {content}
+                          {item.seat.status === "MAINTENANCE" && (
+                            <Icon icon="mdi:wrench" className="absolute right-0 top-0 h-2 w-2 text-orange-600" />
+                          )}
+                          {selectedTool === "available" && item.seat.status === "MAINTENANCE" && (
+                            <Icon icon="mdi:check-circle" className="absolute left-0 top-0 h-2 w-2 text-green-600" />
+                          )}
                         </div>
                       );
                     }
@@ -852,7 +901,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       {/* Legend */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 rounded border-2 border-blue-300 bg-blue-100"></div>
               <span className="text-sm">Ghế thường</span>
@@ -876,6 +925,12 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
                 <Icon icon="mdi:close" className="h-3 w-3 text-red-500" />
               </div>
               <span className="text-sm">Chặn</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative h-4 w-4 rounded border-2 border-orange-300 bg-orange-100 opacity-60">
+                <Icon icon="mdi:wrench" className="absolute right-0 top-0 h-2 w-2 text-orange-600" style={{ transform: "translate(25%, -25%)" }} />
+              </div>
+              <span className="text-sm">Bảo trì</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 rounded border-2 border-gray-200 bg-white"></div>
