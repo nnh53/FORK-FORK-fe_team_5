@@ -37,7 +37,7 @@ const getStatusDisplay = (status: string) => {
 
 const getRoleBadge = (role: string) => {
   if (role === "STAFF") {
-    return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">Nhân viên</span>;
+    return <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">Nhân viên</span>;
   }
   return null;
 };
@@ -72,12 +72,12 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
+    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1).reverse();
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <div className="w-full overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">

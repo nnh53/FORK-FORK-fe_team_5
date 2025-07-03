@@ -1,7 +1,7 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
-import { Filter, type FilterCriteria } from "@/components/shared/Filter";
+import { Filter, type FilterCriteria, type FilterGroup } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import { ROLES } from "@/interfaces/roles.interface";
@@ -189,53 +189,80 @@ const StaffManagement = () => {
     setIsModalOpen(true);
   };
 
-  // Filter configuration
-  const filterOptions = [
+  // Filter configuration - sử dụng FilterGroup giống như Member
+  const filterGroups: FilterGroup[] = [
     {
-      label: "Ngày sinh",
-      value: "birth_date_range",
-      type: "dateRange" as const,
+      name: "dates",
+      label: "Ngày tháng",
+      options: [
+        {
+          label: "Ngày sinh",
+          value: "birth_date_range",
+          type: "dateRange" as const,
+        },
+      ],
     },
     {
+      name: "status",
       label: "Trạng thái",
-      value: "status",
-      type: "select" as const,
-      selectOptions: [
-        { value: "ACTIVE", label: "Đã xác minh" },
-        { value: "BAN", label: "Bị cấm" },
+      options: [
+        {
+          label: "Trạng thái",
+          value: "status",
+          type: "select" as const,
+          selectOptions: [
+            { value: "ACTIVE", label: "Đã xác minh" },
+            { value: "BAN", label: "Bị cấm" },
+          ],
+          placeholder: "Chọn trạng thái",
+        },
       ],
-      placeholder: "Chọn trạng thái",
     },
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="container mx-auto p-4">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 py-5">
-          <CardTitle className="text-xl">Quản lý nhân viên</CardTitle>
-          <Button onClick={handleAdd}>
-            <Plus className="mr-2 h-4 w-4" />
-            Thêm nhân viên
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Search and filter section */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start">
+        <CardHeader className="space-y-4">
+          {/* Title and Add button */}
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <CardTitle className="text-2xl font-bold">Quản lý nhân viên</CardTitle>
+            <Button onClick={handleAdd} className="shrink-0">
+              <Plus className="mr-2 h-4 w-4" />
+              Thêm nhân viên
+            </Button>
+          </div>
+
+          {/* Search and Filter row */}
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+            {/* SearchBar */}
             <SearchBar
               searchOptions={searchOptions}
               onSearchChange={setSearchTerm}
-              placeholder="Tìm kiếm nhân viên..."
+              placeholder="Tìm kiếm theo ID, tên hoặc email..."
+              className="w-full sm:w-1/2"
               resetPagination={() => tableRef.current?.resetPagination()}
-              className="w-full sm:w-72"
             />
-            <Filter filterOptions={filterOptions} onFilterChange={setFilterCriteria} className="w-full sm:w-auto" />
-          </div>
 
-          {/* Staff table */}
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <LoadingSpinner />
+            {/* Filter - Right */}
+            <div className="shrink-0">
+              <Filter
+                filterOptions={filterGroups}
+                onFilterChange={(criteria) => {
+                  setFilterCriteria(criteria);
+                  // Reset pagination khi filter thay đổi
+                  if (tableRef.current) {
+                    tableRef.current.resetPagination();
+                  }
+                }}
+                groupMode={true}
+              />
             </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <LoadingSpinner name="nhân viên..." />
           ) : (
             <StaffTable ref={tableRef} staffs={filteredStaffs} onEdit={handleEdit} onDelete={confirmDelete} />
           )}
@@ -243,8 +270,13 @@ const StaffManagement = () => {
       </Card>
 
       {/* Add/Edit Staff modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          if (!open) setIsModalOpen(false);
+        }}
+      >
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{selectedStaff ? "Sửa nhân viên" : "Thêm nhân viên mới"}</DialogTitle>
           </DialogHeader>
