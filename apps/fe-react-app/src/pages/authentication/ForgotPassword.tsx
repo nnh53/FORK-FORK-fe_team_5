@@ -6,8 +6,6 @@ import { animated, useSpring, useTransition } from "@react-spring/web";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const slides = [
   "photo-1524985069026-dd778a71c7b4",
@@ -62,7 +60,6 @@ const ForgotPassword: React.FC = () => {
       // This is a placeholder for now - we'll implement this later
       // Instead of using Supabase, we'll just show a success message
       setMessage("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
-      toast.success("Đổi mật khẩu thành công!");
       setTimeout(() => navigate("/login"), 2000);
       reset();
     } catch {
@@ -200,7 +197,7 @@ const ForgotPassword: React.FC = () => {
               <NavigateButton text="Quay lại đăng nhập" to="/login" className="text-sm text-red-600 hover:underline mx-auto" />
             </div>
           </form>
-          <ToastContainer />
+
         </div>
       </div>
     </animated.div>
