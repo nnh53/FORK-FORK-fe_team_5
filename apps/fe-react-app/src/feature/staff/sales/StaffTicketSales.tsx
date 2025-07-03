@@ -5,16 +5,16 @@ import { Label } from "@/components/Shadcn/ui/label";
 import { Separator } from "@/components/Shadcn/ui/separator";
 import type { BookingCombo, BookingRequest, PaymentMethod } from "@/interfaces/booking.interface";
 import type { Member } from "@/interfaces/member.interface";
-import type { Movie, Showtime } from "@/interfaces/movies.interface";
+import type { Movie } from "@/interfaces/movies.interface";
 import { transformMovieResponse, useMovies } from "@/services/movieService";
-import type { MovieResponse } from "@/type-from-be";
+import { useShowtimesByMovie } from "@/services/showtimeService";
+import type { MovieResponse, ShowtimeResponse } from "@/type-from-be";
 import { Clock, CreditCard, Film, Minus, Plus, ShoppingCart, Ticket, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import MovieSearch from "../../../components/MovieSearch";
 import { bookingService } from "../../../services/bookingService";
 import { memberService } from "../../../services/memberService";
-import { showtimeService } from "../../../services/showtimeService";
 
 interface Seat {
   id: string;
@@ -26,6 +26,7 @@ interface Seat {
 }
 
 // Snack items interface
+// Snack items interface
 interface SnackItem {
   id: string;
   name: string;
@@ -35,20 +36,63 @@ interface SnackItem {
   description?: string;
 }
 
+// Local interface for UI showtime format (legacy format expected by existing UI)
+interface UIShowtime {
+  id: string;
+  movieId: number;
+  cinemaRoomId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  format: string;
+  availableSeats: number;
+  price: number;
+}
+
+// Utility function to convert API Showtime to UI Showtime format
+const convertApiShowtimeToUI = (apiShowtime: ShowtimeResponse): UIShowtime => {
+  const showDateTime = new Date(apiShowtime.showDateTime ?? "");
+  const endDateTime = new Date(apiShowtime.endDateTime ?? "");
+
+  return {
+    id: (apiShowtime.id ?? 0).toString(),
+    movieId: apiShowtime.movieId ?? 0,
+    cinemaRoomId: apiShowtime.roomId?.toString() ?? apiShowtime.roomName ?? "Unknown",
+    date: showDateTime.toLocaleDateString("vi-VN"),
+    startTime: showDateTime.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }),
+    endTime: endDateTime.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }),
+    format: "2D", // Default format - could be enhanced later
+    availableSeats: 50, // Mock value - would need actual seat data from API
+    price: 100000, // Mock value - would need actual price from API
+  };
+};
+
 const StaffTicketSales: React.FC = () => {
   // Use React Query to fetch movies
   const moviesQuery = useMovies();
 
+  // React Query hook for showtimes (will be enabled when selectedMovie changes)
+  const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
+  const showtimesQuery = useShowtimesByMovie(selectedMovieId ?? 0);
+
   // State for data
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [showtimes, setShowtimes] = useState<Showtime[]>([]);
+  const [showtimes, setShowtimes] = useState<UIShowtime[]>([]);
   const [combos, setCombos] = useState<BookingCombo[]>([]);
   const [seats, setSeats] = useState<Seat[]>([]);
   const [snackItems, setSnackItems] = useState<SnackItem[]>([]);
 
   // State for selection
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [selectedShowtime, setSelectedShowtime] = useState<Showtime | null>(null);
+  const [selectedShowtime, setSelectedShowtime] = useState<UIShowtime | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
   const [selectedCombos, setSelectedCombos] = useState<Record<string, number>>({});
   const [selectedSnacks, setSelectedSnacks] = useState<Record<string, number>>({});
@@ -81,27 +125,37 @@ const StaffTicketSales: React.FC = () => {
     }
   }, [moviesQuery.data]);
 
+  // Handle movie selection and trigger showtime fetching
   useEffect(() => {
-    if (selectedMovie) {
-      fetchShowtimes(selectedMovie.id?.toString() ?? "");
+    if (selectedMovie?.id) {
+      setSelectedMovieId(selectedMovie.id);
+      // Clear showtimes when selecting a new movie
+      setShowtimes([]);
+      setSelectedShowtime(null);
     }
   }, [selectedMovie]);
+
+  // Handle showtimes data from React Query
+  useEffect(() => {
+    if (showtimesQuery.data?.result && selectedMovieId !== null) {
+      try {
+        const convertedShowtimes = showtimesQuery.data.result.map(convertApiShowtimeToUI);
+        setShowtimes(convertedShowtimes);
+      } catch (error) {
+        console.error("Error converting showtimes:", error);
+        toast.error("Không thể tải lịch chiếu");
+      }
+    } else if (showtimesQuery.isError) {
+      console.error("Error fetching showtimes:", showtimesQuery.error);
+      toast.error("Không thể tải lịch chiếu");
+    }
+  }, [showtimesQuery.data, showtimesQuery.isError, showtimesQuery.error, selectedMovieId]);
 
   useEffect(() => {
     if (selectedShowtime) {
       fetchSeats(selectedShowtime.cinemaRoomId);
     }
   }, [selectedShowtime]);
-
-  const fetchShowtimes = async (movieId: string) => {
-    try {
-      const data = await showtimeService.getShowtimesByMovieId(movieId);
-      setShowtimes(data);
-    } catch (error) {
-      console.error("Error fetching showtimes:", error);
-      toast.error("Không thể tải lịch chiếu");
-    }
-  };
   const fetchSeats = async (roomId: string) => {
     console.log("Fetching seats for room:", roomId);
     // Mock seat data - in real app would fetch from API
@@ -332,7 +386,7 @@ const StaffTicketSales: React.FC = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Bán Vé Trực Tiếp</h1>
         <Button variant="outline" onClick={resetForm}>
           Làm mới
@@ -342,7 +396,7 @@ const StaffTicketSales: React.FC = () => {
       {/* Progress Steps */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             {[
               { key: "movie", label: "Chọn phim", icon: Film },
               { key: "showtime", label: "Chọn suất", icon: Clock },
@@ -352,7 +406,7 @@ const StaffTicketSales: React.FC = () => {
             ].map(({ key, label, icon: Icon }, index) => (
               <div key={key} className="flex flex-col items-center">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${(() => {
+                  className={`flex h-10 w-10 items-center justify-center rounded-full ${(() => {
                     if (step === key) return "bg-blue-500 text-white";
                     if (["movie", "showtime", "seats", "customer", "payment"].indexOf(step) > index) return "bg-green-500 text-white";
                     return "bg-gray-200";
@@ -360,16 +414,16 @@ const StaffTicketSales: React.FC = () => {
                 >
                   <Icon className="h-5 w-5" />
                 </div>
-                <span className="text-xs mt-1">{label}</span>
+                <span className="mt-1 text-xs">{label}</span>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {" "}
           {/* Step 1: Movie Selection */}
           {step === "movie" && (
@@ -383,7 +437,7 @@ const StaffTicketSales: React.FC = () => {
               <CardContent className="space-y-6">
                 {/* Movie Search */}
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Tìm kiếm phim nhanh</Label>
+                  <Label className="mb-2 block text-sm font-medium">Tìm kiếm phim nhanh</Label>
                   <MovieSearch
                     onMovieSelect={(movie) => {
                       setSelectedMovie(movie);
@@ -398,8 +452,8 @@ const StaffTicketSales: React.FC = () => {
 
                 {/* Movie List */}
                 <div>
-                  <Label className="text-sm font-medium mb-4 block">Hoặc chọn từ danh sách</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Label className="mb-4 block text-sm font-medium">Hoặc chọn từ danh sách</Label>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {movies.map((movie) => (
                       <button
                         key={movie.id}
@@ -407,7 +461,7 @@ const StaffTicketSales: React.FC = () => {
                           setSelectedMovie(movie);
                           setStep("showtime");
                         }}
-                        className={`border rounded-lg p-4 cursor-pointer transition-colors text-left w-full ${
+                        className={`w-full cursor-pointer rounded-lg border p-4 text-left transition-colors ${
                           selectedMovie?.id === movie.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
                         }`}
                         type="button"
@@ -416,7 +470,7 @@ const StaffTicketSales: React.FC = () => {
                           <img
                             src={movie.poster ?? "/placeholder-movie.jpg"}
                             alt={movie.name ?? "Movie"}
-                            className="w-16 h-20 object-cover rounded"
+                            className="h-20 w-16 rounded object-cover"
                           />
                           <div>
                             <h3 className="font-semibold">{movie.name ?? "Untitled"}</h3>
@@ -443,7 +497,7 @@ const StaffTicketSales: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                   {showtimes.map((showtime) => (
                     <button
                       key={showtime.id}
@@ -451,13 +505,13 @@ const StaffTicketSales: React.FC = () => {
                         setSelectedShowtime(showtime);
                         setStep("seats");
                       }}
-                      className={`border rounded-lg p-4 cursor-pointer transition-colors text-center ${
+                      className={`cursor-pointer rounded-lg border p-4 text-center transition-colors ${
                         selectedShowtime?.id === showtime.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
                       }`}
                       type="button"
                     >
                       <div className="text-center">
-                        <div className="font-semibold text-lg">{showtime.startTime}</div>
+                        <div className="text-lg font-semibold">{showtime.startTime}</div>
                         <div className="text-sm text-gray-500">{showtime.date}</div>
                         <div className="text-sm text-gray-500">Phòng {showtime.cinemaRoomId}</div>
                         <div className="text-sm text-green-600">{showtime.availableSeats} ghế trống</div>
@@ -484,8 +538,8 @@ const StaffTicketSales: React.FC = () => {
               </CardHeader>
               <CardContent>
                 {/* Screen */}
-                <div className="text-center mb-6">
-                  <div className="bg-gray-300 rounded-lg py-2 px-8 inline-block">MÀN HÌNH</div>
+                <div className="mb-6 text-center">
+                  <div className="inline-block rounded-lg bg-gray-300 px-8 py-2">MÀN HÌNH</div>
                 </div>
 
                 {/* Seat Map */}
@@ -500,7 +554,7 @@ const StaffTicketSales: React.FC = () => {
                             key={seat.id}
                             onClick={() => handleSeatSelect(seat)}
                             disabled={seat.status === "taken"}
-                            className={`w-8 h-8 text-xs rounded ${getSeatClassName(seat)}`}
+                            className={`h-8 w-8 rounded text-xs ${getSeatClassName(seat)}`}
                           >
                             {seat.number}
                           </button>
@@ -510,21 +564,21 @@ const StaffTicketSales: React.FC = () => {
                 </div>
 
                 {/* Legend */}
-                <div className="flex justify-center gap-6 mt-6 text-sm">
+                <div className="mt-6 flex justify-center gap-6 text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 w-4 rounded bg-gray-200"></div>
                     <span>Trống</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-yellow-200 rounded"></div>
+                    <div className="h-4 w-4 rounded bg-yellow-200"></div>
                     <span>VIP</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                    <div className="h-4 w-4 rounded bg-blue-500"></div>
                     <span>Đã chọn</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-red-500 rounded"></div>
+                    <div className="h-4 w-4 rounded bg-red-500"></div>
                     <span>Đã bán</span>
                   </div>
                 </div>
@@ -532,7 +586,7 @@ const StaffTicketSales: React.FC = () => {
                 {selectedSeats.length > 0 && (
                   <div className="mt-6 text-center">
                     <p className="font-semibold">Đã chọn: {selectedSeats.map((s) => s.id).join(", ")}</p>
-                    <div className="flex gap-2 justify-center mt-4">
+                    <div className="mt-4 flex justify-center gap-2">
                       <Button variant="outline" onClick={() => setStep("showtime")}>
                         Quay lại
                       </Button>{" "}
@@ -557,18 +611,18 @@ const StaffTicketSales: React.FC = () => {
                 {/* Combos */}
                 {combos.length > 0 && (
                   <div>
-                    <h3 className="font-semibold text-lg mb-3">Combo Khuyến Mại</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <h3 className="mb-3 text-lg font-semibold">Combo Khuyến Mại</h3>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       {combos.map((combo) => (
-                        <div key={combo.id} className="border rounded-lg p-4">
-                          <div className="flex justify-between items-start mb-2">
+                        <div key={combo.id} className="rounded-lg border p-4">
+                          <div className="mb-2 flex items-start justify-between">
                             <div>
                               <h4 className="font-medium">{combo.name}</h4>
                               <p className="text-sm text-gray-600">{combo.description}</p>
-                              <p className="text-lg font-semibold text-red-600 mt-1">{(combo.total_price || 0).toLocaleString("vi-VN")} VNĐ</p>
+                              <p className="mt-1 text-lg font-semibold text-red-600">{(combo.total_price || 0).toLocaleString("vi-VN")} VNĐ</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3 mt-3">
+                          <div className="mt-3 flex items-center gap-3">
                             <Button
                               size="sm"
                               variant="outline"
@@ -594,17 +648,17 @@ const StaffTicketSales: React.FC = () => {
 
                 {/* Individual Snacks */}
                 <div>
-                  <h3 className="font-semibold text-lg mb-3">Bắp Nước Lẻ</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <h3 className="mb-3 text-lg font-semibold">Bắp Nước Lẻ</h3>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {snackItems.map((snack) => (
-                      <div key={snack.id} className="border rounded-lg p-4">
-                        <div className="flex flex-col h-full">
+                      <div key={snack.id} className="rounded-lg border p-4">
+                        <div className="flex h-full flex-col">
                           <div className="flex-1">
                             <h4 className="font-medium">{snack.name}</h4>
-                            <p className="text-sm text-gray-600 mt-1">{snack.description}</p>
-                            <p className="text-lg font-semibold text-red-600 mt-2">{snack.price.toLocaleString("vi-VN")} VNĐ</p>
+                            <p className="mt-1 text-sm text-gray-600">{snack.description}</p>
+                            <p className="mt-2 text-lg font-semibold text-red-600">{snack.price.toLocaleString("vi-VN")} VNĐ</p>
                           </div>
-                          <div className="flex items-center gap-3 mt-3">
+                          <div className="mt-3 flex items-center gap-3">
                             <Button
                               size="sm"
                               variant="outline"
@@ -629,7 +683,7 @@ const StaffTicketSales: React.FC = () => {
                 </div>
 
                 {/* Navigation */}
-                <div className="flex gap-2 justify-center mt-6">
+                <div className="mt-6 flex justify-center gap-2">
                   <Button variant="outline" onClick={() => setStep("seats")}>
                     Quay lại
                   </Button>
@@ -649,15 +703,15 @@ const StaffTicketSales: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Member Search */}
-                <div className="border rounded-lg p-4 bg-blue-50">
-                  <h3 className="font-semibold mb-3">Tìm Hội Viên</h3>
+                <div className="rounded-lg border bg-blue-50 p-4">
+                  <h3 className="mb-3 font-semibold">Tìm Hội Viên</h3>
                   <div className="flex gap-2">
                     <Input placeholder="Số điện thoại hội viên" value={memberPhone} onChange={(e) => setMemberPhone(e.target.value)} />
                     <Button onClick={searchMember}>Tìm kiếm</Button>
                   </div>
 
                   {memberInfo && (
-                    <div className="mt-3 p-3 bg-green-50 rounded border">
+                    <div className="mt-3 rounded border bg-green-50 p-3">
                       <p className="font-semibold">{memberInfo.name}</p>
                       <p className="text-sm text-gray-600">{memberInfo.phone}</p>
                       <p className="text-sm text-gray-600">Điểm tích lũy: {memberInfo.currentPoints}</p>
@@ -667,7 +721,7 @@ const StaffTicketSales: React.FC = () => {
                 </div>
                 <Separator />
                 {/* Customer Info Form */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <Label htmlFor="name">Họ và tên *</Label>
                     <Input
@@ -697,7 +751,7 @@ const StaffTicketSales: React.FC = () => {
                     />
                   </div>
                 </div>{" "}
-                <div className="flex gap-2 justify-center mt-6">
+                <div className="mt-6 flex justify-center gap-2">
                   <Button variant="outline" onClick={() => setStep("snacks")}>
                     Quay lại
                   </Button>
@@ -720,8 +774,8 @@ const StaffTicketSales: React.FC = () => {
               <CardContent className="space-y-6">
                 {/* Order Summary */}
                 <div>
-                  <h3 className="font-semibold mb-3">Tóm Tắt Đơn Hàng</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                  <h3 className="mb-3 font-semibold">Tóm Tắt Đơn Hàng</h3>
+                  <div className="space-y-2 rounded-lg bg-gray-50 p-4">
                     <div className="flex justify-between">
                       <span>Vé phim ({selectedSeats.length} ghế):</span>
                       <span>{selectedSeats.reduce((sum, seat) => sum + seat.price, 0).toLocaleString("vi-VN")} VNĐ</span>
@@ -764,7 +818,7 @@ const StaffTicketSales: React.FC = () => {
                 {/* Points Usage */}
                 {memberInfo && (
                   <div>
-                    <h3 className="font-semibold mb-3">Sử Dụng Điểm Tích Lũy</h3>
+                    <h3 className="mb-3 font-semibold">Sử Dụng Điểm Tích Lũy</h3>
                     <div className="flex items-center gap-4">
                       {" "}
                       <Label htmlFor="points">Điểm sử dụng (có {memberInfo.currentPoints} điểm):</Label>
@@ -785,8 +839,8 @@ const StaffTicketSales: React.FC = () => {
 
                 {/* Payment Method */}
                 <div>
-                  <h3 className="font-semibold mb-3">Phương Thức Thanh Toán</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+                  <h3 className="mb-3 font-semibold">Phương Thức Thanh Toán</h3>
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
                     {[
                       { id: "CASH" as PaymentMethod, name: "Tiền mặt" },
                       { id: "BANKING" as PaymentMethod, name: "Banking" },
@@ -794,7 +848,7 @@ const StaffTicketSales: React.FC = () => {
                       <button
                         key={method.id}
                         onClick={() => setPaymentMethod(method.id)}
-                        className={`p-3 border rounded-lg text-center transition-colors ${
+                        className={`rounded-lg border p-3 text-center transition-colors ${
                           paymentMethod === method.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
                         }`}
                       >
@@ -804,7 +858,7 @@ const StaffTicketSales: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2 justify-center mt-6">
+                <div className="mt-6 flex justify-center gap-2">
                   <Button variant="outline" onClick={() => setStep("customer")}>
                     Quay lại
                   </Button>
@@ -854,7 +908,7 @@ const StaffTicketSales: React.FC = () => {
                     .map(([comboId, quantity]) => {
                       const combo = combos.find((c) => c.id === parseInt(comboId));
                       return combo ? (
-                        <div key={comboId} className="text-sm flex justify-between">
+                        <div key={comboId} className="flex justify-between text-sm">
                           <span>
                             {combo.name} x{quantity}
                           </span>
@@ -872,7 +926,7 @@ const StaffTicketSales: React.FC = () => {
                     .map(([snackId, quantity]) => {
                       const snack = snackItems.find((s) => s.id === snackId);
                       return snack ? (
-                        <div key={snackId} className="text-sm flex justify-between">
+                        <div key={snackId} className="flex justify-between text-sm">
                           <span>
                             {snack.name} x{quantity}
                           </span>
@@ -897,9 +951,9 @@ const StaffTicketSales: React.FC = () => {
               )}
               <Separator />
               <div>
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-lg">Tổng cộng</span>
-                  <span className="font-bold text-xl text-red-600">{calculateTotal().toLocaleString("vi-VN")} VNĐ</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-semibold">Tổng cộng</span>
+                  <span className="text-xl font-bold text-red-600">{calculateTotal().toLocaleString("vi-VN")} VNĐ</span>
                 </div>
               </div>
             </CardContent>
