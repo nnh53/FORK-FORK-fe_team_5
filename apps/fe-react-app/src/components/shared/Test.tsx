@@ -1,14 +1,15 @@
+/* eslint-disable sonarjs/no-commented-code */
 "use client";
 import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from "@/components/Shadcn/file-upload";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
+import { compressImage } from "@/services/imageCompressService";
+import { $api } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { encode } from "@jsquash/webp";
 import { CloudUpload, Paperclip } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { DropzoneOptions } from "react-dropzone";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -26,30 +27,20 @@ const formSchema = z.object({
 
 const dropZoneConfig = {
   accept: {
-    "image/*": [".jpg", ".jpeg", ".png"],
+    "image/*": [".jpg", ".jpeg", ".png", ".webp"],
   },
   maxFiles: 1,
   maxSize: 1024 * 1024 * 4,
   multiple: false,
 } satisfies DropzoneOptions;
 
-async function loadImage(src: File) {
-  const img = document.createElement("img");
-  img.src = URL.createObjectURL(src);
-  await new Promise((resolve) => (img.onload = resolve));
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  [canvas.width, canvas.height] = [img.width, img.height];
-  ctx?.drawImage(img, 0, 0);
-  return ctx?.getImageData(0, 0, img.width, img.height);
-}
-
 // TRÊN ĐÂY LÀ HÀM UTILS **********************************************************************************
 // DƯỚI ĐÂY LÀ COMPONENT **********************************************************************************
 
 export default function Test() {
+  const query = $api.useMutation("post", "/media/upload");
   const [files, setFiles] = useState<File[] | null>(null);
-  const [webpBufferFileArr, setWebpBufferFileArr] = useState<ArrayBuffer[] | null>(null);
+  const [webpFileArr, setWebpFileArr] = useState<File[] | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,35 +49,37 @@ export default function Test() {
     },
   });
 
-  function onSubmit(formInputData: z.infer<typeof formSchema>) {
-    try {
-      console.log("formInputData nè ", formInputData); // formInputData.files ko có dữ liệu, phải lấy từ trên useState ra
-
-      if (files && files.length > 0) {
-        files.forEach(async (item) => {
-          const rawImageData = await loadImage(item);
-          if (rawImageData != null) {
-            const webpBuffer = await encode(rawImageData);
-            console.log("webpBuffer của file", item.name);
-            console.log(webpBuffer);
-            setWebpBufferFileArr((prev) => [...(prev || []), webpBuffer]);
-          }
-        });
-      }
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(formInputData, null, 2)}</code>
-        </pre>,
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+  async function onSubmit(formInputData: z.infer<typeof formSchema>) {
+    if (files && files.length > 0) {
+      files.forEach(async (item) => {
+        const webpFile = await compressImage(item);
+        setWebpFileArr((prev) => [...(prev || []), webpFile]);
+      });
     }
+    console.log("webpFileArr nè ", webpFileArr);
+
+    const formdata = new FormData();
+    formdata.append("file", webpFileArr?.[0] as File);
+    console.log("formdata nè ", formdata);
+    query.mutate(
+      {
+        body: formdata as unknown as { file: string },
+      },
+      {
+        onSuccess: (data) => {
+          console.log("Upload successful:", data);
+        },
+        onError: (error) => {
+          console.error("Upload failed:", error);
+        },
+      },
+    );
   }
 
   useEffect(() => {
     console.log("files nè ", files);
-  }, [webpBufferFileArr, files]);
+    console.log("webpFileArr nè ", webpFileArr);
+  }, [webpFileArr, files]);
 
   return (
     <div className="">
@@ -140,20 +133,3 @@ export default function Test() {
     </div>
   );
 }
-
-// import type { UserResponse } from "@/type-from-be";
-// import { $api } from "@/utils/api";
-
-// export const Test = () => {
-//   const { data, error, isLoading } = $api.useQuery("get", "/users", {});
-
-//   console.log(data?.result as UserResponse);
-//   console.log();
-//   console.log(error);
-//   console.log(isLoading);
-
-//   if (!data || isLoading) return "Loading...";
-//   if (error) return `An error occurred: ${error}`;
-
-//   // return <div>{data.result?.map((item) => item.fullName)}</div>;
-// };
