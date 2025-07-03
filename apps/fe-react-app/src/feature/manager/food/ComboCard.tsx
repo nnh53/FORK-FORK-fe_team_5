@@ -21,7 +21,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
     const isAvailable = combo.status === "AVAILABLE";
 
     return (
-      <Badge variant="secondary" className={`text-xs ${isAvailable ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+      <Badge variant="secondary" className={`text-xs ${isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
         {statusLabel}
       </Badge>
     );
@@ -33,13 +33,13 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
     <>
       {onViewDetails && (
         <Button size="sm" variant="outline" onClick={() => onViewDetails(combo)} className={isFullWidth ? "flex-1" : "h-8 w-8 p-0"}>
-          <Eye className={isFullWidth ? "h-3 w-3 mr-1" : "h-4 w-4"} />
+          <Eye className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
           {isFullWidth && "Chi tiết"}
         </Button>
       )}
       {onEdit && (
         <Button size="sm" variant="outline" onClick={() => onEdit(combo)} className={isFullWidth ? "flex-1" : "h-8 w-8 p-0"}>
-          <Edit className={isFullWidth ? "h-3 w-3 mr-1" : "h-4 w-4"} />
+          <Edit className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
           {isFullWidth && "Chỉnh sửa"}
         </Button>
       )}
@@ -48,9 +48,9 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
           size="sm"
           variant="destructive"
           onClick={() => onDelete(combo.id)}
-          className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 hover:border-red-200"}
+          className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:border-red-200 hover:bg-red-50 hover:text-red-600"}
         >
-          <Trash className={isFullWidth ? "h-3 w-3 mr-1" : "h-4 w-4"} />
+          <Trash className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
           {isFullWidth && "Xóa"}
         </Button>
       )}
@@ -64,16 +64,16 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
         <img
           src={combo.img}
           alt={combo.name}
-          className="w-full h-32 object-cover rounded-lg border border-gray-200"
+          className="h-32 w-full rounded-lg border border-gray-200 object-cover"
           style={{ aspectRatio: "5 / 4" }}
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/placeholder-combo.jpg";
           }}
         />
       ) : (
-        <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded-lg border border-gray-200">
+        <div className="flex h-32 w-full flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-100">
           <Utensils className="h-8 w-8 text-gray-400" />
-          <span className="text-sm text-gray-500 mt-2">Không có hình ảnh</span>
+          <span className="mt-2 text-sm text-gray-500">Không có hình ảnh</span>
         </div>
       )}
     </div>
@@ -81,18 +81,18 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
 
   // List View Image
   const ListImageComponent = () => (
-    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+    <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg">
       {combo.img ? (
         <img
           src={combo.img}
           alt={combo.name}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/placeholder-combo.jpg";
           }}
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-gray-200">
+        <div className="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
           <Utensils className="h-6 w-6 text-gray-400" />
         </div>
       )}
@@ -102,12 +102,12 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
   // Grid View
   if (viewMode === "grid") {
     return (
-      <Card className={cn("w-full max-w-md transition-all duration-200 hover:shadow-lg p-4")}>
+      <Card className={cn("w-full max-w-md p-4 transition-all duration-200 hover:shadow-lg")}>
         <CardHeader className="p-0 pb-3">
-          <div className="flex justify-between items-start">
+          <div className="flex items-start justify-between">
             <div className="space-y-1">
               <CardTitle className="text-lg font-semibold">{combo.name}</CardTitle>
-              <div className="flex gap-1 flex-wrap">
+              <div className="flex flex-wrap gap-1">
                 <StatusBadge />
                 <Badge variant="outline" className="text-xs font-medium">
                   {combo.snacks?.length || 0} món
@@ -115,16 +115,16 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
               </div>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-primary">{formatPrice(totalPrice)}</div>
+              <div className="text-primary text-lg font-bold">{formatPrice(totalPrice)}</div>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0 space-y-3">
+        <CardContent className="space-y-3 p-0">
           <GridImageComponent />
 
-          {combo.description && <div className="text-sm text-gray-600 line-clamp-2">{combo.description}</div>}
+          {combo.description && <div className="line-clamp-2 text-sm text-gray-600">{combo.description}</div>}
 
-          <div className="flex gap-2 pt-2 justify-end">
+          <div className="flex justify-end gap-2 pt-2">
             <ActionButtons />
           </div>
         </CardContent>
@@ -135,18 +135,18 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
   // List View
   return (
     <Card className="w-full transition-all duration-200 hover:bg-gray-50">
-      <CardContent className="p-4 flex items-center gap-4">
+      <CardContent className="flex items-center gap-4 p-4">
         <ListImageComponent />
-        <div className="flex-1 grid grid-cols-12 gap-2 items-center text-sm">
+        <div className="grid flex-1 grid-cols-12 items-center gap-2 text-sm">
           <div className="col-span-4">
             <div className="font-medium">{combo.name}</div>
-            <div className="flex gap-1 mt-1">
+            <div className="mt-1 flex gap-1">
               <StatusBadge />
             </div>
           </div>
           <div className="col-span-2 text-gray-600">{combo.snacks?.length || 0} món</div>
-          <div className="col-span-3 text-gray-600 line-clamp-1">{combo.description || "Không có mô tả"}</div>
-          <div className="col-span-2 font-semibold text-primary">{formatPrice(totalPrice)}</div>
+          <div className="col-span-3 line-clamp-1 text-gray-600">{combo.description || "Không có mô tả"}</div>
+          <div className="text-primary col-span-2 font-semibold">{formatPrice(totalPrice)}</div>
           <div className="col-span-1 flex justify-end gap-1">
             <ActionButtons />
           </div>

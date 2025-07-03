@@ -49,7 +49,7 @@ const ComboTable = forwardRef<{ resetPagination: () => void }, ComboTableProps>(
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
+    return sortedData.reverse().slice(pagination.startIndex, pagination.endIndex + 1);
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
   // Render pagination items
@@ -83,15 +83,15 @@ const ComboTable = forwardRef<{ resetPagination: () => void }, ComboTableProps>(
   return (
     <div className="space-y-6">
       {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-4">
           <h2 className="text-xl font-semibold">Danh sách combo ({combos.length})</h2>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Sort Controls */}
-          <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
-            <span className="text-sm font-medium px-2">Sắp xếp:</span>
+          <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-1">
+            <span className="px-2 text-sm font-medium">Sắp xếp:</span>
             <SortButton {...getSortProps("name")} label="Tên" />
           </div>
 
@@ -109,7 +109,7 @@ const ComboTable = forwardRef<{ resetPagination: () => void }, ComboTableProps>(
           </Select>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center border rounded-lg">
+          <div className="flex items-center rounded-lg border">
             <Button variant={viewMode === "grid" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("grid")} className="rounded-r-none">
               <Grid3X3 className="h-4 w-4" />
             </Button>
@@ -124,15 +124,15 @@ const ComboTable = forwardRef<{ resetPagination: () => void }, ComboTableProps>(
       {currentPageData.length === 0 ? (
         <Card>
           <CardContent className="py-12">
-            <div className="text-center text-muted-foreground">
-              <div className="text-4xl mb-4">🍔</div>
-              <div className="text-lg font-medium mb-2">Không tìm thấy combo</div>
+            <div className="text-muted-foreground text-center">
+              <div className="mb-4 text-4xl">🍔</div>
+              <div className="mb-2 text-lg font-medium">Không tìm thấy combo</div>
               <div className="text-sm">Hãy thử thay đổi bộ lọc hoặc thêm combo mới</div>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-3"}>
+        <div className={viewMode === "grid" ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "space-y-3"}>
           {currentPageData.map((combo) => (
             <ComboCard key={combo.id} combo={combo} onEdit={onEdit} onDelete={onDelete} onViewDetails={onViewDetails} viewMode={viewMode} />
           ))}
@@ -141,9 +141,9 @@ const ComboTable = forwardRef<{ resetPagination: () => void }, ComboTableProps>(
 
       {/* Pagination */}
       {sortedData.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           {/* Pagination Info */}
-          <div className="text-sm text-muted-foreground">{getPageInfo(pagination)}</div>
+          <div className="text-muted-foreground text-sm">{getPageInfo(pagination)}</div>
 
           {/* Pagination Controls */}
           {pagination.totalPages > 1 && (
