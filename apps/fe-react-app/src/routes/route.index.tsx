@@ -41,6 +41,16 @@ import { ROUTES } from "./route.constants";
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
   <Routes>
+    {/* Auth Routes - standalone without layout */}
+    <Route element={<AuthPageProtector />}>
+      <Route path={ROUTES.AUTH.ROOT}>
+        <Route index element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
+        <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
+        <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
+        <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
+      </Route>
+    </Route>
+
     {/* User Routes - All routes that use UserLayout */}
     <Route path="/" element={<UserLayout />}>
       {/* Root redirect */}
@@ -49,15 +59,7 @@ export const AppRoutes = () => (
       <Route path={ROUTES.HOME} element={<HomePage />} />
       <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
       <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
-      {/* Auth Routes - grouped under /auth path prefix */}
-      <Route element={<AuthPageProtector />}>
-        <Route path={ROUTES.AUTH.ROOT}>
-          <Route index element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
-          <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
-          <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
-          <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
-        </Route>
-      </Route>
+
       {/* Protected Routes for Booking - require authentication */}
       <Route element={<ProtectedRoute />}>
         <Route path={ROUTES.BOOKING} element={<BookingPage />} />
