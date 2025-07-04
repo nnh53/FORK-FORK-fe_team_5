@@ -1,8 +1,7 @@
-import nowShowing from "@/assets/nowShowingText.webp";
-import upComingText from "@/assets/upComingText.webp";
-import type { MovieCardProps } from "@/components/movie/MovieCard/MovieCard.tsx";
-import MovieList from "@/components/movie/MovieList/MovieList.tsx";
+import type { MovieCardProps } from "@/components/movie/MovieCard.tsx";
+import MovieList from "@/components/movie/MovieList";
 import MovieSearch from "@/components/MovieSearch.tsx";
+import SplitText from "@/components/Reactbits/reactbit-text-animations/SplitText/SplitText.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import type { Movie } from "@/interfaces/movies.interface.ts";
 import UserLayout from "@/layouts/user/UserLayout.tsx";
@@ -251,14 +250,23 @@ function MovieSelection() {
       {/* Movie Search Section */}
       <div className="mx-auto max-w-4xl px-4 py-8">
         <div className="mb-6 text-center">
-          <h2 className="mb-2 text-3xl font-bold text-white">Tìm Kiếm Phim</h2>
-          <p className="text-gray-300">Tìm kiếm và đặt vé phim nhanh chóng</p>
+          <h2 className="text-brown-500 mb-2 text-3xl font-bold">Tìm Kiếm Phim</h2>
         </div>
         <MovieSearch onMovieSelect={handleMovieSearchSelect} placeholder="Nhập tên phim để tìm kiếm..." className="mx-auto max-w-md" />
       </div>
-      <div className="flex h-48 items-center justify-center bg-gradient-to-r from-black/40 via-transparent to-black/40 p-2" id="now-showing">
-        <img src={nowShowing} className="h-24" alt="Phim sắp chiếu" />
-      </div>
+      <SplitText
+        text="NOW SHOWING"
+        className="text-center text-2xl font-semibold"
+        delay={100}
+        duration={0.6}
+        ease="power3.out"
+        splitType="chars"
+        from={{ opacity: 0, y: 40 }}
+        to={{ opacity: 1, y: 0 }}
+        threshold={0.1}
+        rootMargin="-100px"
+        textAlign="center"
+      />
       {/* Loading state */}
       {moviesQuery.isLoading && (
         <div className="flex items-center justify-center py-12">
@@ -282,9 +290,19 @@ function MovieSelection() {
           onMovieBuyTicketClick={handleBuyTicketClick}
         />
       )}
-      <div className="flex h-48 items-center justify-center bg-gradient-to-r from-black/40 via-transparent to-black/40 p-2" id="coming-soon">
-        <img src={upComingText} className="h-24" alt="Phim sắp chiếu" />
-      </div>
+      <SplitText
+        text="UPCOMING MOVIES"
+        className="text-center text-2xl font-semibold"
+        delay={100}
+        duration={0.6}
+        ease="power3.out"
+        splitType="chars"
+        from={{ opacity: 0, y: 40 }}
+        to={{ opacity: 1, y: 0 }}
+        threshold={0.1}
+        rootMargin="-100px"
+        textAlign="center"
+      />
       {/* Upcoming movies - for now, show same movies but could be filtered differently */}
       {!moviesQuery.isLoading && !moviesQuery.error && (
         <MovieList

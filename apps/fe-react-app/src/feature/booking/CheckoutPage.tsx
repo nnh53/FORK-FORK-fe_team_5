@@ -3,15 +3,15 @@ import type { Member } from "@/interfaces/member.interface.ts";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import BookingBreadcrumb from "../../../components/BookingBreadcrumb.tsx";
-import DiscountSection from "../../../components/DiscountSection.tsx";
-import UserLayout from "../../../layouts/user/UserLayout.tsx";
-import { bookingService } from "../../../services/bookingService";
-import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
-import ComboList from "../components/ComboList/ComboList.tsx";
-import PaymentInfo from "../components/PaymentInfo/PaymentInfo.tsx";
-import PaymentMethodSelector from "../components/PaymentMethodSelector/PaymentMethodSelector.tsx";
-import PaymentSummary from "../components/PaymentSummary/PaymentSummary.tsx";
+import BookingBreadcrumb from "@/components/BookingBreadcrumb.tsx";
+import DiscountSection from "@/components/DiscountSection.tsx";
+import UserLayout from "@/layouts/user/UserLayout.tsx";
+import { bookingService } from "@/services/bookingService";
+import BookingSummary from "./components/BookingSummary/BookingSummary.tsx";
+import ComboList from "./components/ComboList/ComboList.tsx";
+import PaymentInfo from "./components/PaymentInfo/PaymentInfo.tsx";
+import PaymentMethodSelector from "./components/PaymentMethodSelector/PaymentMethodSelector.tsx";
+import PaymentSummary from "./components/PaymentSummary/PaymentSummary.tsx";
 
 // Legacy interface for UI compatibility
 interface UICombo {

@@ -1,9 +1,9 @@
 import type { Seat } from "@/interfaces/seat.interface";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import BookingBreadcrumb from "../../../components/BookingBreadcrumb.tsx";
-import UserLayout from "../../../layouts/user/UserLayout.tsx";
-import BookingSummary from "../components/BookingSummary/BookingSummary.tsx";
+import BookingBreadcrumb from "@/components/BookingBreadcrumb.tsx";
+import UserLayout from "@/layouts/user/UserLayout.tsx";
+import BookingSummary from "./components/BookingSummary/BookingSummary.tsx";
 
 // Booking-specific seat interface that extends the base Seat
 export interface BookingSeat extends Seat {
@@ -127,7 +127,7 @@ const BookingPage: React.FC = () => {
   if (!movie) {
     return (
       <UserLayout>
-        <div className="text-center py-20">
+        <div className="py-20 text-center">
           <p>Lỗi: Không có thông tin đặt vé.</p>
           <Link to="/" className="text-blue-500 hover:underline">
             Quay về trang chủ
@@ -184,35 +184,35 @@ const BookingPage: React.FC = () => {
     navigate("/checkout", { state: finalBookingState });
   };
   return (
-    <UserLayout background={"https://images.pexels.com/photos/207142/pexels-photo-207142.jpeg"}>
-      <div className="max-w-screen-2xl mx-auto p-4 md:p-8">
+    <UserLayout>
+      <div className="mx-auto max-w-screen-2xl p-4 md:p-8">
         {/* Breadcrumb */}
         <BookingBreadcrumb movieTitle={movie?.title} className="mb-6" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Cột trái: Sơ đồ ghế */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-4">Chọn ghế</h2>
+          <div className="rounded-lg bg-white p-6 shadow-md lg:col-span-2">
+            <h2 className="mb-4 text-xl font-bold">Chọn ghế</h2>
             <div className="mb-4">
               <div className="flex items-center justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
+                  <div className="h-4 w-4 rounded border border-blue-300 bg-blue-100"></div>
                   <span>Ghế thường</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
+                  <div className="h-4 w-4 rounded border border-yellow-300 bg-yellow-100"></div>
                   <span>Ghế VIP</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-purple-100 border border-purple-300 rounded"></div>
+                  <div className="h-4 w-4 rounded border border-purple-300 bg-purple-100"></div>
                   <span>Ghế đôi</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-400 rounded"></div>
+                  <div className="h-4 w-4 rounded bg-gray-400"></div>
                   <span>Đã đặt</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-500 rounded"></div>
+                  <div className="h-4 w-4 rounded bg-green-500"></div>
                   <span>Đã chọn</span>
                 </div>
               </div>
@@ -220,13 +220,13 @@ const BookingPage: React.FC = () => {
 
             {/* Screen */}
             <div className="mb-6">
-              <div className="bg-gray-200 text-center py-2 rounded-t-2xl text-gray-600 font-medium">MÀN HÌNH</div>
+              <div className="rounded-t-2xl bg-gray-200 py-2 text-center font-medium text-gray-600">MÀN HÌNH</div>
             </div>
 
             {/* Seat Grid */}
             <div className="space-y-2">
               {mockSeatMap.P1.rows.map((row) => (
-                <div key={row} className="flex items-center gap-2 justify-center">
+                <div key={row} className="flex items-center justify-center gap-2">
                   <span className="w-8 text-center font-bold text-gray-600">{row}</span>
                   <div className="flex gap-1">
                     {mockSeatMap.P1.seats
@@ -236,7 +236,7 @@ const BookingPage: React.FC = () => {
                         return (
                           <button
                             key={seat.id}
-                            className={`w-8 h-8 text-xs font-medium rounded border-2 transition-colors ${getSeatClassName(seat, isSelected)}`}
+                            className={`h-8 w-8 rounded border-2 text-xs font-medium transition-colors ${getSeatClassName(seat, isSelected)}`}
                             disabled={seat.status === "taken"}
                             onClick={() => handleSeatSelect(seat)}
                           >

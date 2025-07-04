@@ -2,7 +2,7 @@ body {
   overflow-x: hidden;
 }
 
-.test-home-page {
+.home-page {
   background-color: var(--color-base-100);
   overflow-x: hidden;
   color: var(--color-base-content);

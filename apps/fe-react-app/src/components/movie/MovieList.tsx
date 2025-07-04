@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import React, { useRef } from "react";
-import MovieCard, { type MovieCardProps } from "../MovieCard/MovieCard.tsx";
+import MovieCard, { type MovieCardProps } from "./MovieCard.tsx";
 
 export interface MovieListProps {
   movies: MovieCardProps[];
@@ -56,17 +56,17 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
 
   if (horizontal) {
     return (
-      <div className="relative w-4/5 mx-auto">
+      <div className="relative mx-auto w-4/5">
         {/* Nút cuộn trái */}
         <button
           onClick={() => handleScroll("left")}
-          className="btn btn-circle absolute z-10 -left-12 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-3 transition-all duration-300 hover:scale-110"
+          className="btn btn-circle absolute -left-12 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/80 p-3 shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white"
         >
           <Icon icon="material-symbols-light:arrow-back-ios-new-rounded" width="60" height="60" />
         </button>
 
         {/* Vùng cuộn phim */}
-        <div ref={scrollRef} className="flex overflow-x-auto space-x-4 px-12 py-6 gap-6 scrollbar-hide scroll-smooth snap-x snap-mandatory">
+        <div ref={scrollRef} className="scrollbar-hide flex snap-x snap-mandatory gap-6 space-x-4 overflow-x-auto scroll-smooth px-12 py-6">
           {movies.map((movie) => (
             <div key={movie.id} className="inline-flex flex-none snap-start">
               <MovieCard
@@ -82,7 +82,7 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
         {/* Nút cuộn phải */}
         <button
           onClick={() => handleScroll("right")}
-          className="btn btn-circle absolute z-10 -right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg p-3 transition-all duration-300 hover:scale-110"
+          className="btn btn-circle absolute -right-4 top-1/2 z-10 -translate-y-1/2 bg-white/80 p-3 shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white"
         >
           <Icon icon="material-symbols-light:arrow-forward-ios-rounded" width="60" height="60" />
         </button>
@@ -92,7 +92,7 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
 
   // Grid mode
   return (
-    <div className={`grid ${responsiveClasses} gap-8 justify-items-center p-4 max-w-7xl mx-auto`}>
+    <div className={`grid ${responsiveClasses} mx-auto max-w-7xl justify-items-center gap-8 p-4`}>
       {movies.map((movie) => (
         <MovieCard
           key={movie.id}

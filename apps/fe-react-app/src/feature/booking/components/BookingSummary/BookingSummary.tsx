@@ -2,7 +2,7 @@
 import React from "react";
 
 import { useNavigate } from "react-router-dom";
-import type { MovieCardProps } from "../../../../components/movie/MovieCard/MovieCard.tsx";
+import type { MovieCardProps } from "../../../../components/movie/MovieCard.tsx";
 
 // Interface for seats in booking context
 interface BookingSelectedSeat {
@@ -53,15 +53,15 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   const displayTotal = finalTotal !== undefined ? finalTotal : subtotal - totalDiscounts;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md sticky top-24">
+    <div className="sticky top-24 rounded-lg bg-white p-6 shadow-md">
       <div className="flex gap-4">
-        <img src={movie.posterUrl} alt={movie.title} className="w-24 h-auto rounded-md" />
+        <img src={movie.posterUrl} alt={movie.title} className="h-auto w-24 rounded-md" />
         <div>
           <h2 className="text-xl font-bold">{movie.title}</h2>
           <p className="text-sm text-gray-600">{selection.format}</p>
         </div>
       </div>
-      <div className="mt-6 space-y-3 text-sm border-t pt-4">
+      <div className="mt-6 space-y-3 border-t pt-4 text-sm">
         <div className="flex justify-between">
           <span className="text-gray-500">Rạp chiếu</span> <span className="font-semibold">{cinemaName}</span>
         </div>
@@ -74,12 +74,12 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         <div className="flex justify-between">
           <span className="text-gray-500">Phòng chiếu</span> <span className="font-semibold">P1</span>
         </div>
-        <div className="flex justify-between items-start">
+        <div className="flex items-start justify-between">
           <span className="text-gray-500">Ghế ngồi</span>
-          <span className="font-semibold text-right w-1/2 break-words">{selectedSeats.map((s) => s.id).join(", ")}</span>
+          <span className="w-1/2 break-words text-right font-semibold">{selectedSeats.map((s) => s.id).join(", ")}</span>
         </div>{" "}
       </div>
-      <div className="mt-6 border-t pt-4 space-y-2">
+      <div className="mt-6 space-y-2 border-t pt-4">
         {/* Ticket cost */}
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Tiền vé ({selectedSeats.length} ghế):</span>
@@ -94,7 +94,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         )}
         {/* Subtotal */}
         {(comboCost > 0 || totalDiscounts > 0) && (
-          <div className="flex justify-between text-sm border-t pt-2">
+          <div className="flex justify-between border-t pt-2 text-sm">
             <span className="text-gray-600">Tạm tính:</span>
             <span className="font-semibold">{subtotal.toLocaleString("vi-VN")}đ</span>
           </div>
@@ -113,7 +113,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           </div>
         )}{" "}
         {/* Final total */}
-        <div className="flex justify-between text-xl font-bold border-t pt-2">
+        <div className="flex justify-between border-t pt-2 text-xl font-bold">
           <span>TỔNG TIỀN</span>
           <span className="text-red-600">{displayTotal.toLocaleString("vi-VN")}đ</span>
         </div>
@@ -129,7 +129,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                 const bookingState = JSON.parse(localStorage.getItem("bookingState") || "{}");
                 navigate("/booking", { state: bookingState });
               }}
-              className="w-1/2 py-3 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300 transition"
+              className="w-1/2 rounded-lg bg-gray-200 py-3 font-bold text-gray-800 transition hover:bg-gray-300"
             >
               QUAY LẠI
             </button>
@@ -137,7 +137,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           {showContinueButton && onContinueClick && (
             <button
               onClick={onContinueClick}
-              className={`${showBackButton ? "w-1/2" : "w-full"} py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition disabled:opacity-50`}
+              className={`${showBackButton ? "w-1/2" : "w-full"} rounded-lg bg-red-600 py-3 font-bold text-white transition hover:bg-red-700 disabled:opacity-50`}
               disabled={selectedSeats.length === 0}
             >
               {continueText}

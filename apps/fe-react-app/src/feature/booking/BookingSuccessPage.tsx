@@ -4,8 +4,8 @@ import { CheckCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import UserLayout from "../../../layouts/user/UserLayout";
-import { bookingService } from "../../../services/bookingService";
+import UserLayout from "@/layouts/user/UserLayout";
+import { bookingService } from "@/services/bookingService";
 
 const BookingSuccessPage: React.FC = () => {
   const location = useLocation();

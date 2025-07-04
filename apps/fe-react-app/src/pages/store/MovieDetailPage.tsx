@@ -7,11 +7,11 @@ import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal
 import UserLayout from "@/layouts/user/UserLayout";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Showtime as OldShowtime } from "../../../interfaces/movies.interface";
-import type { Showtime as NewShowtime } from "../../../interfaces/showtime.interface";
-import { useMovie } from "../../../services/movieService";
-import { transformShowtimesResponse, useShowtimesByMovie } from "../../../services/showtimeService";
-import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "../../../utils/showtimeUtils";
+import type { Showtime as OldShowtime } from "@/interfaces/movies.interface";
+import type { Showtime as NewShowtime } from "@/interfaces/showtime.interface";
+import { useMovie } from "@/services/movieService";
+import { transformShowtimesResponse, useShowtimesByMovie } from "@/services/showtimeService";
+import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "@/utils/showtimeUtils";
 
 const MovieInfoItem = ({ label, value }: { label: string; value: string | string[] }) => (
   <div className="flex text-sm">

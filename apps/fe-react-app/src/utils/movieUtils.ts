@@ -1,6 +1,6 @@
 import pTagImage from "@/assets/pTag.png";
 import type { Movie } from "@/interfaces/movies.interface";
-import type { MovieCardProps } from "../components/movie/MovieCard/MovieCard";
+import type { MovieCardProps } from "../components/movie/MovieCard";
 
 /**
  * Convert Movie from API to MovieCardProps for UI display
