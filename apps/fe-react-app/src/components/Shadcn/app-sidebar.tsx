@@ -1,171 +1,63 @@
 import FCinemaLogo from "@/assets/FCinema_Logo.webp";
-import { NavDocuments } from "@/components/Shadcn/nav-documents";
-import { NavMain } from "@/components/Shadcn/nav-main";
 import { NavUser } from "@/components/Shadcn/nav-user";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/Shadcn/ui/sidebar";
-import {
-  IconBox,
-  IconBrandAmongUs,
-  IconCamera,
-  IconChartBar,
-  IconClock,
-  IconFileAi,
-  IconFileDescription,
-  IconHelp,
-  IconListDetails,
-  IconMovie,
-  IconSearch,
-  IconSettings,
-  IconSpeakerphone,
-  IconTicket,
-  IconToolsKitchen3,
-  IconUserHeart,
-  IconUsers,
-} from "@tabler/icons-react";
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-const data = {
+type SidebarData = {
   user: {
-    name: "admin",
-    email: "admin@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/admin/dashboard",
-      icon: IconChartBar,
-    },
-    {
-      title: "Booking",
-      url: "/admin/booking",
-      icon: IconListDetails,
-    },
-    {
-      title: "Movie",
-      url: "/admin/movie",
-      icon: IconMovie,
-    },
-    {
-      title: "Cinema Room",
-      url: "/admin/cinema-room",
-      icon: IconBox,
-    },
-    {
-      title: "Show Time",
-      url: "/admin/showtime",
-      icon: IconClock,
-    },
-    {
-      title: "Ticket",
-      url: "/admin/ticket",
-      icon: IconTicket,
-    },
-    {
-      title: "Promotion",
-      url: "/admin/promotion",
-      icon: IconSpeakerphone,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "/admin/capture",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "/admin/capture/active",
-        },
-        {
-          title: "Archived",
-          url: "/admin/capture/archived",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "/admin/proposal",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "/admin/proposal/active",
-        },
-        {
-          title: "Archived",
-          url: "/admin/proposal/archived",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "/admin/prompts",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "/admin/prompts/active",
-        },
-        {
-          title: "Archived",
-          url: "/admin/prompts/archived",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/admin/settings",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "/admin/help",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "/admin/search",
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Members",
-      url: "/admin/members",
-      icon: IconUsers,
-    },
-    {
-      name: "Staffs",
-      url: "/admin/staffs",
-      icon: IconUserHeart,
-    },
-    {
-      name: "Combo",
-      url: "/admin/combo",
-      icon: IconBrandAmongUs,
-    },
-    {
-      name: "Snack",
-      url: "/admin/snacks",
-      icon: IconToolsKitchen3,
-    },
-  ],
+    name: string;
+    email: string;
+    avatar: string;
+  };
+  navMain: {
+    title: string;
+    url: string;
+    icon: React.ElementType;
+    items?: { title: string; url: string; icon: React.ElementType }[];
+  }[];
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar> & { data: SidebarData }) {
+  const { data } = props;
+  const location = useLocation();
+  const { setOpen } = useSidebar();
+
+  // Function to check if a menu item is active
+  const isActive = (itemUrl: string) => {
+    // Remove trailing slash if present
+    const currentPath = location.pathname.endsWith("/") ? location.pathname.slice(0, -1) : location.pathname;
+    const url = itemUrl.endsWith("/") ? itemUrl.slice(0, -1) : itemUrl;
+
+    // Check if current path exactly matches the URL
+    if (currentPath === url) return true;
+
+    // Check if current path starts with the URL and the next character is '/'
+    if (currentPath.startsWith(url) && (currentPath.length === url.length || currentPath[url.length] === "/")) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Function to handle menu item click and open sidebar
+  const handleMenuItemClick = () => {
+    setOpen(true);
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -181,8 +73,51 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        <SidebarGroup>
+          <SidebarMenu>
+            {data.navMain.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  className={
+                    isActive(item.url)
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+                      : ""
+                  }
+                  onClick={handleMenuItemClick}
+                >
+                  <Link to={item.url} className="font-medium">
+                    <item.icon />
+                    {item.title}
+                  </Link>
+                </SidebarMenuButton>
+                {item.items?.length ? (
+                  <SidebarMenuSub>
+                    {item.items.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton
+                          asChild
+                          className={
+                            isActive(subItem.url)
+                              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+                              : ""
+                          }
+                          onClick={handleMenuItemClick}
+                        >
+                          <Link to={subItem.url}>
+                            <subItem.icon />
+                            {subItem.title}
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                ) : null}
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

@@ -1,11 +1,9 @@
 import FCinemaLogo from "@/assets/FCinema_Logo.webp";
-import { NavMain } from "@/components/Shadcn/nav-main";
-import { NavSecondary } from "@/components/Shadcn/nav-secondary";
-import { NavUser } from "@/components/Shadcn/nav-user";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -13,6 +11,7 @@ import {
 } from "@/components/Shadcn/ui/sidebar";
 import { IconCalendar, IconCheckbox, IconHome, IconLifebuoy, IconSend, IconTicket } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
+import { NavUser } from "./nav-user";
 
 // This is sample data for staff sidebar.
 const data = {
@@ -59,7 +58,7 @@ const data = {
 
 export function StaffSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           {" "}
@@ -74,8 +73,20 @@ export function StaffSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <SidebarGroup>
+          <SidebarMenu>
+            {data.navMain.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link to={item.url} className="font-medium">
+                    <item.icon />
+                    {item.title}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
