@@ -1,12 +1,12 @@
+import BookingBreadcrumb from "@/components/BookingBreadcrumb.tsx";
+import DiscountSection from "@/components/DiscountSection.tsx";
 import type { BookingRequest, PaymentMethod } from "@/interfaces/booking.interface.ts";
 import type { Member } from "@/interfaces/member.interface.ts";
+import UserLayout from "@/layouts/user/UserLayout.tsx";
+import { bookingService } from "@/services/bookingService";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import BookingBreadcrumb from "@/components/BookingBreadcrumb.tsx";
-import DiscountSection from "@/components/DiscountSection.tsx";
-import UserLayout from "@/layouts/user/UserLayout.tsx";
-import { bookingService } from "@/services/bookingService";
 import BookingSummary from "./components/BookingSummary/BookingSummary.tsx";
 import ComboList from "./components/ComboList/ComboList.tsx";
 import PaymentInfo from "./components/PaymentInfo/PaymentInfo.tsx";
@@ -204,7 +204,7 @@ const CheckoutPage: React.FC = () => {
     // Xử lý khi không có dữ liệu
     return (
       <UserLayout>
-        <div className="text-center p-10">
+        <div className="p-10 text-center">
           Lỗi dữ liệu, vui lòng{" "}
           <Link to="/" className="text-blue-500">
             quay lại trang chủ
@@ -220,14 +220,14 @@ const CheckoutPage: React.FC = () => {
 
   return (
     <UserLayout>
-      <div className="max-w-screen-2xl mx-auto p-4 md:p-8">
+      <div className="mx-auto max-w-screen-2xl p-4 md:p-8">
         {" "}
         {/* Breadcrumb */}
         <BookingBreadcrumb movieTitle={bookingState.movie?.title} className="mb-6" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {" "}
           {/* Cột trái: Thông tin và lựa chọn */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md space-y-8">
+          <div className="space-y-8 rounded-lg bg-white p-6 shadow-md lg:col-span-2">
             <PaymentInfo
               user={{ id: "GUEST", full_name: "Phát Đạt", phone: "0123456789", email: "test@gmail.com", loyalty_point: 0 }}
               selectedSeats={selectedSeats}
@@ -254,7 +254,7 @@ const CheckoutPage: React.FC = () => {
               <button
                 onClick={handleCreateBooking}
                 disabled={isCreatingBooking}
-                className="w-full max-w-md bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors"
+                className="w-full max-w-md rounded-lg bg-red-600 px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-red-700 disabled:bg-gray-400"
               >
                 {isCreatingBooking ? "Đang xử lý..." : "ĐẶT VÉ NGAY"}
               </button>

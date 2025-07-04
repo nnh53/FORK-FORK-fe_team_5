@@ -1,10 +1,10 @@
+import { useAuth } from "@/hooks/useAuth";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import { ROUTES } from "@/routes/route.constants";
 import { getUserCookieToken } from "@/utils/auth.utils";
 import { getCookie, parseRoles } from "@/utils/cookie.utils";
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 
 export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
   switch (roleName) {

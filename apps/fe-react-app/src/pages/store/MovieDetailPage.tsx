@@ -4,14 +4,14 @@ import pTagImage from "@/assets/pTag.png";
 import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/ShowDateSelector";
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
-import UserLayout from "@/layouts/user/UserLayout";
-import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import type { Showtime as OldShowtime } from "@/interfaces/movies.interface";
 import type { Showtime as NewShowtime } from "@/interfaces/showtime.interface";
+import UserLayout from "@/layouts/user/UserLayout";
 import { useMovie } from "@/services/movieService";
 import { transformShowtimesResponse, useShowtimesByMovie } from "@/services/showtimeService";
 import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "@/utils/showtimeUtils";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const MovieInfoItem = ({ label, value }: { label: string; value: string | string[] }) => (
   <div className="flex text-sm">

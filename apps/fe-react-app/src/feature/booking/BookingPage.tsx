@@ -1,8 +1,8 @@
+import BookingBreadcrumb from "@/components/BookingBreadcrumb.tsx";
 import type { Seat } from "@/interfaces/seat.interface";
+import UserLayout from "@/layouts/user/UserLayout.tsx";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import BookingBreadcrumb from "@/components/BookingBreadcrumb.tsx";
-import UserLayout from "@/layouts/user/UserLayout.tsx";
 import BookingSummary from "./components/BookingSummary/BookingSummary.tsx";
 
 // Booking-specific seat interface that extends the base Seat
