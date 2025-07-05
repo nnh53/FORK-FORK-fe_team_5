@@ -6,7 +6,6 @@ import CarouselSection from "@/feature/views/CarouselSection/CarouselSection";
 import { recentMoviesData } from "@/feature/views/CarouselSection/data/movies.data";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import { FAQ } from "@/feature/views/FAQ";
-import WelcomePanel from "@/feature/views/HeroSection/components/WelcomePanel";
 import NowShowing from "@/feature/views/NowShowing/NowShowing";
 import ParallaxSection from "@/feature/views/ParallaxSection";
 import TrendingSection from "@/feature/views/TrendingSection/TrendingSection";
@@ -41,16 +40,6 @@ const HomePage = () => {
     <UserLayout>
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="home-page">
-          {/* Header Section */}
-          <div className="flex h-screen items-center justify-center">
-            <div className="space-y-8 text-center">
-              <WelcomePanel />
-              <div>
-                <p className="text-lg">Scroll xuống</p>
-              </div>
-            </div>
-          </div>
-
           {/* New Releases Carousel Section */}
           <CarouselSection ref={carouselRef} movies={recentMoviesData} />
           {/* Trending Movies Section */}

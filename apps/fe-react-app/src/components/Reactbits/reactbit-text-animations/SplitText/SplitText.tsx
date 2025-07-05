@@ -105,7 +105,12 @@ const SplitText: React.FC<SplitTextProps> = ({
 
     return () => {
       tl.kill();
-      ScrollTrigger.getAll().forEach((t) => t.kill());
+      // Only kill ScrollTrigger instances related to this element
+      ScrollTrigger.getAll().forEach((st) => {
+        if (st.trigger === el) {
+          st.kill();
+        }
+      });
       gsap.killTweensOf(targets);
       splitter.revert();
     };

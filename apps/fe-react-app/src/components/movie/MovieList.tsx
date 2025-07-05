@@ -1,4 +1,3 @@
-import { Icon } from "@iconify/react";
 import React, { useRef } from "react";
 import MovieCard, { type MovieCardProps } from "./MovieCard.tsx";
 
@@ -24,30 +23,33 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
 
   const responsiveClasses = gridLayoutConfig[cardsPerRow] || gridLayoutConfig[4];
 
-  const handleScroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = scrollRef.current.clientWidth * 0.8; // 80% of container width for smooth partial scroll
-      const currentScroll = scrollRef.current.scrollLeft;
-      const targetScroll = direction === "left" ? currentScroll - scrollAmount : currentScroll + scrollAmount;
+  // Handle mouse drag scrolling
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const slider = scrollRef.current;
+    if (!slider) return;
 
-      // Smooth scroll with requestAnimationFrame for better performance
-      const startTime = performance.now();
-      const duration = 600; // Duration of scroll animation in ms
+    let isDown = true;
+    const startX = e.pageX - slider.offsetLeft;
+    const scrollLeft = slider.scrollLeft;
 
-      const animateScroll = (currentTime: number) => {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = progress * (2 - progress); // Ease-out quadratic
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX) * 2; // Scroll speed multiplier
+      slider.scrollLeft = scrollLeft - walk;
+    };
 
-        scrollRef.current!.scrollLeft = currentScroll + (targetScroll - currentScroll) * ease;
+    const handleMouseUp = () => {
+      isDown = false;
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      slider.style.cursor = "grab";
+    };
 
-        if (progress < 1) {
-          requestAnimationFrame(animateScroll);
-        }
-      };
-
-      requestAnimationFrame(animateScroll);
-    }
+    slider.style.cursor = "grabbing";
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
   if (!movies || movies.length === 0) {
@@ -57,16 +59,13 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
   if (horizontal) {
     return (
       <div className="relative mx-auto w-4/5">
-        {/* Nút cuộn trái */}
-        <button
-          onClick={() => handleScroll("left")}
-          className="btn btn-circle absolute -left-12 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/80 p-3 shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white"
+        {/* Vùng cuộn phim với click and drag */}
+        <div
+          ref={scrollRef}
+          className="scrollbar-hide flex cursor-grab select-none snap-x snap-mandatory gap-6 space-x-4 overflow-x-auto scroll-smooth px-12 py-6"
+          onMouseDown={handleMouseDown}
+          onKeyDown={() => {}} // Empty handler for accessibility
         >
-          <Icon icon="material-symbols-light:arrow-back-ios-new-rounded" width="60" height="60" />
-        </button>
-
-        {/* Vùng cuộn phim */}
-        <div ref={scrollRef} className="scrollbar-hide flex snap-x snap-mandatory gap-6 space-x-4 overflow-x-auto scroll-smooth px-12 py-6">
           {movies.map((movie) => (
             <div key={movie.id} className="inline-flex flex-none snap-start">
               <MovieCard
@@ -78,14 +77,6 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
             </div>
           ))}
         </div>
-
-        {/* Nút cuộn phải */}
-        <button
-          onClick={() => handleScroll("right")}
-          className="btn btn-circle absolute -right-4 top-1/2 z-10 -translate-y-1/2 bg-white/80 p-3 shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white"
-        >
-          <Icon icon="material-symbols-light:arrow-forward-ios-rounded" width="60" height="60" />
-        </button>
       </div>
     );
   }

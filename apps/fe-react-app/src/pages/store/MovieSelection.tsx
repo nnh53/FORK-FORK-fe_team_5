@@ -9,6 +9,7 @@ import { transformMovieResponse, useMovies } from "@/services/movieService.ts";
 import { transformShowtimesResponse } from "@/services/showtimeService.ts";
 import type { MovieResponse } from "@/type-from-be";
 import { convertShowtimesToSchedulePerDay } from "@/utils/showtimeUtils.ts";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import createFetchClient from "openapi-fetch";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -114,6 +115,16 @@ function MovieSelection() {
       setMovies(transformedMovies);
     }
   }, [moviesQuery.data, convertMovieToMovieCard]);
+
+  // Refresh ScrollTrigger after components mount to ensure Footer animations work
+  useEffect(() => {
+    // Small delay to ensure SplitText animations are initialized
+    const timeoutId = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [movies]); // Refresh when movies change
 
   const handleBuyTicketClick = async (movie: MovieCardProps) => {
     setSelectedMovie(movie);
@@ -268,6 +279,10 @@ function MovieSelection() {
         threshold={0.1}
         rootMargin="-100px"
         textAlign="center"
+        onLetterAnimationComplete={() => {
+          // Refresh ScrollTrigger to ensure Footer animations work
+          setTimeout(() => ScrollTrigger.refresh(), 50);
+        }}
       />
       {/* Loading state */}
       {moviesQuery.isLoading && (
@@ -304,6 +319,10 @@ function MovieSelection() {
         threshold={0.1}
         rootMargin="-100px"
         textAlign="center"
+        onLetterAnimationComplete={() => {
+          // Refresh ScrollTrigger to ensure Footer animations work
+          setTimeout(() => ScrollTrigger.refresh(), 50);
+        }}
       />
       {/* Upcoming movies - for now, show same movies but could be filtered differently */}
       {!moviesQuery.isLoading && !moviesQuery.error && (
