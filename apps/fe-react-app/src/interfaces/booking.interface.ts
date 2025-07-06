@@ -1,11 +1,12 @@
 // Booking interfaces based on database schema
+import type { SeatStatus, SeatTypeEnum } from "./seat.interface";
 
-// Enums from database
-export type PaymentMethod = "CASH" | "BANKING";
-export type PaymentStatus = "PENDING" | "PAID" | "CANCEL";
-export type BookingStatus = "PENDING" | "SUCCESS" | "FAIL" | "CANCEL";
-export type SeatStatus = "AVAILABLE" | "MAINTENANCE";
-export type SeatType = "COUPLE" | "PATH" | "REGULAR" | "VIP";
+// Enums from database - use internal names to avoid conflicts
+export type PaymentMethod = "CASH" | "ONLINE"; // Updated to match API
+export type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED"; // Updated to match API
+export type BookingStatus = "PENDING" | "SUCCESS" | "CANCELLED"; // Updated to match API
+export type BookingSeatStatus = "AVAILABLE" | "MAINTENANCE";
+export type BookingSeatTypeEnum = "COUPLE" | "PATH" | "REGULAR" | "VIP";
 export type SeatTypeName = "SINGLE" | "DOUBLE" | "PATH" | "VIP";
 
 // User interface (simplified for booking)
@@ -64,7 +65,7 @@ export interface BookingSeat {
   seat_column: string;
   seat_row: string;
   status: SeatStatus;
-  type: SeatType;
+  type: SeatTypeEnum;
   cinema_room_id: number;
   seat_link_id?: number;
   // Populated fields
@@ -246,11 +247,75 @@ export interface Receipt {
   staff_id?: string;
 }
 
-// Legacy interfaces for backward compatibility
-export interface Combo {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
+// API Booking interfaces (from OpenAPI schema)
+import type { ApiCombo } from "./combo.interface";
+import type { ApiShowtime } from "./movies.interface";
+import type { ApiPromotion } from "./promotion.interface";
+import type { Seat } from "./seat.interface";
+import type { ApiSnack } from "./snacks.interface";
+import type { ApiUser } from "./users.interface";
+
+// Booking Combo Response from API
+export interface ApiBookingCombo {
+  combo?: ApiCombo;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+// Booking Snack Response from API
+export interface ApiBookingSnack {
+  snack?: ApiSnack;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+// Main API Booking interface matching the real API
+export interface ApiBooking {
+  id: number;
+  user?: ApiUser;
+  bookingDate?: string; // ISO date-time string
+  showTime?: ApiShowtime;
+  promotion?: ApiPromotion;
+  seats?: Seat[];
+  loyaltyPoints?: number;
+  totalPrice?: number;
+  paymentMethod?: PaymentMethod;
+  paymentStatus?: PaymentStatus;
+  staffId?: string;
+  status?: BookingStatus;
+  payOsCode?: string;
+  bookingSnacks?: ApiBookingSnack[];
+  bookingCombos?: ApiBookingCombo[];
+}
+
+// Booking Request for creating bookings
+export interface ApiBookingRequest {
+  userId: string;
+  showtimeId: number;
+  promotionId?: number;
+  seatIds: number[];
+  totalPrice?: number;
+  paymentMethod: PaymentMethod;
+  staffId?: string;
+  estimatedPrice: number;
+  loyaltyPointsUsed?: number;
+  bookingCombos?: Array<{
+    comboId: number;
+    quantity: number;
+  }>;
+  bookingSnacks?: Array<{
+    snackId: number;
+    quantity: number;
+  }>;
+}
+
+// Booking Update Request
+export interface ApiBookingUpdate {
+  status?: BookingStatus;
+  paymentStatus?: PaymentStatus;
+  payOsCode?: string;
+  loyaltyPointsUsed?: number;
+  staffId?: string;
 }

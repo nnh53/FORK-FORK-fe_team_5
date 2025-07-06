@@ -20,5 +20,12 @@ export type SnackResponse = components["schemas"]["SnackResponse"];
 export type ComboResponse = components["schemas"]["ComboResponse"];
 export type ComboSnackResponse = components["schemas"]["ComboSnackResponse"];
 
-
-
+// Booking related types
+export type BookingResponse = components["schemas"]["BookingResponse"];
+export type BookingRequest = components["schemas"]["BookingRequest"];
+export type BookingUpdate = components["schemas"]["BookingUpdate"];
+export type BookingComboRequest = components["schemas"]["BookingComboRequest"];
+export type BookingSnackRequest = components["schemas"]["BookingSnackRequest"];
+export type BookingComboResponse = components["schemas"]["BookingComboResponse"];
+export type BookingSnackResponse = components["schemas"]["BookingSnackResponse"];
+export type PickingSeatResponse = components["schemas"]["PickingSeatResponse"];

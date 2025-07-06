@@ -3,18 +3,18 @@ import { type ROLE_TYPE } from "./roles.interface.ts";
 export type USER_STATUS = "ACTIVE" | "BAN";
 export type USER_GENDER = "MALE" | "FEMALE" | "OTHER";
 
-// Interface phù hợp với schema của BE
+// Interface phù hợp với schema của BE - API User interface (from OpenAPI schema)
 export interface User {
   id: string;
   email: string;
   fullName: string;
-  phone?: string;
+  phone: string;
   address?: string;
   avatar?: string;
-  role: ROLE_TYPE;
+  role: string;
   status: string;
   dateOfBirth?: string;
-  gender?: USER_GENDER;
+  gender?: "MALE" | "FEMALE" | "OTHER";
 }
 
 export type UserRequest = {
@@ -155,3 +155,19 @@ export type UserLoginResponse = {
   token: string;
   refresh_token: string;
 };
+
+// API User interface (from OpenAPI schema)
+export interface ApiUser {
+  id: string;
+  email: string;
+  fullName: string;
+  phone: string;
+  address?: string;
+  avatar?: string;
+  role: string;
+  status: string;
+  dateOfBirth?: string;
+  gender?: "MALE" | "FEMALE" | "OTHER";
+}
+
+// Legacy alias for backward compatibility

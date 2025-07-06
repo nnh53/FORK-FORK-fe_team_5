@@ -81,3 +81,38 @@ export interface MovieSearchResponse {
   totalCount: number;
   currentPage: number;
 }
+
+// API Movie interfaces (from OpenAPI schema)
+export interface ApiMovie {
+  id: number;
+  name: string;
+  ageRestrict: number;
+  fromDate: string;
+  toDate: string;
+  actor: string;
+  studio: string;
+  director: string;
+  duration: number;
+  trailer: string;
+  description: string;
+  status: string;
+  poster: string;
+  categories?: ApiMovieCategory[];
+  showtimes?: ApiShowtime[];
+}
+
+export interface ApiMovieCategory {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface ApiShowtime {
+  id: number;
+  movieId: number;
+  showDateTime: string;
+  roomId: number;
+  roomName: string;
+  endDateTime: string;
+  status: string;
+}

@@ -19,3 +19,13 @@ export interface ComboSnack {
 }
 
 export type ComboForm = Omit<Combo, "id">;
+
+// API Combo interface (from OpenAPI schema)
+export interface ApiCombo {
+  id: number;
+  name: string;
+  description: string;
+  status: string;
+  img: string;
+  snacks?: import("./snacks.interface").ApiSnack[];
+}

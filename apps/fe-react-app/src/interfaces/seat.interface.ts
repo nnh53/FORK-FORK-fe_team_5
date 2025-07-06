@@ -1,34 +1,34 @@
 export type SeatStatus = "AVAILABLE" | "MAINTENANCE";
-export type SeatTypeEnum = "REGULAR" | "VIP" | "PATH" | "BLOCK" | "COUPLE";
-export type BookingStatus = "AVAILABLE" | "MAINTENANCE" | "BOOKED" | "RESERVED";
+export type SeatTypeEnum = "COUPLE" | "PATH" | "REGULAR" | "VIP" | "BLOCK";
+export type SeatBookingStatus = "AVAILABLE" | "MAINTENANCE" | "BOOKED" | "RESERVED";
 
-// Database seat entity - matches the real API response structure
+// API Response seat entity - matches PickingSeatResponse from backend
 export interface Seat {
   id: number;
-  name: string;
   roomId: number;
   row: string;
   column: string;
-  status: SeatStatus;
+  name: string;
   type: SeatType;
-  discarded: boolean;
-  linkSeatId?: number | null;
+  status: string;
+  selected?: boolean; // true means seat is booked/selected by others
+  discarded?: boolean; // for internal use
 }
 
 export interface SeatType {
   id: number;
   price: number;
   name: SeatTypeEnum;
-  seatCount: number;
+  seatCount?: number;
 }
 
-// Legacy interface for backward compatibility (DB-aligned version)
-export interface SeatLegacy {
+// Database seat entity - matches the 'seat' table in database (legacy)
+export interface DatabaseSeat {
   id: string;
   name: string;
   seat_type_id: number;
-  seat_column: string;
-  seat_row: string;
+  column: string;
+  row: string;
   status: SeatStatus;
   type: SeatTypeEnum;
   cinema_room_id: string;
@@ -37,33 +37,34 @@ export interface SeatLegacy {
 
 export interface SeatRequest {
   name: string;
-  roomId: number;
-  row: string;
+  seat_type_id: number;
   column: string;
+  row: string;
   status: SeatStatus;
   type: SeatType;
-  linkSeatId?: number | null;
+  cinema_room_id: string;
+  seat_link_id?: string;
 }
 
 export interface SeatUpdateRequest {
   name?: string;
-  roomId?: number;
-  row?: string;
-  column?: string;
+  seat_type_id?: number;
+  seat_column?: string;
+  seat_row?: string;
   status?: SeatStatus;
   type?: SeatType;
-  linkSeatId?: number | null;
+  seat_link_id?: string;
 }
 
-// Seat booking status for booking system
-export interface BookingSeat {
+// Seat booking relation for booking system
+export interface SeatBookingRelation {
   id: string;
-  seatId: number; // Reference to seat.id (now number)
+  seatId: string; // Reference to seat.id
   bookingId: string; // Reference to booking.id
   status: "PENDING" | "CONFIRMED" | "CANCELLED";
 }
 
 export interface SeatMap {
   gridData: Seat[];
-  roomId: number; // Changed to number to match API
+  roomId: number;
 }

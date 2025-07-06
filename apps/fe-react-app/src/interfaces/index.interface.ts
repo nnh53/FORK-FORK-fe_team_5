@@ -1,4 +1,6 @@
+export * from "./api-response.interface";
 export * from "./auth.interface";
+export * from "./booking.interface";
 export * from "./cinemarooms.interface";
 export * from "./combo.interface";
 export * from "./member.interface";
