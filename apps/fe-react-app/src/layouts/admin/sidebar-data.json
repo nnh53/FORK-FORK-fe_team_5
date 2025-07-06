@@ -31,14 +31,21 @@
       "icon": "Ticket"
     },
     {
-      "title": "Members",
-      "url": "/admin/members",
-      "icon": "Users"
-    },
-    {
-      "title": "Staff",
-      "url": "/admin/staffs",
-      "icon": "UserCheck"
+      "title": "Users",
+      "url": "/admin/food",
+      "icon": "User",
+      "items": [
+        {
+          "title": "Members",
+          "url": "/admin/members",
+          "icon": "Users"
+        },
+        {
+          "title": "Staff",
+          "url": "/admin/staffs",
+          "icon": "UserCheck"
+        }
+      ]
     },
     {
       "title": "Food & Beverages",

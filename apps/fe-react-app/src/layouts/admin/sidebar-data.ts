@@ -1,4 +1,19 @@
-import { Building, Calendar, Cookie, Film, LayoutDashboard, Package, Settings, Tag, Ticket, UserCheck, Users, Utensils, Star } from "lucide-react";
+import {
+  Building,
+  Calendar,
+  Cookie,
+  Film,
+  LayoutDashboard,
+  Package,
+  Settings,
+  Star,
+  Tag,
+  Ticket,
+  User,
+  UserCheck,
+  Users,
+  Utensils,
+} from "lucide-react";
 
 export const sidebarData = {
   user: {
@@ -21,7 +36,7 @@ export const sidebarData = {
           title: "Trending",
           url: "/admin/trending",
           icon: Star,
-        }
+        },
       ],
     },
     {
@@ -40,14 +55,21 @@ export const sidebarData = {
       icon: Ticket,
     },
     {
-      title: "Members",
-      url: "/admin/members",
-      icon: Users,
-    },
-    {
-      title: "Staff",
-      url: "/admin/staffs",
-      icon: UserCheck,
+      title: "Users",
+      url: "/admin/food",
+      icon: User,
+      items: [
+        {
+          title: "Members",
+          url: "/admin/members",
+          icon: Users,
+        },
+        {
+          title: "Staff",
+          url: "/admin/staffs",
+          icon: UserCheck,
+        },
+      ],
     },
     {
       title: "Food & Beverages",
