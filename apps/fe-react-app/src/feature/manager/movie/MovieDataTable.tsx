@@ -3,8 +3,8 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Label } from "@/components/Shadcn/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
-import type { Movie } from "@/interfaces/movies.interface";
 import { createMovieColumns } from "@/components/shared/movie-columns";
+import type { Movie } from "@/interfaces/movies.interface";
 import {
   type ColumnFiltersState,
   type SortingState,

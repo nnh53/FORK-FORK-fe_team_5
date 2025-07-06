@@ -24,16 +24,16 @@ const tabsData: Tab[] = [
 
 export const MyUserManagement: React.FC = () => {
   return (
-    <div className="container mx-auto p-4 md:p-8 max-w-7xl">
+    <div className="container mx-auto max-w-7xl p-4 md:p-8">
       <Tabs defaultValue="account" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
+        <TabsList className="mb-6 grid w-full grid-cols-3">
           {tabsData.map((tab) => (
             <TabsTrigger
               key={tab.id}
               value={tab.id}
               className="flex items-center gap-2 data-[state=active]:bg-[#E52226] data-[state=active]:text-white"
             >
-              <span className="hidden md:inline text-xs font-medium">{tab.label}</span>
+              <span className="hidden text-xs font-medium md:inline">{tab.label}</span>
             </TabsTrigger>
           ))}
         </TabsList>

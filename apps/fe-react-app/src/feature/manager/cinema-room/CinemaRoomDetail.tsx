@@ -2,9 +2,9 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Checkbox } from "@/components/Shadcn/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import { ROOM_STATUS_COLORS } from "@/constants/status";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import type { Seat } from "@/interfaces/seat.interface";
-import { ROOM_STATUS_COLORS } from "@/constants/status";
 import axios from "axios";
 import { ArrowLeft, Save } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -99,13 +99,13 @@ export default function CinemaRoomDetail() {
     }
   };
   if (loading) {
-    return <div className="text-center p-4">Loading room details...</div>;
+    return <div className="p-4 text-center">Loading room details...</div>;
   }
   if (error) {
-    return <div className="text-center text-red-500 p-4">{error}</div>;
+    return <div className="p-4 text-center text-red-500">{error}</div>;
   }
   if (!room) {
-    return <div className="text-center p-4">Room not found.</div>;
+    return <div className="p-4 text-center">Room not found.</div>;
   }
 
   // Helper functions for CSS classes
@@ -139,13 +139,13 @@ export default function CinemaRoomDetail() {
             </CardTitle>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusClassName(room.status)}`}>{room.status}</span>
+            <span className={`rounded px-2 py-1 text-xs font-medium ${getStatusClassName(room.status)}`}>{room.status}</span>
             <span className="text-sm">Capacity: {room.capacity}</span>
           </div>
         </CardHeader>
         <CardContent>
           <div className="mb-6">
-            <div className="flex items-center gap-4 mb-4">
+            <div className="mb-4 flex items-center gap-4">
               <h3 className="text-lg font-medium">Select Seat Type:</h3>
               <Select value={selectedSeatType} onValueChange={setSelectedSeatType}>
                 <SelectTrigger className="w-[180px]">
@@ -169,12 +169,12 @@ export default function CinemaRoomDetail() {
               </Button>
             </div>
 
-            <div className="flex justify-center mb-2">
-              <div className="w-3/4 h-4 bg-gray-300 rounded-t-lg"></div>
+            <div className="mb-2 flex justify-center">
+              <div className="h-4 w-3/4 rounded-t-lg bg-gray-300"></div>
             </div>
 
             {/*show seat với checkbox */}
-            <div className="grid grid-cols-10 gap-2 justify-center">
+            <div className="grid grid-cols-10 justify-center gap-2">
               {Array.from({ length: rows * columns }).map((_, index) => {
                 const row = String.fromCharCode(65 + Math.floor(index / columns));
                 const number = (index % columns) + 1;
@@ -185,14 +185,14 @@ export default function CinemaRoomDetail() {
 
                 if (!seat)
                   return (
-                    <div key={`empty-${index}`} className="p-2 text-center rounded bg-gray-200 text-gray-400">
+                    <div key={`empty-${index}`} className="rounded bg-gray-200 p-2 text-center text-gray-400">
                       {row}
                       {number}
                     </div>
                   );
 
                 return (
-                  <div key={seatId} className={`p-2 text-center rounded flex flex-col items-center ${getSeatClassName(seat, isSelected)}`}>
+                  <div key={seatId} className={`flex flex-col items-center rounded p-2 text-center ${getSeatClassName(seat, isSelected)}`}>
                     <span>
                       {row}
                       {number}
@@ -205,25 +205,25 @@ export default function CinemaRoomDetail() {
               })}
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-4 justify-center">
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-100 rounded"></div>
+                <div className="h-4 w-4 rounded bg-blue-100"></div>
                 <span className="text-sm">Standard</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-purple-100 rounded"></div>
+                <div className="h-4 w-4 rounded bg-purple-100"></div>
                 <span className="text-sm">VIP</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-amber-100 rounded"></div>
+                <div className="h-4 w-4 rounded bg-amber-100"></div>
                 <span className="text-sm">Premium</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-gray-400 rounded"></div>
+                <div className="h-4 w-4 rounded bg-gray-400"></div>
                 <span className="text-sm">Unavailable</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
+                <div className="h-4 w-4 rounded bg-green-500"></div>
                 <span className="text-sm">Selected</span>
               </div>
             </div>

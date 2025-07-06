@@ -198,9 +198,9 @@ const CinemaRoomManagement: React.FC = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center h-64">
+        <div className="flex h-64 items-center justify-center">
           <div className="text-center">
-            <Icon icon="mdi:loading" className="w-8 h-8 animate-spin mx-auto mb-2" />
+            <Icon icon="mdi:loading" className="mx-auto mb-2 h-8 w-8 animate-spin" />
             <p>Đang tải danh sách phòng chiếu...</p>
           </div>
         </div>
@@ -209,22 +209,22 @@ const CinemaRoomManagement: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="container mx-auto space-y-6 px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Quản lý phòng chiếu</h1>
-          <p className="text-gray-600 mt-1">Quản lý thông tin phòng chiếu và sơ đồ ghế</p>
+          <p className="mt-1 text-gray-600">Quản lý thông tin phòng chiếu và sơ đồ ghế</p>
         </div>
 
         <Button onClick={handleAddRoom} size="lg">
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           Thêm phòng mới
         </Button>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -232,7 +232,7 @@ const CinemaRoomManagement: React.FC = () => {
                 <p className="text-sm font-medium text-gray-600">Tổng số phòng</p>
                 <p className="text-2xl font-bold">{roomStats.total}</p>
               </div>
-              <Icon icon="mdi:home" className="w-8 h-8 text-blue-500" />
+              <Icon icon="mdi:home" className="h-8 w-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
@@ -244,7 +244,7 @@ const CinemaRoomManagement: React.FC = () => {
                 <p className="text-sm font-medium text-gray-600">Đang hoạt động</p>
                 <p className="text-2xl font-bold text-green-600">{roomStats.active}</p>
               </div>
-              <Icon icon="mdi:check-circle" className="w-8 h-8 text-green-500" />
+              <Icon icon="mdi:check-circle" className="h-8 w-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
@@ -256,7 +256,7 @@ const CinemaRoomManagement: React.FC = () => {
                 <p className="text-sm font-medium text-gray-600">Bảo trì</p>
                 <p className="text-2xl font-bold text-orange-600">{roomStats.maintenance}</p>
               </div>
-              <Icon icon="mdi:wrench" className="w-8 h-8 text-orange-500" />
+              <Icon icon="mdi:wrench" className="h-8 w-8 text-orange-500" />
             </div>
           </CardContent>
         </Card>
@@ -268,7 +268,7 @@ const CinemaRoomManagement: React.FC = () => {
                 <p className="text-sm font-medium text-gray-600">Có sơ đồ ghế</p>
                 <p className="text-2xl font-bold text-purple-600">{roomStats.withSeatMap}</p>
               </div>
-              <Icon icon="mdi:seat" className="w-8 h-8 text-purple-500" />
+              <Icon icon="mdi:seat" className="h-8 w-8 text-purple-500" />
             </div>
           </CardContent>
         </Card>

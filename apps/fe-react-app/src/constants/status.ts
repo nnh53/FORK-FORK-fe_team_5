@@ -59,7 +59,7 @@ export const ROOM_STATUS_LABELS = {
 
 export const ROOM_STATUS_BADGE_VARIANTS = {
   [ROOM_STATUS.ACTIVE]: "default",
-  [ROOM_STATUS.MAINTENANCE]: "outline", 
+  [ROOM_STATUS.MAINTENANCE]: "outline",
   [ROOM_STATUS.CLOSED]: "destructive",
 } as const;
 

@@ -1,10 +1,10 @@
-import { 
-  MOVIE_STATUS_BADGE_VARIANTS, 
-  MOVIE_STATUS_COLORS, 
-  USER_STATUS_COLORS, 
-  USER_STATUS_LABELS,
+import {
+  MOVIE_STATUS_BADGE_VARIANTS,
+  MOVIE_STATUS_COLORS,
   ROOM_STATUS_BADGE_VARIANTS,
-  ROOM_STATUS_COLORS
+  ROOM_STATUS_COLORS,
+  USER_STATUS_COLORS,
+  USER_STATUS_LABELS,
 } from "@/constants/status";
 
 /**
@@ -33,7 +33,7 @@ export const getStatusClassName = (status?: string) => {
 export const getUserStatusDisplay = (status: string) => {
   const label = USER_STATUS_LABELS[status as keyof typeof USER_STATUS_LABELS] || "Không xác định";
   const className = USER_STATUS_COLORS[status as keyof typeof USER_STATUS_COLORS] || "bg-yellow-100 text-yellow-800";
-  
+
   return { label, className };
 };
 
@@ -78,10 +78,10 @@ export const formatDate = (dateString: string) => {
  */
 export const formatDateRange = (fromDate?: string, toDate?: string) => {
   if (!fromDate) return "N/A";
-  
+
   const formattedFromDate = formatDate(fromDate);
   const formattedToDate = toDate ? formatDate(toDate) : "N/A";
-  
+
   return `${formattedFromDate} - ${formattedToDate}`;
 };
 
