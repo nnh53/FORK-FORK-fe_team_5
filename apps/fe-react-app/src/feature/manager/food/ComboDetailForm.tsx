@@ -10,7 +10,7 @@ import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import { Edit, ListPlus, MinusCircle, Plus, Save, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -35,8 +35,16 @@ const comboSnackFormSchema = z.object({
 const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAddSnack, onUpdateSnack, onDeleteSnack }) => {
   const [isAddingSnack, setIsAddingSnack] = useState(false);
   const [selectedComboSnack, setSelectedComboSnack] = useState<ComboSnack | null>(null);
+  const [comboSnacks, setComboSnacks] = useState<ComboSnack[]>(combo.snacks || []);
 
-  const { data: snacksData } = useSnacks();
+  // Keep local state in sync with props
+  useEffect(() => {
+    if (combo.snacks) {
+      setComboSnacks(combo.snacks);
+    }
+  }, [combo]);
+
+  const { data: snacksData, isLoading } = useSnacks();
 
   // Transform the API response to Snack[] format
   let snacks: Snack[] = [];
@@ -69,12 +77,25 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
     });
   };
 
+  // Tạo một đối tượng snack mặc định khi không có dữ liệu
+  const createDefaultSnack = (): Snack => ({
+    id: 0,
+    name: "Unknown Snack",
+    description: "No description available",
+    price: 0,
+    img: "",
+    category: "FOOD",
+    size: "MEDIUM",
+    flavor: "",
+    status: "AVAILABLE",
+  });
+
   const handleEditSnack = (comboSnack: ComboSnack) => {
     setIsAddingSnack(true);
     setSelectedComboSnack(comboSnack);
     form.reset({
-      snackId: comboSnack.snack.id,
-      quantity: comboSnack.quantity,
+      snackId: comboSnack.snack?.id || 0,
+      quantity: comboSnack.quantity || 1,
       snackSizeId: comboSnack.snackSizeId,
       discountPercentage: comboSnack.discountPercentage,
     });
@@ -82,7 +103,17 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
 
   const handleDeleteSnack = (comboSnackId: number) => {
     if (onDeleteSnack) {
-      onDeleteSnack(comboSnackId);
+      try {
+        // Call the API first to ensure it succeeds
+        onDeleteSnack(comboSnackId);
+
+        // Then update local state for immediate UI feedback
+        setComboSnacks((prevSnacks) => prevSnacks.filter((s) => s.id !== comboSnackId));
+        toast.success("Đã xóa thực phẩm khỏi combo");
+      } catch (error) {
+        console.error("Error deleting combo snack:", error);
+        toast.error("Có lỗi khi xóa thực phẩm. Vui lòng thử lại sau.");
+      }
     }
   };
 
@@ -101,9 +132,13 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       };
 
       onUpdateSnack(updatedComboSnack);
+
+      // Update local state to reflect changes immediately
+      setComboSnacks((prevSnacks) => prevSnacks.map((snack) => (snack.id === updatedComboSnack.id ? updatedComboSnack : snack)));
+
       toast.success("Đã cập nhật thực phẩm trong combo");
     } else if (onAddSnack) {
-      const selectedSnack = Array.isArray(snacks) ? snacks.find((s) => s.id === values.snackId) : null;
+      const selectedSnack = snacks.find((s) => s.id === values.snackId);
       if (!selectedSnack) {
         toast.error("Không tìm thấy thực phẩm");
         return;
@@ -113,21 +148,22 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
         quantity: values.quantity,
         snackSizeId: values.snackSizeId,
         discountPercentage: values.discountPercentage,
-        snack: {
-          id: selectedSnack.id || 0,
-          category: selectedSnack.category || "FOOD",
-          name: selectedSnack.name || "",
-          size: selectedSnack.size || "MEDIUM",
-          flavor: selectedSnack.flavor || "",
-          price: selectedSnack.price || 0,
-          description: selectedSnack.description || "",
-          img: selectedSnack.img || "",
-          status: selectedSnack.status || "AVAILABLE",
-        },
+        snack: selectedSnack,
         combo: combo,
       };
 
       onAddSnack(newComboSnack);
+
+      // Add to local state with a temporary ID for immediate display
+      const tempComboSnack: ComboSnack = {
+        ...newComboSnack,
+        id: -Date.now(), // Temporary negative ID until server responds
+        combo: combo,
+        snack: selectedSnack,
+      } as ComboSnack;
+
+      setComboSnacks((prevSnacks) => [...prevSnacks, tempComboSnack]);
+
       toast.success("Đã thêm thực phẩm vào combo");
     }
 
@@ -135,21 +171,44 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
     setSelectedComboSnack(null);
     form.reset();
   };
-  const availableSnacks = Array.isArray(snacks)
-    ? snacks.filter((snack) => {
-        // Check if this snack is already in the combo
-        const isAlreadyInCombo = combo.snacks.some((comboSnack) => comboSnack.snack.id === snack.id);
 
-        // If it's already in combo, only show it if it's the selected one we're editing
-        return !isAlreadyInCombo || (selectedComboSnack && selectedComboSnack.snack.id === snack.id);
-      })
-    : [];
+  // State for snack search
+  const [snackSearchTerm, setSnackSearchTerm] = useState("");
+
+  // Filter to only show snacks not already in the combo (except the one being edited)
+  const availableSnacks = snacks
+    .filter((snack) => {
+      // If we're editing a combo snack, always allow its snack to be selected
+      if (selectedComboSnack && selectedComboSnack.snack?.id === snack.id) {
+        return true;
+      }
+
+      // Don't show snacks already in the combo
+      const isAlreadyInCombo = comboSnacks.some((comboSnack) => comboSnack.snack?.id === snack.id);
+
+      return !isAlreadyInCombo;
+    })
+    .filter((snack) => {
+      if (!snackSearchTerm) return true;
+      const lowerSearchTerm = snackSearchTerm.toLowerCase();
+      return (
+        (snack.name?.toLowerCase() || "").includes(lowerSearchTerm) ||
+        (snack.category?.toLowerCase() || "").includes(lowerSearchTerm) ||
+        (snack.flavor?.toLowerCase() || "").includes(lowerSearchTerm) ||
+        (snack.size?.toLowerCase() || "").includes(lowerSearchTerm)
+      );
+    });
 
   // Get snack sizes and validate selected snack
   const selectedSnackId = form.watch("snackId");
   const selectedSnack = snacks.find((s) => s.id === selectedSnackId);
-  // Since the API doesn't provide sizes, we'll create a mock array
+
+  // Create mock sizes array based on the selected snack's size
   const snackSizes: { id: number; name: string }[] = selectedSnack?.size ? [{ id: 1, name: selectedSnack.size }] : [];
+
+  if (isLoading) {
+    return <div>Đang tải...</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -174,96 +233,168 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="snackId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Thực phẩm</FormLabel>
-                      <Select
-                        disabled={!!selectedComboSnack}
-                        onValueChange={(value) => field.onChange(parseInt(value))}
-                        value={field.value?.toString()}
-                      >
+                <div className="grid grid-cols-1 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="snackId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Thực phẩm</FormLabel>
+                        <Select
+                          disabled={!!selectedComboSnack}
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          value={field.value?.toString() || "0"}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn thực phẩm" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="max-h-[500px] w-[500px]">
+                            <div className="sticky top-0 z-10 border-b bg-white px-3 py-2">
+                              <Input
+                                placeholder="Tìm kiếm thực phẩm..."
+                                value={snackSearchTerm}
+                                onChange={(e) => setSnackSearchTerm(e.target.value)}
+                                className="mb-1"
+                              />
+                            </div>
+                            {availableSnacks.length === 0 ? (
+                              <SelectItem value="0">Không có thực phẩm khả dụng</SelectItem>
+                            ) : (
+                              availableSnacks.map((snack) => (
+                                <SelectItem key={snack.id} value={snack.id.toString()} className="py-4">
+                                  <div className="flex items-center gap-4">
+                                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                                      {snack?.img ? (
+                                        <img
+                                          src={snack.img}
+                                          alt={snack.name}
+                                          className="h-full w-full object-cover"
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).style.display = "none";
+                                            (e.target as HTMLImageElement).parentElement!.innerHTML = `
+                                              <div class="flex h-full w-full items-center justify-center bg-gray-100">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8 text-gray-400">
+                                                  <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
+                                                  <path d="M7 2v20"></path>
+                                                  <path d="M21 15V2"></path>
+                                                  <path d="M18 15c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h3v-6h-3Z"></path>
+                                                </svg>
+                                              </div>
+                                            `;
+                                          }}
+                                        />
+                                      ) : (
+                                        <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                                          <Icon icon="lucide:utensils" className="h-6 w-6 text-gray-400" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-1 flex-col">
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        <div className="text-base font-medium">{snack.name}</div>
+                                        <span
+                                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${snack.category === "FOOD" ? "bg-blue-100 text-blue-700" : "bg-yellow-100 text-yellow-700"}`}
+                                        >
+                                          {snack.category === "FOOD" ? "Thức ăn" : "Đồ uống"}
+                                        </span>
+                                      </div>
+                                      <div className="mt-2 flex flex-wrap items-center gap-3">
+                                        {snack.flavor && (
+                                          <span className="text-xs text-gray-600">
+                                            <span className="font-medium">Hương vị:</span> {snack.flavor}
+                                          </span>
+                                        )}
+                                        {snack.size && <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-800">{snack.size}</span>}
+                                        <span className="text-sm font-semibold text-green-600">
+                                          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(snack.price)}
+                                        </span>
+                                      </div>
+                                      {snack.description && (
+                                        <div className="mt-1 text-xs italic text-gray-500">
+                                          {snack.description.length > 100 ? snack.description.substring(0, 100) + "..." : snack.description}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="quantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Số lượng</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn thực phẩm" />
-                          </SelectTrigger>
+                          <Input type="number" min={1} {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || 1)} />
                         </FormControl>
-                        <SelectContent>
-                          {availableSnacks.map((snack) => (
-                            <SelectItem key={snack.id ?? "unknown"} value={(snack.id ?? 0).toString()}>
-                              {snack.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name="quantity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Số lượng</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={1} {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="snackSizeId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kích cỡ (nếu có)</FormLabel>
+                        <Select
+                          onValueChange={(value) => field.onChange(value === "0" ? null : parseInt(value))}
+                          value={field.value ? field.value.toString() : "0"}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn kích cỡ (không bắt buộc)" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="0">Không chọn kích cỡ</SelectItem>
+                            {snackSizes.map((size) => (
+                              <SelectItem key={size.id} value={size.id.toString()}>
+                                {size.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="snackSizeId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Kích cỡ (nếu có)</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} value={field.value?.toString() ?? ""}>
+                  <FormField
+                    control={form.control}
+                    name="discountPercentage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Giảm giá (%)</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn kích cỡ (không bắt buộc)" />
-                          </SelectTrigger>
+                          <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            placeholder="0"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="">Không chọn kích cỡ</SelectItem>
-                          {snackSizes.map((size) => (
-                            <SelectItem key={size.id} value={size.id.toString()}>
-                              {size.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="discountPercentage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Giảm giá (%)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min={0}
-                          max={100}
-                          placeholder="0"
-                          {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <div className="flex justify-end gap-2 pt-2">
                   <Button type="button" variant="outline" onClick={handleCancelAddEdit}>
@@ -281,11 +412,11 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
         </Card>
       ) : (
         <div>
-          {combo.snacks?.length === 0 ? (
+          {comboSnacks.length === 0 ? (
             <Card>
               <CardContent className="py-8">
                 <div className="text-muted-foreground text-center">
-                  <Icon icon="lucide:popcorn" className="text-shadow-background mx-auto mb-0.5" />{" "}
+                  <Icon icon="lucide:popcorn" className="text-shadow-background mx-auto mb-0.5" />
                   <div className="mb-2 text-lg font-medium">Chưa có thực phẩm trong combo</div>
                   <div className="mb-4 text-sm">Hãy thêm thực phẩm để hoàn thiện combo</div>
                   <Button onClick={handleAddNewSnack}>
@@ -307,17 +438,64 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {combo.snacks.map((comboSnack) => {
-                  const snack = comboSnack.snack;
+                {comboSnacks.map((comboSnack) => {
+                  // Đảm bảo luôn có một đối tượng snack hợp lệ với đầy đủ thuộc tính
+                  const snack = {
+                    ...createDefaultSnack(),
+                    ...(comboSnack.snack || {}),
+                  };
+
                   let sizeDisplay = "Mặc định";
 
-                  if (comboSnack.snackSizeId) {
-                    sizeDisplay = snack.size ?? "N/A";
+                  if (comboSnack.snackSizeId && snack?.size) {
+                    sizeDisplay = snack.size;
                   }
 
                   return (
-                    <TableRow key={snack.id}>
-                      <TableCell className="font-medium">{snack.name}</TableCell>
+                    <TableRow key={comboSnack.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded">
+                            {snack?.img ? (
+                              <img
+                                src={snack.img}
+                                alt={snack?.name}
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = "none";
+                                  (e.target as HTMLImageElement).parentElement!.innerHTML = `
+                                    <div class="flex h-full w-full items-center justify-center bg-gray-100">
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-gray-400">
+                                        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
+                                        <path d="M7 2v20"></path>
+                                        <path d="M21 15V2"></path>
+                                        <path d="M18 15c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h3v-6h-3Z"></path>
+                                      </svg>
+                                    </div>
+                                  `;
+                                }}
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                                <Icon icon="lucide:utensils" className="h-4 w-4 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            {snack?.name}
+                            {snack?.category && (
+                              <span className="ml-2 inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                                {snack.category === "FOOD" ? "Thức ăn" : "Đồ uống"}
+                              </span>
+                            )}
+                            {Boolean(snack?.price) && (
+                              <div className="text-xs font-semibold text-green-600">
+                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(snack.price || 0)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
                       <TableCell>{comboSnack.quantity ?? 1}</TableCell>
                       <TableCell>{sizeDisplay}</TableCell>
                       <TableCell>{comboSnack.discountPercentage ?? 0}%</TableCell>
@@ -345,7 +523,7 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       <div className="flex justify-end gap-2 pt-4">
         <Button variant="outline" onClick={onCancel}>
           <X className="mr-1 h-4 w-4" />
-          Đóng
+          Đóng chỉnh sửa
         </Button>
       </div>
     </div>
