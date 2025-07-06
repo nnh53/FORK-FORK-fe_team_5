@@ -1,4 +1,4 @@
-import { Building, Calendar, Cookie, Film, LayoutDashboard, Package, Settings, Tag, Ticket, UserCheck, Users, Utensils } from "lucide-react";
+import { Building, Calendar, Cookie, Film, LayoutDashboard, Package, Settings, Tag, Ticket, UserCheck, Users, Utensils, Star } from "lucide-react";
 
 export const sidebarData = {
   user: {
@@ -16,6 +16,13 @@ export const sidebarData = {
       title: "Movies",
       url: "/admin/movie",
       icon: Film,
+      items: [
+        {
+          title: "Trending",
+          url: "/admin/trending",
+          icon: Star,
+        }
+      ],
     },
     {
       title: "Cinema Rooms",

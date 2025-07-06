@@ -1,8 +1,8 @@
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
-import { Checkbox } from "@/components/Shadcn/ui/checkbox";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -24,7 +24,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
+import { ChevronDown, Columns3, Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import React from "react";
 
 const getStatusBadgeVariant = (status?: string) => {
@@ -78,6 +78,7 @@ export function MovieDataTable({ data, onEdit, onView, onDelete }: Readonly<Movi
           {row.getValue("name") ?? "N/A"}
         </div>
       ),
+      enableHiding: false,
     },
     {
       accessorKey: "director",
@@ -217,19 +218,25 @@ export function MovieDataTable({ data, onEdit, onView, onDelete }: Readonly<Movi
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns
+              <Columns3 className="mr-2 h-4 w-4" />
+              <span>Customize Columns</span>
+              <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-56">
             {table
               .getAllColumns()
-              .filter((column) => column.getCanHide())
+              .filter((column) => typeof column.accessorFn !== "undefined" && column.getCanHide())
               .map((column) => {
                 return (
-                  <DropdownMenuItem key={column.id} className="capitalize" onClick={() => column.toggleVisibility(!column.getIsVisible())}>
-                    <Checkbox checked={column.getIsVisible()} className="mr-2" />
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                  >
                     {column.id}
-                  </DropdownMenuItem>
+                  </DropdownMenuCheckboxItem>
                 );
               })}
           </DropdownMenuContent>

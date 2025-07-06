@@ -61,9 +61,6 @@ function SearchBar({ searchOptions, onSearchChange, className, placeholder = "T�
           </Button>
         )}
       </div>
-
-      {/* Search is active */}
-      {searchValue && <div className="text-xs text-blue-600">Đang tìm kiếm: "{searchValue}"</div>}
     </div>
   );
 }
