@@ -74,35 +74,27 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     }
   };
 
-  // Helper function to find the actual couple partner of a seat using API linkSeatId
+  // Helper function to find the actual couple partner of a seat using position-based logic
   const findCouplePartner = (seatMap: SeatMap, seat: Seat): [Seat | null, number] => {
-    if (seat.type.name !== "COUPLE" || !seat.linkSeatId) return [null, -1];
+    if (seat.type.name !== "COUPLE") return [null, -1];
 
-    // Find partner using linkSeatId from API
-    const partner = seatMap.gridData.find((s) => s.id === seat.linkSeatId);
-
-    if (partner) {
-      const partnerIndex = seatMap.gridData.findIndex((s) => s.id === partner.id);
-      return [partner, partnerIndex];
-    }
-
-    // Fallback to position-based logic if linkSeatId is not working
+    // Use position-based logic to find couple partner
     const currentCol = parseInt(seat.column);
-    let partnerCol: number;
-    if (currentCol % 2 === 1) {
-      // Ghế cột lẻ (1, 3, 5, ...) -> partner ở bên phải
-      partnerCol = currentCol + 1;
-    } else {
-      // Ghế cột chẵn (2, 4, 6, ...) -> partner ở bên trái
-      partnerCol = currentCol - 1;
+    const nextCol = currentCol + 1;
+    const prevCol = currentCol - 1;
+
+    // Check right neighbor first
+    const rightPartner = seatMap.gridData.find((s) => s.row === seat.row && s.column === nextCol.toString() && s.type.name === "COUPLE");
+    if (rightPartner) {
+      const partnerIndex = seatMap.gridData.findIndex((s) => s.id === rightPartner.id);
+      return [rightPartner, partnerIndex];
     }
 
-    const partnerColumn = partnerCol.toString();
-    const fallbackPartner = seatMap.gridData.find((s) => s.row === seat.row && s.column === partnerColumn && s.type.name === "COUPLE");
-
-    if (fallbackPartner) {
-      const partnerIndex = seatMap.gridData.findIndex((s) => s.id === fallbackPartner.id);
-      return [fallbackPartner, partnerIndex];
+    // Check left neighbor
+    const leftPartner = seatMap.gridData.find((s) => s.row === seat.row && s.column === prevCol.toString() && s.type.name === "COUPLE");
+    if (leftPartner) {
+      const partnerIndex = seatMap.gridData.findIndex((s) => s.id === leftPartner.id);
+      return [leftPartner, partnerIndex];
     }
 
     return [null, -1];
@@ -216,8 +208,8 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       throw new Error("Không tìm thấy ghế liền kề để tạo ghế đôi.");
     }
 
-    // Convert single seat to couple with link
-    const seatUpdateRequest = updateSeatToCouple(seat, targetSeat.id);
+    // Convert single seat to couple
+    const seatUpdateRequest = updateSeatToCouple(seat);
 
     // Update UI optimistically
     handleDoubleSeatCreation(newSeatMap, seat);
@@ -227,13 +219,9 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
 
   // Helper function to handle couple-to-other type conversions
   const handleCoupleToOtherConversion = (seat: Seat, targetType: string) => {
-    if (seat.type.name === "COUPLE") {
-      // Chuyển ghế đôi trực tiếp sang loại ghế mong muốn
-      // Backend sẽ tự động xử lý việc unlink và cập nhật cả 2 ghế
-      return updateSeatType(seat, targetType, null); // null để remove link
-    } else {
-      return updateSeatType(seat, targetType);
-    }
+    // Update seat type regardless of current type
+    // Backend will handle couple unlinking automatically
+    return updateSeatType(seat, targetType);
   };
 
   // Helper function to determine seat update request and refetch needs

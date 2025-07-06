@@ -96,7 +96,7 @@ const MovieDetailPage: React.FC = () => {
 
   const scheduleForSelectedDay = scheduleData.find((d) => d.date === selectedDate);
 
-  const handleShowtimeSelection = (showtime: { time: string; format: string }) => {
+  const handleShowtimeSelection = (showtime: { time: string; format: string; showtimeId: string; roomId: string }) => {
     if (selectedDate && movie) {
       navigate("/booking", {
         state: {
@@ -113,6 +113,8 @@ const MovieDetailPage: React.FC = () => {
             date: selectedDate,
             time: showtime.time,
             format: showtime.format,
+            showtimeId: showtime.showtimeId,
+            roomId: showtime.roomId,
           },
           cinemaName: "FCinema",
         },

@@ -22,6 +22,8 @@ interface FinalSelection {
   date: string;
   time: string;
   format: string;
+  showtimeId: string;
+  roomId: string;
 }
 
 function MovieSelection() {

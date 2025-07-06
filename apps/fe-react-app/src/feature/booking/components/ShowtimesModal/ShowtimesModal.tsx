@@ -15,7 +15,7 @@ export interface ShowtimesModalProps {
   movieTitle: string;
   cinemaName: string;
   scheduleData: SchedulePerDay[];
-  onSelectShowtime: (selected: { date: string; time: string; format: string }) => void;
+  onSelectShowtime: (selected: { date: string; time: string; format: string; showtimeId: string; roomId: string }) => void;
   loading?: boolean;
   error?: string | null;
 }
@@ -44,36 +44,38 @@ const ShowtimesModal: React.FC<ShowtimesModalProps> = ({
   const scheduleForSelectedDay = useMemo(() => {
     return scheduleData.find((d) => d.date === selectedDate);
   }, [selectedDate, scheduleData]);
-  const handleShowtimeSelection = (showtime: { time: string; format: string }) => {
+  const handleShowtimeSelection = (showtime: { time: string; format: string; showtimeId: string; roomId: string }) => {
     if (selectedDate) {
       onSelectShowtime({
         date: selectedDate,
         time: showtime.time,
         format: showtime.format,
+        showtimeId: showtime.showtimeId,
+        roomId: showtime.roomId,
       });
     }
   };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-4xl min-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-3xl max-h-[90vh] w-full max-w-4xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-gray-700 uppercase">LỊCH CHIẾU - {movieTitle}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold uppercase text-gray-700">LỊCH CHIẾU - {movieTitle}</DialogTitle>
         </DialogHeader>
 
         <div className="p-4 sm:p-6">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">{cinemaName}</h1>
+          <h1 className="mb-6 text-center text-3xl font-bold text-gray-800">{cinemaName}</h1>
 
           {/* Loading state */}
           {loading && (
-            <div className="flex justify-center items-center py-12">
-              <div className="text-gray-600 text-lg">Đang tải lịch chiếu...</div>
+            <div className="flex items-center justify-center py-12">
+              <div className="text-lg text-gray-600">Đang tải lịch chiếu...</div>
             </div>
           )}
 
           {/* Error state */}
           {error && !loading && (
-            <div className="flex justify-center items-center py-12">
-              <div className="text-red-500 text-lg">{error}</div>
+            <div className="flex items-center justify-center py-12">
+              <div className="text-lg text-red-500">{error}</div>
             </div>
           )}
 

@@ -1,53 +1,29 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
-import { Input } from "@/components/Shadcn/ui/input";
-import { Label } from "@/components/Shadcn/ui/label";
-import { Separator } from "@/components/Shadcn/ui/separator";
-import type { BookingCombo, BookingRequest, PaymentMethod } from "@/interfaces/booking.interface";
+import { useAuth } from "@/hooks/useAuth";
+import type { PaymentMethod } from "@/interfaces/booking.interface";
+import type { Combo } from "@/interfaces/combo.interface";
 import type { Member } from "@/interfaces/member.interface";
 import type { Movie } from "@/interfaces/movies.interface";
+import { transformSeatsToSeatMap, useCreateBooking, useSeatsByShowtimeId } from "@/services/bookingService";
+import { transformComboResponse, useCombos } from "@/services/comboService";
 import { transformMovieResponse, useMovies } from "@/services/movieService";
 import { useShowtimesByMovie } from "@/services/showtimeService";
-import type { MovieResponse, ShowtimeResponse } from "@/type-from-be";
-import { Clock, CreditCard, Film, Minus, Plus, ShoppingCart, Ticket, User } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { transformSnacksResponse, useSnacks } from "@/services/snackService";
+import type { BookingRequest, MovieResponse, ShowtimeResponse } from "@/type-from-be";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import MovieSearch from "../../../components/MovieSearch";
-import { bookingService } from "../../../services/bookingService";
 import { memberService } from "../../../services/memberService";
-
-interface Seat {
-  id: string;
-  row: string;
-  number: number;
-  type: "standard" | "vip" | "double";
-  status: "available" | "taken" | "selected";
-  price: number;
-}
-
-// Snack items interface
-// Snack items interface
-interface SnackItem {
-  id: string;
-  name: string;
-  price: number;
-  category: "popcorn" | "drink" | "candy" | "combo";
-  image?: string;
-  description?: string;
-}
-
-// Local interface for UI showtime format (legacy format expected by existing UI)
-interface UIShowtime {
-  id: string;
-  movieId: number;
-  cinemaRoomId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  format: string;
-  availableSeats: number;
-  price: number;
-}
+import {
+  CustomerInfo,
+  MovieSelection,
+  OrderSummary,
+  PaymentStep,
+  SeatSelection,
+  ShowtimeSelection,
+  SnackSelection,
+  StepProgress,
+} from "./components";
+import type { CustomerInfo as CustomerInfoType, StaffSalesStep, UIShowtime } from "./types";
 
 // Utility function to convert API Showtime to UI Showtime format
 const convertApiShowtimeToUI = (apiShowtime: ShowtimeResponse): UIShowtime => {
@@ -76,29 +52,72 @@ const convertApiShowtimeToUI = (apiShowtime: ShowtimeResponse): UIShowtime => {
 };
 
 const StaffTicketSales: React.FC = () => {
+  // Get current staff information from auth context
+  const { user } = useAuth();
+
   // Use React Query to fetch movies
   const moviesQuery = useMovies();
+
+  // React Query hook for creating bookings
+  const createBookingMutation = useCreateBooking();
 
   // React Query hook for showtimes (will be enabled when selectedMovie changes)
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
   const showtimesQuery = useShowtimesByMovie(selectedMovieId ?? 0);
 
+  // React Query hooks for combos and snacks
+  const combosQuery = useCombos();
+  const snacksQuery = useSnacks();
+
   // State for data
   const [movies, setMovies] = useState<Movie[]>([]);
   const [showtimes, setShowtimes] = useState<UIShowtime[]>([]);
-  const [combos, setCombos] = useState<BookingCombo[]>([]);
-  const [seats, setSeats] = useState<Seat[]>([]);
-  const [snackItems, setSnackItems] = useState<SnackItem[]>([]);
+
+  // Transform API data to component format
+  const combos = useMemo(() => {
+    if (!combosQuery.data?.result) return [];
+
+    if (Array.isArray(combosQuery.data.result)) {
+      return combosQuery.data.result.map(transformComboResponse);
+    } else {
+      return [transformComboResponse(combosQuery.data.result)];
+    }
+  }, [combosQuery.data]);
+
+  const snacks = useMemo(() => {
+    if (!snacksQuery.data?.result) return [];
+
+    if (Array.isArray(snacksQuery.data.result)) {
+      return transformSnacksResponse(snacksQuery.data.result);
+    } else {
+      return transformSnacksResponse([snacksQuery.data.result]);
+    }
+  }, [snacksQuery.data]);
 
   // State for selection
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [selectedShowtime, setSelectedShowtime] = useState<UIShowtime | null>(null);
-  const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
-  const [selectedCombos, setSelectedCombos] = useState<Record<string, number>>({});
-  const [selectedSnacks, setSelectedSnacks] = useState<Record<string, number>>({});
+  const [selectedSeatIds, setSelectedSeatIds] = useState<number[]>([]);
+
+  // Update state format to match ComboSelection component expectations
+  const [selectedCombos, setSelectedCombos] = useState<Array<{ combo: Combo; quantity: number }>>([]);
+  const [selectedSnacks, setSelectedSnacks] = useState<Record<number, number>>({});
+
+  // Fetch seat data for the selected showtime
+  const showtimeId = selectedShowtime?.id ? parseInt(selectedShowtime.id) : 0;
+  const { data: seatsData, isLoading: seatsLoading } = useSeatsByShowtimeId(showtimeId);
+
+  // Transform API seat data to SeatMap format
+  const seatMap = useMemo(() => {
+    if (!seatsData?.result || !selectedShowtime) return null;
+
+    const seats = Array.isArray(seatsData.result) ? seatsData.result : [seatsData.result];
+    const roomId = parseInt(selectedShowtime.cinemaRoomId) || 0;
+    return transformSeatsToSeatMap(seats, roomId);
+  }, [seatsData, selectedShowtime]);
 
   // State for customer info
-  const [customerInfo, setCustomerInfo] = useState({
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfoType>({
     name: "",
     phone: "",
     email: "",
@@ -110,11 +129,10 @@ const StaffTicketSales: React.FC = () => {
   const [memberInfo, setMemberInfo] = useState<Member | null>(null);
   // State for UI
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<"movie" | "showtime" | "seats" | "snacks" | "customer" | "payment">("movie");
+  const [step, setStep] = useState<StaffSalesStep>("movie");
 
   useEffect(() => {
-    fetchCombos();
-    fetchSnackItems();
+    // No longer need fetchCombos and fetchSnackItems - using React Query hooks
   }, []);
 
   // Transform movies data when React Query data changes
@@ -153,107 +171,57 @@ const StaffTicketSales: React.FC = () => {
 
   useEffect(() => {
     if (selectedShowtime) {
-      fetchSeats(selectedShowtime.cinemaRoomId);
+      // No longer need manual fetchSeats - using React Query hook
     }
   }, [selectedShowtime]);
-  const fetchSeats = async (roomId: string) => {
-    console.log("Fetching seats for room:", roomId);
-    // Mock seat data - in real app would fetch from API
-    const mockSeats: Seat[] = [];
-    const rows = ["A", "B", "C", "D", "E"];
-    const seatsPerRow = 10;
 
-    rows.forEach((row) => {
-      for (let i = 1; i <= seatsPerRow; i++) {
-        mockSeats.push({
-          id: `${row}${i}`,
-          row,
-          number: i,
-          type: row === "A" || row === "B" ? "vip" : "standard",
-          status: crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff > 0.8 ? "taken" : "available",
-          price: row === "A" || row === "B" ? 150000 : 100000,
-        });
-      }
+  // Helper function to calculate total seat price
+  const calculateSeatPrice = useCallback(() => {
+    return selectedSeatIds.reduce((sum, seatId) => {
+      const seat = seatMap?.gridData.find((s) => s.id === seatId);
+      return sum + (seat?.type?.price || 0);
+    }, 0);
+  }, [selectedSeatIds, seatMap]);
+
+  // Helper function to get seat display names
+  const getSeatDisplayNames = useCallback(() => {
+    return selectedSeatIds.map((seatId) => {
+      const seat = seatMap?.gridData.find((s) => s.id === seatId);
+      return seat ? `${seat.row}${seat.column}` : seatId.toString();
     });
+  }, [selectedSeatIds, seatMap]);
 
-    setSeats(mockSeats);
-  };
-  const fetchCombos = async () => {
-    try {
-      const data = await bookingService.getCombos();
-      setCombos(data);
-    } catch (error) {
-      console.error("Error fetching combos:", error);
-      toast.error("Không thể tải danh sách combo");
-    }
-  };
-
-  const fetchSnackItems = async () => {
-    try {
-      // Mock snack data for now - can be replaced with API call later
-      const mockSnacks: SnackItem[] = [
-        {
-          id: "SN001",
-          name: "Bắp rang bơ lớn",
-          price: 80000,
-          category: "popcorn",
-          description: "Bắp rang bơ thơm ngon, size lớn",
-        },
-        {
-          id: "SN002",
-          name: "Nước ngọt Coca Cola",
-          price: 35000,
-          category: "drink",
-          description: "Coca Cola 500ml",
-        },
-        {
-          id: "SN003",
-          name: "Nước suối Aquafina",
-          price: 20000,
-          category: "drink",
-          description: "Nước suối Aquafina 500ml",
-        },
-        {
-          id: "SN004",
-          name: "Kẹo gấu Haribo",
-          price: 45000,
-          category: "candy",
-          description: "Kẹo gấu Haribo nhiều vị",
-        },
-        {
-          id: "SN005",
-          name: "Combo bắp nước",
-          price: 120000,
-          category: "combo",
-          description: "1 bắp rang bơ lớn + 1 nước ngọt",
-        },
-      ];
-      setSnackItems(mockSnacks);
-    } catch (error) {
-      console.error("Error fetching snack items:", error);
-      toast.error("Không thể tải danh sách bắp nước");
-    }
+  // Handle seat selection with seat IDs
+  const handleSeatSelect = useCallback(
+    (seatId: number) => {
+      if (selectedSeatIds.includes(seatId)) {
+        setSelectedSeatIds((prev) => prev.filter((id) => id !== seatId));
+      } else {
+        setSelectedSeatIds((prev) => [...prev, seatId]);
+      }
+    },
+    [selectedSeatIds],
+  );
+  const handleComboSelect = (combo: Combo, quantity: number) => {
+    setSelectedCombos((prev) => {
+      const existingIndex = prev.findIndex((item) => item.combo.id === combo.id);
+      if (existingIndex >= 0) {
+        if (quantity <= 0) {
+          // Remove combo if quantity is 0 or less
+          return prev.filter((item) => item.combo.id !== combo.id);
+        } else {
+          // Update existing combo quantity
+          return prev.map((item) => (item.combo.id === combo.id ? { ...item, quantity } : item));
+        }
+      } else if (quantity > 0) {
+        // Add new combo
+        return [...prev, { combo, quantity }];
+      }
+      return prev;
+    });
   };
 
-  const handleSeatSelect = (seat: Seat) => {
-    if (seat.status === "taken") return;
-
-    const isSelected = selectedSeats.find((s) => s.id === seat.id);
-
-    if (isSelected) {
-      setSelectedSeats((prev) => prev.filter((s) => s.id !== seat.id));
-    } else {
-      setSelectedSeats((prev) => [...prev, seat]);
-    }
-  };
-  const handleComboQuantityChange = (comboId: string, quantity: number) => {
-    setSelectedCombos((prev) => ({
-      ...prev,
-      [comboId]: Math.max(0, quantity),
-    }));
-  };
-
-  const handleSnackQuantityChange = (snackId: string, quantity: number) => {
+  const handleSnackQuantityChange = (snackId: number, quantity: number) => {
     setSelectedSnacks((prev) => ({
       ...prev,
       [snackId]: Math.max(0, quantity),
@@ -289,14 +257,29 @@ const StaffTicketSales: React.FC = () => {
       setLoading(false);
     }
   };
-  const calculateTotal = () => {
-    const ticketCost = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
-    const comboCost = Object.entries(selectedCombos).reduce((sum, [comboId, quantity]) => {
-      const combo = combos.find((c) => c.id === parseInt(comboId));
-      return sum + (combo ? (combo.total_price || 0) * quantity : 0);
+  const calculateTotal = useCallback(() => {
+    // Calculate ticket cost from seat map using selected seat IDs
+    const ticketCost = selectedSeatIds.reduce((sum, seatId) => {
+      const seat = seatMap?.gridData.find((s) => s.id === seatId);
+      return sum + (seat?.type?.price || 0);
     }, 0);
+
+    // Calculate combo cost from selected combos array
+    const comboCost = selectedCombos.reduce((sum, { combo, quantity }) => {
+      // Calculate combo price from snacks
+      const comboPrice =
+        combo.snacks?.reduce((total, comboSnack) => {
+          const snackPrice = comboSnack.snack?.price || 0;
+          const snackQuantity = comboSnack.quantity || 1;
+          return total + snackPrice * snackQuantity;
+        }, 0) || 0;
+
+      return sum + comboPrice * quantity;
+    }, 0);
+
+    // Calculate snack cost from selected snacks
     const snackCost = Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
-      const snack = snackItems.find((s) => s.id === snackId);
+      const snack = snacks.find((s) => s.id === parseInt(snackId));
       return sum + (snack ? snack.price * quantity : 0);
     }, 0);
 
@@ -304,9 +287,9 @@ const StaffTicketSales: React.FC = () => {
     const pointsDiscount = usePoints * 1000; // 1 point = 1000 VND
 
     return Math.max(0, subtotal - pointsDiscount);
-  };
-  const handleCreateBooking = async () => {
-    if (!selectedMovie || !selectedShowtime || selectedSeats.length === 0) {
+  }, [selectedSeatIds, seatMap, selectedCombos, selectedSnacks, snacks, usePoints]);
+  const handleCreateBooking = useCallback(async () => {
+    if (!selectedMovie || !selectedShowtime || selectedSeatIds.length === 0) {
       toast.error("Vui lòng chọn đầy đủ thông tin");
       return;
     }
@@ -316,59 +299,88 @@ const StaffTicketSales: React.FC = () => {
       return;
     }
 
+    if (!user?.id) {
+      toast.error("Không thể xác định thông tin nhân viên. Vui lòng đăng nhập lại.");
+      return;
+    }
+
     try {
       setLoading(true);
+      const totalPrice = calculateTotal();
       const bookingData: BookingRequest = {
-        user_id: memberInfo?.id,
-        showtime_id: parseInt(selectedShowtime.id) || 1, // Convert to number or use default
-        promotion_id: undefined, // Can be added later for promotions
-        loyalty_point_used: usePoints > 0 ? usePoints : undefined,
-        payment_method: paymentMethod,
-        staff_id: "STAFF001", // Mock staff ID - should come from auth context
-        seat_ids: selectedSeats.map((seat) => parseInt(seat.id)), // Convert to numbers
-        combos: Object.entries(selectedCombos)
-          .filter(([, quantity]) => quantity > 0)
-          .map(([comboId, quantity]) => ({
-            combo_id: parseInt(comboId),
+        userId: memberInfo?.id || `guest_${Date.now()}`,
+        showtimeId: parseInt(selectedShowtime.id) || 1,
+        promotionId: undefined,
+        seatIds: selectedSeatIds,
+        totalPrice,
+        paymentMethod: paymentMethod,
+        staffId: user?.id || "STAFF_UNKNOWN", // Use current staff ID from auth context
+        estimatedPrice: totalPrice,
+        loyaltyPointsUsed: usePoints > 0 ? usePoints : undefined,
+        bookingCombos: selectedCombos
+          .filter(({ quantity }) => quantity > 0)
+          .map(({ combo, quantity }) => ({
+            comboId: combo.id,
             quantity,
           })),
-        snacks: Object.entries(selectedSnacks)
+        bookingSnacks: Object.entries(selectedSnacks)
           .filter(([, quantity]) => quantity > 0)
           .map(([snackId, quantity]) => ({
-            snack_id: parseInt(snackId.replace("SN", "")), // Convert SN001 to 1
+            snackId: parseInt(snackId.replace("SN", "")),
             quantity,
           })),
       };
 
-      const booking = await bookingService.createBooking(bookingData);
+      // Use the booking service to create the booking
+      const response = await createBookingMutation.mutateAsync({ body: bookingData });
 
-      // If member used points, update their points
-      if (memberInfo && usePoints > 0) {
-        try {
-          await memberService.updateMemberPoints(memberInfo.id, usePoints, "redeem", `Sử dụng điểm cho booking ${booking.id}`);
-        } catch (error) {
-          console.error("Error updating member points:", error);
-          // Don't fail the booking if points update fails
-          toast.warning("Booking thành công nhưng không thể cập nhật điểm");
+      if (response.result) {
+        const booking = response.result;
+
+        // If member used points, update their points
+        if (memberInfo && usePoints > 0) {
+          try {
+            await memberService.updateMemberPoints(memberInfo.id, usePoints, "redeem", `Sử dụng điểm cho booking ${booking.id}`);
+          } catch (error) {
+            console.error("Error updating member points:", error);
+            // Don't fail the booking if points update fails
+            toast.warning("Booking thành công nhưng không thể cập nhật điểm");
+          }
         }
+
+        const successMessage = `Đặt vé thành công! Mã booking: ${booking.id}`;
+        const staffInfo = user?.fullName ? ` - Nhân viên: ${user.fullName}` : "";
+        toast.success(successMessage + staffInfo);
+        resetForm();
+      } else {
+        throw new Error("Booking failed: No result returned");
       }
-
-      toast.success(`Đặt vé thành công! Mã booking: ${booking.id}`);
-
-      // Reset form
-      resetForm();
     } catch (error) {
       console.error("Error creating booking:", error);
       toast.error("Đặt vé thất bại. Vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    selectedMovie,
+    selectedShowtime,
+    selectedSeatIds,
+    customerInfo,
+    memberInfo,
+    usePoints,
+    paymentMethod,
+    selectedCombos,
+    selectedSnacks,
+    createBookingMutation,
+    calculateTotal,
+    user?.id, // Added dependency for staff ID
+    user?.fullName, // Added dependency for staff name
+  ]);
   const resetForm = () => {
     setSelectedMovie(null);
     setSelectedShowtime(null);
-    setSelectedSeats([]);
-    setSelectedCombos({});
+    setSelectedSeatIds([]);
+    setSelectedCombos([]);
     setSelectedSnacks({});
     setCustomerInfo({ name: "", phone: "", email: "" });
     setMemberPhone("");
@@ -377,587 +389,140 @@ const StaffTicketSales: React.FC = () => {
     setStep("movie");
   };
 
-  const getSeatClassName = (seat: Seat) => {
-    if (seat.status === "taken") return "bg-red-500 cursor-not-allowed";
-    if (selectedSeats.find((s) => s.id === seat.id)) return "bg-blue-500 text-white";
-    if (seat.type === "vip") return "bg-yellow-200 hover:bg-yellow-300 cursor-pointer";
-    return "bg-gray-200 hover:bg-gray-300 cursor-pointer";
+  // Handler functions for component communication
+  const handleMovieSelect = (movie: Movie) => {
+    setSelectedMovie(movie);
+  };
+
+  const handleShowtimeSelect = (showtime: UIShowtime) => {
+    setSelectedShowtime(showtime);
+  };
+
+  const handleCustomerInfoChange = (field: string, value: string) => {
+    setCustomerInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const setStepTo = (newStep: StaffSalesStep) => {
+    setStep(newStep);
   };
 
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Bán Vé Trực Tiếp</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Bán Vé Trực Tiếp</h1>
+          {user?.fullName && (
+            <p className="mt-1 text-sm text-gray-600">
+              Nhân viên: <span className="font-medium">{user.fullName}</span>
+            </p>
+          )}
+        </div>
         <Button variant="outline" onClick={resetForm}>
           Làm mới
         </Button>
       </div>
 
       {/* Progress Steps */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            {[
-              { key: "movie", label: "Chọn phim", icon: Film },
-              { key: "showtime", label: "Chọn suất", icon: Clock },
-              { key: "seats", label: "Chọn ghế", icon: Ticket },
-              { key: "customer", label: "Thông tin KH", icon: User },
-              { key: "payment", label: "Thanh toán", icon: CreditCard },
-            ].map(({ key, label, icon: Icon }, index) => (
-              <div key={key} className="flex flex-col items-center">
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full ${(() => {
-                    if (step === key) return "bg-blue-500 text-white";
-                    if (["movie", "showtime", "seats", "customer", "payment"].indexOf(step) > index) return "bg-green-500 text-white";
-                    return "bg-gray-200";
-                  })()}`}
-                >
-                  <Icon className="h-5 w-5" />
-                </div>
-                <span className="mt-1 text-xs">{label}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <StepProgress currentStep={step} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
-          {" "}
           {/* Step 1: Movie Selection */}
           {step === "movie" && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Film className="h-5 w-5" />
-                  Chọn Phim
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Movie Search */}
-                <div>
-                  <Label className="mb-2 block text-sm font-medium">Tìm kiếm phim nhanh</Label>
-                  <MovieSearch
-                    onMovieSelect={(movie) => {
-                      setSelectedMovie(movie);
-                      setStep("showtime");
-                    }}
-                    placeholder="Nhập tên phim để tìm kiếm..."
-                    className="mb-4"
-                  />
-                </div>
-
-                <Separator />
-
-                {/* Movie List */}
-                <div>
-                  <Label className="mb-4 block text-sm font-medium">Hoặc chọn từ danh sách</Label>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {movies.map((movie) => (
-                      <button
-                        key={movie.id}
-                        onClick={() => {
-                          setSelectedMovie(movie);
-                          setStep("showtime");
-                        }}
-                        className={`w-full cursor-pointer rounded-lg border p-4 text-left transition-colors ${
-                          selectedMovie?.id === movie.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
-                        }`}
-                        type="button"
-                      >
-                        <div className="flex gap-4">
-                          <img
-                            src={movie.poster ?? "/placeholder-movie.jpg"}
-                            alt={movie.name ?? "Movie"}
-                            className="h-20 w-16 rounded object-cover"
-                          />
-                          <div>
-                            <h3 className="font-semibold">{movie.name ?? "Untitled"}</h3>
-                            <p className="text-sm text-gray-500">
-                              {movie.categories && movie.categories.length > 0 ? movie.categories.map((cat) => cat.name).join(", ") : "N/A"}
-                            </p>
-                            <p className="text-sm text-gray-500">{movie.duration ? `${movie.duration} phút` : "N/A"}</p>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <MovieSelection movies={movies} selectedMovie={selectedMovie} onMovieSelect={handleMovieSelect} onNext={() => setStepTo("showtime")} />
           )}
+
           {/* Step 2: Showtime Selection */}
           {step === "showtime" && selectedMovie && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Chọn Suất Chiếu - {selectedMovie.name ?? "Movie"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                  {showtimes.map((showtime) => (
-                    <button
-                      key={showtime.id}
-                      onClick={() => {
-                        setSelectedShowtime(showtime);
-                        setStep("seats");
-                      }}
-                      className={`cursor-pointer rounded-lg border p-4 text-center transition-colors ${
-                        selectedShowtime?.id === showtime.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
-                      }`}
-                      type="button"
-                    >
-                      <div className="text-center">
-                        <div className="text-lg font-semibold">{showtime.startTime}</div>
-                        <div className="text-sm text-gray-500">{showtime.date}</div>
-                        <div className="text-sm text-gray-500">Phòng {showtime.cinemaRoomId}</div>
-                        <div className="text-sm text-green-600">{showtime.availableSeats} ghế trống</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-4">
-                  <Button variant="outline" onClick={() => setStep("movie")}>
-                    Quay lại
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <ShowtimeSelection
+              selectedMovie={selectedMovie}
+              showtimes={showtimes}
+              selectedShowtime={selectedShowtime}
+              onShowtimeSelect={handleShowtimeSelect}
+              onBack={() => setStepTo("movie")}
+              onNext={() => setStepTo("seats")}
+            />
           )}
+
           {/* Step 3: Seat Selection */}
           {step === "seats" && selectedShowtime && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Ticket className="h-5 w-5" />
-                  Chọn Ghế - {selectedShowtime.startTime} {selectedShowtime.date}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {/* Screen */}
-                <div className="mb-6 text-center">
-                  <div className="inline-block rounded-lg bg-gray-300 px-8 py-2">MÀN HÌNH</div>
-                </div>
-
-                {/* Seat Map */}
-                <div className="space-y-2">
-                  {["A", "B", "C", "D", "E"].map((row) => (
-                    <div key={row} className="flex justify-center gap-1">
-                      <span className="w-6 text-center font-semibold">{row}</span>
-                      {seats
-                        .filter((seat) => seat.row === row)
-                        .map((seat) => (
-                          <button
-                            key={seat.id}
-                            onClick={() => handleSeatSelect(seat)}
-                            disabled={seat.status === "taken"}
-                            className={`h-8 w-8 rounded text-xs ${getSeatClassName(seat)}`}
-                          >
-                            {seat.number}
-                          </button>
-                        ))}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Legend */}
-                <div className="mt-6 flex justify-center gap-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded bg-gray-200"></div>
-                    <span>Trống</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded bg-yellow-200"></div>
-                    <span>VIP</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded bg-blue-500"></div>
-                    <span>Đã chọn</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded bg-red-500"></div>
-                    <span>Đã bán</span>
-                  </div>
-                </div>
-
-                {selectedSeats.length > 0 && (
-                  <div className="mt-6 text-center">
-                    <p className="font-semibold">Đã chọn: {selectedSeats.map((s) => s.id).join(", ")}</p>
-                    <div className="mt-4 flex justify-center gap-2">
-                      <Button variant="outline" onClick={() => setStep("showtime")}>
-                        Quay lại
-                      </Button>{" "}
-                      <Button onClick={() => setStep("snacks")}>Tiếp tục</Button>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <SeatSelection
+              selectedShowtime={selectedShowtime}
+              seatMap={seatMap}
+              selectedSeatIds={selectedSeatIds}
+              seatsLoading={seatsLoading}
+              onSeatSelect={handleSeatSelect}
+              onBack={() => setStepTo("showtime")}
+              onNext={() => setStepTo("snacks")}
+            />
           )}
+
           {/* Step 4: Snacks & Beverages */}
           {step === "snacks" && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
-                  Chọn Bắp Nước & Combo
-                </CardTitle>
-                <p className="text-sm text-gray-600">Chọn thêm bắp nước, nước uống và combo cho khách hàng (tùy chọn)</p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Combos */}
-                {combos.length > 0 && (
-                  <div>
-                    <h3 className="mb-3 text-lg font-semibold">Combo Khuyến Mại</h3>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      {combos.map((combo) => (
-                        <div key={combo.id} className="rounded-lg border p-4">
-                          <div className="mb-2 flex items-start justify-between">
-                            <div>
-                              <h4 className="font-medium">{combo.name}</h4>
-                              <p className="text-sm text-gray-600">{combo.description}</p>
-                              <p className="mt-1 text-lg font-semibold text-red-600">{(combo.total_price || 0).toLocaleString("vi-VN")} VNĐ</p>
-                            </div>
-                          </div>
-                          <div className="mt-3 flex items-center gap-3">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleComboQuantityChange(combo.id.toString(), (selectedCombos[combo.id.toString()] || 0) - 1)}
-                              disabled={(selectedCombos[combo.id.toString()] || 0) === 0}
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <span className="w-8 text-center">{selectedCombos[combo.id.toString()] || 0}</span>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleComboQuantityChange(combo.id.toString(), (selectedCombos[combo.id.toString()] || 0) + 1)}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Individual Snacks */}
-                <div>
-                  <h3 className="mb-3 text-lg font-semibold">Bắp Nước Lẻ</h3>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {snackItems.map((snack) => (
-                      <div key={snack.id} className="rounded-lg border p-4">
-                        <div className="flex h-full flex-col">
-                          <div className="flex-1">
-                            <h4 className="font-medium">{snack.name}</h4>
-                            <p className="mt-1 text-sm text-gray-600">{snack.description}</p>
-                            <p className="mt-2 text-lg font-semibold text-red-600">{snack.price.toLocaleString("vi-VN")} VNĐ</p>
-                          </div>
-                          <div className="mt-3 flex items-center gap-3">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleSnackQuantityChange(snack.id, (selectedSnacks[snack.id] || 0) - 1)}
-                              disabled={(selectedSnacks[snack.id] || 0) === 0}
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <span className="w-8 text-center">{selectedSnacks[snack.id] || 0}</span>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleSnackQuantityChange(snack.id, (selectedSnacks[snack.id] || 0) + 1)}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Navigation */}
-                <div className="mt-6 flex justify-center gap-2">
-                  <Button variant="outline" onClick={() => setStep("seats")}>
-                    Quay lại
-                  </Button>
-                  <Button onClick={() => setStep("customer")}>Tiếp tục</Button>
-                </div>
-              </CardContent>
-            </Card>
+            <SnackSelection
+              combos={combos}
+              snacks={snacks}
+              selectedCombos={selectedCombos}
+              selectedSnacks={selectedSnacks}
+              combosLoading={combosQuery.isLoading}
+              onComboSelect={handleComboSelect}
+              onSnackQuantityChange={handleSnackQuantityChange}
+              onBack={() => setStepTo("seats")}
+              onNext={() => setStepTo("customer")}
+            />
           )}
+
           {/* Step 5: Customer Info */}
           {step === "customer" && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Thông Tin Khách Hàng
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Member Search */}
-                <div className="rounded-lg border bg-blue-50 p-4">
-                  <h3 className="mb-3 font-semibold">Tìm Hội Viên</h3>
-                  <div className="flex gap-2">
-                    <Input placeholder="Số điện thoại hội viên" value={memberPhone} onChange={(e) => setMemberPhone(e.target.value)} />
-                    <Button onClick={searchMember}>Tìm kiếm</Button>
-                  </div>
-
-                  {memberInfo && (
-                    <div className="mt-3 rounded border bg-green-50 p-3">
-                      <p className="font-semibold">{memberInfo.name}</p>
-                      <p className="text-sm text-gray-600">{memberInfo.phone}</p>
-                      <p className="text-sm text-gray-600">Điểm tích lũy: {memberInfo.currentPoints}</p>
-                      <p className="text-sm text-gray-600">Hạng: {memberInfo.membershipLevel}</p>
-                    </div>
-                  )}
-                </div>
-                <Separator />
-                {/* Customer Info Form */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="name">Họ và tên *</Label>
-                    <Input
-                      id="name"
-                      value={customerInfo.name}
-                      onChange={(e) => setCustomerInfo((prev) => ({ ...prev, name: e.target.value }))}
-                      placeholder="Nhập họ và tên"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Số điện thoại *</Label>
-                    <Input
-                      id="phone"
-                      value={customerInfo.phone}
-                      onChange={(e) => setCustomerInfo((prev) => ({ ...prev, phone: e.target.value }))}
-                      placeholder="Nhập số điện thoại"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={customerInfo.email}
-                      onChange={(e) => setCustomerInfo((prev) => ({ ...prev, email: e.target.value }))}
-                      placeholder="Nhập email (không bắt buộc)"
-                    />
-                  </div>
-                </div>{" "}
-                <div className="mt-6 flex justify-center gap-2">
-                  <Button variant="outline" onClick={() => setStep("snacks")}>
-                    Quay lại
-                  </Button>
-                  <Button onClick={() => setStep("payment")} disabled={!customerInfo.name || !customerInfo.phone}>
-                    Tiếp tục
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <CustomerInfo
+              customerInfo={customerInfo}
+              memberPhone={memberPhone}
+              memberInfo={memberInfo}
+              onCustomerInfoChange={handleCustomerInfoChange}
+              onMemberPhoneChange={setMemberPhone}
+              onSearchMember={searchMember}
+              onBack={() => setStepTo("snacks")}
+              onNext={() => setStepTo("payment")}
+            />
           )}
+
           {/* Step 6: Payment */}
           {step === "payment" && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Thanh Toán
-                </CardTitle>
-              </CardHeader>{" "}
-              <CardContent className="space-y-6">
-                {/* Order Summary */}
-                <div>
-                  <h3 className="mb-3 font-semibold">Tóm Tắt Đơn Hàng</h3>
-                  <div className="space-y-2 rounded-lg bg-gray-50 p-4">
-                    <div className="flex justify-between">
-                      <span>Vé phim ({selectedSeats.length} ghế):</span>
-                      <span>{selectedSeats.reduce((sum, seat) => sum + seat.price, 0).toLocaleString("vi-VN")} VNĐ</span>
-                    </div>
-
-                    {/* Show selected combos */}
-                    {Object.entries(selectedCombos)
-                      .filter(([, quantity]) => quantity > 0)
-                      .map(([comboId, quantity]) => {
-                        const combo = combos.find((c) => c.id === parseInt(comboId));
-                        return combo ? (
-                          <div key={comboId} className="flex justify-between">
-                            <span>
-                              {combo.name} x{quantity}:
-                            </span>
-                            <span>{((combo.total_price || 0) * quantity).toLocaleString("vi-VN")} VNĐ</span>
-                          </div>
-                        ) : null;
-                      })}
-
-                    {/* Show selected snacks */}
-                    {Object.entries(selectedSnacks)
-                      .filter(([, quantity]) => quantity > 0)
-                      .map(([snackId, quantity]) => {
-                        const snack = snackItems.find((s) => s.id === snackId);
-                        return snack ? (
-                          <div key={snackId} className="flex justify-between">
-                            <span>
-                              {snack.name} x{quantity}:
-                            </span>
-                            <span>{(snack.price * quantity).toLocaleString("vi-VN")} VNĐ</span>
-                          </div>
-                        ) : null;
-                      })}
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Points Usage */}
-                {memberInfo && (
-                  <div>
-                    <h3 className="mb-3 font-semibold">Sử Dụng Điểm Tích Lũy</h3>
-                    <div className="flex items-center gap-4">
-                      {" "}
-                      <Label htmlFor="points">Điểm sử dụng (có {memberInfo.currentPoints} điểm):</Label>
-                      <Input
-                        id="points"
-                        type="number"
-                        value={usePoints}
-                        onChange={(e) => setUsePoints(Math.min(parseInt(e.target.value) || 0, memberInfo.currentPoints))}
-                        max={memberInfo.currentPoints}
-                        className="w-24"
-                      />
-                      <span className="text-sm text-gray-500">= {(usePoints * 1000).toLocaleString("vi-VN")} VNĐ</span>
-                    </div>
-                  </div>
-                )}
-
-                <Separator />
-
-                {/* Payment Method */}
-                <div>
-                  <h3 className="mb-3 font-semibold">Phương Thức Thanh Toán</h3>
-                  <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
-                    {[
-                      { id: "CASH" as PaymentMethod, name: "Tiền mặt" },
-                      { id: "BANKING" as PaymentMethod, name: "Banking" },
-                    ].map((method) => (
-                      <button
-                        key={method.id}
-                        onClick={() => setPaymentMethod(method.id)}
-                        className={`rounded-lg border p-3 text-center transition-colors ${
-                          paymentMethod === method.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
-                        }`}
-                      >
-                        {method.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-center gap-2">
-                  <Button variant="outline" onClick={() => setStep("customer")}>
-                    Quay lại
-                  </Button>
-                  <Button onClick={handleCreateBooking} disabled={loading} className="bg-green-600 hover:bg-green-700">
-                    {loading ? "Đang xử lý..." : `Thanh toán ${calculateTotal().toLocaleString("vi-VN")} VNĐ`}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <PaymentStep
+              selectedSeatIds={selectedSeatIds}
+              selectedCombos={selectedCombos}
+              selectedSnacks={selectedSnacks}
+              snacks={snacks}
+              memberInfo={memberInfo}
+              usePoints={usePoints}
+              paymentMethod={paymentMethod}
+              loading={loading}
+              calculateSeatPrice={calculateSeatPrice}
+              calculateTotal={calculateTotal}
+              onUsePointsChange={setUsePoints}
+              onPaymentMethodChange={setPaymentMethod}
+              onBack={() => setStepTo("customer")}
+              onCreateBooking={handleCreateBooking}
+            />
           )}
         </div>
 
         {/* Summary Sidebar */}
         <div className="lg:col-span-1">
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle>Tóm Tắt Đơn Hàng</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {selectedMovie && (
-                <div>
-                  <h4 className="font-semibold">Phim</h4>
-                  <p className="text-sm">{selectedMovie.name ?? "Movie"}</p>
-                </div>
-              )}
-              {selectedShowtime && (
-                <div>
-                  <h4 className="font-semibold">Suất chiếu</h4>
-                  <p className="text-sm">
-                    {selectedShowtime.startTime} - {selectedShowtime.date}
-                  </p>
-                  <p className="text-sm">Phòng {selectedShowtime.cinemaRoomId}</p>
-                </div>
-              )}
-              {selectedSeats.length > 0 && (
-                <div>
-                  <h4 className="font-semibold">Ghế đã chọn</h4>
-                  <p className="text-sm">{selectedSeats.map((s) => s.id).join(", ")}</p>
-                  <p className="text-sm font-medium">{selectedSeats.reduce((sum, seat) => sum + seat.price, 0).toLocaleString("vi-VN")} VNĐ</p>
-                </div>
-              )}{" "}
-              {Object.values(selectedCombos).some((qty) => qty > 0) && (
-                <div>
-                  <h4 className="font-semibold">Combo</h4>
-                  {Object.entries(selectedCombos)
-                    .filter(([, quantity]) => quantity > 0)
-                    .map(([comboId, quantity]) => {
-                      const combo = combos.find((c) => c.id === parseInt(comboId));
-                      return combo ? (
-                        <div key={comboId} className="flex justify-between text-sm">
-                          <span>
-                            {combo.name} x{quantity}
-                          </span>
-                          <span>{((combo.total_price || 0) * quantity).toLocaleString("vi-VN")} VNĐ</span>
-                        </div>
-                      ) : null;
-                    })}
-                </div>
-              )}
-              {Object.values(selectedSnacks).some((qty) => qty > 0) && (
-                <div>
-                  <h4 className="font-semibold">Bắp Nước</h4>
-                  {Object.entries(selectedSnacks)
-                    .filter(([, quantity]) => quantity > 0)
-                    .map(([snackId, quantity]) => {
-                      const snack = snackItems.find((s) => s.id === snackId);
-                      return snack ? (
-                        <div key={snackId} className="flex justify-between text-sm">
-                          <span>
-                            {snack.name} x{quantity}
-                          </span>
-                          <span>{(snack.price * quantity).toLocaleString("vi-VN")} VNĐ</span>
-                        </div>
-                      ) : null;
-                    })}
-                </div>
-              )}
-              {customerInfo.name && (
-                <div>
-                  <h4 className="font-semibold">Khách hàng</h4>
-                  <p className="text-sm">{customerInfo.name}</p>
-                  <p className="text-sm">{customerInfo.phone}</p>
-                </div>
-              )}
-              {usePoints > 0 && (
-                <div>
-                  <h4 className="font-semibold">Giảm giá điểm</h4>
-                  <p className="text-sm text-green-600">-{(usePoints * 1000).toLocaleString("vi-VN")} VNĐ</p>
-                </div>
-              )}
-              <Separator />
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-semibold">Tổng cộng</span>
-                  <span className="text-xl font-bold text-red-600">{calculateTotal().toLocaleString("vi-VN")} VNĐ</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <OrderSummary
+            selectedMovie={selectedMovie}
+            selectedShowtime={selectedShowtime}
+            selectedSeatIds={selectedSeatIds}
+            selectedCombos={selectedCombos}
+            selectedSnacks={selectedSnacks}
+            snacks={snacks}
+            customerInfo={customerInfo}
+            usePoints={usePoints}
+            getSeatDisplayNames={getSeatDisplayNames}
+            calculateSeatPrice={calculateSeatPrice}
+            calculateTotal={calculateTotal}
+          />
         </div>
       </div>
     </div>

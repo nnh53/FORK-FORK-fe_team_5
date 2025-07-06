@@ -141,7 +141,7 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
       <CardContent className="space-y-6">
         {/* Member Search Section */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium flex items-center gap-2">
+          <Label className="flex items-center gap-2 text-sm font-medium">
             <Coins className="h-4 w-4 text-yellow-500" />
             Tìm kiếm thành viên để sử dụng điểm
           </Label>
@@ -161,12 +161,12 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
               </Button>
             </div>
           ) : (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <div className="flex justify-between items-start">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+              <div className="flex items-start justify-between">
                 <div>
                   <div className="font-medium text-blue-900">{member.name}</div>
                   <div className="text-sm text-blue-700">{member.phone}</div>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="mt-1 flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
                       {member.membershipLevel}
                     </Badge>
@@ -184,7 +184,7 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
         {/* Points Section */}
         {member && (
           <div className="space-y-3">
-            <Label className="text-sm font-medium flex items-center gap-2">
+            <Label className="flex items-center gap-2 text-sm font-medium">
               <Coins className="h-4 w-4 text-yellow-500" />
               Sử dụng điểm tích lũy
             </Label>
@@ -212,7 +212,7 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
 
               <div className="text-xs text-gray-600">
                 Tối đa {maxPointsCanUse.toLocaleString()} điểm (= {(maxPointsCanUse * 1000).toLocaleString()} VNĐ)
-                {pointsToUse > 0 && <span className="text-green-600 font-medium ml-2">Giảm {pointsDiscount.toLocaleString()} VNĐ</span>}
+                {pointsToUse > 0 && <span className="ml-2 font-medium text-green-600">Giảm {pointsDiscount.toLocaleString()} VNĐ</span>}
               </div>
             </div>
           </div>
@@ -220,7 +220,7 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
 
         {/* Voucher Section */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium flex items-center gap-2">
+          <Label className="flex items-center gap-2 text-sm font-medium">
             <Ticket className="h-4 w-4 text-purple-500" />
             Mã giảm giá
           </Label>
@@ -248,8 +248,8 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
             {/* Voucher validation result */}
             {voucherValidation && (
               <div
-                className={`flex items-center gap-2 text-xs p-2 rounded ${
-                  voucherValidation.isValid ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"
+                className={`flex items-center gap-2 rounded p-2 text-xs ${
+                  voucherValidation.isValid ? "border border-green-200 bg-green-50 text-green-700" : "border border-red-200 bg-red-50 text-red-700"
                 }`}
               >
                 {voucherValidation.isValid ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
@@ -262,40 +262,16 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
           </div>
         </div>
 
-        {/* Demo voucher codes */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-          <div className="text-xs font-medium text-gray-700 mb-2">Mã demo để test:</div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="bg-white p-2 rounded border">
-              <div className="font-medium">WELCOME10</div>
-              <div className="text-gray-600">Giảm 10%</div>
-            </div>
-            <div className="bg-white p-2 rounded border">
-              <div className="font-medium">MOVIE50K</div>
-              <div className="text-gray-600">Giảm 50K</div>
-            </div>
-            <div className="bg-white p-2 rounded border">
-              <div className="font-medium">WEEKEND20</div>
-              <div className="text-gray-600">Giảm 20%</div>
-            </div>
-            <div className="bg-white p-2 rounded border">
-              <div className="font-medium">SUMMER100</div>
-              <div className="text-gray-600">Giảm 100K</div>
-            </div>
-          </div>
-          <div className="text-xs text-gray-500 mt-2">SĐT thành viên demo: 0123456789, 0987654321, 0555123456</div>
-        </div>
-
         {/* Total discount summary */}
         {(pointsDiscount > 0 || (voucherValidation?.isValid && voucherValidation.discount > 0)) && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+          <div className="rounded-lg border border-green-200 bg-green-50 p-3">
             <div className="text-sm font-medium text-green-700">Tổng giảm giá:</div>
             <div className="space-y-1 text-xs text-green-600">
               {pointsDiscount > 0 && <div>• Điểm tích lũy: -{pointsDiscount.toLocaleString()} VNĐ</div>}
               {voucherValidation?.isValid && voucherValidation.discount > 0 && (
                 <div>• Mã giảm giá: -{voucherValidation.discount.toLocaleString()} VNĐ</div>
               )}
-              <div className="font-medium text-green-700 pt-1 border-t border-green-200">
+              <div className="border-t border-green-200 pt-1 font-medium text-green-700">
                 Tổng cộng: -{(pointsDiscount + (voucherValidation?.discount || 0)).toLocaleString()} VNĐ
               </div>
             </div>

@@ -1,55 +1,32 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import type { Booking } from "@/interfaces/booking.interface";
 import UserLayout from "@/layouts/user/UserLayout";
-import { bookingService } from "@/services/bookingService";
+import { transformBookingResponse, useBooking } from "@/services/bookingService";
 import { CheckCircle } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
 
 const BookingSuccessPage: React.FC = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const [booking, setBooking] = useState<Booking | null>(null);
-  const [loading, setLoading] = useState(true);
 
   // Get booking ID from URL params or location state
   const bookingId = searchParams.get("bookingId") || location.state?.bookingId;
+  const bookingIdNumber = bookingId ? parseInt(bookingId.toString()) : null;
 
-  useEffect(() => {
-    const fetchBooking = async () => {
-      if (!bookingId) {
-        // Try to get booking from location state as fallback
-        if (location.state?.booking) {
-          setBooking(location.state.booking);
-        }
-        setLoading(false);
-        return;
-      }
+  // Use React Query hook to fetch booking data
+  const { data: bookingData, isLoading, error } = useBooking(bookingIdNumber || 0);
 
-      try {
-        setLoading(true);
-        // Convert string ID to number if needed
-        const id = typeof bookingId === "string" ? parseInt(bookingId) : bookingId;
-        const bookingData = await bookingService.getBookingById(id);
-        setBooking(bookingData);
-      } catch (error) {
-        console.error("Error fetching booking:", error);
-        toast.error("Không thể tải thông tin booking");
+  // Transform API response to internal format
+  const booking = useMemo(() => {
+    if (!bookingData?.result) {
+      // Fallback to location state if available
+      return location.state?.booking || null;
+    }
+    return transformBookingResponse(bookingData.result);
+  }, [bookingData, location.state?.booking]);
 
-        // Fallback to location state if API fails
-        if (location.state?.booking) {
-          setBooking(location.state.booking);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBooking();
-  }, [bookingId, location.state]);
-
-  if (loading) {
+  // Show loading state
+  if (isLoading && !location.state?.booking) {
     return (
       <UserLayout>
         <div className="mx-auto max-w-2xl p-8 text-center">
@@ -59,6 +36,21 @@ const BookingSuccessPage: React.FC = () => {
     );
   }
 
+  // Show error state
+  if (error && !location.state?.booking) {
+    return (
+      <UserLayout>
+        <div className="mx-auto max-w-2xl p-8 text-center">
+          <div className="text-lg text-red-500">Không thể tải thông tin booking</div>
+          <Link to="/">
+            <Button className="mt-4">Về trang chủ</Button>
+          </Link>
+        </div>
+      </UserLayout>
+    );
+  }
+
+  // Show no booking found state
   if (!booking) {
     return (
       <UserLayout>
@@ -97,7 +89,8 @@ const BookingSuccessPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Ghế ngồi</p>
-                <p className="font-semibold">{booking.booking_seats?.map((bs) => bs.seat?.name).join(", ") || "N/A"}</p>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                <p className="font-semibold">{booking.booking_seats?.map((bs: any) => bs.seat?.name).join(", ") || "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Tổng tiền</p>
@@ -166,7 +159,8 @@ const BookingSuccessPage: React.FC = () => {
               <h2 className="mb-4 text-xl font-semibold">Đồ ăn & Thức uống</h2>
 
               {/* Combos */}
-              {booking.booking_combos?.map((bookingCombo, index) => (
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {booking.booking_combos?.map((bookingCombo: any, index: number) => (
                 <div key={`combo-${index}`} className="flex items-center justify-between py-2">
                   <span>{bookingCombo.combo?.name || "Combo"}</span>
                   <span>x{bookingCombo.quantity}</span>
@@ -177,7 +171,8 @@ const BookingSuccessPage: React.FC = () => {
               ))}
 
               {/* Individual Snacks */}
-              {booking.booking_snacks?.map((bookingSnack, index) => (
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {booking.booking_snacks?.map((bookingSnack: any, index: number) => (
                 <div key={`snack-${index}`} className="flex items-center justify-between py-2">
                   <span>{bookingSnack.snack?.name || "Snack"}</span>
                   <span>x{bookingSnack.quantity}</span>

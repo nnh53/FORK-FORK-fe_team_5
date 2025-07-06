@@ -1,28 +1,19 @@
 import BookingBreadcrumb from "@/components/BookingBreadcrumb.tsx";
-import type { Seat } from "@/interfaces/seat.interface";
 import UserLayout from "@/layouts/user/UserLayout.tsx";
-import React, { useCallback, useEffect, useState } from "react";
+import { transformSeatsToSeatMap, useSeatsByShowtimeId } from "@/services/bookingService.ts";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import BookingSeatMap from "./components/BookingSeatMap/BookingSeatMap.tsx";
 import BookingSummary from "./components/BookingSummary/BookingSummary.tsx";
 
-// Booking-specific seat interface that extends the base Seat
-export interface BookingSeat extends Seat {
-  bookingStatus: "available" | "taken" | "selected";
-}
-
-// Legacy seat type for backward compatibility with existing booking system
-export interface LegacySeatType {
-  id: string;
+// Modern booking seat interface for the summary (adapted to match BookingSummary expectations)
+interface BookingSelectedSeat {
+  id: string; // BookingSummary expects string IDs
   row: string;
   number: number;
-  type: "standard" | "vip" | "double";
-  status: "available" | "taken" | "selected";
-}
-
-// ++ TẠO MỘT TYPE CHO SƠ ĐỒ GHẾ ĐỂ DỄ TÁI SỬ DỤNG
-interface SeatMapData {
-  rows: string[];
-  seats: LegacySeatType[];
+  name: string; // Display name for the seat
+  type: "standard" | "vip" | "double"; // BookingSummary expects legacy types
+  status: "selected";
 }
 
 const BookingPage: React.FC = () => {
@@ -33,96 +24,133 @@ const BookingPage: React.FC = () => {
   const initialBookingState = location.state || JSON.parse(localStorage.getItem("bookingState") || "{}");
   const { movie, selection, cinemaName } = initialBookingState;
 
-  // Initialize selectedSeats from initialBookingState or empty array (legacy system)
-  const [selectedSeats, setSelectedSeats] = useState<LegacySeatType[]>(() => {
-    // Prioritize selectedSeats from initialBookingState
-    return initialBookingState.selectedSeats || [];
+  // State for selected seats (using modern seat IDs)
+  const [selectedSeatIds, setSelectedSeatIds] = useState<number[]>(() => {
+    // Convert legacy selectedSeats to modern IDs if they exist
+    if (initialBookingState.selectedSeats && Array.isArray(initialBookingState.selectedSeats)) {
+      // For backward compatibility, try to extract numeric IDs from legacy seat names
+      return initialBookingState.selectedSeats
+        .map((seat: unknown) => {
+          const seatObj = seat as Record<string, unknown>;
+          if (typeof seatObj.id === "number") return seatObj.id;
+          if (typeof seatObj.id === "string") return parseInt(seatObj.id);
+          return null;
+        })
+        .filter((id: number | null) => id !== null);
+    }
+    return [];
   });
 
-  // Save booking state to localStorage whenever selectedSeats changes
-  const updateBookingState = useCallback(
-    (newSelectedSeats: LegacySeatType[]) => {
-      const updatedBookingState = {
-        ...initialBookingState,
-        selectedSeats: newSelectedSeats,
-        totalCost: newSelectedSeats.reduce((total, seat) => {
-          if (seat.type === "vip") return total + 90000;
-          if (seat.type === "double") return total + 150000;
-          return total + 75000;
-        }, 0),
-      };
-      localStorage.setItem("bookingState", JSON.stringify(updatedBookingState));
-    },
-    [initialBookingState],
-  );
+  // Fetch seat data for the showtime
+  const showtimeId = selection?.showtimeId ? parseInt(selection.showtimeId) : 0;
+  const roomId = selection?.roomId ? parseInt(selection.roomId) : 0;
+  const { data: seatsData, isLoading: seatsLoading } = useSeatsByShowtimeId(showtimeId);
 
-  // Legacy seat creation functions for backward compatibility
-  const createSeatsForRow = (row: string, count: number, type: LegacySeatType["type"], taken: number[] = []): LegacySeatType[] => {
-    const seats: LegacySeatType[] = [];
-    for (let i = 1; i <= count; i++) {
-      seats.push({
-        id: `${row}${i}`,
-        row: row,
-        number: i,
-        type: type,
-        status: taken.includes(i) ? "taken" : "available",
+  // Transform API seat data to SeatMap format
+  const seatMap = useMemo(() => {
+    if (!seatsData?.result) return null;
+
+    const seats = Array.isArray(seatsData.result) ? seatsData.result : [seatsData.result];
+    return transformSeatsToSeatMap(seats, roomId);
+  }, [seatsData, roomId]);
+
+  // Calculate selected seats with pricing for the summary component
+  const selectedSeats = useMemo((): BookingSelectedSeat[] => {
+    if (!seatMap) return [];
+
+    return seatMap.gridData
+      .filter((seat) => selectedSeatIds.includes(seat.id))
+      .map((seat) => {
+        // Determine legacy seat type
+        let legacyType: "standard" | "vip" | "double";
+        if (seat.type.name === "COUPLE") {
+          legacyType = "double";
+        } else if (seat.type.name === "VIP") {
+          legacyType = "vip";
+        } else {
+          legacyType = "standard";
+        }
+
+        return {
+          id: seat.id.toString(), // Convert to string for BookingSummary compatibility
+          row: seat.row,
+          number: parseInt(seat.name.match(/\d+/)?.[0] || "0"),
+          name: seat.name, // Display name for the seat
+          type: legacyType,
+          status: "selected" as const,
+        };
       });
-    }
-    return seats;
-  };
+  }, [seatMap, selectedSeatIds]);
 
-  const mockSeatMap: { [key: string]: SeatMapData } = {
-    P1: {
-      rows: ["J", "I", "H", "G", "F", "E", "D", "C", "B", "A"],
-      seats: [
-        ...createSeatsForRow("J", 18, "vip", [3, 9, 13]),
-        ...createSeatsForRow("I", 18, "vip", [5, 15]),
-        ...createSeatsForRow("H", 18, "vip", [1, 2, 17, 18]),
-        ...createSeatsForRow("G", 18, "standard", [8, 10]),
-        ...createSeatsForRow("F", 18, "standard", [4]),
-        ...createSeatsForRow("E", 18, "standard", [11, 12]),
-        ...createSeatsForRow("D", 18, "standard", [7]),
-        ...createSeatsForRow("C", 18, "standard", [6, 14]),
-        ...createSeatsForRow("B", 16, "standard", [3, 12]),
-        ...createSeatsForRow("A", 6, "double", [3]),
-      ],
-    },
-  };
+  // Calculate total cost based on selected seats (using actual API pricing)
+  const totalCost = useMemo(() => {
+    if (!seatMap) return 0;
 
-  // Function to get seat CSS classes
-  const getSeatClassName = (seat: LegacySeatType, isSelected: boolean) => {
-    if (seat.status === "taken") {
-      return "bg-gray-400 text-white cursor-not-allowed";
-    }
-    if (isSelected) {
-      return "bg-green-500 text-white border-green-600";
-    }
-    if (seat.type === "vip") {
-      return "bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200";
-    }
-    if (seat.type === "double") {
-      return "bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200";
-    }
-    return "bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200";
-  };
+    const cost = seatMap.gridData
+      .filter((seat) => selectedSeatIds.includes(seat.id))
+      .reduce((total, seat) => {
+        // Debug logging
+        console.log("Seat data:", seat);
+        console.log("Seat type price:", seat.type?.price);
 
-  // Ensure localStorage is updated when component mounts or data changes
+        const price = seat.type?.price || 0;
+        if (isNaN(price)) {
+          console.warn("Invalid price for seat:", seat);
+          return total;
+        }
+        return total + price;
+      }, 0);
+
+    console.log("Total cost calculated:", cost);
+    return cost;
+  }, [seatMap, selectedSeatIds]);
+
+  // Handle seat selection
+  const handleSeatSelect = useCallback((seatId: number) => {
+    setSelectedSeatIds((prev) => {
+      const isSelected = prev.includes(seatId);
+      if (isSelected) {
+        return prev.filter((id) => id !== seatId);
+      } else {
+        return [...prev, seatId];
+      }
+    });
+  }, []);
+
+  // Save booking state to localStorage whenever selectedSeats changes
+  const updateBookingState = useCallback(() => {
+    const updatedBookingState = {
+      ...initialBookingState,
+      selectedSeats: selectedSeats,
+      selectedSeatIds: selectedSeatIds,
+      totalCost: totalCost,
+    };
+    localStorage.setItem("bookingState", JSON.stringify(updatedBookingState));
+  }, [initialBookingState, selectedSeats, selectedSeatIds, totalCost]);
+
+  // Update localStorage when selected seats change
   useEffect(() => {
-    if (movie && selection && cinemaName) {
-      const currentBookingState = {
-        movie,
-        selection,
-        cinemaName,
-        selectedSeats,
-        totalCost: selectedSeats.reduce((total, seat) => {
-          if (seat.type === "vip") return total + 90000;
-          if (seat.type === "double") return total + 150000;
-          return total + 75000;
-        }, 0),
-      };
-      localStorage.setItem("bookingState", JSON.stringify(currentBookingState));
-    }
-  }, [movie, selection, cinemaName, selectedSeats]);
+    updateBookingState();
+  }, [updateBookingState]);
+
+  // Handle continue to checkout
+  const handleContinue = useCallback(() => {
+    // Get the latest booking state from localStorage
+    const latestBookingState = JSON.parse(localStorage.getItem("bookingState") || "{}");
+
+    // Ensure we have the latest selectedSeats and totalCost
+    const finalBookingState = {
+      ...latestBookingState,
+      selectedSeats: selectedSeats,
+      selectedSeatIds: selectedSeatIds,
+      totalCost,
+    };
+
+    // Update localStorage with final state
+    localStorage.setItem("bookingState", JSON.stringify(finalBookingState));
+
+    navigate("/checkout", { state: finalBookingState });
+  }, [navigate, selectedSeats, selectedSeatIds, totalCost]);
 
   if (!movie) {
     return (
@@ -136,53 +164,30 @@ const BookingPage: React.FC = () => {
       </UserLayout>
     );
   }
-  const handleSeatSelect = (seat: LegacySeatType) => {
-    setSelectedSeats((prev) => {
-      const isSelected = prev.some((s) => s.id === seat.id);
-      let newSelectedSeats: LegacySeatType[];
 
-      if (isSelected) {
-        newSelectedSeats = prev.filter((s) => s.id !== seat.id);
-      } else {
-        newSelectedSeats = [...prev, seat];
-      }
+  if (!selection?.showtimeId) {
+    return (
+      <UserLayout>
+        <div className="py-20 text-center">
+          <p>Lỗi: Không có thông tin suất chiếu.</p>
+          <Link to="/" className="text-blue-500 hover:underline">
+            Quay về trang chủ
+          </Link>
+        </div>
+      </UserLayout>
+    );
+  }
 
-      // Update localStorage whenever selectedSeats changes
-      updateBookingState(newSelectedSeats);
+  if (seatsLoading) {
+    return (
+      <UserLayout>
+        <div className="py-20 text-center">
+          <p>Đang tải dữ liệu ghế...</p>
+        </div>
+      </UserLayout>
+    );
+  }
 
-      return newSelectedSeats;
-    });
-  };
-
-  const totalCost = selectedSeats.reduce((total, seat) => {
-    if (seat.type === "vip") return total + 90000;
-    if (seat.type === "double") return total + 150000;
-    return total + 75000;
-  }, 0);
-
-  const handleContinue = () => {
-    // Calculate total cost
-    const totalCost = selectedSeats.reduce((total, seat) => {
-      if (seat.type === "vip") return total + 90000;
-      if (seat.type === "double") return total + 150000;
-      return total + 75000;
-    }, 0);
-
-    // Get the latest booking state from localStorage
-    const latestBookingState = JSON.parse(localStorage.getItem("bookingState") || "{}");
-
-    // Ensure we have the latest selectedSeats and totalCost
-    const finalBookingState = {
-      ...latestBookingState,
-      selectedSeats: selectedSeats,
-      totalCost,
-    };
-
-    // Update localStorage with final state
-    localStorage.setItem("bookingState", JSON.stringify(finalBookingState));
-
-    navigate("/checkout", { state: finalBookingState });
-  };
   return (
     <UserLayout>
       <div className="mx-auto max-w-screen-2xl p-4 md:p-8">
@@ -190,67 +195,17 @@ const BookingPage: React.FC = () => {
         <BookingBreadcrumb movieTitle={movie?.title} className="mb-6" />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Cột trái: Sơ đồ ghế */}
-          <div className="rounded-lg bg-white p-6 shadow-md lg:col-span-2">
-            <h2 className="mb-4 text-xl font-bold">Chọn ghế</h2>
-            <div className="mb-4">
-              <div className="flex items-center justify-center gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 rounded border border-blue-300 bg-blue-100"></div>
-                  <span>Ghế thường</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 rounded border border-yellow-300 bg-yellow-100"></div>
-                  <span>Ghế VIP</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 rounded border border-purple-300 bg-purple-100"></div>
-                  <span>Ghế đôi</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 rounded bg-gray-400"></div>
-                  <span>Đã đặt</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 rounded bg-green-500"></div>
-                  <span>Đã chọn</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Screen */}
-            <div className="mb-6">
-              <div className="rounded-t-2xl bg-gray-200 py-2 text-center font-medium text-gray-600">MÀN HÌNH</div>
-            </div>
-
-            {/* Seat Grid */}
-            <div className="space-y-2">
-              {mockSeatMap.P1.rows.map((row) => (
-                <div key={row} className="flex items-center justify-center gap-2">
-                  <span className="w-8 text-center font-bold text-gray-600">{row}</span>
-                  <div className="flex gap-1">
-                    {mockSeatMap.P1.seats
-                      .filter((seat) => seat.row === row)
-                      .map((seat) => {
-                        const isSelected = selectedSeats.some((s) => s.id === seat.id);
-                        return (
-                          <button
-                            key={seat.id}
-                            className={`h-8 w-8 rounded border-2 text-xs font-medium transition-colors ${getSeatClassName(seat, isSelected)}`}
-                            disabled={seat.status === "taken"}
-                            onClick={() => handleSeatSelect(seat)}
-                          >
-                            {seat.number}
-                          </button>
-                        );
-                      })}
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Left Column: Seat Map */}
+          <div className="lg:col-span-2">
+            <BookingSeatMap
+              seatMap={seatMap}
+              selectedSeats={selectedSeatIds}
+              onSeatSelect={handleSeatSelect}
+              bookedSeats={[]} // Currently using empty array - will be populated from real booking data
+            />
           </div>
 
-          {/* Cột phải: Thông tin */}
+          {/* Right Column: Booking Summary */}
           <div className="lg:col-span-1">
             <BookingSummary
               movie={movie}

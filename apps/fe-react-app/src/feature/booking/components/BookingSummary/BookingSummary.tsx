@@ -9,6 +9,7 @@ interface BookingSelectedSeat {
   id: string;
   row: string;
   number: number;
+  name: string; // Display name for the seat
   type: "standard" | "vip" | "double";
   status: "available" | "taken" | "selected";
 }
@@ -20,6 +21,7 @@ interface BookingSummaryProps {
   selectedSeats: BookingSelectedSeat[];
   totalCost: number; // This is just ticket cost
   comboCost?: number; // Add combo cost
+  snackCost?: number; // Add snack cost
   pointsDiscount?: number; // Add points discount
   voucherDiscount?: number; // Add voucher discount
   finalTotal?: number; // Add final total after all discounts
@@ -37,6 +39,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   selectedSeats,
   totalCost,
   comboCost = 0,
+  snackCost = 0,
   pointsDiscount = 0,
   voucherDiscount = 0,
   finalTotal,
@@ -48,12 +51,12 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   const navigate = useNavigate();
 
   // Calculate display values
-  const subtotal = totalCost + comboCost;
+  const subtotal = totalCost + comboCost + snackCost;
   const totalDiscounts = pointsDiscount + voucherDiscount;
   const displayTotal = finalTotal !== undefined ? finalTotal : subtotal - totalDiscounts;
 
   return (
-    <div className="sticky top-24 rounded-lg bg-white p-6 shadow-md">
+    <div className="sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto rounded-lg bg-white p-6 shadow-md">
       <div className="flex gap-4">
         <img src={movie.posterUrl} alt={movie.title} className="h-auto w-24 rounded-md" />
         <div>
@@ -76,7 +79,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         </div>
         <div className="flex items-start justify-between">
           <span className="text-gray-500">Ghế ngồi</span>
-          <span className="w-1/2 break-words text-right font-semibold">{selectedSeats.map((s) => s.id).join(", ")}</span>
+          <span className="w-1/2 break-words text-right font-semibold">{selectedSeats.map((s) => s.name).join(", ")}</span>
         </div>{" "}
       </div>
       <div className="mt-6 space-y-2 border-t pt-4">

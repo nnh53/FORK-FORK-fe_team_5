@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 interface PaymentSummaryProps {
   ticketCost: number;
   comboCost: number;
+  snackCost?: number;
   pointsDiscount?: number;
   voucherDiscount?: number;
   totalCost: number;
@@ -10,7 +11,14 @@ interface PaymentSummaryProps {
 
 const HOLD_TIME_SECONDS = 8 * 60; // 8 phút
 
-const PaymentSummary: React.FC<PaymentSummaryProps> = ({ ticketCost, comboCost, pointsDiscount = 0, voucherDiscount = 0, totalCost }) => {
+const PaymentSummary: React.FC<PaymentSummaryProps> = ({
+  ticketCost,
+  comboCost,
+  snackCost = 0,
+  pointsDiscount = 0,
+  voucherDiscount = 0,
+  totalCost,
+}) => {
   const [remainingTime, setRemainingTime] = useState(HOLD_TIME_SECONDS);
 
   useEffect(() => {
@@ -25,11 +33,11 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ ticketCost, comboCost, 
     return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
   };
 
-  const subtotal = ticketCost + comboCost;
+  const subtotal = ticketCost + comboCost + snackCost;
   const totalDiscount = pointsDiscount + voucherDiscount;
 
   return (
-    <div className="border-t pt-4 space-y-2">
+    <div className="space-y-2 border-t pt-4">
       <div className="flex justify-between text-sm">
         <span className="text-gray-600">Tổng tiền vé:</span>
         <span className="font-semibold">{ticketCost.toLocaleString("vi-VN")}đ</span>
@@ -38,10 +46,14 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ ticketCost, comboCost, 
         <span className="text-gray-600">Tổng tiền combo:</span>
         <span className="font-semibold">{comboCost.toLocaleString("vi-VN")}đ</span>
       </div>
+      <div className="flex justify-between text-sm">
+        <span className="text-gray-600">Tổng tiền snack:</span>
+        <span className="font-semibold">{snackCost.toLocaleString("vi-VN")}đ</span>
+      </div>
 
       {/* Subtotal */}
       {totalDiscount > 0 && (
-        <div className="flex justify-between text-sm border-t pt-2">
+        <div className="flex justify-between border-t pt-2 text-sm">
           <span className="text-gray-600">Tạm tính:</span>
           <span className="font-semibold">{subtotal.toLocaleString("vi-VN")}đ</span>
         </div>
@@ -62,12 +74,12 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({ ticketCost, comboCost, 
         </div>
       )}
 
-      <div className="flex justify-between text-xl font-bold border-t pt-2">
+      <div className="flex justify-between border-t pt-2 text-xl font-bold">
         <span>Tổng cộng:</span>
         <span className="text-red-600">{totalCost.toLocaleString("vi-VN")}đ</span>
       </div>
-      <div className="text-center text-sm text-gray-500 mt-4">
-        Thời gian còn lại: <span className="font-bold text-lg">{formatTime(remainingTime)}</span>
+      <div className="mt-4 text-center text-sm text-gray-500">
+        Thời gian còn lại: <span className="text-lg font-bold">{formatTime(remainingTime)}</span>
       </div>
     </div>
   );
