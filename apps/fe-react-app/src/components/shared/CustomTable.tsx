@@ -16,15 +16,15 @@ export const CustomTable = <T extends object>({ tableColumns, tableData, action 
   return (
     <>
       <div className="overflow-x-auto">
-        <Table className="table table-zebra table-fixed w-full">
+        <Table className="table-zebra table w-full table-fixed">
           {/* <!-- Table Head --> */}
           <TableHeader>
-            <TableRow className="text-lg text-neutral-600 uppercase">
+            <TableRow className="text-lg uppercase text-neutral-600">
               {tableColumns &&
                 tableColumns.map((column) => (
                   <TableHead
                     key={column.header}
-                    className={`h-auto whitespace-normal break-words border border-base-300 ${column.width ? column.width : ""}`}
+                    className={`border-base-300 h-auto whitespace-normal break-words border ${column.width ? column.width : ""}`}
                   >
                     {column.header}
                   </TableHead>
@@ -47,7 +47,7 @@ export const CustomTable = <T extends object>({ tableColumns, tableData, action 
                               }
                             : undefined
                         }
-                        className="font-medium text-base-content border border-base-300 whitespace-pre-wrap break-words"
+                        className="text-base-content border-base-300 whitespace-pre-wrap break-words border font-medium"
                       >
                         {(data as any)[column.accessorKey]}
                       </TableCell>

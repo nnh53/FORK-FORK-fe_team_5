@@ -12,8 +12,9 @@ import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { MovieDataTable } from "./MovieDataTable";
 import MovieDetail from "./MovieDetail";
-import MovieList from "./MovieList";
+import { MovieViewDialog } from "./MovieViewDialog";
 
 // SearchBar options
 const searchOptions = [
@@ -99,6 +100,8 @@ const MovieManagement = () => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
+  const [viewMovie, setViewMovie] = useState<Movie | undefined>();
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
   // Use React Query hooks
@@ -107,9 +110,21 @@ const MovieManagement = () => {
   const updateMovieMutation = useUpdateMovie();
 
   // Transform API response to Movie interface
-  const movies: Movie[] = moviesQuery.data?.result
-    ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
-    : [];
+  const movies: Movie[] = useMemo(() => {
+    return moviesQuery.data?.result ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse)) : [];
+  }, [moviesQuery.data?.result]);
+
+  // Helper function to match filter criteria
+  const matchesCriteria = (movie: Movie, criteria: FilterCriteria): boolean => {
+    switch (criteria.field) {
+      case "status":
+        return movie.status === criteria.value;
+      case "category":
+        return movie.categories?.some((cat) => cat.name === criteria.value) ?? false;
+      default:
+        return true;
+    }
+  };
 
   // Lọc phim theo searchTerm và filterCriteria
   const filteredMovies = useMemo(() => {
@@ -131,16 +146,7 @@ const MovieManagement = () => {
     // Filter
     if (filterCriteria.length > 0) {
       result = result.filter((movie) => {
-        return filterCriteria.every((criteria) => {
-          switch (criteria.field) {
-            case "status":
-              return movie.status === criteria.value;
-            case "category":
-              return movie.categories?.some((cat) => cat.name === criteria.value);
-            default:
-              return true;
-          }
-        });
+        return filterCriteria.every((criteria) => matchesCriteria(movie, criteria));
       });
     }
 
@@ -160,6 +166,19 @@ const MovieManagement = () => {
   const handleEdit = (movie: Movie) => {
     setSelectedMovie(movie);
     setIsModalOpen(true);
+  };
+
+  const handleView = (movie: Movie) => {
+    setViewMovie(movie);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleDelete = (movie: Movie) => {
+    // For now, just show a warning message
+    // In a real app, this would call a delete API
+    toast.warning(`Delete functionality for "${movie.name}" is not implemented yet`, {
+      description: "This feature requires backend API integration",
+    });
   };
 
   const handleCancel = () => {
@@ -287,7 +306,7 @@ const MovieManagement = () => {
         <Card className="w-full">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-4">
-              <CardTitle>Movie Management</CardTitle>
+              <CardTitle className="text-2xl font-bold">Movie Management</CardTitle>
             </div>
             <Button onClick={handleCreate}>
               <Plus className="mr-2 h-4 w-4" />
@@ -318,7 +337,7 @@ const MovieManagement = () => {
                 // groupMode={true} // Nếu muốn nhóm filter
               />
             </div>
-            <MovieList onEdit={handleEdit} movies={filteredMovies} onMoviesChange={() => moviesQuery.refetch()} />
+            <MovieDataTable data={filteredMovies} onEdit={handleEdit} onView={handleView} onDelete={handleDelete} />
           </CardContent>
         </Card>
       </div>
@@ -338,6 +357,15 @@ const MovieManagement = () => {
             <MovieDetail movie={selectedMovie} onSubmit={handleSubmit} onCancel={handleCancel} />
           </DialogContent>
         </Dialog>
+
+        <MovieViewDialog
+          movie={viewMovie || null}
+          isOpen={isViewDialogOpen}
+          onClose={() => {
+            setIsViewDialogOpen(false);
+            setViewMovie(undefined);
+          }}
+        />
       </div>
     </>
   );

@@ -39,9 +39,9 @@ const BookingBreadcrumb: React.FC<BookingBreadcrumbProps> = ({ movieTitle, class
         {steps.map((step, index) => (
           <li key={step.path}>
             {step.isActive ? (
-              <span className="font-medium text-primary">
+              <span className="text-primary font-medium">
                 {step.label}
-                {movieTitle && step.label === "Chọn ghế" && <span className="ml-2 text-base-content/60">- {movieTitle}</span>}
+                {movieTitle && step.label === "Chọn ghế" && <span className="text-base-content/60 ml-2">- {movieTitle}</span>}
               </span>
             ) : (
               <Link to={step.path} className="hover:text-primary transition-colors">

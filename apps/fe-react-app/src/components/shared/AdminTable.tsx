@@ -45,14 +45,14 @@ export const AdminTable = <T extends object>({ tableColumn, tableData, handleVie
                       column.accessorKey === "status" ? (
                         <TableCell
                           key={`${column.accessorKey}_${(data as any).id ?? index}`}
-                          className={`font-medium text-base-content whitespace-pre-wrap break-words `}
+                          className={`text-base-content whitespace-pre-wrap break-words font-medium`}
                         >
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${colorPicker((data as any)[column.accessorKey])}`}>
+                          <span className={`rounded px-2 py-1 text-xs font-medium ${colorPicker((data as any)[column.accessorKey])}`}>
                             {(data as any)[column.accessorKey]}
                           </span>
                         </TableCell>
                       ) : (
-                        <TableCell key={`${column.accessorKey}_${(data as any).id ?? index}`} className=" whitespace-pre-wrap break-words">
+                        <TableCell key={`${column.accessorKey}_${(data as any).id ?? index}`} className="whitespace-pre-wrap break-words">
                           {(data as any)[column.accessorKey]}
                         </TableCell>
                       ),

@@ -71,7 +71,7 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
   return (
     <div className={`relative ${className}`}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
         <Input
           type="text"
           placeholder={placeholder}
@@ -85,7 +85,7 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
           }}
         />
         {searchTerm && (
-          <Button variant="ghost" size="sm" className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0" onClick={clearSearch}>
+          <Button variant="ghost" size="sm" className="absolute right-2 top-1/2 h-6 w-6 -translate-y-1/2 transform p-0" onClick={clearSearch}>
             <X className="h-4 w-4" />
           </Button>
         )}
@@ -93,7 +93,7 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
 
       {/* Search Results Dropdown */}
       {showResults && showDropdown && (
-        <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-96 overflow-y-auto shadow-lg">
+        <Card className="absolute left-0 right-0 top-full z-50 mt-1 max-h-96 overflow-y-auto shadow-lg">
           <CardContent className="p-0">
             {moviesQuery.isLoading && <div className="p-4 text-center text-gray-500">Đang tìm kiếm...</div>}
 
@@ -106,15 +106,15 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
                 {filteredMovies.map((movie) => (
                   <button
                     key={movie.id}
-                    className="w-full p-4 hover:bg-gray-50 cursor-pointer transition-colors text-left"
+                    className="w-full cursor-pointer p-4 text-left transition-colors hover:bg-gray-50"
                     onClick={() => handleMovieSelect(movie)}
                     type="button"
                   >
                     <div className="flex items-start gap-3">
-                      <img src={movie.poster ?? "/placeholder-movie.jpg"} alt={movie.name ?? "Movie"} className="w-12 h-16 object-cover rounded" />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm truncate">{movie.name ?? "Untitled"}</h4>
-                        <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
+                      <img src={movie.poster ?? "/placeholder-movie.jpg"} alt={movie.name ?? "Movie"} className="h-16 w-12 rounded object-cover" />
+                      <div className="min-w-0 flex-1">
+                        <h4 className="truncate text-sm font-medium">{movie.name ?? "Untitled"}</h4>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-gray-600">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             <span>{movie.fromDate ? new Date(movie.fromDate).getFullYear() : "N/A"}</span>
@@ -124,7 +124,7 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
                             <span>{formatDuration(movie.duration)}</span>
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-1 mt-2">
+                        <div className="mt-2 flex flex-wrap gap-1">
                           {movie.categories &&
                             movie.categories.length > 0 &&
                             movie.categories.map((category) => (
