@@ -1,265 +1,328 @@
 import { Button } from "@/components/Shadcn/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { DateTimePicker } from "@/components/Shadcn/ui/date-time-picker";
+import { Input } from "@/components/Shadcn/ui/input";
+import { Label } from "@/components/Shadcn/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import { Textarea } from "@/components/Shadcn/ui/textarea";
+import ImageUpload from "@/components/shared/ImageUpload";
 import type { Promotion } from "@/interfaces/promotion.interface";
-import {
-  promotionStatusOptions,
-  promotionTypeOptions,
-  transformPromotionToRequest,
-  useCreatePromotion,
-  useDeletePromotion,
-  useUpdatePromotion,
-} from "@/services/promotionService";
+import { promotionStatusOptions, promotionTypeOptions } from "@/services/promotionService";
 import { promotionValidationSchema } from "@/utils/validation.utils";
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Icon } from "@iconify/react";
+import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from "formik";
+import { ImageIcon } from "lucide-react";
 import React, { useRef, useState } from "react";
-import { toast } from "sonner";
-import { PromotionImageUpload } from "./PromotionImageUpload";
 
 interface PromotionFormProps {
   selectedPromotion?: Promotion;
-  onSuccess?: () => void; // Add callback for success handling
+  onSubmit: (values: Omit<Promotion, "id">, helpers: FormikHelpers<Omit<Promotion, "id">>) => void;
+  onCancel: () => void;
+}
+
+interface FormFieldProps {
+  name: string;
+  label: string;
+  icon: string;
+  as?: typeof Input | typeof Textarea;
+  errors?: Record<string, string>;
+  touched?: Record<string, boolean>;
+  [key: string]: unknown;
+}
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface SelectFieldProps {
+  name: string;
+  label: string;
+  icon: string;
+  options: Option[];
+  errors: Record<string, string>;
+  touched: Record<string, boolean>;
+  setFieldValue: (field: string, value: unknown) => void;
+  value: string;
 }
 
 const initialValues: Omit<Promotion, "id"> = {
   image: "",
   title: "",
-  type: "PERCENTAGE", // Set default value to PERCENTAGE
+  type: "",
   minPurchase: 0,
   discountValue: 0,
-  startTime: new Date().toISOString().slice(0, 16), // Format for datetime-local input
-  endTime: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16), // Default to 30 days
+  startTime: "",
+  endTime: "",
   description: "",
-  status: "INACTIVE",
+  status: "inactive",
 };
 
-export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion, onSuccess }) => {
+// Helper function to format date for form
+const formatDateForForm = (date: string): string => {
+  return new Date(date).toISOString().slice(0, 16);
+};
+
+// Component to render form field with error handling
+const FormField = ({ name, label, icon, as: Component = Input, errors, touched, ...props }: FormFieldProps) => (
+  <div className="space-y-2">
+    <Label htmlFor={name} className="flex items-center gap-1">
+      <Icon icon={icon} className="h-4 w-4" />
+      {label} <span className="text-destructive">*</span>
+    </Label>
+    <Field
+      as={Component}
+      id={name}
+      name={name}
+      className={`${errors?.[name] && touched?.[name] ? "border-destructive focus-visible:ring-destructive" : ""}`}
+      {...props}
+    />
+    <ErrorMessage name={name} component="div" className="text-destructive text-sm" />
+  </div>
+);
+
+// Component to render select field
+const SelectField = ({ name, label, icon, options, errors, touched, setFieldValue, value }: SelectFieldProps) => (
+  <div className="space-y-2">
+    <Label htmlFor={name} className="flex items-center gap-1">
+      <Icon icon={icon} className="h-4 w-4" />
+      {label} <span className="text-destructive">*</span>
+    </Label>
+    <Select value={value} onValueChange={(val) => setFieldValue(name, val)}>
+      <SelectTrigger className={`${errors[name] && touched[name] ? "border-destructive focus-visible:ring-destructive" : ""}`}>
+        <SelectValue placeholder={`Chọn ${label.toLowerCase()}`} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    <ErrorMessage name={name} component="div" className="text-destructive mt-1 text-sm" />
+  </div>
+);
+
+export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion, onSubmit, onCancel }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Use the hooks from promotionService
-  const createPromotion = useCreatePromotion();
-  const updatePromotion = useUpdatePromotion();
-  const deletePromotion = useDeletePromotion();
+  // For datetime fields
+  const [startDate, setStartDate] = useState<Date | undefined>(selectedPromotion?.startTime ? new Date(selectedPromotion.startTime) : undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(selectedPromotion?.endTime ? new Date(selectedPromotion.endTime) : undefined);
 
-  const toFormattedFormData = (pro: Promotion) => {
-    return {
-      ...pro,
-      startTime: new Date(pro.startTime).toISOString().slice(0, 16),
-      endTime: new Date(pro.endTime).toISOString().slice(0, 16),
-    };
-  };
-
-  const formInitialValues = selectedPromotion ? toFormattedFormData(selectedPromotion) : initialValues;
-
-  const handleSubmit = async (
-    values: Omit<Promotion, "id">,
-    { setSubmitting, resetForm }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void },
-  ) => {
-    try {
-      const promotionData = transformPromotionToRequest(values);
-
-      if (selectedPromotion) {
-        // Update existing promotion
-        await updatePromotion.mutateAsync({
-          params: { path: { id: selectedPromotion.id } },
-          body: promotionData,
-        });
-        toast.success("Khuyến mãi đã được cập nhật thành công");
-      } else {
-        // Create new promotion
-        await createPromotion.mutateAsync({
-          body: promotionData,
-        });
-        toast.success("Khuyến mãi đã được tạo thành công");
-        resetForm();
-      }
-
-      // Call onSuccess callback if provided
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (error) {
-      console.error("Failed to save promotion:", error);
-      toast.error("Lưu khuyến mãi thất bại");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!selectedPromotion) return;
-
-    try {
-      await deletePromotion.mutateAsync({
-        params: { path: { id: selectedPromotion.id } },
-      });
-      toast.success("Khuyến mãi đã được xóa thành công");
-
-      // Call onSuccess callback if provided
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (error) {
-      console.error("Failed to delete promotion:", error);
-      toast.error("Xóa khuyến mãi thất bại");
-    }
-  };
+  const formInitialValues = selectedPromotion
+    ? { ...selectedPromotion, startTime: formatDateForForm(selectedPromotion.startTime), endTime: formatDateForForm(selectedPromotion.endTime) }
+    : initialValues;
 
   return (
-    <Formik initialValues={formInitialValues} validationSchema={promotionValidationSchema} onSubmit={handleSubmit}>
-      {({ setFieldValue, isSubmitting, values }) => (
-        <Form className="space-y-6">
-          <PromotionImageUpload
-            imagePreview={imagePreview}
-            setImagePreview={setImagePreview}
-            fileInputRef={fileInputRef}
-            setFieldValue={setFieldValue}
-            formInitialValues={formInitialValues}
-          />
+    <Formik
+      initialValues={formInitialValues}
+      validationSchema={promotionValidationSchema}
+      onSubmit={(values, helpers) => {
+        // Update the date values from our datetime pickers
+        const finalValues = {
+          ...values,
+          startTime: startDate ? startDate.toISOString() : "",
+          endTime: endDate ? endDate.toISOString() : "",
+        };
+        onSubmit(finalValues, helpers);
+      }}
+    >
+      {({ setFieldValue, isSubmitting, values, errors, touched }) => {
+        // Determine button text
+        let buttonText = "Tạo mới";
+        if (isSubmitting) {
+          buttonText = "Đang lưu...";
+        } else if (selectedPromotion) {
+          buttonText = "Cập nhật";
+        }
 
-          {/* Title */}
-          <div>
-            <label htmlFor="title" className="mb-2 block text-sm font-medium text-gray-700">
-              Tiêu đề
-            </label>
-            <Field
-              type="text"
-              id="title"
-              name="title"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2"
-              placeholder="Nhập tiêu đề khuyến mãi"
-            />
-            <ErrorMessage name="title" component="div" className="mt-1 text-sm text-red-500" />
-          </div>
+        return (
+          <Form className="space-y-6">
+            <div className="grid grid-cols-5 gap-8">
+              {/* Left column - Image (2/5 width) */}
+              <div className="col-span-5 md:col-span-2">
+                <Card className="hover:border-primary border-border h-full border-2 border-dashed transition-colors">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <ImageIcon className="h-5 w-5" />
+                      Hình ảnh
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex h-full flex-col space-y-4">
+                    <ImageUpload
+                      currentImage={imagePreview ?? formInitialValues.image ?? ""}
+                      onImageChange={(imageUrl) => {
+                        setImagePreview(imageUrl);
+                        setFieldValue("image", imageUrl);
+                      }}
+                      onImageClear={() => {
+                        setImagePreview(null);
+                        setFieldValue("image", "");
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = "";
+                        }
+                      }}
+                      label=""
+                      aspectRatio="16:9"
+                      error={errors.image && touched.image ? String(errors.image) : undefined}
+                      previewSize="auto"
+                      preserveAspectRatio={true}
+                      layout="vertical"
+                    />
+                    {errors.image && touched.image && <div className="text-destructive mt-1 text-sm">{String(errors.image)}</div>}
+                  </CardContent>
+                </Card>
+              </div>
 
-          {/* Type */}
-          <div>
-            <label htmlFor="type" className="mb-2 block text-sm font-medium text-gray-700">
-              Loại khuyến mãi
-            </label>
-            <Field as="select" id="type" name="type" className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2">
-              <option value="">Chọn loại khuyến mãi</option>
-              {promotionTypeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Field>
-            <ErrorMessage name="type" component="div" className="mt-1 text-sm text-red-500" />
-          </div>
+              {/* Right column - Form fields (3/5 width) */}
+              <div className="col-span-5 md:col-span-3">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Thông tin khuyến mãi</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Basic Info Section */}
+                    <div className="space-y-4">
+                      <FormField
+                        name="title"
+                        label="Tiêu đề"
+                        icon="tabler:tag"
+                        placeholder="Nhập tiêu đề khuyến mãi"
+                        errors={errors}
+                        touched={touched}
+                      />
 
-          {/* Min Purchase and Discount Value in a grid */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label htmlFor="minPurchase" className="mb-2 block text-sm font-medium text-gray-700">
-                Đơn tối thiểu (VND)
-              </label>
-              <Field
-                type="number"
-                id="minPurchase"
-                name="minPurchase"
-                min="0"
-                step="1000"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2"
-              />
-              <ErrorMessage name="minPurchase" component="div" className="mt-1 text-sm text-red-500" />
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <SelectField
+                          name="type"
+                          label="Loại khuyến mãi"
+                          icon="tabler:discount-2"
+                          options={promotionTypeOptions}
+                          errors={errors}
+                          touched={touched}
+                          setFieldValue={setFieldValue}
+                          value={values.type}
+                        />
+
+                        <SelectField
+                          name="status"
+                          label="Trạng thái"
+                          icon="tabler:activity"
+                          options={promotionStatusOptions}
+                          errors={errors}
+                          touched={touched}
+                          setFieldValue={setFieldValue}
+                          value={values.status}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Discount Section */}
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div className="relative">
+                        <FormField
+                          name="minPurchase"
+                          label="Đơn tối thiểu"
+                          icon="tabler:shopping-cart"
+                          type="number"
+                          min="0"
+                          step="1000"
+                          errors={errors}
+                          touched={touched}
+                        />
+                        <div className="text-muted-foreground absolute right-7 top-7">VNĐ</div>
+                      </div>
+
+                      <div className="relative">
+                        <FormField
+                          name="discountValue"
+                          label="Giá trị giảm giá"
+                          icon="tabler:discount-check"
+                          type="number"
+                          min="0"
+                          step={values.type === "PERCENTAGE" ? "1" : "1000"}
+                          max={values.type === "PERCENTAGE" ? "100" : undefined}
+                          errors={errors}
+                          touched={touched}
+                        />
+                        <div className="text-muted-foreground absolute right-7 top-7">{values.type === "PERCENTAGE" ? "%" : "VNĐ"}</div>
+                      </div>
+                    </div>
+
+                    {/* Date Time Section */}
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div>
+                        <div className="mb-2 flex items-center gap-1">
+                          <Icon icon="tabler:calendar-plus" className="h-4 w-4" />
+                          <Label>
+                            Thời gian bắt đầu <span className="text-destructive">*</span>
+                          </Label>
+                        </div>
+                        <DateTimePicker
+                          date={startDate}
+                          setDate={(date) => {
+                            setStartDate(date);
+                            if (date) {
+                              setFieldValue("startTime", date.toISOString());
+                            }
+                          }}
+                          error={!!errors.startTime && touched.startTime}
+                        />
+                        {errors.startTime && touched.startTime && <div className="text-destructive mt-1 text-sm">{String(errors.startTime)}</div>}
+                      </div>
+
+                      <div>
+                        <div className="mb-2 flex items-center gap-1">
+                          <Icon icon="tabler:calendar-minus" className="h-4 w-4" />
+                          <Label>
+                            Thời gian kết thúc <span className="text-destructive">*</span>
+                          </Label>
+                        </div>
+                        <DateTimePicker
+                          date={endDate}
+                          setDate={(date) => {
+                            setEndDate(date);
+                            if (date) {
+                              setFieldValue("endTime", date.toISOString());
+                            }
+                          }}
+                          error={!!errors.endTime && touched.endTime}
+                        />
+                        {errors.endTime && touched.endTime && <div className="text-destructive mt-1 text-sm">{String(errors.endTime)}</div>}
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <FormField
+                      name="description"
+                      label="Mô tả"
+                      icon="tabler:file-description"
+                      as={Textarea}
+                      rows={3}
+                      placeholder="Nhập mô tả chi tiết về khuyến mãi"
+                      errors={errors}
+                      touched={touched}
+                    />
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-end gap-2 pt-4">
+                      <Button type="button" onClick={onCancel} variant="outline">
+                        Hủy
+                      </Button>
+                      <Button type="submit" disabled={isSubmitting}>
+                        {buttonText}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-            <div>
-              <label htmlFor="discountValue" className="mb-2 block text-sm font-medium text-gray-700">
-                Giá trị giảm giá {values.type === "PERCENTAGE" ? "(%)" : "(VND)"}
-              </label>
-              <Field
-                type="number"
-                id="discountValue"
-                name="discountValue"
-                min="0"
-                step={values.type === "PERCENTAGE" ? "1" : "1000"}
-                max={values.type === "PERCENTAGE" ? "100" : undefined}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2"
-              />
-              <ErrorMessage name="discountValue" component="div" className="mt-1 text-sm text-red-500" />
-            </div>
-          </div>
-
-          {/* Start Time and End Time in a grid */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label htmlFor="startTime" className="mb-2 block text-sm font-medium text-gray-700">
-                Thời gian bắt đầu
-              </label>
-              <Field
-                type="datetime-local"
-                id="startTime"
-                name="startTime"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2"
-              />
-              <ErrorMessage name="startTime" component="div" className="mt-1 text-sm text-red-500" />
-            </div>
-            <div>
-              <label htmlFor="endTime" className="mb-2 block text-sm font-medium text-gray-700">
-                Thời gian kết thúc
-              </label>
-              <Field
-                type="datetime-local"
-                id="endTime"
-                name="endTime"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2"
-              />
-              <ErrorMessage name="endTime" component="div" className="mt-1 text-sm text-red-500" />
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-700">
-              Mô tả
-            </label>
-            <Field
-              as="textarea"
-              id="description"
-              name="description"
-              rows={4}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2"
-              placeholder="Nhập mô tả khuyến mãi"
-            />
-            <ErrorMessage name="description" component="div" className="mt-1 text-sm text-red-500" />
-          </div>
-
-          {/* Status */}
-          <div>
-            <label htmlFor="status" className="mb-2 block text-sm font-medium text-gray-700">
-              Trạng thái
-            </label>
-            <Field
-              as="select"
-              id="status"
-              name="status"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2"
-            >
-              {promotionStatusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Field>
-            <ErrorMessage name="status" component="div" className="mt-1 text-sm text-red-500" />
-          </div>
-
-          {/* Submit and Delete Buttons */}
-          <div className="mt-6 flex justify-end gap-4">
-            {selectedPromotion && (
-              <Button type="button" onClick={handleDelete} disabled={isSubmitting || deletePromotion.isPending} variant="destructive">
-                {deletePromotion.isPending ? "Đang xóa..." : "Xóa khuyến mãi"}
-              </Button>
-            )}
-            <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
-              {(() => {
-                if (isSubmitting) return "Đang lưu...";
-                return selectedPromotion ? "Cập nhật khuyến mãi" : "Tạo khuyến mãi";
-              })()}
-            </Button>
-          </div>
-        </Form>
-      )}
+          </Form>
+        );
+      }}
     </Formik>
   );
 };
