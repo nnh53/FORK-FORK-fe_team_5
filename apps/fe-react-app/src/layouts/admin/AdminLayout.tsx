@@ -19,6 +19,7 @@ import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import type { ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 import dataMock from "./data.admin-layout.json";
+import { sidebarData } from "./sidebar-data";
 
 type AdminLayoutProps = {
   children?: ReactNode;
@@ -34,13 +35,13 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
     //   } as React.CSSProperties
     // }
     >
-      <AppSidebar />
+      <AppSidebar data={sidebarData} />
       <SidebarInset>
         <SiteHeader />
 
         <Routes>
           <Route
-            path="/admin/dashboard"
+            path="dashboard"
             element={
               <div className="flex flex-1 flex-col">
                 <div className="@container/main flex flex-1 flex-col gap-2">
@@ -82,7 +83,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
           <Route path="showtime" element={<ShowtimeManagement />} />
           <Route path="staffs" element={<StaffManagement />} />
           <Route path="combo" element={<ComboManagement />} />
-          <Route path="/snacks" element={<SnackManagement />} />
+          <Route path="snacks" element={<SnackManagement />} />
           <Route
             path="settings"
             element={
