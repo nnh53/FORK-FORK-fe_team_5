@@ -8,8 +8,8 @@ import type { VoucherValidationResult } from "@/interfaces/voucher.interface";
 import { Check, Coins, Gift, Loader2, Ticket, X } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { memberService } from "../services/memberService";
-import { voucherService } from "../services/voucherService";
+import { memberService } from "../../services/memberService";
+import { voucherService } from "../../services/voucherService";
 
 interface DiscountSectionProps {
   orderAmount: number;

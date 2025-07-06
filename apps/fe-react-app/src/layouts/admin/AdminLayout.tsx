@@ -27,14 +27,7 @@ type AdminLayoutProps = {
 
 export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
   return (
-    <SidebarProvider
-    // style={
-    //   {
-    //     "--sidebar-width": "calc(var(--spacing) * 72)",
-    //     "--header-height": "calc(var(--spacing) * 12)",
-    //   } as React.CSSProperties
-    // }
-    >
+    <SidebarProvider>
       <AppSidebar data={sidebarData} />
       <SidebarInset>
         <SiteHeader />
@@ -70,45 +63,12 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
           <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />
           <Route path="cinema-room/add" element={<CinemaRoomAdd />} />
           <Route path="cinema-room/edit/:id" element={<CinemaRoomEdit />} />
-          <Route
-            path="ticket"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl font-bold">Ticket Management</h1>
-              </div>
-            }
-          />
           <Route path="promotion" element={<PromotionManagement />} />
           <Route path="members" element={<MemberManagement />} />
           <Route path="showtime" element={<ShowtimeManagement />} />
           <Route path="staffs" element={<StaffManagement />} />
           <Route path="combo" element={<ComboManagement />} />
           <Route path="snacks" element={<SnackManagement />} />
-          <Route
-            path="settings"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl font-bold">Settings</h1>
-              </div>
-            }
-          />
-          <Route
-            path="help"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl font-bold">Help Center</h1>
-              </div>
-            }
-          />
-          <Route
-            path="search"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl font-bold">Search</h1>
-              </div>
-            }
-          />
-          {/* If children are provided, render them */}
           {children && <Route path="*" element={children} />}
         </Routes>
       </SidebarInset>

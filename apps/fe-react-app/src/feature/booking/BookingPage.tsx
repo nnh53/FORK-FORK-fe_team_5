@@ -1,4 +1,4 @@
-import BookingBreadcrumb from "@/components/BookingBreadcrumb.tsx";
+import BookingBreadcrumb from "@/components/shared/BookingBreadcrumb.tsx";
 import UserLayout from "@/layouts/user/UserLayout.tsx";
 import { transformSeatsToSeatMap, useSeatsByShowtimeId } from "@/services/bookingService.ts";
 import React, { useCallback, useEffect, useMemo, useState } from "react";

@@ -1,5 +1,5 @@
-import BookingBreadcrumb from "@/components/BookingBreadcrumb.tsx";
-import DiscountSection from "@/components/DiscountSection.tsx";
+import BookingBreadcrumb from "@/components/shared/BookingBreadcrumb.tsx";
+import DiscountSection from "@/components/shared/DiscountSection.tsx";
 import { useAuth } from "@/hooks/useAuth";
 import type { Booking, PaymentMethod } from "@/interfaces/booking.interface.ts";
 import type { Member } from "@/interfaces/member.interface.ts";

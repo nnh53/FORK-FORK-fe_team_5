@@ -1,5 +1,5 @@
-import { AdminTable } from "@/components/AdminTable";
-import type { TableColumns } from "@/components/CustomTable";
+import { AdminTable } from "@/components/shared/AdminTable";
+import type { TableColumns } from "@/components/shared/CustomTable";
 import type { Promotion } from "@/interfaces/promotion.interface";
 import { formatPromotionDate } from "@/services/promotionService";
 import { forwardRef, useImperativeHandle } from "react";

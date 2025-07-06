@@ -4,7 +4,7 @@ import { Separator } from "@/components/Shadcn/ui/separator";
 import type { Movie } from "@/interfaces/movies.interface";
 import { Film } from "lucide-react";
 import React from "react";
-import MovieSearch from "../../../../components/MovieSearch";
+import MovieSearch from "../../../../components/shared/MovieSearch";
 
 interface MovieSelectionProps {
   movies: Movie[];

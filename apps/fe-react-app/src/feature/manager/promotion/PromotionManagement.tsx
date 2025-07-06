@@ -1,6 +1,6 @@
-import { type TableColumns } from "@/components/CustomTable";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { type TableColumns } from "@/components/shared/CustomTable";
 import { Filter, type FilterCriteria, type FilterOption } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";

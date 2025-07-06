@@ -1,7 +1,7 @@
 import type { MovieCardProps } from "@/components/movie/MovieCard.tsx";
 import MovieList from "@/components/movie/MovieList";
-import MovieSearch from "@/components/MovieSearch.tsx";
 import SplitText from "@/components/Reactbits/reactbit-text-animations/SplitText/SplitText.tsx";
+import MovieSearch from "@/components/shared/MovieSearch.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import type { Movie } from "@/interfaces/movies.interface.ts";
 import { transformMovieResponse, useMovies } from "@/services/movieService.ts";
