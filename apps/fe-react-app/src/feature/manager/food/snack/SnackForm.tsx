@@ -4,12 +4,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
+import ImageUpload from "@/components/shared/ImageUpload";
 import type { Snack } from "@/interfaces/snacks.interface";
 import { snackCategoryOptions, snackSizeOptions, snackStatusOptions } from "@/services/snackService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
-import { ImageIcon, Upload, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { ImageIcon } from "lucide-react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -32,8 +33,6 @@ const formSchema = z.object({
 });
 
 const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
-  const [dragActive, setDragActive] = useState(false);
-
   // Update defaultValues and reset logic
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -83,42 +82,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
     onSubmit(values);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const fileUrl = URL.createObjectURL(file);
-      form.setValue("img", fileUrl);
-    }
-  };
-
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      const fileUrl = URL.createObjectURL(file);
-      form.setValue("img", fileUrl);
-    }
-  };
-
-  const clearImage = () => {
-    form.setValue("img", "");
-  };
-
-  const currentImage = form.watch("img");
-
   return (
     <div className="w-full">
       <Form {...form}>
@@ -135,75 +98,22 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex h-full flex-col space-y-4">
-                  <div
-                    className={`relative flex-1 overflow-hidden rounded-lg border-2 border-dashed transition-all duration-200 ${
-                      dragActive ? "border-primary bg-primary/5" : "hover:border-primary border-gray-300"
-                    }`}
-                    style={{ minHeight: "200px" }}
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                  >
-                    {currentImage ? (
-                      <div className="group relative h-full w-full">
-                        <img
-                          src={currentImage}
-                          alt="Snack preview"
-                          className="h-full w-full object-cover"
-                          onError={() => {
-                            form.setError("img", { message: "Invalid image URL" });
-                          }}
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                          <div className="space-y-2 text-center text-white">
-                            <Upload className="mx-auto h-5 w-5" />
-                            <p className="text-xs font-medium">Kéo thả để thay đổi</p>
-                            <p className="text-xs">hoặc click chọn file</p>
-                          </div>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute right-2 top-2 h-6 w-6 p-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                          onClick={clearImage}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                        <input
-                          type="file"
-                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center p-4">
-                        <div className="text-center">
-                          <Upload className="mx-auto mb-3 h-8 w-8 text-gray-400" />
-                          <div className="space-y-1">
-                            <label htmlFor="file-upload" className="cursor-pointer">
-                              <span className="block text-sm font-medium text-gray-900">
-                                Kéo thả ảnh vào đây hoặc <span className="text-primary underline">click để chọn file</span>
-                              </span>
-                            </label>
-                            <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleFileChange} />
-                          </div>
-                          <p className="mt-2 text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                   <FormField
                     control={form.control}
                     name="img"
-                    render={({ field }) => (
-                      <FormItem className="mt-auto">
-                        <FormLabel className="text-sm">Hoặc nhập URL hình ảnh</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://example.com/image.jpg" {...field} className="h-10" />
-                        </FormControl>
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <ImageUpload
+                          currentImage={field.value}
+                          onImageChange={(url) => form.setValue("img", url)}
+                          onImageClear={() => form.setValue("img", "")}
+                          label=""
+                          aspectRatio="16:9"
+                          error={fieldState.error?.message}
+                          previewSize="auto"
+                          preserveAspectRatio={true}
+                          layout="vertical"
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
