@@ -7,6 +7,7 @@ import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import { ROLES } from "@/interfaces/roles.interface";
 import type { User, USER_GENDER, UserRequest, UserUpdate } from "@/interfaces/users.interface";
 import {
+  formatUserDate,
   transformRegisterRequest,
   transformUserResponse,
   transformUserUpdateRequest,
@@ -21,16 +22,45 @@ import { toast } from "sonner";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 
-// Sửa lại hàm filterByGlobalSearch để xử lý undefined/null
+// Thêm hàm để định dạng thời gian
+const formatDateTime = (dateString?: string) => {
+  if (!dateString) return "Chưa cập nhật";
+  try {
+    return formatUserDate(dateString);
+  } catch {
+    return "Không hợp lệ";
+  }
+};
+
+// Hàm hiển thị giới tính
+const formatGender = (gender?: string) => {
+  if (!gender) return "Chưa cập nhật";
+  switch (gender) {
+    case "MALE":
+      return "Nam";
+    case "FEMALE":
+      return "Nữ";
+    case "OTHER":
+      return "Khác";
+    default:
+      return "Chưa cập nhật";
+  }
+};
+
+// Sửa lại hàm filterByGlobalSearch để xử lý undefined/null và bổ sung tìm theo giới tính, ngày sinh
 const filterByGlobalSearch = (member: User, searchValue: string): boolean => {
   if (!searchValue) return true;
   if (!member) return false;
 
   const lowerSearchValue = searchValue.toLowerCase();
   return (
-    (member.id?.toString() || "").includes(searchValue.trim()) ||
-    (member.fullName?.toLowerCase() || "").includes(lowerSearchValue.trim()) ||
-    (member.email?.toLowerCase() || "").includes(lowerSearchValue.trim())
+    (member.id?.toString() ?? "").includes(searchValue.trim()) ||
+    (member.fullName?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (member.email?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (member.phone?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (member.address?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (formatDateTime(member.dateOfBirth)?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (formatGender(member.gender)?.toLowerCase() ?? "").includes(lowerSearchValue.trim())
   );
 };
 
@@ -123,6 +153,8 @@ const MemberManagement = () => {
     { value: "id", label: "ID" },
     { value: "fullName", label: "Tên" },
     { value: "email", label: "Email" },
+    { value: "phone", label: "Số điện thoại" },
+    { value: "address", label: "Địa chỉ" },
   ];
 
   useEffect(() => {
@@ -280,7 +312,7 @@ const MemberManagement = () => {
               <SearchBar
                 searchOptions={searchOptions}
                 onSearchChange={setSearchTerm}
-                placeholder="Tìm kiếm theo ID, tên hoặc email..."
+                placeholder="Tìm kiếm theo ID, tên, email, số điện thoại hoặc địa chỉ..."
                 className="w-full sm:w-1/2"
                 resetPagination={() => tableRef.current?.resetPagination()}
               />

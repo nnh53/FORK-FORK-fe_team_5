@@ -14,9 +14,37 @@ import { SortButton } from "@/components/shared/SortButton";
 import { usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { MEMBERSHIP_LEVEL, User } from "@/interfaces/users.interface";
+import { formatUserDate } from "@/services/userService";
 import { getUserStatusDisplay } from "@/utils/color.utils";
 import { Edit, Trash } from "lucide-react";
 import { forwardRef, useImperativeHandle, useMemo } from "react";
+
+// Thêm hàm để định dạng thời gian
+const formatDateTime = (dateString?: string) => {
+  if (!dateString) return "Chưa cập nhật";
+
+  try {
+    return formatUserDate(dateString);
+  } catch {
+    return "Không hợp lệ";
+  }
+};
+
+// Hàm hiển thị giới tính
+const formatGender = (gender?: string) => {
+  if (!gender) return "Chưa cập nhật";
+
+  switch (gender) {
+    case "MALE":
+      return "Nam";
+    case "FEMALE":
+      return "Nữ";
+    case "OTHER":
+      return "Khác";
+    default:
+      return "Chưa cập nhật";
+  }
+};
 
 // Extended User interface to include membership data
 interface UserWithMembership extends User {
@@ -71,6 +99,18 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
               <TableHead>
                 <SortButton {...getSortProps("email")}>Email</SortButton>
               </TableHead>
+              <TableHead>
+                <SortButton {...getSortProps("phone")}>Số điện thoại</SortButton>
+              </TableHead>
+              <TableHead>
+                <SortButton {...getSortProps("address")}>Địa chỉ</SortButton>
+              </TableHead>
+              <TableHead>
+                <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
+              </TableHead>
+              <TableHead>
+                <SortButton {...getSortProps("gender")}>Giới tính</SortButton>
+              </TableHead>
               <TableHead className="w-28">
                 <SortButton {...getSortProps("status")}>Trạng thái</SortButton>
               </TableHead>
@@ -87,6 +127,10 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                     <TableCell className="text-center font-medium">{pagination.startIndex + index + 1}</TableCell>
                     <TableCell>{member.fullName}</TableCell>
                     <TableCell>{member.email}</TableCell>
+                    <TableCell>{member.phone ?? "Chưa cập nhật"}</TableCell>
+                    <TableCell>{member.address ?? "Chưa cập nhật"}</TableCell>
+                    <TableCell>{member.dateOfBirth ? formatDateTime(member.dateOfBirth) : "Chưa cập nhật"}</TableCell>
+                    <TableCell>{formatGender(member.gender)}</TableCell>
                     <TableCell>
                       <Badge className={statusDisplay.className}>{statusDisplay.label}</Badge>
                     </TableCell>
@@ -105,7 +149,7 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={9} className="h-24 text-center">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>

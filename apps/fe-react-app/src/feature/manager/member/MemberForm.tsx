@@ -2,6 +2,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { DialogFooter } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { ROLES } from "@/interfaces/roles.interface";
 import type { User, UserRequest } from "@/interfaces/users.interface";
 import { Eye, EyeOff } from "lucide-react";
@@ -20,18 +21,22 @@ interface MemberFormData extends UserRequest {
   membershipLevel?: string | null;
   totalSpent?: number;
   loyalty_point?: number;
+  gender?: "MALE" | "FEMALE" | "OTHER";
+  address?: string;
 }
 
 const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
   const { control, handleSubmit, reset } = useForm<MemberFormData>({
     defaultValues: member
       ? {
-          fullName: member.fullName || "",
-          email: member.email || "",
+          fullName: member.fullName ?? "",
+          email: member.email ?? "",
           password: "",
-          dateOfBirth: member.dateOfBirth || "",
-          phone: member.phone || "",
+          dateOfBirth: member.dateOfBirth ?? "",
+          phone: member.phone ?? "",
           role: ROLES.MEMBER,
+          gender: member.gender,
+          address: member.address ?? "",
         }
       : {
           fullName: "",
@@ -41,6 +46,8 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
           dateOfBirth: "",
           phone: "",
           role: ROLES.MEMBER,
+          gender: undefined,
+          address: "",
         },
   });
 
@@ -50,12 +57,14 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
   useEffect(() => {
     if (member) {
       reset({
-        fullName: member.fullName || "",
-        email: member.email || "",
+        fullName: member.fullName ?? "",
+        email: member.email ?? "",
         password: "",
-        dateOfBirth: member.dateOfBirth || "",
-        phone: member.phone || "",
+        dateOfBirth: member.dateOfBirth ?? "",
+        phone: member.phone ?? "",
         role: ROLES.MEMBER,
+        gender: member.gender,
+        address: member.address ?? "",
       });
     }
   }, [member, reset]);
@@ -73,6 +82,8 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
       phone: data.phone,
       dateOfBirth: data.dateOfBirth,
       role: ROLES.MEMBER,
+      gender: data.gender,
+      address: data.address,
     };
 
     onSubmit(userData);
@@ -140,12 +151,43 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
           />
         </div>
 
+        {/* Giới tính */}
+        <div className="space-y-2">
+          <label htmlFor="gender" className="text-sm font-medium">
+            Giới tính
+          </label>
+          <Controller
+            name="gender"
+            control={control}
+            render={({ field }) => (
+              <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn giới tính" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MALE">Nam</SelectItem>
+                  <SelectItem value="FEMALE">Nữ</SelectItem>
+                  <SelectItem value="OTHER">Khác</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+
         {/* Số điện thoại */}
         <div className="space-y-2">
           <label htmlFor="phone" className="text-sm font-medium">
             Số điện thoại
           </label>
           <Controller name="phone" control={control} render={({ field }) => <Input id="phone" placeholder="Số điện thoại" {...field} />} />
+        </div>
+
+        {/* Địa chỉ */}
+        <div className="space-y-2">
+          <label htmlFor="address" className="text-sm font-medium">
+            Địa chỉ
+          </label>
+          <Controller name="address" control={control} render={({ field }) => <Input id="address" placeholder="Địa chỉ" {...field} />} />
         </div>
 
         {/* Mật khẩu */}
