@@ -1168,6 +1168,8 @@ export interface components {
             /** Format: int32 */
             price?: number;
             cancelUrl?: string;
+            /** Format: int64 */
+            expiredTime?: number;
         };
         MovieRequest: {
             name: string;

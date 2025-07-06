@@ -56,7 +56,8 @@ export const transformSeatResponse = (seatResponse: SeatResponse): Seat => {
     roomId: seatResponse.roomId ?? 0,
     row: seatResponse.row ?? "",
     column: seatResponse.column ?? "",
-    status: seatResponse.status as SeatStatus,
+    status: seatResponse.status ?? "AVAILABLE",
+    selected: false, // SeatResponse doesn't have selected field, default to false
     type: seatResponse.type
       ? transformSeatTypeResponse(seatResponse.type)
       : {
@@ -66,7 +67,6 @@ export const transformSeatResponse = (seatResponse: SeatResponse): Seat => {
           seatCount: 1,
         },
     discarded: seatResponse.discarded ?? false,
-    linkSeatId: seatResponse.linkSeatId ?? null, // Use linkSeatId from API response
   };
 };
 
@@ -116,11 +116,10 @@ export const transformCinemaRoomToUpdateRequest = (room: Partial<CinemaRoom>): C
   };
 };
 
-export const transformSeatToRequest = (seat: { type?: string; status?: SeatStatus; linkSeatId?: number | null }): SeatRequest => {
+export const transformSeatToRequest = (seat: { type?: string; status?: SeatStatus }): SeatRequest => {
   return {
     type: seat.type,
     status: seat.status,
-    linkSeatId: seat.linkSeatId ?? undefined, // Convert null to undefined for API
   };
 };
 
@@ -129,7 +128,6 @@ export const updateSeatStatus = (seat: Seat, newStatus: SeatStatus): SeatRequest
   return transformSeatToRequest({
     status: newStatus,
     type: seat.type.name,
-    linkSeatId: seat.linkSeatId,
   });
 };
 
@@ -188,29 +186,26 @@ export const getSeatStatusLabel = (status: SeatStatus): string => {
 };
 
 // Helper functions for couple seat operations
-export const updateSeatToCouple = (seat: Seat, linkedSeatId: number): SeatRequest => {
-  // Only need to update one seat with linkSeatId, backend handles the other
+export const updateSeatToCouple = (seat: Seat): SeatRequest => {
+  // Update seat to couple type, backend handles the linking
   return transformSeatToRequest({
     type: "COUPLE",
-    status: seat.status,
-    linkSeatId: linkedSeatId,
+    status: seat.status as SeatStatus,
   });
 };
 
 export const updateCoupleToSingle = (seat: Seat): SeatRequest => {
-  // Only need to update one seat, backend automatically handles the linked seat
+  // Convert couple seat back to regular seat
   return transformSeatToRequest({
-    type: "REGULAR", // Convert back to regular seat
-    status: seat.status,
-    linkSeatId: null, // Remove link
+    type: "REGULAR",
+    status: seat.status as SeatStatus,
   });
 };
 
-export const updateSeatType = (seat: Seat, newType: string, linkedSeatId?: number | null): SeatRequest => {
+export const updateSeatType = (seat: Seat, newType: string): SeatRequest => {
   return transformSeatToRequest({
     type: newType,
-    status: seat.status,
-    linkSeatId: newType === "COUPLE" ? linkedSeatId : null,
+    status: seat.status as SeatStatus,
   });
 };
 
