@@ -36,6 +36,22 @@ const formatDateTime = (dateString?: string) => {
   }
 };
 
+// Hàm hiển thị giới tính
+const formatGender = (gender?: string) => {
+  if (!gender) return "Chưa cập nhật";
+
+  switch (gender) {
+    case "MALE":
+      return "Nam";
+    case "FEMALE":
+      return "Nữ";
+    case "OTHER":
+      return "Khác";
+    default:
+      return "Chưa cập nhật";
+  }
+};
+
 // Sử dụng forwardRef để forward reference từ component cha
 const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(({ staffs, onEdit, onDelete }, ref) => {
   const { sortedData, getSortProps } = useSortable<StaffUser>(staffs);
@@ -65,9 +81,6 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="w-16 text-center">STT</TableHead>
-              <TableHead className="w-16">
-                <SortButton {...getSortProps("id")}>ID</SortButton>
-              </TableHead>
               <TableHead>
                 <SortButton {...getSortProps("fullName")}>Họ tên</SortButton>
               </TableHead>
@@ -77,11 +90,17 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
               <TableHead>
                 <SortButton {...getSortProps("phone")}>Số điện thoại</SortButton>
               </TableHead>
-              <TableHead className="w-28">
-                <SortButton {...getSortProps("status")}>Trạng thái</SortButton>
+              <TableHead>
+                <SortButton {...getSortProps("address")}>Địa chỉ</SortButton>
+              </TableHead>
+              <TableHead>
+                <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
+              </TableHead>
+              <TableHead>
+                <SortButton {...getSortProps("gender")}>Giới tính</SortButton>
               </TableHead>
               <TableHead className="w-28">
-                <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
+                <SortButton {...getSortProps("status")}>Trạng thái</SortButton>
               </TableHead>
               <TableHead className="w-24 text-center">Thao tác</TableHead>
             </TableRow>
@@ -94,14 +113,15 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
                 return (
                   <TableRow key={staff.id}>
                     <TableCell className="text-center font-medium">{pagination.startIndex + index + 1}</TableCell>
-                    <TableCell>{staff.id}</TableCell>
                     <TableCell>{staff.fullName}</TableCell>
                     <TableCell>{staff.email}</TableCell>
                     <TableCell>{staff.phone ?? "Chưa cập nhật"}</TableCell>
+                    <TableCell>{staff.address ?? "Chưa cập nhật"}</TableCell>
+                    <TableCell>{formatDateTime(staff.dateOfBirth)}</TableCell>
+                    <TableCell>{formatGender(staff.gender)}</TableCell>
                     <TableCell>
                       <Badge className={statusDisplay.className}>{statusDisplay.label}</Badge>
                     </TableCell>
-                    <TableCell>{formatDateTime(staff.dateOfBirth)}</TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-1">
                         <Button variant="ghost" size="icon" onClick={() => onEdit(staff)} title="Chỉnh sửa">
@@ -117,7 +137,7 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
+                <TableCell colSpan={9} className="h-24 text-center">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>

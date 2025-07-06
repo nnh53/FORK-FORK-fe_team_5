@@ -7,7 +7,9 @@ import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import { ROLES } from "@/interfaces/roles.interface";
 import type { StaffRequest, StaffUser } from "@/interfaces/staff.interface";
 import { filterStaffUsers } from "@/interfaces/staff.interface";
+import type { USER_GENDER } from "@/interfaces/users.interface";
 import {
+  formatUserDate,
   transformRegisterRequest,
   transformUserResponse,
   transformUserUpdateRequest,
@@ -22,15 +24,44 @@ import { toast } from "sonner";
 import StaffForm from "./StaffForm";
 import StaffTable from "./StaffTable";
 
-// Sửa lại chỉ tìm theo ID, tên và email
+// Thêm hàm để định dạng thời gian
+const formatDateTime = (dateString?: string) => {
+  if (!dateString) return "Chưa cập nhật";
+  try {
+    return formatUserDate(dateString);
+  } catch {
+    return "Không hợp lệ";
+  }
+};
+
+// Hàm hiển thị giới tính
+const formatGender = (gender?: string) => {
+  if (!gender) return "Chưa cập nhật";
+  switch (gender) {
+    case "MALE":
+      return "Nam";
+    case "FEMALE":
+      return "Nữ";
+    case "OTHER":
+      return "Khác";
+    default:
+      return "Chưa cập nhật";
+  }
+};
+
+// Tìm kiếm theo tất cả các trường có liên quan
 const filterByGlobalSearch = (staff: StaffUser, searchValue: string): boolean => {
   if (!searchValue) return true;
 
   const lowerSearchValue = searchValue.toLowerCase();
   return (
     staff.id.toString().includes(searchValue.trim()) ||
-    staff.fullName.toLowerCase().includes(lowerSearchValue.trim()) ||
-    staff.email.toLowerCase().includes(lowerSearchValue.trim())
+    (staff.fullName?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (staff.email?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (staff.phone?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (staff.address?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (formatDateTime(staff.dateOfBirth)?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (formatGender(staff.gender)?.toLowerCase() ?? "").includes(lowerSearchValue.trim())
   );
 };
 
@@ -45,6 +76,10 @@ const filterByDateRange = (staff: StaffUser, range: { from: Date | undefined; to
 
 const filterByStatus = (staff: StaffUser, status: string): boolean => {
   return staff.status.toLowerCase() === status.toLowerCase();
+};
+
+const filterByGender = (staff: StaffUser, gender: string): boolean => {
+  return staff.gender === (gender as USER_GENDER);
 };
 
 const StaffManagement = () => {
@@ -69,6 +104,8 @@ const StaffManagement = () => {
     { value: "id", label: "ID" },
     { value: "fullName", label: "Tên" },
     { value: "email", label: "Email" },
+    { value: "phone", label: "Số điện thoại" },
+    { value: "address", label: "Địa chỉ" },
   ];
 
   useEffect(() => {
@@ -102,6 +139,8 @@ const StaffManagement = () => {
           return filterByDateRange(staff, criteria.value as { from: Date | undefined; to: Date | undefined });
         case "status":
           return filterByStatus(staff, criteria.value as string);
+        case "gender":
+          return filterByGender(staff, criteria.value as string);
         default:
           return true;
       }
@@ -216,6 +255,17 @@ const StaffManagement = () => {
           ],
           placeholder: "Chọn trạng thái",
         },
+        {
+          label: "Giới tính",
+          value: "gender",
+          type: "select" as const,
+          selectOptions: [
+            { value: "MALE", label: "Nam" },
+            { value: "FEMALE", label: "Nữ" },
+            { value: "OTHER", label: "Khác" },
+          ],
+          placeholder: "Chọn giới tính",
+        },
       ],
     },
   ];
@@ -235,15 +285,14 @@ const StaffManagement = () => {
 
           {/* Search and Filter row */}
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-            {/* SearchBar */}
+            {/* SearchBar */}{" "}
             <SearchBar
               searchOptions={searchOptions}
               onSearchChange={setSearchTerm}
-              placeholder="Tìm kiếm theo ID, tên hoặc email..."
+              placeholder="Tìm kiếm theo ID, tên, email, số điện thoại hoặc địa chỉ..."
               className="w-full sm:w-1/2"
               resetPagination={() => tableRef.current?.resetPagination()}
             />
-
             {/* Filter - Right */}
             <div className="shrink-0">
               <Filter

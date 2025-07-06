@@ -20,19 +20,21 @@ interface StaffFormProps {
 interface StaffFormData extends StaffRequest {
   confirmPassword?: string;
   gender?: USER_GENDER;
+  address?: string;
 }
 
 const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
   const { control, handleSubmit, reset } = useForm<StaffFormData>({
     defaultValues: staff
       ? {
-          fullName: staff.fullName || "",
-          email: staff.email || "",
+          fullName: staff.fullName ?? "",
+          email: staff.email ?? "",
           password: "",
           dateOfBirth: staff.dateOfBirth ?? "",
           phone: staff.phone ?? "",
           role: "STAFF",
           gender: staff.gender,
+          address: staff.address ?? "",
         }
       : {
           fullName: "",
@@ -42,6 +44,8 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
           dateOfBirth: "",
           phone: "",
           role: "STAFF",
+          gender: undefined,
+          address: "",
         },
   });
 
@@ -51,13 +55,14 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
   useEffect(() => {
     if (staff) {
       reset({
-        fullName: staff.fullName || "",
-        email: staff.email || "",
+        fullName: staff.fullName ?? "",
+        email: staff.email ?? "",
         password: "", // Empty password field for security
         dateOfBirth: staff.dateOfBirth ?? "",
         phone: staff.phone ?? "",
         role: "STAFF",
         gender: staff.gender,
+        address: staff.address ?? "",
       });
     }
   }, [staff, reset]);
@@ -78,6 +83,8 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
       phone: data.phone,
       dateOfBirth: data.dateOfBirth,
       role: "STAFF",
+      gender: data.gender,
+      address: data.address,
     };
 
     onSubmit(staffData);
@@ -174,6 +181,14 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
             Số điện thoại
           </label>
           <Controller name="phone" control={control} render={({ field }) => <Input id="phone" placeholder="Số điện thoại" {...field} />} />
+        </div>
+
+        {/* Địa chỉ */}
+        <div className="space-y-2">
+          <label htmlFor="address" className="text-sm font-medium">
+            Địa chỉ
+          </label>
+          <Controller name="address" control={control} render={({ field }) => <Input id="address" placeholder="Địa chỉ" {...field} />} />
         </div>
 
         {/* Mật khẩu */}
