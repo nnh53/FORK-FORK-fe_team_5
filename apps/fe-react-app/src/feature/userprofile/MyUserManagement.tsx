@@ -2,7 +2,6 @@ import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import { MyMovieHistory } from "./components/MovieHistory";
 import { MyInfo } from "./components/MyInfoManagement";
-import { MyVoucherManagement } from "./components/MyVoucherManagement";
 
 interface Tab {
   id: string;
@@ -15,11 +14,6 @@ const tabsData: Tab[] = [
     id: "account",
     label: "THÔNG TIN CHUNG",
     component: <MyInfo />,
-  },
-  {
-    id: "vouchers",
-    label: "VOUCHER",
-    component: <MyVoucherManagement />,
   },
   {
     id: "movie-history",

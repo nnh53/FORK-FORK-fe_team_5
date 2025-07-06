@@ -22,6 +22,7 @@ import {
   useDeleteCinemaRoom,
   useUpdateCinemaRoom,
 } from "@/services/cinemaRoomService";
+import { getRoomStatusBadgeVariant } from "@/utils/color.utils";
 import { RoomListView } from "./components/RoomListView";
 
 type SortOption = "all" | "Standard" | "VIP" | "IMAX" | "4DX";
@@ -182,19 +183,6 @@ const CinemaRoomManagement: React.FC = () => {
       console.log("Xóa phòng thành công!");
     } catch (err) {
       console.error("Error deleting room:", err);
-    }
-  };
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "default";
-      case "MAINTENANCE":
-        return "outline";
-      case "CLOSED":
-        return "destructive";
-      default:
-        return "secondary";
     }
   };
 
@@ -480,7 +468,7 @@ const CinemaRoomManagement: React.FC = () => {
             <div>
               <Label className="mb-1">Trạng thái hiện tại</Label>
               <div className="mt-1">
-                <Badge variant={getStatusVariant(selectedRoom?.status || "")}>{selectedRoom?.status}</Badge>
+                <Badge variant={getRoomStatusBadgeVariant(selectedRoom?.status ?? "")}>{selectedRoom?.status}</Badge>
               </div>
             </div>
 

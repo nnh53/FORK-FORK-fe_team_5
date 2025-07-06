@@ -30,6 +30,12 @@ export const CITIES = [
   { value: "Hà Nội", label: "Hà Nội" },
   { value: "Đà Nẵng", label: "Đà Nẵng" },
   { value: "Cần Thơ", label: "Cần Thơ" },
+  { value: "Hải Phòng", label: "Hải Phòng" },
+  { value: "Nha Trang", label: "Nha Trang" },
+  { value: "Huế", label: "Huế" },
+  { value: "Vũng Tàu", label: "Vũng Tàu" },
+  { value: "Đà Lạt", label: "Đà Lạt" },
+  { value: "Phú Quốc", label: "Phú Quốc" },
 ] as const;
 
 export const GENDERS = [

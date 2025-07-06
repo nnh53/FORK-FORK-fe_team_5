@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/Shadcn/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import type { Seat } from "@/interfaces/seat.interface";
+import { ROOM_STATUS_COLORS } from "@/constants/status";
 import axios from "axios";
 import { ArrowLeft, Save } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -109,9 +110,7 @@ export default function CinemaRoomDetail() {
 
   // Helper functions for CSS classes
   const getStatusClassName = (status: string) => {
-    if (status === "ACTIVE") return "bg-green-100 text-green-800";
-    if (status === "MAINTENANCE") return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
+    return ROOM_STATUS_COLORS[status as keyof typeof ROOM_STATUS_COLORS] || "bg-gray-100 text-gray-800";
   };
 
   const getSeatClassName = (seat: Seat, isSelected: boolean) => {

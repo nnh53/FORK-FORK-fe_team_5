@@ -14,6 +14,7 @@ import { SortButton } from "@/components/shared/SortButton";
 import { usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { MEMBERSHIP_LEVEL, User } from "@/interfaces/users.interface";
+import { getUserStatusDisplay } from "@/utils/color.utils";
 import { Edit, Trash } from "lucide-react";
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 
@@ -24,45 +25,11 @@ interface UserWithMembership extends User {
   loyalty_point?: number;
 }
 
-// Format functions
-const formatCurrency = (value?: number): string => {
-  if (!value) return "0 ₫";
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(value);
-};
-
 interface MemberTableProps {
   members: UserWithMembership[];
   onEdit: (member: UserWithMembership) => void;
   onDelete: (member: UserWithMembership) => void;
 }
-
-const getStatusDisplay = (status: string) => {
-  switch (status) {
-    case "ACTIVE":
-      return { label: "Đã xác minh", className: "bg-green-100 text-green-800" };
-    case "BAN":
-      return { label: "Bị cấm", className: "bg-red-100 text-red-800" };
-    default:
-      return { label: status, className: "bg-gray-100 text-gray-800" };
-  }
-};
-
-const getMembershipBadge = (level?: MEMBERSHIP_LEVEL) => {
-  if (!level) return <span className="text-xs text-gray-500">Chưa có</span>;
-
-  const badgeColors: Record<string, string> = {
-    Silver: "bg-gray-200 text-gray-800",
-    Gold: "bg-yellow-100 text-yellow-800",
-    Platinum: "bg-blue-100 text-blue-800",
-    Diamond: "bg-purple-100 text-purple-800",
-  };
-
-  return <Badge className={`${badgeColors[level] || "bg-gray-100"} px-2 py-1 text-xs font-medium`}>{level}</Badge>;
-};
 
 // Sửa MemberTable component để có thể forward ref và expose resetPagination
 const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps>(({ members, onEdit, onDelete }, ref) => {
@@ -113,7 +80,7 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
           <TableBody>
             {currentPageData.length > 0 ? (
               currentPageData.map((member, index) => {
-                const statusDisplay = getStatusDisplay(member.status);
+                const statusDisplay = getUserStatusDisplay(member.status);
 
                 return (
                   <TableRow key={member.id}>

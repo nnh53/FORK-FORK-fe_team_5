@@ -1,2 +1,2 @@
 // Export all constants
-export * from "./userProfile.constants";
+export * from "./profile";

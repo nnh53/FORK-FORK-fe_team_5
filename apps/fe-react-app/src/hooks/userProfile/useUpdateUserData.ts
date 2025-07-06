@@ -1,4 +1,4 @@
-import type { UserFormData } from "@/constants/userProfile.constants";
+import type { UserFormData } from "@/constants/profile";
 import { useUpdateUser } from "@/services/userService";
 import { useCallback } from "react";
 

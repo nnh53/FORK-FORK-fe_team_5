@@ -1,4 +1,4 @@
-import { INITIAL_USER_DATA, type UserFormData } from "@/constants/userProfile.constants";
+import { INITIAL_USER_DATA, type UserFormData } from "@/constants/profile";
 import { useGetUserById } from "@/services/userService";
 import { useEffect, useState } from "react";
 

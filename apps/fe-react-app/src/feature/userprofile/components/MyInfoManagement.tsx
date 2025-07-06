@@ -5,7 +5,7 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
 import { Separator } from "@/components/Shadcn/ui/separator";
 import { FormField, SelectField } from "@/components/shared/forms";
-import { CITIES, GENDERS, type UserFormData } from "@/constants/userProfile.constants";
+import { CITIES, GENDERS, type UserFormData } from "@/constants/profile";
 import { useUpdateUserData, useUserData } from "@/hooks/userProfile";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
 import { Calendar, Camera, Mail, MapPin, Phone, User } from "lucide-react";
@@ -58,7 +58,7 @@ export const MyInfo: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-lg">Đang tải thông tin...</div>
       </div>
     );
@@ -67,7 +67,7 @@ export const MyInfo: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-lg text-red-500">Có lỗi xảy ra khi tải thông tin người dùng</div>
       </div>
     );
@@ -76,7 +76,7 @@ export const MyInfo: React.FC = () => {
   // No user ID
   if (!userId) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-lg text-yellow-500">Không tìm thấy thông tin đăng nhập</div>
       </div>
     );
@@ -86,7 +86,7 @@ export const MyInfo: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <User className="h-6 w-6 text-primary" />
+        <User className="text-primary h-6 w-6" />
         <h1 className="text-3xl font-bold">Thông tin tài khoản</h1>
       </div>
 
@@ -106,11 +106,11 @@ export const MyInfo: React.FC = () => {
             </Avatar>
             <div className="space-y-2">
               <Button variant="outline" className="relative">
-                <Camera className="h-4 w-4 mr-2" />
+                <Camera className="mr-2 h-4 w-4" />
                 Thay đổi ảnh
-                <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 cursor-pointer opacity-0" />
               </Button>
-              <p className="text-sm text-muted-foreground">JPG, PNG. Tối đa 5MB</p>
+              <p className="text-muted-foreground text-sm">JPG, PNG. Tối đa 5MB</p>
             </div>
           </div>
         </CardContent>
@@ -128,7 +128,7 @@ export const MyInfo: React.FC = () => {
           <CardDescription>Quản lý thông tin cá nhân của bạn</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {/* Name */}
             <FormField id="name" label="Họ và tên" value={userInfo.name} onChange={(value) => updateField("name", value)} disabled={!isEditing} />
 

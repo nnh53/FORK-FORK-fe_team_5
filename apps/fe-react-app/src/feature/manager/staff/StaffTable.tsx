@@ -15,6 +15,7 @@ import { usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { StaffUser } from "@/interfaces/staff.interface";
 import { formatUserDate } from "@/services/userService";
+import { getUserStatusDisplay } from "@/utils/color.utils";
 import { Edit, Trash } from "lucide-react";
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 
@@ -23,24 +24,6 @@ interface StaffTableProps {
   onEdit: (staff: StaffUser) => void;
   onDelete: (staff: StaffUser) => void;
 }
-
-const getStatusDisplay = (status: string) => {
-  switch (status) {
-    case "ACTIVE":
-      return { label: "Đã xác minh", className: "bg-green-100 text-green-800" };
-    case "BAN":
-      return { label: "Bị cấm", className: "bg-red-100 text-red-800" };
-    default:
-      return { label: "Không xác định", className: "bg-yellow-100 text-yellow-800" };
-  }
-};
-
-const getRoleBadge = (role: string) => {
-  if (role === "STAFF") {
-    return <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">Nhân viên</span>;
-  }
-  return null;
-};
 
 // Thêm hàm để định dạng thời gian
 const formatDateTime = (dateString?: string) => {
@@ -106,7 +89,7 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
           <TableBody>
             {currentPageData.length > 0 ? (
               currentPageData.map((staff, index) => {
-                const statusDisplay = getStatusDisplay(staff.status);
+                const statusDisplay = getUserStatusDisplay(staff.status);
 
                 return (
                   <TableRow key={staff.id}>

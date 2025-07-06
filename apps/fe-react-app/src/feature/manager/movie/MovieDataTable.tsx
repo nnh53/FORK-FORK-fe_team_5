@@ -1,19 +1,11 @@
-import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/Shadcn/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/Shadcn/ui/dropdown-menu";
 import { Label } from "@/components/Shadcn/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import type { Movie } from "@/interfaces/movies.interface";
+import { createMovieColumns } from "@/components/shared/movie-columns";
 import {
-  type ColumnDef,
   type ColumnFiltersState,
   type SortingState,
   type VisibilityState,
@@ -24,34 +16,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, Columns3, Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
+import { ChevronDown, Columns3 } from "lucide-react";
 import React from "react";
-
-const getStatusBadgeVariant = (status?: string) => {
-  switch (status) {
-    case "ACTIVE":
-      return "default";
-    case "UPCOMING":
-      return "secondary";
-    case "INACTIVE":
-      return "outline";
-    default:
-      return "outline";
-  }
-};
-
-const getStatusClassName = (status?: string) => {
-  switch (status) {
-    case "ACTIVE":
-      return "bg-green-100 text-green-800";
-    case "UPCOMING":
-      return "bg-blue-100 text-blue-800";
-    case "INACTIVE":
-      return "bg-red-100 text-red-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
 
 interface MovieDataTableProps {
   data: Movie[];
@@ -69,129 +35,7 @@ export function MovieDataTable({ data, onEdit, onView, onDelete }: Readonly<Movi
     pageSize: 10,
   });
 
-  const columns: ColumnDef<Movie>[] = [
-    {
-      accessorKey: "name",
-      header: "Title",
-      cell: ({ row }) => (
-        <div className="max-w-[200px] truncate font-medium" title={row.getValue("name") ?? "N/A"}>
-          {row.getValue("name") ?? "N/A"}
-        </div>
-      ),
-      enableHiding: false,
-    },
-    {
-      accessorKey: "director",
-      header: "Director",
-      cell: ({ row }) => <div className="text-muted-foreground">{row.getValue("director") || "N/A"}</div>,
-    },
-    {
-      accessorKey: "studio",
-      header: "Studio",
-      cell: ({ row }) => <div className="text-muted-foreground">{row.getValue("studio") || "N/A"}</div>,
-    },
-    {
-      accessorKey: "duration",
-      header: "Duration",
-      cell: ({ row }) => {
-        const duration = row.getValue("duration") as number | undefined;
-        return <div>{duration ? `${duration} min` : "N/A"}</div>;
-      },
-    },
-    {
-      accessorKey: "ageRestrict",
-      header: "Age Restrict",
-      cell: ({ row }) => {
-        const age = row.getValue("ageRestrict") as number;
-        return <div>{age ? `${age}+` : "N/A"}</div>;
-      },
-    },
-    {
-      accessorKey: "categories",
-      header: "Categories",
-      cell: ({ row }) => {
-        const categories = row.getValue("categories") as Array<{ name?: string }>;
-        return (
-          <div className="flex flex-wrap gap-1">
-            {categories && categories.length > 0 ? (
-              categories.map((cat, index) => (
-                <Badge key={`${cat.name}-${index}`} variant="outline" className="text-xs">
-                  {cat.name}
-                </Badge>
-              ))
-            ) : (
-              <span className="text-muted-foreground">N/A</span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "fromDate",
-      header: "Release Period",
-      cell: ({ row }) => {
-        const fromDate = row.getValue("fromDate") as string;
-        const toDate = row.original.toDate;
-
-        if (!fromDate) return <div className="text-muted-foreground">N/A</div>;
-
-        const formatDate = (dateString: string) => {
-          return new Date(dateString).toLocaleDateString();
-        };
-
-        return (
-          <div className="text-sm">
-            {formatDate(fromDate)} - {toDate ? formatDate(toDate) : "N/A"}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        return (
-          <Badge variant={getStatusBadgeVariant(status)} className={getStatusClassName(status)}>
-            {status?.toUpperCase() || "UNKNOWN"}
-          </Badge>
-        );
-      },
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const movie = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onView(movie)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(movie)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete(movie)} className="text-red-600 focus:text-red-600">
-                <Trash className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ];
+  const columns = createMovieColumns(onView, onEdit, onDelete);
 
   const table = useReactTable({
     data,
