@@ -66,9 +66,6 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
           alt={combo.name}
           className="h-32 w-full rounded-lg border border-gray-200 object-cover"
           style={{ aspectRatio: "5 / 4" }}
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-combo.jpg";
-          }}
         />
       ) : (
         <div className="flex h-32 w-full flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-100">
@@ -83,14 +80,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
   const ListImageComponent = () => (
     <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg">
       {combo.img ? (
-        <img
-          src={combo.img}
-          alt={combo.name}
-          className="h-full w-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-combo.jpg";
-          }}
-        />
+        <img src={combo.img} alt={combo.name} className="h-full w-full object-cover" />
       ) : (
         <div className="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
           <Utensils className="h-6 w-6 text-gray-400" />

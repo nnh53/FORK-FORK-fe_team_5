@@ -17,13 +17,14 @@ import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import type { Combo, ComboSnack } from "@/interfaces/combo.interface";
 import {
   comboStatusOptions,
+  createFallbackSnack,
   transformComboResponse,
   transformComboToRequest,
   useAddSnacksToCombo,
   useCombos,
   useCreateCombo,
   useDeleteCombo,
-  useDeleteComboSnack,
+  useDeleteComboSnackByComboAndSnack,
   useUpdateCombo,
   useUpdateComboSnack,
 } from "@/services/comboService";
@@ -71,11 +72,11 @@ const ComboManagement: React.FC = () => {
   const updateComboMutation = useUpdateCombo();
   const deleteComboMutation = useDeleteCombo();
   const updateComboSnackMutation = useUpdateComboSnack();
-  const deleteComboSnackMutation = useDeleteComboSnack();
   const addSnacksToComboMutation = useAddSnacksToCombo();
 
   useEffect(() => {
     if (combosQuery.data) {
+      console.log("Raw API data:", JSON.stringify(combosQuery.data, null, 2));
       let transformedCombos: Combo[] = [];
       if (combosQuery.data.result) {
         if (Array.isArray(combosQuery.data.result)) {
@@ -84,6 +85,7 @@ const ComboManagement: React.FC = () => {
           transformedCombos = [transformComboResponse(combosQuery.data.result)];
         }
       }
+      console.log("Transformed combos:", transformedCombos);
       setCombos(transformedCombos);
     }
   }, [combosQuery.data]);
@@ -139,7 +141,24 @@ const ComboManagement: React.FC = () => {
   };
 
   const handleViewDetails = (combo: Combo) => {
-    setDetailsCombo(combo);
+    console.log("View details for combo:", combo);
+    // Đảm bảo snack data đầy đủ và chính xác
+    const comboWithValidSnacks = {
+      ...combo,
+      snacks:
+        combo.snacks?.map((comboSnack) => {
+          // Đảm bảo có dữ liệu snack hợp lệ
+          if (comboSnack.snack && typeof comboSnack.snack === "object") {
+            return comboSnack;
+          }
+          // Sử dụng fallback nếu cần
+          return {
+            ...comboSnack,
+            snack: createFallbackSnack(),
+          };
+        }) || [],
+    };
+    setDetailsCombo(comboWithValidSnacks);
     setDetailsOpen(true);
   };
 
@@ -183,12 +202,45 @@ const ComboManagement: React.FC = () => {
     }
   };
 
+  // Add a new hook for deleting by combo and snack IDs
+  const deleteComboSnackByComboAndSnackMutation = useDeleteComboSnackByComboAndSnack();
+
   const handleDeleteSnack = async (comboSnackId: number) => {
     try {
-      await deleteComboSnackMutation.mutateAsync({
-        params: { path: { id: comboSnackId } },
+      // Get the combo and snack IDs for the combo-snack being deleted
+      const comboSnackToDelete = detailsCombo?.snacks.find((s) => s.id === comboSnackId);
+
+      if (!comboSnackToDelete || !detailsCombo) {
+        toast.error("Không thể tìm thấy thông tin combo-snack");
+        return;
+      }
+
+      const comboId = detailsCombo.id;
+      const snackId = comboSnackToDelete.snack?.id;
+
+      if (!snackId) {
+        toast.error("Không thể tìm thấy ID của snack");
+        return;
+      }
+
+      // ALWAYS use the combo/snack endpoint which is reliable and works correctly
+      await deleteComboSnackByComboAndSnackMutation.mutateAsync({
+        params: { path: { comboId, snackId } },
       });
+
       toast.success("Đã xóa thực phẩm khỏi combo");
+
+      // Cập nhật UI ngay lập tức
+      setDetailsCombo((prev) =>
+        prev
+          ? {
+              ...prev,
+              snacks: prev.snacks.filter((s) => s.id !== comboSnackId),
+            }
+          : null,
+      );
+
+      // Refresh data from server
       combosQuery.refetch();
     } catch (error) {
       console.error("Error removing snack from combo:", error);
@@ -213,6 +265,7 @@ const ComboManagement: React.FC = () => {
   const handleAddSnack = async (newComboSnack: Partial<ComboSnack>) => {
     if (!detailsCombo) return;
     try {
+      // Gọi API để thêm snack vào combo
       await addSnacksToComboMutation.mutateAsync({
         params: { path: { comboId: detailsCombo.id } },
         body: [
@@ -222,8 +275,22 @@ const ComboManagement: React.FC = () => {
           },
         ],
       });
+
       toast.success("Đã thêm thực phẩm vào combo");
-      combosQuery.refetch();
+
+      // Refresh dữ liệu từ server để lấy danh sách snack mới nhất
+      await combosQuery.refetch();
+
+      // Cập nhật lại modal chi tiết combo với dữ liệu mới nhất
+      if (detailsCombo && detailsOpen) {
+        const updatedCombos = combosQuery.data?.result;
+        if (updatedCombos && Array.isArray(updatedCombos)) {
+          const foundCombo = updatedCombos.find((c) => c.id === detailsCombo.id);
+          if (foundCombo) {
+            setDetailsCombo(transformComboResponse(foundCombo));
+          }
+        }
+      }
     } catch (error) {
       console.error("Lỗi khi thêm thực phẩm vào combo:", error);
       toast.error("Lỗi khi thêm thực phẩm vào combo");
@@ -234,10 +301,10 @@ const ComboManagement: React.FC = () => {
     <div className="container mx-auto p-4">
       <Card className="p-4 sm:p-6 md:p-8">
         <CardContent className="p-0">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
               <h1 className="text-2xl font-bold">Quản lý Combo</h1>
-              <p className="text-gray-500 mt-1">Thêm, sửa, xóa và tìm kiếm các combo món ăn.</p>
+              <p className="mt-1 text-gray-500">Thêm, sửa, xóa và tìm kiếm các combo món ăn.</p>
             </div>
             <Button onClick={handleAdd} className="flex items-center gap-2">
               <Plus size={18} />
@@ -245,13 +312,13 @@ const ComboManagement: React.FC = () => {
             </Button>
           </div>
 
-          <div className="mb-6 flex flex-col lg:flex-row gap-4">
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row">
             <div className="w-full lg:w-2/3">
               <SearchBar
                 searchOptions={searchOptions}
                 onSearchChange={setSearchTerm}
                 placeholder="Tìm kiếm theo ID, tên, mô tả..."
-                className="w-full sm:w-auto flex-1"
+                className="w-full flex-1 sm:w-auto"
                 resetPagination={() => tableRef.current?.resetPagination()}
               />
             </div>
@@ -310,7 +377,7 @@ const ComboManagement: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-white hover:bg-destructive/90">
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90 text-white">
               Xóa
             </AlertDialogAction>
           </AlertDialogFooter>
