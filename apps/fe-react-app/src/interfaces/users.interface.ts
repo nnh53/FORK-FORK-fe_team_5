@@ -24,6 +24,8 @@ export type UserRequest = {
   phone?: string;
   role?: string;
   dateOfBirth?: string;
+  gender?: USER_GENDER;
+  address?: string;
 };
 
 export type UserUpdate = {

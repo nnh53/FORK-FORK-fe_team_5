@@ -2,7 +2,6 @@ import type { Combo, ComboForm, ComboSnack } from "@/interfaces/combo.interface"
 import type { Snack } from "@/interfaces/snacks.interface";
 import type { ComboResponse, ComboSnackResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
-import { transformSnackResponse } from "./snackService";
 
 // Type aliases for union types
 type ComboStatus = "AVAILABLE" | "UNAVAILABLE";
@@ -130,13 +129,49 @@ export const useDeleteComboSnackByComboAndSnack = () => {
  * Transform a combo response from the API to the Combo interface
  */
 export const transformComboResponse = (comboResponse: ComboResponse): Combo => {
+  console.log("Raw combo response:", JSON.stringify(comboResponse, null, 2));
+
+  // Khi API trả về combo, snacks trong combo là dạng ApiSnack[], không phải dạng ComboSnackResponse[]
+  // Cần chuyển đổi đúng cách để bảo toàn thông tin
+  let transformedSnacks: ComboSnack[] = [];
+
+  if (comboResponse.snacks && Array.isArray(comboResponse.snacks)) {
+    transformedSnacks = comboResponse.snacks.map((snackData) => {
+      return {
+        id: Number(snackData.id ?? 0),
+        quantity: 1, // Mặc định, vì từ combo response không có thông tin này
+        snackSizeId: null,
+        discountPercentage: null,
+        combo: {
+          id: Number(comboResponse.id),
+          name: String(comboResponse.name ?? ""),
+          description: String(comboResponse.description ?? ""),
+          status: comboResponse.status as ComboStatus,
+          img: String(comboResponse.img ?? ""),
+          snacks: [], // Tránh đệ quy
+        },
+        snack: {
+          id: Number(snackData.id),
+          category: snackData.category as "DRINK" | "FOOD",
+          name: String(snackData.name),
+          size: snackData.size as "SMALL" | "MEDIUM" | "LARGE",
+          flavor: String(snackData.flavor ?? ""),
+          price: Number(snackData.price),
+          description: String(snackData.description ?? ""),
+          img: String(snackData.img ?? ""),
+          status: snackData.status as "AVAILABLE" | "UNAVAILABLE",
+        },
+      };
+    });
+  }
+
   return {
     id: Number(comboResponse.id),
     name: String(comboResponse.name ?? ""),
     description: String(comboResponse.description ?? ""),
     status: comboResponse.status as ComboStatus,
     img: String(comboResponse.img ?? ""),
-    snacks: comboResponse.snacks ? comboResponse.snacks.map(transformComboSnackResponse) : [],
+    snacks: transformedSnacks,
   };
 };
 
@@ -150,14 +185,77 @@ export const transformCombosResponse = (combosResponse: ComboResponse[]): Combo[
 /**
  * Transform a combo-snack response from the API to the ComboSnack interface
  */
+/**
+ * Create a fallback snack object to use when no snack data is available
+ */
+export const createFallbackSnack = (): Snack => {
+  return {
+    id: 0,
+    name: "Unknown Snack",
+    description: "No description available",
+    price: 0,
+    img: "",
+    category: "FOOD",
+    size: "MEDIUM",
+    flavor: "",
+    status: "AVAILABLE",
+  };
+};
+
 export const transformComboSnackResponse = (comboSnackResponse: ComboSnackResponse): ComboSnack => {
+  console.log("Raw comboSnack response:", JSON.stringify(comboSnackResponse, null, 2));
+
+  // Kiểm tra và xử lý dữ liệu snack
+  let snackData: Snack;
+  // Chỉ sử dụng fallback khi thực sự không có dữ liệu snack
+  if (comboSnackResponse.snack && typeof comboSnackResponse.snack === "object") {
+    // Chuyển đổi trực tiếp để đảm bảo đúng định dạng
+    snackData = {
+      id: Number(comboSnackResponse.snack.id),
+      category: comboSnackResponse.snack.category as "DRINK" | "FOOD",
+      name: String(comboSnackResponse.snack.name),
+      size: comboSnackResponse.snack.size as "SMALL" | "MEDIUM" | "LARGE",
+      flavor: String(comboSnackResponse.snack.flavor ?? ""),
+      price: Number(comboSnackResponse.snack.price),
+      description: String(comboSnackResponse.snack.description ?? ""),
+      img: String(comboSnackResponse.snack.img ?? ""),
+      status: comboSnackResponse.snack.status as "AVAILABLE" | "UNAVAILABLE",
+    };
+  } else {
+    console.warn("Missing snack data in combo-snack response, using fallback", comboSnackResponse);
+    snackData = createFallbackSnack();
+  }
+
+  // Kiểm tra và xử lý dữ liệu combo
+  let comboData: Combo;
+  if (comboSnackResponse.combo && typeof comboSnackResponse.combo === "object") {
+    // Tạo một phiên bản đơn giản của combo để tránh đệ quy vô hạn
+    comboData = {
+      id: Number(comboSnackResponse.combo.id),
+      name: String(comboSnackResponse.combo.name ?? ""),
+      description: String(comboSnackResponse.combo.description ?? ""),
+      status: comboSnackResponse.combo.status as ComboStatus,
+      img: String(comboSnackResponse.combo.img ?? ""),
+      snacks: [], // Không chuyển đổi danh sách snack của combo để tránh đệ quy
+    };
+  } else {
+    comboData = {
+      id: 0,
+      name: "",
+      description: "",
+      status: "AVAILABLE",
+      img: "",
+      snacks: [],
+    };
+  }
+
   return {
     id: Number(comboSnackResponse.id),
     quantity: Number(comboSnackResponse.quantity ?? 0),
     snackSizeId: comboSnackResponse.snackSizeId ?? null,
     discountPercentage: comboSnackResponse.discountPercentage ?? null,
-    combo: comboSnackResponse.combo ? transformComboResponse(comboSnackResponse.combo) : ({} as Combo),
-    snack: comboSnackResponse.snack ? transformSnackResponse(comboSnackResponse.snack) : ({} as Snack),
+    combo: comboData,
+    snack: snackData,
   };
 };
 
@@ -232,7 +330,15 @@ export const calculateComboPrice = (combo: Combo): number => {
   if (!combo.snacks || combo.snacks.length === 0) return 0;
 
   return combo.snacks.reduce((total, comboSnack) => {
-    return total + (comboSnack.snack.price ?? 0);
+    const basePrice = comboSnack.snack?.price ?? 0;
+    const quantity = comboSnack.quantity ?? 1;
+    const discountPercentage = comboSnack.discountPercentage ?? 0;
+
+    // Tính giá sau giảm giá
+    const discountedPrice = basePrice * (1 - discountPercentage / 100);
+
+    // Tính tổng giá dựa trên số lượng
+    return total + discountedPrice * quantity;
   }, 0);
 };
 
