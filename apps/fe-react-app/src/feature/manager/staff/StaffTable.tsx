@@ -52,6 +52,20 @@ const formatGender = (gender?: string) => {
   }
 };
 
+// Hàm lấy lớp CSS cho badge giới tính
+const getGenderBadgeClass = (gender?: string) => {
+  switch (gender) {
+    case "MALE":
+      return "bg-blue-100 text-blue-800";
+    case "FEMALE":
+      return "bg-pink-100 text-pink-800";
+    case "OTHER":
+      return "bg-purple-100 text-purple-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
 // Sử dụng forwardRef để forward reference từ component cha
 const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(({ staffs, onEdit, onDelete }, ref) => {
   const { sortedData, getSortProps } = useSortable<StaffUser>(staffs);
@@ -81,6 +95,7 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="w-16 text-center">STT</TableHead>
+              <TableHead className="w-16 text-center">Avatar</TableHead>
               <TableHead>
                 <SortButton {...getSortProps("fullName")}>Họ tên</SortButton>
               </TableHead>
@@ -91,17 +106,11 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
                 <SortButton {...getSortProps("phone")}>Số điện thoại</SortButton>
               </TableHead>
               <TableHead>
-                <SortButton {...getSortProps("address")}>Địa chỉ</SortButton>
-              </TableHead>
-              <TableHead>
                 <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
               </TableHead>
-              <TableHead>
-                <SortButton {...getSortProps("gender")}>Giới tính</SortButton>
-              </TableHead>
-              <TableHead className="w-28">
-                <SortButton {...getSortProps("status")}>Trạng thái</SortButton>
-              </TableHead>
+              <TableHead className="w-24 text-center">Địa chỉ</TableHead>
+              <TableHead className="w-16 text-center">Giới tính</TableHead>
+              <TableHead className="w-16 text-center">Trạng thái</TableHead>
               <TableHead className="w-24 text-center">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
@@ -113,12 +122,38 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
                 return (
                   <TableRow key={staff.id}>
                     <TableCell className="text-center font-medium">{pagination.startIndex + index + 1}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center">
+                        {staff.avatar ? (
+                          <img
+                            src={staff.avatar}
+                            alt={`Avatar của ${staff.fullName}`}
+                            className="h-10 w-10 rounded-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(staff.fullName || "User")}`;
+                            }}
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-600">
+                            {staff.fullName?.charAt(0) || "U"}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>{staff.fullName}</TableCell>
                     <TableCell>{staff.email}</TableCell>
                     <TableCell>{staff.phone ?? "Chưa cập nhật"}</TableCell>
-                    <TableCell>{staff.address ?? "Chưa cập nhật"}</TableCell>
                     <TableCell>{formatDateTime(staff.dateOfBirth)}</TableCell>
-                    <TableCell>{formatGender(staff.gender)}</TableCell>
+                    <TableCell>{staff.address ?? "Chưa cập nhật"}</TableCell>
+                    <TableCell className="text-center">
+                      {staff.gender ? (
+                        <Badge className={`px-2 py-1 ${getGenderBadgeClass(staff.gender)}`}>{formatGender(staff.gender)}</Badge>
+                      ) : (
+                        <Badge className="bg-gray-100 text-gray-800">Chưa cập nhật</Badge>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge className={statusDisplay.className}>{statusDisplay.label}</Badge>
                     </TableCell>
@@ -128,7 +163,7 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => onDelete(staff)} title="Xóa">
-                          <Trash className="h-4 w-4" />
+                          <Trash className="h-4 w-4 text-red-600" />
                         </Button>
                       </div>
                     </TableCell>
@@ -137,7 +172,7 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={9} className="h-24 text-center">
+                <TableCell colSpan={10} className="h-24 text-center">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
@@ -157,10 +192,10 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
               />
             </PaginationItem>
 
-            {pagination.visiblePages.map((page, i) => {
+            {pagination.visiblePages.map((page) => {
               if (page === "ellipsis") {
                 return (
-                  <PaginationItem key={`ellipsis-${i}`}>
+                  <PaginationItem key={`ellipsis-${pagination.currentPage}-${pagination.totalPages}`}>
                     <PaginationEllipsis />
                   </PaginationItem>
                 );

@@ -24,6 +24,9 @@ interface StaffFormData extends StaffRequest {
 }
 
 const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
+  // Store the initial values for comparison when updating
+  const [initialValues, setInitialValues] = useState<StaffFormData | null>(null);
+
   const { control, handleSubmit, reset } = useForm<StaffFormData>({
     defaultValues: staff
       ? {
@@ -33,7 +36,7 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
           dateOfBirth: staff.dateOfBirth ?? "",
           phone: staff.phone ?? "",
           role: "STAFF",
-          gender: staff.gender,
+          gender: staff.gender as USER_GENDER,
           address: staff.address ?? "",
         }
       : {
@@ -54,16 +57,19 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
 
   useEffect(() => {
     if (staff) {
-      reset({
+      const values: StaffFormData = {
         fullName: staff.fullName ?? "",
         email: staff.email ?? "",
         password: "", // Empty password field for security
         dateOfBirth: staff.dateOfBirth ?? "",
         phone: staff.phone ?? "",
         role: "STAFF",
-        gender: staff.gender,
+        gender: staff.gender as USER_GENDER,
         address: staff.address ?? "",
-      });
+      };
+
+      reset(values);
+      setInitialValues(values);
     }
   }, [staff, reset]);
 
@@ -75,19 +81,61 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
       return;
     }
 
-    // Convert to StaffRequest format
-    const staffData: StaffRequest = {
-      fullName: data.fullName,
-      email: data.email,
-      password: data.password,
-      phone: data.phone,
-      dateOfBirth: data.dateOfBirth,
-      role: "STAFF",
-      gender: data.gender,
-      address: data.address,
+    // For new staff, send all required fields
+    if (!staff) {
+      const staffData: StaffRequest = {
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+        phone: data.phone ?? "",
+        dateOfBirth: data.dateOfBirth,
+        role: "STAFF",
+      };
+
+      onSubmit(staffData);
+      return;
+    }
+
+    // For existing staff, only send changed fields
+    const changedFields: Partial<StaffRequest> = {
+      role: "STAFF", // Always include role
     };
 
-    onSubmit(staffData);
+    if (!initialValues) return;
+
+    // Compare each field with initial values and only include changed ones
+    if (data.fullName !== initialValues.fullName) {
+      changedFields.fullName = data.fullName;
+    }
+
+    // Skip email comparison since it's likely a unique field that can't be changed
+
+    // Only include password if it's not empty (user wants to change password)
+    if (data.password) {
+      changedFields.password = data.password;
+    }
+
+    if (data.phone !== initialValues.phone) {
+      changedFields.phone = data.phone;
+    }
+
+    if (data.dateOfBirth !== initialValues.dateOfBirth) {
+      changedFields.dateOfBirth = data.dateOfBirth;
+    }
+
+    if (data.gender !== initialValues.gender) {
+      changedFields.gender = data.gender;
+    }
+
+    if (data.address !== initialValues.address) {
+      changedFields.address = data.address;
+    }
+
+    // Log the changed fields for debugging
+    console.log("Changed fields:", changedFields);
+
+    // Submit the changed fields
+    onSubmit(changedFields as StaffRequest);
   };
 
   return (
@@ -152,28 +200,30 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
           />
         </div>
 
-        {/* Giới tính */}
-        <div className="space-y-2">
-          <label htmlFor="gender" className="text-sm font-medium">
-            Giới tính
-          </label>
-          <Controller
-            name="gender"
-            control={control}
-            render={({ field }) => (
-              <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Chọn giới tính" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="MALE">Nam</SelectItem>
-                  <SelectItem value="FEMALE">Nữ</SelectItem>
-                  <SelectItem value="OTHER">Khác</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
+        {/* Giới tính - chỉ hiển thị khi đang cập nhật (edit) */}
+        {staff && (
+          <div className="space-y-2">
+            <label htmlFor="gender" className="text-sm font-medium">
+              Giới tính
+            </label>
+            <Controller
+              name="gender"
+              control={control}
+              render={({ field }) => (
+                <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn giới tính" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MALE">Nam</SelectItem>
+                    <SelectItem value="FEMALE">Nữ</SelectItem>
+                    <SelectItem value="OTHER">Khác</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+        )}
 
         {/* Số điện thoại */}
         <div className="space-y-2">
@@ -183,13 +233,15 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
           <Controller name="phone" control={control} render={({ field }) => <Input id="phone" placeholder="Số điện thoại" {...field} />} />
         </div>
 
-        {/* Địa chỉ */}
-        <div className="space-y-2">
-          <label htmlFor="address" className="text-sm font-medium">
-            Địa chỉ
-          </label>
-          <Controller name="address" control={control} render={({ field }) => <Input id="address" placeholder="Địa chỉ" {...field} />} />
-        </div>
+        {/* Địa chỉ - chỉ hiển thị khi đang cập nhật (edit) */}
+        {staff && (
+          <div className="space-y-2">
+            <label htmlFor="address" className="text-sm font-medium">
+              Địa chỉ
+            </label>
+            <Controller name="address" control={control} render={({ field }) => <Input id="address" placeholder="Địa chỉ" {...field} />} />
+          </div>
+        )}
 
         {/* Mật khẩu */}
         <div className="space-y-2">

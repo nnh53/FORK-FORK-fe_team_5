@@ -79,6 +79,9 @@ const filterByStatus = (staff: StaffUser, status: string): boolean => {
 };
 
 const filterByGender = (staff: StaffUser, gender: string): boolean => {
+  if (gender === "NOT_SET") {
+    return !staff.gender; // Trả về true nếu staff.gender là null hoặc undefined
+  }
   return staff.gender === (gender as USER_GENDER);
 };
 
@@ -263,6 +266,7 @@ const StaffManagement = () => {
             { value: "MALE", label: "Nam" },
             { value: "FEMALE", label: "Nữ" },
             { value: "OTHER", label: "Khác" },
+            { value: "NOT_SET", label: "Chưa cập nhật" },
           ],
           placeholder: "Chọn giới tính",
         },
