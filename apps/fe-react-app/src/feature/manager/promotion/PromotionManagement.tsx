@@ -248,11 +248,6 @@ export const PromotionManagement: React.FC = () => {
       width: "w-[4%]",
     },
     {
-      header: "Hình ảnh",
-      accessorKey: "image",
-      width: "w-[6%]",
-    },
-    {
       header: "Tên",
       accessorKey: "title",
       width: "w-[12%]",

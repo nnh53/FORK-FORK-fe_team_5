@@ -180,9 +180,6 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
               {/* Right column - Form fields (3/5 width) */}
               <div className="col-span-5 md:col-span-3">
                 <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">Thông tin khuyến mãi</CardTitle>
-                  </CardHeader>
                   <CardContent className="space-y-6">
                     {/* Basic Info Section */}
                     <div className="space-y-4">
