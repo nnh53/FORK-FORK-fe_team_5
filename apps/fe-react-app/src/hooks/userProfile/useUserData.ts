@@ -13,17 +13,22 @@ export const useUserData = (userId: string | null) => {
 
   useEffect(() => {
     if (userData?.result) {
+      console.log("🔍 useUserData - Updating user info with fresh data:", userData.result);
+
       setUserInfo({
         id: userData.result.id ?? "",
         name: userData.result.fullName ?? "",
         email: userData.result.email ?? "",
         phone: userData.result.phone ?? "",
-        dob: "", // dateOfBirth is not available in the current API response
-        gender: "male", // Default since gender is not in API response
+        dob: userData.result.dateOfBirth ?? "", // Use dateOfBirth from API
+        gender: userData.result.gender?.toLowerCase() ?? "male", // Convert to lowercase
         city: "", // Default since city is not in API response
         address: userData.result.address ?? "",
-        img: userData.result.avatar ?? "",
+        img: userData.result.avatar ?? "", // This should now have the new avatar
+        avatar: userData.result.avatar ?? "", // Include avatar field
       });
+
+      console.log("🔍 useUserData - User info updated with avatar:", userData.result.avatar);
     }
   }, [userData]);
 

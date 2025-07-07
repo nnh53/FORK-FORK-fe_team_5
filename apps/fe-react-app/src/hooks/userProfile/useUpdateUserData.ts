@@ -1,5 +1,6 @@
 import type { UserFormData } from "@/constants/profile";
-import { useUpdateUser } from "@/services/userService";
+import { transformUserFormToUpdate, useUpdateUser } from "@/services/userService";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 /**
@@ -8,22 +9,47 @@ import { useCallback } from "react";
  */
 export const useUpdateUserData = () => {
   const updateUserMutation = useUpdateUser();
+  const queryClient = useQueryClient();
 
   const updateUser = useCallback(
-    (userId: string, userData: Partial<UserFormData>) => {
-      const updateData = {
-        fullName: userData.name,
+    (userId: string, userData: Partial<UserFormData & { avatar?: string }>) => {
+      console.log("🔍 useUpdateUserData - userId:", userId);
+      console.log("🔍 useUpdateUserData - userData:", userData);
+
+      // Use transform function to properly format the data
+      const transformedData = transformUserFormToUpdate({
+        name: userData.name,
         email: userData.email,
         phone: userData.phone,
         address: userData.address,
-      };
-
-      updateUserMutation.mutate({
-        params: { path: { userId } },
-        body: updateData,
+        avatar: userData.avatar,
+        dob: userData.dob,
+        gender: userData.gender,
       });
+
+      console.log("🔍 useUpdateUserData - transformedData:", transformedData);
+
+      updateUserMutation.mutate(
+        {
+          params: { path: { userId } },
+          body: transformedData,
+        },
+        {
+          onSuccess: (data) => {
+            console.log("✅ User updated successfully from useUpdateUserData:", data);
+
+            // Force invalidate all queries to ensure fresh data
+            queryClient.invalidateQueries();
+
+            console.log("🔄 All queries invalidated from useUpdateUserData");
+          },
+          onError: (error) => {
+            console.error("❌ User update failed from useUpdateUserData:", error);
+          },
+        },
+      );
     },
-    [updateUserMutation],
+    [updateUserMutation, queryClient],
   );
 
   return { updateUser, mutation: updateUserMutation };

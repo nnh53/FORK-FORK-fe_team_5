@@ -2,6 +2,7 @@ import { ROLES, type ROLE_TYPE } from "@/interfaces/roles.interface";
 import type { LoginDTO, User, UserLoginResponse, UserRequest, UserUpdate } from "@/interfaces/users.interface";
 import type { UserResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 // ==================== USER API HOOKS ====================
 
@@ -39,7 +40,22 @@ export const useGetUserById = (userId: string) => {
  * Hook for updating a user
  */
 export const useUpdateUser = () => {
-  return $api.useMutation("put", "/users/{userId}");
+  const queryClient = useQueryClient();
+
+  return $api.useMutation("put", "/users/{userId}", {
+    onSuccess: (data, variables) => {
+      console.log("✅ User update successful:", data);
+      console.log("🔍 Variables:", variables);
+
+      // Invalidate all queries to ensure fresh data
+      queryClient.invalidateQueries();
+
+      console.log("🔄 All queries invalidated - user data will refetch");
+    },
+    onError: (error) => {
+      console.error("❌ User update failed:", error);
+    },
+  });
 };
 
 /**
@@ -97,7 +113,9 @@ export const transformRegisterRequest = (data: {
  * Transform a user update request
  */
 export const transformUserUpdateRequest = (data: Partial<User>): UserUpdate => {
-  return {
+  console.log("🔍 transformUserUpdateRequest - input data:", data);
+
+  const transformed = {
     fullName: data.fullName,
     phone: data.phone,
     address: data.address,
@@ -107,6 +125,10 @@ export const transformUserUpdateRequest = (data: Partial<User>): UserUpdate => {
     gender: data.gender,
     dateOfBirth: data.dateOfBirth,
   };
+
+  console.log("🔍 transformUserUpdateRequest - transformed data:", transformed);
+
+  return transformed;
 };
 
 /**
@@ -151,6 +173,37 @@ export const transformUserLoginResponse = (data: {
   token: data.token ?? "",
   refresh_token: data.refresh_token ?? "",
 });
+
+/**
+ * Transform user form data to UserUpdate request
+ */
+export const transformUserFormToUpdate = (
+  data: Partial<{
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    avatar?: string;
+    dob?: string;
+    gender?: string;
+  }>,
+): UserUpdate => {
+  console.log("🔍 transformUserFormToUpdate - input data:", data);
+
+  const transformed: UserUpdate = {
+    fullName: data.name,
+    phone: data.phone,
+    address: data.address,
+    avatar: data.avatar,
+    gender: data.gender as "MALE" | "FEMALE" | "OTHER" | undefined,
+    dateOfBirth: data.dob,
+  };
+
+  console.log("🔍 transformUserFormToUpdate - transformed data:", transformed);
+
+  return transformed;
+};
+
 // ==================== HELPER FUNCTIONS ====================
 
 /**
