@@ -116,10 +116,11 @@ export const transformCinemaRoomToUpdateRequest = (room: Partial<CinemaRoom>): C
   };
 };
 
-export const transformSeatToRequest = (seat: { type?: string; status?: SeatStatus }): SeatRequest => {
+export const transformSeatToRequest = (seat: { type?: string; status?: SeatStatus; linkSeatId?: number }): SeatRequest => {
   return {
     type: seat.type,
     status: seat.status,
+    linkSeatId: seat.linkSeatId,
   };
 };
 
@@ -186,11 +187,12 @@ export const getSeatStatusLabel = (status: SeatStatus): string => {
 };
 
 // Helper functions for couple seat operations
-export const updateSeatToCouple = (seat: Seat): SeatRequest => {
-  // Update seat to couple type, backend handles the linking
+export const updateSeatToCouple = (seat: Seat, linkedSeatId: number): SeatRequest => {
+  // Only need to update one seat with linkSeatId, backend handles the other
   return transformSeatToRequest({
     type: "COUPLE",
     status: seat.status as SeatStatus,
+    linkSeatId: linkedSeatId,
   });
 };
 
@@ -202,10 +204,11 @@ export const updateCoupleToSingle = (seat: Seat): SeatRequest => {
   });
 };
 
-export const updateSeatType = (seat: Seat, newType: string): SeatRequest => {
+export const updateSeatType = (seat: Seat, newType: string, linkSeatId?: number): SeatRequest => {
   return transformSeatToRequest({
     type: newType,
     status: seat.status as SeatStatus,
+    linkSeatId: linkSeatId,
   });
 };
 
@@ -228,7 +231,7 @@ export const updateSeatType = (seat: Seat, newType: string): SeatRequest => {
  * });
  *
  * // Update any seat type with optional linking
- * const seatUpdate = updateSeatType(currentSeat, "VIP", null);
+ * const seatUpdate = updateSeatType(currentSeat, "VIP", linkSeatId);
  * await updateSeatMutation.mutateAsync({
  *   params: { path: { id: currentSeat.id } },
  *   body: seatUpdate,

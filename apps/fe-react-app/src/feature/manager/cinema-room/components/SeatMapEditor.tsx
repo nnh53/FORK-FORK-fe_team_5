@@ -209,7 +209,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     }
 
     // Convert single seat to couple
-    const seatUpdateRequest = updateSeatToCouple(seat);
+    const seatUpdateRequest = updateSeatToCouple(seat, targetSeat.id);
 
     // Update UI optimistically
     handleDoubleSeatCreation(newSeatMap, seat);
