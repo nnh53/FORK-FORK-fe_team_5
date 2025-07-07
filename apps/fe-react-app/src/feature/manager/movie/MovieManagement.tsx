@@ -7,13 +7,14 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar } from "@/components/shared/SearchBar";
 import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
 import { MovieGenre, MovieStatus, MovieVersion } from "@/interfaces/movies.interface";
-import { transformMovieResponse, transformMovieToRequest, useCreateMovie, useMovies, useUpdateMovie } from "@/services/movieService";
+import { queryCreateMovie, queryUpdateMovie, transformMovieResponse, transformMovieToRequest, useMovies } from "@/services/movieService";
 import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { MovieDataTable } from "./MovieDataTable";
 import MovieDetail from "./MovieDetail";
+import { MovieGenreManagement } from "./MovieGenreManagement";
 import { MovieViewDialog } from "./MovieViewDialog";
 
 // SearchBar options
@@ -102,12 +103,14 @@ const MovieManagement = () => {
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
   const [viewMovie, setViewMovie] = useState<Movie | undefined>();
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [genreManagementMovie, setGenreManagementMovie] = useState<Movie | undefined>();
+  const [isGenreManagementOpen, setIsGenreManagementOpen] = useState(false);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
   // Use React Query hooks
   const moviesQuery = useMovies();
-  const createMovieMutation = useCreateMovie();
-  const updateMovieMutation = useUpdateMovie();
+  const createMovieMutation = queryCreateMovie();
+  const updateMovieMutation = queryUpdateMovie();
 
   // Transform API response to Movie interface
   const movies: Movie[] = useMemo(() => {
@@ -171,6 +174,11 @@ const MovieManagement = () => {
   const handleView = (movie: Movie) => {
     setViewMovie(movie);
     setIsViewDialogOpen(true);
+  };
+
+  const handleManageGenres = (movie: Movie) => {
+    setGenreManagementMovie(movie);
+    setIsGenreManagementOpen(true);
   };
 
   const handleDelete = (movie: Movie) => {
@@ -337,7 +345,13 @@ const MovieManagement = () => {
                 // groupMode={true} // Nếu muốn nhóm filter
               />
             </div>
-            <MovieDataTable data={filteredMovies} onEdit={handleEdit} onView={handleView} onDelete={handleDelete} />
+            <MovieDataTable
+              data={filteredMovies}
+              onEdit={handleEdit}
+              onView={handleView}
+              onDelete={handleDelete}
+              onManageGenres={handleManageGenres}
+            />
           </CardContent>
         </Card>
       </div>
@@ -364,6 +378,18 @@ const MovieManagement = () => {
           onClose={() => {
             setIsViewDialogOpen(false);
             setViewMovie(undefined);
+          }}
+        />
+
+        <MovieGenreManagement
+          movie={genreManagementMovie || null}
+          isOpen={isGenreManagementOpen}
+          onClose={() => {
+            setIsGenreManagementOpen(false);
+            setGenreManagementMovie(undefined);
+          }}
+          onSuccess={() => {
+            moviesQuery.refetch();
           }}
         />
       </div>

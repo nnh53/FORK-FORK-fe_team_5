@@ -30,7 +30,7 @@ const formSchema = z.object({
   director: z.string().min(1, "Director is required"),
   duration: z.number().min(1, "Duration must be at least 1 minute").optional(),
   trailer: z.string().optional(),
-  categoryIds: z.array(z.number()).min(1, "At least one category is required"),
+  categoryIds: z.array(z.number()).optional(),
   description: z.string().min(1, "Description is required"),
   status: z.string().optional(),
   poster: z.string().optional(),
@@ -301,30 +301,6 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                   <FormLabel>Trailer URL</FormLabel>
                   <FormControl>
                     <Input placeholder="URL to movie trailer" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="categoryIds"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categories*</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Category IDs (comma separated: 1,2,3)"
-                      value={field.value?.join(", ") || ""}
-                      onChange={(e) => {
-                        const ids = e.target.value
-                          .split(",")
-                          .map((id) => parseInt(id.trim()))
-                          .filter((id) => !isNaN(id));
-                        field.onChange(ids);
-                      }}
-                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

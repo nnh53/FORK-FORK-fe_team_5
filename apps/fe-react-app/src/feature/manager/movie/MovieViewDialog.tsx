@@ -20,7 +20,6 @@ export function MovieViewDialog({ movie, isOpen, onClose }: MovieViewDialogProps
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <div>
-              <h3 className="mb-2 font-semibold">Basic Information</h3>
               <div className="space-y-2">
                 <p>
                   <strong>Title:</strong> {movie.name ?? "N/A"}

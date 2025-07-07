@@ -10,16 +10,17 @@ import {
 import type { Movie } from "@/interfaces/movies.interface";
 import { formatAgeRestrict, formatDateRange, formatDuration, getStatusBadgeVariant, getStatusClassName } from "@/utils/color.utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, Eye, MoreHorizontal, Tags, Trash } from "lucide-react";
 
 interface MovieTableActionsProps {
   movie: Movie;
   onView: (movie: Movie) => void;
   onEdit: (movie: Movie) => void;
   onDelete: (movie: Movie) => void;
+  onManageGenres?: (movie: Movie) => void;
 }
 
-export const MovieTableActions = ({ movie, onView, onEdit, onDelete }: MovieTableActionsProps) => {
+export const MovieTableActions = ({ movie, onView, onEdit, onDelete, onManageGenres }: MovieTableActionsProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -37,6 +38,12 @@ export const MovieTableActions = ({ movie, onView, onEdit, onDelete }: MovieTabl
           <Edit className="mr-2 h-4 w-4" />
           Edit
         </DropdownMenuItem>
+        {onManageGenres && (
+          <DropdownMenuItem onClick={() => onManageGenres(movie)}>
+            <Tags className="mr-2 h-4 w-4" />
+            Manage Genres
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => onDelete(movie)} className="text-red-600 focus:text-red-600">
           <Trash className="mr-2 h-4 w-4" />
@@ -51,6 +58,7 @@ export const createMovieColumns = (
   onView: (movie: Movie) => void,
   onEdit: (movie: Movie) => void,
   onDelete: (movie: Movie) => void,
+  onManageGenres?: (movie: Movie) => void,
 ): ColumnDef<Movie>[] => [
   {
     accessorKey: "name",
@@ -129,6 +137,6 @@ export const createMovieColumns = (
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => <MovieTableActions movie={row.original} onView={onView} onEdit={onEdit} onDelete={onDelete} />,
+    cell: ({ row }) => <MovieTableActions movie={row.original} onView={onView} onEdit={onEdit} onDelete={onDelete} onManageGenres={onManageGenres} />,
   },
 ];

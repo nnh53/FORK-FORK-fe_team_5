@@ -7,27 +7,25 @@ export const useMovies = () => {
   return $api.useQuery("get", "/movies", {});
 };
 
-export const useMovie = (id: number) => {
+export const queryMovie = (id: number) => {
   return $api.useQuery("get", "/movies/{id}", {
     params: { path: { id } },
   });
 };
 
-export const useMovieSearch = () => {
-  // For now, we'll use the basic getAll endpoint
-  // Note: Backend might need to add search parameters support
+export const queryMovieSearch = () => {
   return $api.useQuery("get", "/movies");
 };
 
-export const useCreateMovie = () => {
+export const queryCreateMovie = () => {
   return $api.useMutation("post", "/movies");
 };
 
-export const useUpdateMovie = () => {
+export const queryUpdateMovie = () => {
   return $api.useMutation("put", "/movies/{id}");
 };
 
-export const useDeleteMovie = () => {
+export const queryDeleteMovie = () => {
   return $api.useMutation("delete", "/movies/{id}");
 };
 

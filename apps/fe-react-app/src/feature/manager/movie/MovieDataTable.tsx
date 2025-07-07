@@ -24,9 +24,10 @@ interface MovieDataTableProps {
   onEdit: (movie: Movie) => void;
   onView: (movie: Movie) => void;
   onDelete: (movie: Movie) => void;
+  onManageGenres?: (movie: Movie) => void;
 }
 
-export function MovieDataTable({ data, onEdit, onView, onDelete }: Readonly<MovieDataTableProps>) {
+export function MovieDataTable({ data, onEdit, onView, onDelete, onManageGenres }: Readonly<MovieDataTableProps>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -35,7 +36,7 @@ export function MovieDataTable({ data, onEdit, onView, onDelete }: Readonly<Movi
     pageSize: 10,
   });
 
-  const columns = createMovieColumns(onView, onEdit, onDelete);
+  const columns = createMovieColumns(onView, onEdit, onDelete, onManageGenres);
 
   const table = useReactTable({
     data,
