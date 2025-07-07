@@ -10,6 +10,7 @@ interface SortButtonProps extends Omit<React.ComponentProps<typeof Button>, "onC
   onChange?: (direction: SortDirection) => void;
   direction?: SortDirection;
   label?: string;
+  children?: React.ReactNode;
 }
 
 // Custom Sort Icon với kích thước lớn hơn
@@ -45,11 +46,11 @@ const getNextDirection = (currentDirection: SortDirection): SortDirection => {
   return "none";
 };
 
-export function SortButton({ onChange, direction: externalDirection, label, className, ...props }: SortButtonProps) {
+export function SortButton({ onChange, direction: externalDirection, label, className, children, ...props }: Readonly<SortButtonProps>) {
   const [internalDirection, setInternalDirection] = React.useState<SortDirection>("none");
 
   // Use external direction if provided, otherwise use internal state
-  const direction = externalDirection !== undefined ? externalDirection : internalDirection;
+  const direction = externalDirection ?? internalDirection;
 
   const handleClick = () => {
     const newDirection = getNextDirection(direction);
@@ -57,11 +58,16 @@ export function SortButton({ onChange, direction: externalDirection, label, clas
     onChange?.(newDirection);
   };
 
+  // Sử dụng children hoặc label nếu có
+  const displayLabel = children || label;
+
   return (
-    <Button variant="ghost" size={label ? "sm" : "icon"} className={cn(label ? "gap-1" : "size-8", className)} onClick={handleClick} {...props}>
-      {label && <span>{label}</span>}
-      {renderSortIcon(direction)}
-      <span className="sr-only">{getSortAriaLabel(direction)}</span>
-    </Button>
+    <div className="flex items-center gap-2">
+      <span className="whitespace-nowrap">{displayLabel}</span>
+      <Button variant="ghost" size="icon" className={cn("ml-1 h-6 w-6 p-0", className)} onClick={handleClick} {...props}>
+        {renderSortIcon(direction)}
+        <span className="sr-only">{getSortAriaLabel(direction)}</span>
+      </Button>
+    </div>
   );
 }

@@ -1,7 +1,8 @@
 import { Button } from "@/components/Shadcn/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/Shadcn/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { SortButton } from "@/components/shared/SortButton";
-import { Edit, Eye, Trash } from "lucide-react";
+import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 
 type SortProps = {
   direction: "asc" | "desc" | "none";
@@ -76,23 +77,36 @@ export const AdminTable = <T extends { id?: number; [key: string]: unknown }>({
                 </TableCell>
               ))}
               <TableCell className="text-center">
-                <div className="flex justify-center space-x-2">
-                  {data.id !== undefined && handleViewClick && (
-                    <Button variant="outline" size="icon" onClick={() => handleViewClick(data.id!)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {data.id !== undefined && handleEdit && (
-                    <Button variant="outline" size="icon" onClick={() => handleEdit(data.id!)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {data.id !== undefined && handleDeleteClick && (
-                    <Button variant="outline" size="icon" onClick={() => handleDeleteClick(data.id!)}>
-                      <Trash className="h-4 w-4 text-red-600" />
-                    </Button>
-                  )}
-                </div>
+                {data.id !== undefined && (handleViewClick || handleEdit || handleDeleteClick) && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                        <span className="sr-only">Mở menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {handleViewClick && (
+                        <DropdownMenuItem onClick={() => handleViewClick(data.id!)} className="cursor-pointer">
+                          <Eye className="mr-2 h-4 w-4" />
+                          <span>Xem chi tiết</span>
+                        </DropdownMenuItem>
+                      )}
+                      {handleEdit && (
+                        <DropdownMenuItem onClick={() => handleEdit(data.id!)} className="cursor-pointer">
+                          <Edit className="mr-2 h-4 w-4" />
+                          <span>Chỉnh sửa</span>
+                        </DropdownMenuItem>
+                      )}
+                      {handleDeleteClick && (
+                        <DropdownMenuItem onClick={() => handleDeleteClick(data.id!)} className="cursor-pointer text-red-600 focus:text-red-600">
+                          <Trash className="mr-2 h-4 w-4" />
+                          <span>Xóa</span>
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </TableCell>
             </TableRow>
           ))}
