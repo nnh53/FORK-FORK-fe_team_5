@@ -9,6 +9,7 @@ export interface UserFormData {
   city: string;
   address: string;
   img: string;
+  avatar?: string; // For Cloudflare image ID
 }
 
 // Initial data
@@ -22,6 +23,7 @@ export const INITIAL_USER_DATA: UserFormData = {
   city: "",
   address: "",
   img: "",
+  avatar: "",
 };
 
 // Options

@@ -7,4 +7,8 @@ export { useScrollVelocity } from "./useScrollVelocity";
 export { useAuthPageAnimation } from "./useAuthPageAnimation";
 
 // User profile related hooks
-export { useUpdateUserData, useUserData } from "./userProfile";
+export { useUpdateUserData, useUpdateUserWithAvatar, useUserData } from "./userProfile";
+
+// Image upload hooks
+export { clearUploadedImageId, getUploadedImageId, useImageUpload } from "./useImageUpload";
+export { useImageUploadAndUpdate } from "./useImageUploadAndUpdate";

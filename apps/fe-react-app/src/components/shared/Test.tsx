@@ -3,11 +3,10 @@
 import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from "@/components/Shadcn/file-upload";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
-import { compressImage } from "@/services/imageCompressService";
-import { $api } from "@/utils/api";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CloudUpload, Paperclip } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { DropzoneOptions } from "react-dropzone";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,9 +37,9 @@ const dropZoneConfig = {
 // DƯỚI ĐÂY LÀ COMPONENT **********************************************************************************
 
 export default function Test() {
-  const query = $api.useMutation("post", "/media/upload");
+  const { uploadImage, isLoading, error } = useImageUpload();
   const [files, setFiles] = useState<File[] | null>(null);
-  const [webpFileArr, setWebpFileArr] = useState<File[] | null>(null);
+  const [uploadedImageId, setUploadedImageId] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,37 +48,16 @@ export default function Test() {
     },
   });
 
-  async function onSubmit(formInputData: z.infer<typeof formSchema>) {
+  async function onSubmit() {
     if (files && files.length > 0) {
-      files.forEach(async (item) => {
-        const webpFile = await compressImage(item);
-        setWebpFileArr((prev) => [...(prev || []), webpFile]);
-      });
+      try {
+        const result = await uploadImage(files[0]);
+        setUploadedImageId(result.result);
+      } catch (error) {
+        console.error("Upload failed:", error);
+      }
     }
-    console.log("webpFileArr nè ", webpFileArr);
-
-    const formdata = new FormData();
-    formdata.append("file", webpFileArr?.[0] as File);
-    console.log("formdata nè ", formdata);
-    query.mutate(
-      {
-        body: formdata as unknown as { file: string },
-      },
-      {
-        onSuccess: (data) => {
-          console.log("Upload successful:", data);
-        },
-        onError: (error) => {
-          console.error("Upload failed:", error);
-        },
-      },
-    );
   }
-
-  useEffect(() => {
-    console.log("files nè ", files);
-    console.log("webpFileArr nè ", webpFileArr);
-  }, [webpFileArr, files]);
 
   return (
     <div className="">
@@ -88,7 +66,7 @@ export default function Test() {
           <FormField
             control={form.control}
             name="files"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Select File</FormLabel>
                 <FormControl>
@@ -126,10 +104,23 @@ export default function Test() {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Uploading..." : "Submit"}
+          </Button>
+
+          {uploadedImageId && (
+            <div className="mt-4 rounded bg-green-100 p-4">
+              <p>Image uploaded successfully! ID: {uploadedImageId}</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-4 rounded bg-red-100 p-4">
+              <p>Upload failed: {String(error)}</p>
+            </div>
+          )}
         </form>
       </Form>
-      {/* <div>{webpBufferFileArrDecode && webpBufferFileArrDecode.map((item, i) => <div key={i}>{item.data}</div>)}</div> */}
     </div>
   );
 }
