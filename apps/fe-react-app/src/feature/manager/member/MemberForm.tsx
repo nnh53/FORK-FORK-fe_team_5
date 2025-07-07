@@ -26,6 +26,9 @@ interface MemberFormData extends UserRequest {
 }
 
 const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
+  // Store initial values for comparison when updating
+  const [initialValues, setInitialValues] = useState<MemberFormData | null>(null);
+
   const { control, handleSubmit, reset } = useForm<MemberFormData>({
     defaultValues: member
       ? {
@@ -56,7 +59,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
 
   useEffect(() => {
     if (member) {
-      reset({
+      const values: MemberFormData = {
         fullName: member.fullName ?? "",
         email: member.email ?? "",
         password: "",
@@ -65,7 +68,10 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
         role: ROLES.MEMBER,
         gender: member.gender,
         address: member.address ?? "",
-      });
+      };
+
+      reset(values);
+      setInitialValues(values);
     }
   }, [member, reset]);
 
@@ -75,18 +81,61 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
       return;
     }
 
-    const userData: UserRequest = {
-      fullName: data.fullName,
-      email: data.email,
-      password: data.password,
-      phone: data.phone,
-      dateOfBirth: data.dateOfBirth,
-      role: ROLES.MEMBER,
-      gender: data.gender,
-      address: data.address,
+    // For new member, send all required fields
+    if (!member) {
+      const userData: UserRequest = {
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        dateOfBirth: data.dateOfBirth,
+        role: ROLES.MEMBER,
+      };
+
+      onSubmit(userData);
+      return;
+    }
+
+    // For existing member, only send changed fields
+    const changedFields: Partial<UserRequest> = {
+      role: ROLES.MEMBER, // Always include role
     };
 
-    onSubmit(userData);
+    if (!initialValues) return;
+
+    // Compare each field with initial values and only include changed ones
+    if (data.fullName !== initialValues.fullName) {
+      changedFields.fullName = data.fullName;
+    }
+
+    // Skip email since it's a unique field
+
+    // Only include password if it's not empty (user wants to change password)
+    if (data.password) {
+      changedFields.password = data.password;
+    }
+
+    if (data.phone !== initialValues.phone) {
+      changedFields.phone = data.phone;
+    }
+
+    if (data.dateOfBirth !== initialValues.dateOfBirth) {
+      changedFields.dateOfBirth = data.dateOfBirth;
+    }
+
+    if (data.gender !== initialValues.gender) {
+      changedFields.gender = data.gender;
+    }
+
+    if (data.address !== initialValues.address) {
+      changedFields.address = data.address;
+    }
+
+    // Log the changed fields for debugging
+    console.log("Changed fields:", changedFields);
+
+    // Submit the changed fields
+    onSubmit(changedFields as UserRequest);
   };
 
   return (
@@ -151,28 +200,30 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
           />
         </div>
 
-        {/* Giới tính */}
-        <div className="space-y-2">
-          <label htmlFor="gender" className="text-sm font-medium">
-            Giới tính
-          </label>
-          <Controller
-            name="gender"
-            control={control}
-            render={({ field }) => (
-              <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Chọn giới tính" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="MALE">Nam</SelectItem>
-                  <SelectItem value="FEMALE">Nữ</SelectItem>
-                  <SelectItem value="OTHER">Khác</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
+        {/* Giới tính - chỉ hiển thị khi đang cập nhật (edit) */}
+        {member && (
+          <div className="space-y-2">
+            <label htmlFor="gender" className="text-sm font-medium">
+              Giới tính
+            </label>
+            <Controller
+              name="gender"
+              control={control}
+              render={({ field }) => (
+                <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn giới tính" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MALE">Nam</SelectItem>
+                    <SelectItem value="FEMALE">Nữ</SelectItem>
+                    <SelectItem value="OTHER">Khác</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+        )}
 
         {/* Số điện thoại */}
         <div className="space-y-2">
@@ -182,13 +233,15 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
           <Controller name="phone" control={control} render={({ field }) => <Input id="phone" placeholder="Số điện thoại" {...field} />} />
         </div>
 
-        {/* Địa chỉ */}
-        <div className="space-y-2">
-          <label htmlFor="address" className="text-sm font-medium">
-            Địa chỉ
-          </label>
-          <Controller name="address" control={control} render={({ field }) => <Input id="address" placeholder="Địa chỉ" {...field} />} />
-        </div>
+        {/* Địa chỉ - chỉ hiển thị khi đang cập nhật (edit) */}
+        {member && (
+          <div className="space-y-2">
+            <label htmlFor="address" className="text-sm font-medium">
+              Địa chỉ
+            </label>
+            <Controller name="address" control={control} render={({ field }) => <Input id="address" placeholder="Địa chỉ" {...field} />} />
+          </div>
+        )}
 
         {/* Mật khẩu */}
         <div className="space-y-2">
@@ -201,17 +254,15 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
               control={control}
               rules={!member ? { required: "Vui lòng nhập mật khẩu" } : {}}
               render={({ field, fieldState }) => (
-                <div className="w-full">
-                  <div className="relative">
-                    <Input id="password" placeholder="Mật khẩu" type={showPassword ? "text" : "password"} {...field} />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 flex items-center pr-3"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
+                <div className="relative w-full">
+                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mật khẩu" className="pr-10" {...field} />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                   {fieldState.error && <p className="mt-1 text-xs text-red-500">{fieldState.error.message}</p>}
                 </div>
               )}
@@ -231,17 +282,21 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
                 control={control}
                 rules={{ required: "Vui lòng xác nhận mật khẩu" }}
                 render={({ field, fieldState }) => (
-                  <div className="w-full">
-                    <div className="relative">
-                      <Input id="confirmPassword" placeholder="Xác nhận mật khẩu" type={showConfirmPassword ? "text" : "password"} {...field} />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 flex items-center pr-3"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
+                  <div className="relative w-full">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Xác nhận mật khẩu"
+                      className="pr-10"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                     {fieldState.error && <p className="mt-1 text-xs text-red-500">{fieldState.error.message}</p>}
                   </div>
                 )}

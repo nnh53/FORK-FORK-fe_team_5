@@ -86,6 +86,9 @@ const filterByStatus = (member: User, status: string): boolean => {
 };
 
 const filterByGender = (member: User, gender: string): boolean => {
+  if (gender === "NOT_SET") {
+    return !member.gender; // Trả về true nếu member.gender là null hoặc undefined
+  }
   return member.gender === (gender as USER_GENDER);
 };
 
@@ -124,6 +127,7 @@ const filterGroups: FilterGroup[] = [
           { value: "MALE", label: "Nam" },
           { value: "FEMALE", label: "Nữ" },
           { value: "OTHER", label: "Khác" },
+          { value: "NOT_SET", label: "Chưa cập nhật" },
         ],
         placeholder: "Chọn giới tính",
       },
@@ -158,6 +162,7 @@ const MemberManagement = () => {
   ];
 
   useEffect(() => {
+    console.log(usersQuery.status);
     if (usersQuery.data?.result) {
       // Transform API response to User[] and filter for MEMBER role
       let transformedUsers: User[] = [];
@@ -174,7 +179,7 @@ const MemberManagement = () => {
       setMembers(transformedUsers);
     }
     setLoading(usersQuery.isLoading);
-  }, [usersQuery.data, usersQuery.isLoading]);
+  }, [usersQuery.data, usersQuery.isLoading, usersQuery.error, usersQuery.isError, usersQuery.isSuccess]);
 
   const filteredMembers = useMemo(() => {
     if (!members) return [];

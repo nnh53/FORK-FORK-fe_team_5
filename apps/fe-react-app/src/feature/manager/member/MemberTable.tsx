@@ -46,6 +46,20 @@ const formatGender = (gender?: string) => {
   }
 };
 
+// Hàm lấy class cho badge giới tính
+const getGenderBadgeClass = (gender: string): string => {
+  switch (gender) {
+    case "MALE":
+      return "bg-blue-100 text-blue-800";
+    case "FEMALE":
+      return "bg-pink-100 text-pink-800";
+    case "OTHER":
+      return "bg-purple-100 text-purple-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
 // Extended User interface to include membership data
 interface UserWithMembership extends User {
   membershipLevel?: MEMBERSHIP_LEVEL;
@@ -93,6 +107,7 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="w-16 text-center">STT</TableHead>
+              <TableHead className="w-16 text-center">Avatar</TableHead>
               <TableHead>
                 <SortButton {...getSortProps("fullName")}>Họ tên</SortButton>
               </TableHead>
@@ -103,17 +118,11 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                 <SortButton {...getSortProps("phone")}>Số điện thoại</SortButton>
               </TableHead>
               <TableHead>
-                <SortButton {...getSortProps("address")}>Địa chỉ</SortButton>
-              </TableHead>
-              <TableHead>
                 <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
               </TableHead>
-              <TableHead>
-                <SortButton {...getSortProps("gender")}>Giới tính</SortButton>
-              </TableHead>
-              <TableHead className="w-28">
-                <SortButton {...getSortProps("status")}>Trạng thái</SortButton>
-              </TableHead>
+              <TableHead className="w-24 text-left">Địa chỉ</TableHead>
+              <TableHead className="w-16 text-center">Giới tính</TableHead>
+              <TableHead className="w-16 text-center">Trạng thái</TableHead>
               <TableHead className="w-24 text-center">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
@@ -125,12 +134,38 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                 return (
                   <TableRow key={member.id}>
                     <TableCell className="text-center font-medium">{pagination.startIndex + index + 1}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center">
+                        {member.avatar ? (
+                          <img
+                            src={member.avatar}
+                            alt={`Avatar của ${member.fullName}`}
+                            className="h-10 w-10 rounded-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.fullName || "User")}`;
+                            }}
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-600">
+                            {member.fullName?.charAt(0) || "U"}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>{member.fullName}</TableCell>
                     <TableCell>{member.email}</TableCell>
                     <TableCell>{member.phone ?? "Chưa cập nhật"}</TableCell>
-                    <TableCell>{member.address ?? "Chưa cập nhật"}</TableCell>
                     <TableCell>{member.dateOfBirth ? formatDateTime(member.dateOfBirth) : "Chưa cập nhật"}</TableCell>
-                    <TableCell>{formatGender(member.gender)}</TableCell>
+                    <TableCell>{member.address ?? "Chưa cập nhật"}</TableCell>
+                    <TableCell className="text-center">
+                      {member.gender ? (
+                        <Badge className={`px-2 py-1 ${getGenderBadgeClass(member.gender)}`}>{formatGender(member.gender)}</Badge>
+                      ) : (
+                        <Badge className="bg-gray-100 text-gray-800">Chưa cập nhật</Badge>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge className={statusDisplay.className}>{statusDisplay.label}</Badge>
                     </TableCell>
@@ -140,7 +175,7 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => onDelete(member)} title="Xóa">
-                          <Trash className="h-4 w-4" />
+                          <Trash className="h-4 w-4 text-red-600" />
                         </Button>
                       </div>
                     </TableCell>
@@ -149,7 +184,7 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={9} className="h-24 text-center">
+                <TableCell colSpan={10} className="h-24 text-center">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
