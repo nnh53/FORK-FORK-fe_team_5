@@ -18,6 +18,7 @@ interface SnackFormProps {
   snack?: Snack;
   onSubmit: (data: Omit<Snack, "id">) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 // Update formSchema to include flavor

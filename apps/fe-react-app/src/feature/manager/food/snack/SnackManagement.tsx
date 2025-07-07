@@ -14,8 +14,10 @@ import {
   useSnacks,
   useUpdateSnack,
 } from "@/services/snackService";
+import type { CustomAPIResponse } from "@/type-from-be";
+import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import SnackForm from "./SnackForm";
 import SnackTable from "./SnackTable";
@@ -66,8 +68,6 @@ const filterByStatus = (snack: Snack, status: string): boolean => {
 };
 
 const SnackManagement: React.FC = () => {
-  const [snacks, setSnacks] = useState<Snack[]>([]);
-  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSnack, setSelectedSnack] = useState<Snack | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,6 +75,7 @@ const SnackManagement: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [snackToDelete, setSnackToDelete] = useState<Snack | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
+  const queryClient = useQueryClient();
 
   // React Query hooks
   const snacksQuery = useSnacks();
@@ -133,26 +134,61 @@ const SnackManagement: React.FC = () => {
       placeholder: "Chọn trạng thái",
     },
   ];
-
-  const fetchSnacks = useCallback(() => {
-    // Refetch the data
-    snacksQuery.refetch();
-  }, [snacksQuery]);
+  //kiểm tra trang thai cua query
+  useEffect(() => {
+    console.log("Snacks data:", snacksQuery.data);
+    console.log("Snacks status:", snacksQuery.status);
+    console.log("Snacks error:", snacksQuery.error);
+  }, [snacksQuery.data, snacksQuery.status, snacksQuery.error]);
 
   useEffect(() => {
-    // Set loading state based on query status
-    setLoading(snacksQuery.isLoading);
+    console.log("Create mutation status:", createSnackMutation.status);
+    console.log("Create mutation error:", createSnackMutation.error);
+  }, [createSnackMutation.status, createSnackMutation.error]);
 
-    // When data is available, update the snacks state
-    if (snacksQuery.data?.result) {
-      setSnacks(transformSnacksResponse(snacksQuery.data.result));
+  useEffect(() => {
+    console.log("Update mutation status:", updateSnackMutation.status);
+    console.log("Update mutation error:", updateSnackMutation.error);
+  }, [updateSnackMutation.status, updateSnackMutation.error]);
+
+  useEffect(() => {
+    console.log("Delete mutation status:", deleteSnackMutation.status);
+    console.log("Delete mutation error:", deleteSnackMutation.error);
+  }, [deleteSnackMutation.status, deleteSnackMutation.error]);
+
+  // Xử lý kết quả của mutations trong useEffect
+  useEffect(() => {
+    if (createSnackMutation.isSuccess) {
+      toast.success("Thêm thực phẩm thành công");
+      snacksQuery.refetch(); // Refetch snacks to update the list
+      setIsModalOpen(false);
+      setSelectedSnack(undefined);
+    } else if (createSnackMutation.isError) {
+      toast.error((createSnackMutation.error as CustomAPIResponse)?.message || "Lỗi khi thêm thực phẩm");
     }
-  }, [snacksQuery.data, snacksQuery.isLoading]);
+  }, [createSnackMutation.isSuccess, createSnackMutation.isError, createSnackMutation.error, queryClient]);
 
-  // Call fetchSnacks when the component mounts
   useEffect(() => {
-    fetchSnacks();
-  }, [fetchSnacks]);
+    if (updateSnackMutation.isSuccess) {
+      toast.success("Cập nhật thực phẩm thành công");
+      snacksQuery.refetch(); // Refetch snacks to update the list
+      setIsModalOpen(false);
+      setSelectedSnack(undefined);
+    } else if (updateSnackMutation.isError) {
+      toast.error((updateSnackMutation.error as CustomAPIResponse)?.message || "Lỗi khi cập nhật thực phẩm");
+    }
+  }, [updateSnackMutation.isSuccess, updateSnackMutation.isError, updateSnackMutation.error, queryClient]);
+
+  useEffect(() => {
+    if (deleteSnackMutation.isSuccess) {
+      toast.success("Xóa thực phẩm thành công");
+      snacksQuery.refetch(); // Refetch snacks to update the list
+      setDeleteDialogOpen(false);
+      setSnackToDelete(null);
+    } else if (deleteSnackMutation.isError) {
+      toast.error((deleteSnackMutation.error as CustomAPIResponse)?.message || "Lỗi khi xóa thực phẩm");
+    }
+  }, [deleteSnackMutation.isSuccess, deleteSnackMutation.isError, deleteSnackMutation.error, queryClient]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {
@@ -161,10 +197,53 @@ const SnackManagement: React.FC = () => {
     }
   }, [filterCriteria]);
 
+  const handleCreate = () => {
+    setSelectedSnack(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (snack: Snack) => {
+    setSelectedSnack(snack);
+    setIsModalOpen(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setSelectedSnack(undefined);
+  };
+
+  const handleSubmit = (data: Omit<Snack, "id">) => {
+    if (selectedSnack) {
+      updateSnackMutation.mutate({
+        params: { path: { id: selectedSnack.id } },
+        body: transformSnackToRequest({ ...selectedSnack, ...data }),
+      });
+    } else {
+      createSnackMutation.mutate({
+        body: transformSnackToRequest(data),
+      });
+    }
+  };
+
+  const handleDeleteClick = (id: number) => {
+    const snack = snacksQuery.data?.result?.find((f) => f.id === id);
+    if (snack && typeof snack.id === "number") {
+      setSnackToDelete(snack as Snack); // Ép kiểu để đảm bảo id là number
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    if (snackToDelete) {
+      deleteSnackMutation.mutate({
+        params: { path: { id: snackToDelete.id } },
+      });
+    }
+  };
+
   // Lọc snacks theo các tiêu chí
   const filteredSnacks = useMemo(() => {
-    if (!snacks) return [];
-
+    const snacks = snacksQuery.data?.result ? transformSnacksResponse(snacksQuery.data.result) : [];
     let result = snacks;
 
     // Tìm kiếm toàn cục
@@ -199,74 +278,9 @@ const SnackManagement: React.FC = () => {
     }
 
     return result;
-  }, [snacks, searchTerm, filterCriteria]);
+  }, [snacksQuery.data, searchTerm, filterCriteria]);
 
-  const handleCreate = () => {
-    setSelectedSnack(undefined);
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (snack: Snack) => {
-    setSelectedSnack(snack);
-    setIsModalOpen(true);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    setSelectedSnack(undefined);
-  };
-
-  const handleSubmit = async (data: Omit<Snack, "id">) => {
-    try {
-      if (selectedSnack) {
-        // Update existing snack
-        await updateSnackMutation.mutateAsync({
-          params: { path: { id: selectedSnack.id } },
-          body: transformSnackToRequest({ ...selectedSnack, ...data }),
-        });
-        toast.success("Cập nhật thực phẩm thành công");
-      } else {
-        // Create new snack
-        await createSnackMutation.mutateAsync({
-          body: transformSnackToRequest(data),
-        });
-        toast.success("Thêm thực phẩm thành công");
-      }
-      setIsModalOpen(false);
-      setSelectedSnack(undefined);
-      fetchSnacks();
-    } catch (error) {
-      console.error("Lỗi khi lưu thực phẩm:", error);
-      toast.error("Lỗi khi lưu thực phẩm");
-    }
-  };
-
-  const handleDeleteClick = (id: number) => {
-    const snack = snacks.find((f) => f.id === id);
-    if (snack) {
-      setSnackToDelete(snack);
-      setDeleteDialogOpen(true);
-    }
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (snackToDelete) {
-      try {
-        await deleteSnackMutation.mutateAsync({
-          params: { path: { id: snackToDelete.id } },
-        });
-        toast.success("Xóa thực phẩm thành công");
-        fetchSnacks();
-      } catch (error) {
-        console.error("Lỗi khi xóa thực phẩm:", error);
-        toast.error("Lỗi khi xóa thực phẩm");
-      }
-    }
-    setDeleteDialogOpen(false);
-    setSnackToDelete(null);
-  };
-
-  if (loading) {
+  if (snacksQuery.isLoading) {
     return <LoadingSpinner name="thực phẩm" />;
   }
 
@@ -281,13 +295,13 @@ const SnackManagement: React.FC = () => {
                 <CardTitle className="text-2xl font-bold">Quản lý thực phẩm</CardTitle>
                 <p className="text-muted-foreground mt-1">Quản lý danh sách thực phẩm và đồ uống của bạn</p>
               </div>
-              <Button onClick={handleCreate} className="shrink-0">
+              <Button onClick={handleCreate} disabled={createSnackMutation.isPending} className="shrink-0">
                 <Plus className="mr-2 h-4 w-4" />
-                Thêm thực phẩm
+                {createSnackMutation.isPending ? "Đang thêm..." : "Thêm thực phẩm"}
               </Button>
             </div>
 
-            {/* Thanh tìm kiếm và bộ lọc */}
+            {/* Thanh tìm kiếm và bộ руководитель */}
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <SearchBar
                 searchOptions={searchOptions}
@@ -328,7 +342,12 @@ const SnackManagement: React.FC = () => {
           <DialogHeader>
             <DialogTitle>{selectedSnack ? "Chỉnh sửa thực phẩm" : "Thêm thực phẩm mới"}</DialogTitle>
           </DialogHeader>
-          <SnackForm snack={selectedSnack} onSubmit={handleSubmit} onCancel={handleCancel} />
+          <SnackForm
+            snack={selectedSnack}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isLoading={createSnackMutation.isPending || updateSnackMutation.isPending}
+          />
         </DialogContent>
       </Dialog>
 
@@ -343,8 +362,8 @@ const SnackManagement: React.FC = () => {
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Hủy
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Xóa
+            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleteSnackMutation.isPending}>
+              {deleteSnackMutation.isPending ? "Đang xóa..." : "Xóa"}
             </Button>
           </DialogFooter>
         </DialogContent>

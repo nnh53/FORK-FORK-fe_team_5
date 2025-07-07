@@ -1,6 +1,7 @@
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Shadcn/ui/tooltip";
 import type { Snack } from "@/interfaces/snacks.interface";
 import { getSnackCategoryLabel, getSnackSizeLabel, getSnackStatusLabel } from "@/services/snackService";
 import { cn } from "@/utils/utils";
@@ -14,116 +15,122 @@ interface SnackCardProps {
   viewMode?: "grid" | "list";
 }
 
-const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode = "grid" }) => {
-  // Badge trạng thái
-  const StatusBadge = () => {
-    console.log("Rendering SnackCard with data:", snack);
-    // Check if snack is null or undefined before accessing properties
-    if (!snack || snack?.status === undefined) {
-      return (
-        <Badge variant="secondary" className="bg-gray-100 text-xs text-gray-800">
-          N/A
-        </Badge>
-      );
-    }
-
-    const statusLabel = getSnackStatusLabel(snack.status);
-    const isAvailable = snack.status === "AVAILABLE";
-
+// Badge trạng thái
+const StatusBadge = ({ snack }: { snack: Snack | null | undefined }) => {
+  // Check if snack is null or undefined before accessing properties
+  if (snack?.status === undefined) {
     return (
-      <Badge variant="secondary" className={`text-xs ${isAvailable ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
-        {statusLabel}
+      <Badge variant="secondary" className="bg-gray-100 text-xs text-gray-800">
+        N/A
       </Badge>
     );
-  };
+  }
 
-  // Badge danh mục (Food/Drink)
-  const CategoryBadge = () => {
-    // Check if snack is null or undefined before accessing properties
-    if (!snack || snack?.category === undefined) {
-      return (
-        <Badge variant="secondary" className="bg-gray-100 text-xs text-gray-800">
-          N/A
-        </Badge>
-      );
-    }
+  const statusLabel = getSnackStatusLabel(snack.status);
+  const isAvailable = snack.status === "AVAILABLE";
 
-    const categoryLabel = getSnackCategoryLabel(snack.category);
-    const isFood = snack.category === "FOOD";
-
-    return (
-      <Badge
-        variant="secondary"
-        className={`flex items-center gap-1 text-xs ${isFood ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}
-      >
-        {isFood ? (
-          <Icon icon="lucide:popcorn" className="text-shadow-background h-4 w-4" />
-        ) : (
-          <Icon icon="ri:drinks-2-line" className="text-shadow-background h-4 w-4" />
-        )}
-        {categoryLabel}
-      </Badge>
-    );
-  };
-
-  // Badge kích cỡ
-  const SizeBadge = () => {
-    // Handle case when size is undefined
-    if (!snack || snack?.size === undefined) {
-      return (
-        <Badge variant="secondary" className="bg-gray-200 text-xs text-gray-800">
-          N/A
-        </Badge>
-      );
-    }
-
-    const sizeLabel = getSnackSizeLabel(snack.size);
-    let bgClass;
-
-    switch (snack.size) {
-      case "SMALL":
-        bgClass = "bg-gray-200 text-gray-800";
-        break;
-      case "MEDIUM":
-        bgClass = "bg-yellow-100 text-yellow-800";
-        break;
-      case "LARGE":
-        bgClass = "bg-purple-100 text-purple-800";
-        break;
-      default:
-        bgClass = "bg-gray-200 text-gray-800"; // Gán giá trị mặc định
-    }
-
-    return (
-      <Badge variant="secondary" className={`text-xs ${bgClass}`}>
-        {sizeLabel ? sizeLabel.toUpperCase() : "N/A"}
-      </Badge>
-    );
-  };
-
-  const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
-
-  const ActionButtons = ({ isFullWidth = false }: { isFullWidth?: boolean }) => (
-    <>
-      {onEdit && (
-        <Button size="sm" variant="outline" onClick={() => onEdit(snack)} className={isFullWidth ? "flex-1" : "h-8 w-8 p-0"}>
-          <Edit className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
-          {isFullWidth && "Chỉnh sửa"}
-        </Button>
-      )}
-      {onDelete && (
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => onDelete(snack.id)}
-          className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:border-red-200 hover:bg-red-50 hover:text-red-600"}
-        >
-          <Trash className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
-          {isFullWidth && "Xóa"}
-        </Button>
-      )}
-    </>
+  return (
+    <Badge variant="secondary" className={`text-xs ${isAvailable ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+      {statusLabel}
+    </Badge>
   );
+};
+
+// Badge danh mục (Food/Drink)
+const CategoryBadge = ({ snack }: { snack: Snack | null | undefined }) => {
+  // Check if snack is null or undefined before accessing properties
+  if (snack?.category === undefined) {
+    return (
+      <Badge variant="secondary" className="bg-gray-100 text-xs text-gray-800">
+        N/A
+      </Badge>
+    );
+  }
+
+  const categoryLabel = getSnackCategoryLabel(snack.category);
+  const isFood = snack.category === "FOOD";
+
+  return (
+    <Badge variant="secondary" className={`flex items-center gap-1 text-xs ${isFood ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}>
+      {isFood ? (
+        <Icon icon="lucide:popcorn" className="text-shadow-background h-4 w-4" />
+      ) : (
+        <Icon icon="ri:drinks-2-line" className="text-shadow-background h-4 w-4" />
+      )}
+      {categoryLabel}
+    </Badge>
+  );
+};
+
+// Badge kích cỡ
+const SizeBadge = ({ snack }: { snack: Snack | null | undefined }) => {
+  // Handle case when size is undefined
+  if (snack?.size === undefined) {
+    return (
+      <Badge variant="secondary" className="bg-gray-200 text-xs text-gray-800">
+        N/A
+      </Badge>
+    );
+  }
+
+  const sizeLabel = getSnackSizeLabel(snack.size);
+  let bgClass;
+
+  switch (snack.size) {
+    case "SMALL":
+      bgClass = "bg-gray-200 text-gray-800";
+      break;
+    case "MEDIUM":
+      bgClass = "bg-yellow-100 text-yellow-800";
+      break;
+    case "LARGE":
+      bgClass = "bg-purple-100 text-purple-800";
+      break;
+    default:
+      bgClass = "bg-gray-200 text-gray-800"; // Gán giá trị mặc định
+      break;
+  }
+
+  return (
+    <Badge variant="secondary" className={`text-xs ${bgClass}`}>
+      {sizeLabel ? sizeLabel.toUpperCase() : "N/A"}
+    </Badge>
+  );
+};
+
+const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
+
+interface ActionButtonsProps {
+  snack: Snack;
+  onEdit?: (snack: Snack) => void;
+  onDelete?: (id: number) => void;
+  isFullWidth?: boolean;
+}
+
+const ActionButtons = ({ snack, onEdit, onDelete, isFullWidth = false }: ActionButtonsProps) => (
+  <>
+    {onEdit && (
+      <Button size="sm" variant="outline" onClick={() => onEdit(snack)} className={isFullWidth ? "flex-1" : "h-8 w-8 p-0"}>
+        <Edit className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
+        {isFullWidth && "Chỉnh sửa"}
+      </Button>
+    )}
+    {onDelete && (
+      <Button
+        size="sm"
+        variant="destructive"
+        onClick={() => onDelete(snack.id)}
+        className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:border-red-200 hover:bg-red-50 hover:text-red-600"}
+      >
+        <Trash className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
+        {isFullWidth && "Xóa"}
+      </Button>
+    )}
+  </>
+);
+
+const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode = "grid" }) => {
+  console.log("Rendering SnackCard with data:", snack);
 
   // Grid View
   if (viewMode === "grid") {
@@ -131,10 +138,17 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
       <Card className={cn("w-full max-w-md p-4 transition-all duration-200 hover:shadow-lg")}>
         <CardHeader className="p-0">
           <div className="flex items-center justify-between">
-            <CardTitle className="line-clamp-2 text-xl font-bold">{snack?.name || "Unknown Snack"}</CardTitle>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CardTitle className="line-clamp-2 text-xl font-bold">{snack?.name || "Unknown Snack"}</CardTitle>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{snack?.name || "Unknown Snack"}</p>
+              </TooltipContent>
+            </Tooltip>
             <div className="flex items-center gap-2">
-              <CategoryBadge />
-              <StatusBadge />
+              <CategoryBadge snack={snack} />
+              <StatusBadge snack={snack} />
             </div>
           </div>
         </CardHeader>
@@ -187,7 +201,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-500">Kích cỡ</span>
-                <SizeBadge />
+                <SizeBadge snack={snack} />
               </div>
               <div className="flex justify-between">
                 <p className="text-sm text-gray-500">Hương vị:</p>
@@ -207,7 +221,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
           </div>
           {(onEdit || onDelete) && (
             <div className="flex justify-end gap-1">
-              <ActionButtons isFullWidth={true} />
+              <ActionButtons snack={snack} onEdit={onEdit} onDelete={onDelete} isFullWidth={true} />
             </div>
           )}
         </CardContent>
@@ -256,11 +270,18 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
         <div className="grid flex-1 grid-cols-12 items-center gap-2 text-sm">
           <div className="col-span-3 flex flex-col gap-1">
             <div className="flex items-center gap-1">
-              <CategoryBadge />
-              <StatusBadge />
+              <CategoryBadge snack={snack} />
+              <StatusBadge snack={snack} />
             </div>
-            <h3 className="line-clamp-1 font-semibold">{snack?.name || "Unknown Snack"}</h3>
-            <p className="text-xs text-gray-500">ID: #{snack?.id !== undefined ? snack.id : "N/A"}</p>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <h3 className="line-clamp-1 font-semibold">{snack?.name || "Unknown Snack"}</h3>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{snack?.name || "Unknown Snack"}</p>
+              </TooltipContent>
+            </Tooltip>
+            <p className="text-xs text-gray-500">ID: #{snack?.id ?? "N/A"}</p>
           </div>
           <div className="col-span-2 line-clamp-1 flex items-center gap-1">
             <Utensils className="h-4 w-4 text-blue-600" />
@@ -275,11 +296,11 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
             <p className="text-sm italic leading-relaxed text-green-600">{snack?.description || "Không có mô tả"}</p>
           </div>
           <div className="col-span-1">
-            <SizeBadge />
+            <SizeBadge snack={snack} />
           </div>
           <div className="col-span-1 font-bold text-green-600">{snack?.price ? formatPrice(snack.price) : "N/A"}</div>
           <div className="col-span-2 flex justify-end gap-1">
-            <ActionButtons isFullWidth={false} />
+            <ActionButtons snack={snack} onEdit={onEdit} onDelete={onDelete} isFullWidth={false} />
           </div>
         </div>
       </CardContent>

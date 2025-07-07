@@ -50,15 +50,16 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    return sortedData.reverse().slice(pagination.startIndex, pagination.endIndex + 1);
+    const reversedData = [...sortedData].reverse();
+    return reversedData.slice(pagination.startIndex, pagination.endIndex + 1);
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
   // Render pagination items
   const renderPaginationItems = () => {
-    return pagination.visiblePages.map((page, index) => {
+    return pagination.visiblePages.map((page) => {
       if (page === "ellipsis") {
         return (
-          <PaginationItem key={`ellipsis-${index}`}>
+          <PaginationItem key={`ellipsis-start-${pagination.currentPage}`}>
             <PaginationEllipsis />
           </PaginationItem>
         );
