@@ -13,6 +13,7 @@ import ComboManagement from "@/feature/manager/food/ComboManagement";
 import SnackManagement from "@/feature/manager/food/snack/SnackManagement";
 import MemberManagement from "@/feature/manager/member/MemberManagement";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
+import MovieCategoryManagement from "@/feature/manager/movie/settings/MovieCategoryManagement";
 import { PromotionManagement } from "@/feature/manager/promotion/PromotionManagement";
 import ShowtimeManagement from "@/feature/manager/show-time/ShowtimeManagement";
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
@@ -58,6 +59,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
             }
           />
           <Route path="movie" element={<MovieManagement />} />
+          <Route path="genres" element={<MovieCategoryManagement />} />
           <Route path="cinema-room" element={<CinemaRoomManagement />} />
           <Route path="cinema-room/:roomId" element={<CinemaRoomDetail />} />
           <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />

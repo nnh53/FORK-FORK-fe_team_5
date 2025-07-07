@@ -48,6 +48,7 @@ export const ROUTES = {
     ROOT: "/admin",
     DASHBOARD: "/admin/dashboard",
     MOVIE: "/admin/movie",
+    GENRES: "/admin/genres",
     CINEMA_ROOM: "/admin/cinema-room",
     CINEMA_ROOM_DETAIL: "/admin/cinema-room/:roomId",
     CINEMA_ROOM_ADD: "/admin/cinema-room/add",
