@@ -98,6 +98,9 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
             <div className="space-y-1">
               <CardTitle className="text-lg font-semibold">{combo.name}</CardTitle>
               <div className="flex flex-wrap gap-1">
+                <Badge variant="secondary" className="text-xs font-medium">
+                  ID: #{combo.id}
+                </Badge>
                 <StatusBadge />
                 <Badge variant="outline" className="text-xs font-medium">
                   {combo.snacks?.length || 0} món

@@ -215,11 +215,15 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Quản lý thực phẩm trong combo</h3>
         {!isAddingSnack && (
-          <Button size="sm" variant="outline" onClick={handleAddNewSnack}>
+          <Button className="ml-60" size="sm" variant="outline" onClick={handleAddNewSnack}>
             <Plus className="mr-1 h-4 w-4" />
             Thêm thực phẩm
           </Button>
         )}
+        <Button size="sm" variant="outline" onClick={onCancel}>
+          <X className="mr-1 h-4 w-4" />
+          Đóng chỉnh sửa
+        </Button>
       </div>
 
       {isAddingSnack ? (
@@ -519,13 +523,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
           )}
         </div>
       )}
-
-      <div className="flex justify-end gap-2 pt-4">
-        <Button variant="outline" onClick={onCancel}>
-          <X className="mr-1 h-4 w-4" />
-          Đóng chỉnh sửa
-        </Button>
-      </div>
     </div>
   );
 };
