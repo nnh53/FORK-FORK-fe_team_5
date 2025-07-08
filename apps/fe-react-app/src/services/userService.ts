@@ -72,6 +72,19 @@ export const useIntrospect = () => {
   return $api.useMutation("post", "/auth/introspect");
 };
 
+/**
+ * Hook for searching users by email or phone
+ */
+export const useSearchUser = (searchInput: string) => {
+  return $api.useQuery("get", "/users/search", {
+    params: {
+      query: {
+        input: searchInput,
+      },
+    },
+  });
+};
+
 // ==================== TRANSFORM FUNCTIONS ====================
 
 /**

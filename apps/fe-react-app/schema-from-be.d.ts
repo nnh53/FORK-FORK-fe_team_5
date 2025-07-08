@@ -505,6 +505,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getUserByEmailOrPhone"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/showtimes/seats/{showtimeId}": {
         parameters: {
             query?: never;
@@ -1133,6 +1149,8 @@ export interface components {
             status?: string;
             /** Format: date */
             dateOfBirth?: string;
+            /** Format: int32 */
+            loyaltyPoint?: number;
             /** @enum {string} */
             gender?: "MALE" | "FEMALE" | "OTHER";
         };
@@ -1275,6 +1293,7 @@ export interface components {
             /** @enum {string} */
             status?: "PENDING" | "SUCCESS" | "CANCELLED";
             payOsCode?: string;
+            payOsLink?: string;
             bookingSnacks?: components["schemas"]["BookingSnackResponse"][];
             bookingCombos?: components["schemas"]["BookingComboResponse"][];
         };
@@ -2963,6 +2982,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseAuthenticationResponse"];
+                };
+            };
+        };
+    };
+    getUserByEmailOrPhone: {
+        parameters: {
+            query: {
+                input: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseUserResponse"];
                 };
             };
         };
