@@ -18,6 +18,16 @@ interface DiscountSectionProps {
   onVoucherChange: (code: string, discount: number) => void;
   onMemberChange?: (member: Member | null) => void;
   className?: string;
+  // Mode: 'auto' for checkout page (use logged in user), 'manual' for staff page (search by phone/email)
+  mode?: "auto" | "manual";
+  // Current logged in user (for auto mode)
+  currentUser?: {
+    id: string;
+    full_name: string;
+    phone: string;
+    email: string;
+    loyalty_point?: number;
+  } | null;
 }
 
 const DiscountSection: React.FC<DiscountSectionProps> = ({
@@ -27,9 +37,11 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
   onVoucherChange,
   onMemberChange,
   className = "",
+  mode = "manual", // Default to manual mode for backward compatibility
+  currentUser = null,
 }) => {
-  // For demo, we'll allow manual phone input to find member
-  const [memberPhone, setMemberPhone] = useState("");
+  // State for manual mode (staff search)
+  const [searchValue, setSearchValue] = useState(""); // Can be phone or email
   const [member, setMember] = useState<Member | null>(null);
   const [pointsToUse, setPointsToUse] = useState(0);
   const [voucherCode, setVoucherCode] = useState("");
@@ -37,16 +49,36 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
   const [isValidatingVoucher, setIsValidatingVoucher] = useState(false);
   const [isLoadingMember, setIsLoadingMember] = useState(false);
 
-  // Search for member by phone
+  // Auto load member from current user in auto mode
+  React.useEffect(() => {
+    if (mode === "auto" && currentUser && !member) {
+      // Convert current user to member format
+      const autoMember: Member = {
+        id: currentUser.id,
+        name: currentUser.full_name,
+        phone: currentUser.phone,
+        email: currentUser.email,
+        currentPoints: currentUser.loyalty_point || 0,
+        membershipLevel: "Silver", // Default level
+        totalSpent: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      setMember(autoMember);
+      onMemberChange?.(autoMember);
+    }
+  }, [mode, currentUser, member, onMemberChange]);
+
+  // Search for member by phone or email (manual mode)
   const searchMember = async () => {
-    if (!memberPhone.trim()) {
-      toast.error("Vui lòng nhập số điện thoại");
+    if (!searchValue.trim()) {
+      toast.error("Vui lòng nhập số điện thoại hoặc email");
       return;
     }
 
     try {
       setIsLoadingMember(true);
-      const memberData = await memberService.getMemberByPhone(memberPhone.trim());
+      const memberData = await memberService.searchMember(searchValue.trim());
       if (memberData) {
         setMember(memberData);
         onMemberChange?.(memberData);
@@ -54,10 +86,9 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
       } else {
         setMember(null);
         onMemberChange?.(null);
-        toast.error("Không tìm thấy thành viên với số điện thoại này");
+        toast.error("Không tìm thấy thành viên với thông tin này");
       }
-    } catch (error) {
-      console.error("Error searching member:", error);
+    } catch {
       toast.error("Có lỗi khi tìm kiếm thành viên");
       setMember(null);
     } finally {
@@ -99,8 +130,7 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
         onVoucherChange("", 0);
         toast.error(result.message);
       }
-    } catch (error) {
-      console.error("Error validating voucher:", error);
+    } catch {
       setVoucherValidation({
         isValid: false,
         discount: 0,
@@ -124,10 +154,13 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
     onPointsChange(0, 0);
   };
   const clearMember = () => {
-    setMember(null);
-    setMemberPhone("");
-    onMemberChange?.(null);
-    clearPoints();
+    // Only allow clearing member in manual mode
+    if (mode === "manual") {
+      setMember(null);
+      setSearchValue("");
+      onMemberChange?.(null);
+      clearPoints();
+    }
   };
 
   return (
@@ -135,7 +168,7 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Gift className="h-5 w-5" />
-          Ưu đãi & Giảm giá
+          Đổi điểm
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -150,13 +183,13 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
             <div className="flex gap-2">
               <Input
                 placeholder="Nhập số điện thoại thành viên..."
-                value={memberPhone}
-                onChange={(e) => setMemberPhone(e.target.value)}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && searchMember()}
                 className="flex-1"
                 disabled={isLoadingMember}
               />
-              <Button onClick={searchMember} disabled={!memberPhone.trim() || isLoadingMember} size="sm" className="min-w-[80px]">
+              <Button onClick={searchMember} disabled={!searchValue.trim() || isLoadingMember} size="sm" className="min-w-[80px]">
                 {isLoadingMember ? <Loader2 className="h-4 w-4 animate-spin" /> : "Tìm"}
               </Button>
             </div>

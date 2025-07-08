@@ -6,6 +6,7 @@ interface PaymentSummaryProps {
   snackCost?: number;
   pointsDiscount?: number;
   voucherDiscount?: number;
+  promotionDiscount?: number;
   totalCost: number;
 }
 
@@ -17,6 +18,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
   snackCost = 0,
   pointsDiscount = 0,
   voucherDiscount = 0,
+  promotionDiscount = 0,
   totalCost,
 }) => {
   const [remainingTime, setRemainingTime] = useState(HOLD_TIME_SECONDS);
@@ -34,7 +36,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
   };
 
   const subtotal = ticketCost + comboCost + snackCost;
-  const totalDiscount = pointsDiscount + voucherDiscount;
+  const totalDiscount = pointsDiscount + voucherDiscount + promotionDiscount;
 
   return (
     <div className="space-y-2 border-t pt-4">
@@ -71,6 +73,13 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
         <div className="flex justify-between text-sm text-green-600">
           <span>Giảm từ mã voucher:</span>
           <span>-{voucherDiscount.toLocaleString("vi-VN")}đ</span>
+        </div>
+      )}
+
+      {promotionDiscount > 0 && (
+        <div className="flex justify-between text-sm text-green-600">
+          <span>Giảm từ khuyến mãi:</span>
+          <span>-{promotionDiscount.toLocaleString("vi-VN")}đ</span>
         </div>
       )}
 

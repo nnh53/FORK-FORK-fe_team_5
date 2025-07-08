@@ -16,7 +16,7 @@ interface BookingSelectedSeat {
 
 interface BookingSummaryProps {
   movie: MovieCardProps;
-  selection: { date: string; time: string; format: string };
+  selection: { date: string; time: string; format: string; roomId?: string; showtimeId?: string };
   cinemaName: string;
   selectedSeats: BookingSelectedSeat[];
   totalCost: number; // This is just ticket cost
@@ -75,7 +75,8 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           <span className="text-gray-500">Giờ chiếu</span> <span className="font-semibold">{selection.time}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-500">Phòng chiếu</span> <span className="font-semibold">P1</span>
+          <span className="text-gray-500">Phòng chiếu</span>
+          <span className="font-semibold">{selection.roomId ? `${selection.roomId}` : "Chưa chọn phòng"}</span>
         </div>
         <div className="flex items-start justify-between">
           <span className="text-gray-500">Ghế ngồi</span>

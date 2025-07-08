@@ -4,9 +4,11 @@ import type { PaymentMethod } from "@/interfaces/booking.interface";
 import type { Combo } from "@/interfaces/combo.interface";
 import type { Member } from "@/interfaces/member.interface";
 import type { Movie } from "@/interfaces/movies.interface";
+import type { Promotion } from "@/interfaces/promotion.interface";
 import { transformSeatsToSeatMap, useCreateBooking, useSeatsByShowtimeId } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
 import { transformMovieResponse, useMovies } from "@/services/movieService";
+import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
 import { useShowtimesByMovie } from "@/services/showtimeService";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import type { BookingRequest, MovieResponse, ShowtimeResponse } from "@/type-from-be";
@@ -69,6 +71,9 @@ const StaffTicketSales: React.FC = () => {
   const combosQuery = useCombos();
   const snacksQuery = useSnacks();
 
+  // React Query hook for promotions
+  const promotionsQuery = usePromotions();
+
   // State for data
   const [movies, setMovies] = useState<Movie[]>([]);
   const [showtimes, setShowtimes] = useState<UIShowtime[]>([]);
@@ -94,6 +99,16 @@ const StaffTicketSales: React.FC = () => {
     }
   }, [snacksQuery.data]);
 
+  // Transform promotions data
+  const promotions = useMemo(() => {
+    if (!promotionsQuery.data?.result) return [];
+    if (Array.isArray(promotionsQuery.data.result)) {
+      return transformPromotionsResponse(promotionsQuery.data.result);
+    } else {
+      return transformPromotionsResponse([promotionsQuery.data.result]);
+    }
+  }, [promotionsQuery.data]);
+
   // State for selection
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [selectedShowtime, setSelectedShowtime] = useState<UIShowtime | null>(null);
@@ -102,6 +117,9 @@ const StaffTicketSales: React.FC = () => {
   // Update state format to match ComboSelection component expectations
   const [selectedCombos, setSelectedCombos] = useState<Array<{ combo: Combo; quantity: number }>>([]);
   const [selectedSnacks, setSelectedSnacks] = useState<Record<number, number>>({});
+
+  // State for promotion selection
+  const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(null);
 
   // Fetch seat data for the selected showtime
   const showtimeId = selectedShowtime?.id ? parseInt(selectedShowtime.id) : 0;
@@ -229,13 +247,13 @@ const StaffTicketSales: React.FC = () => {
   };
   const searchMember = async () => {
     if (!memberPhone) {
-      toast.error("Vui lòng nhập số điện thoại");
+      toast.error("Vui lòng nhập số điện thoại hoặc email");
       return;
     }
 
     try {
       setLoading(true);
-      const member = await memberService.getMemberByPhone(memberPhone);
+      const member = await memberService.searchMember(memberPhone);
 
       if (member) {
         setMemberInfo(member);
@@ -247,7 +265,7 @@ const StaffTicketSales: React.FC = () => {
         toast.success(`Tìm thấy hội viên: ${member.name}`);
       } else {
         setMemberInfo(null);
-        toast.error("Không tìm thấy hội viên với số điện thoại này");
+        toast.error("Không tìm thấy hội viên với thông tin này");
       }
     } catch (error) {
       console.error("Error searching member:", error);
@@ -285,9 +303,10 @@ const StaffTicketSales: React.FC = () => {
 
     const subtotal = ticketCost + comboCost + snackCost;
     const pointsDiscount = usePoints * 1000; // 1 point = 1000 VND
+    const promotionDiscount = selectedPromotion ? calculateDiscount(selectedPromotion, subtotal) : 0;
 
-    return Math.max(0, subtotal - pointsDiscount);
-  }, [selectedSeatIds, seatMap, selectedCombos, selectedSnacks, snacks, usePoints]);
+    return Math.max(0, subtotal - pointsDiscount - promotionDiscount);
+  }, [selectedSeatIds, seatMap, selectedCombos, selectedSnacks, snacks, usePoints, selectedPromotion]);
   const handleCreateBooking = useCallback(async () => {
     if (!selectedMovie || !selectedShowtime || selectedSeatIds.length === 0) {
       toast.error("Vui lòng chọn đầy đủ thông tin");
@@ -310,7 +329,7 @@ const StaffTicketSales: React.FC = () => {
       const bookingData: BookingRequest = {
         userId: memberInfo?.id || `guest_${Date.now()}`,
         showtimeId: parseInt(selectedShowtime.id) || 1,
-        promotionId: undefined,
+        promotionId: selectedPromotion?.id,
         seatIds: selectedSeatIds,
         totalPrice,
         paymentMethod: paymentMethod,
@@ -371,6 +390,7 @@ const StaffTicketSales: React.FC = () => {
     paymentMethod,
     selectedCombos,
     selectedSnacks,
+    selectedPromotion,
     createBookingMutation,
     calculateTotal,
     user?.id, // Added dependency for staff ID
@@ -382,6 +402,7 @@ const StaffTicketSales: React.FC = () => {
     setSelectedSeatIds([]);
     setSelectedCombos([]);
     setSelectedSnacks({});
+    setSelectedPromotion(null);
     setCustomerInfo({ name: "", phone: "", email: "" });
     setMemberPhone("");
     setMemberInfo(null);
@@ -400,6 +421,11 @@ const StaffTicketSales: React.FC = () => {
 
   const handleCustomerInfoChange = (field: string, value: string) => {
     setCustomerInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Handle promotion selection
+  const handlePromotionSelect = (promotion: Promotion | null) => {
+    setSelectedPromotion(promotion);
   };
 
   const setStepTo = (newStep: StaffSalesStep) => {
@@ -458,16 +484,41 @@ const StaffTicketSales: React.FC = () => {
             />
           )}
 
-          {/* Step 4: Snacks & Beverages */}
+          {/* Step 4: Snacks & Beverages with Promotion Selection */}
           {step === "snacks" && (
             <SnackSelection
               combos={combos}
               snacks={snacks}
+              promotions={promotions}
               selectedCombos={selectedCombos}
               selectedSnacks={selectedSnacks}
+              selectedPromotion={selectedPromotion}
               combosLoading={combosQuery.isLoading}
+              promotionsLoading={promotionsQuery.isLoading}
+              orderAmount={(() => {
+                // Calculate subtotal without promotion discount for promotion selection
+                const ticketCost = selectedSeatIds.reduce((sum, seatId) => {
+                  const seat = seatMap?.gridData.find((s) => s.id === seatId);
+                  return sum + (seat?.type?.price || 0);
+                }, 0);
+                const comboCost = selectedCombos.reduce((sum, { combo, quantity }) => {
+                  const comboPrice =
+                    combo.snacks?.reduce((total, comboSnack) => {
+                      const snackPrice = comboSnack.snack?.price || 0;
+                      const snackQuantity = comboSnack.quantity || 1;
+                      return total + snackPrice * snackQuantity;
+                    }, 0) || 0;
+                  return sum + comboPrice * quantity;
+                }, 0);
+                const snackCost = Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
+                  const snack = snacks.find((s) => s.id === parseInt(snackId));
+                  return sum + (snack ? snack.price * quantity : 0);
+                }, 0);
+                return ticketCost + comboCost + snackCost;
+              })()}
               onComboSelect={handleComboSelect}
               onSnackQuantityChange={handleSnackQuantityChange}
+              onPromotionSelect={handlePromotionSelect}
               onBack={() => setStepTo("seats")}
               onNext={() => setStepTo("customer")}
             />
@@ -518,6 +569,7 @@ const StaffTicketSales: React.FC = () => {
             selectedSnacks={selectedSnacks}
             snacks={snacks}
             customerInfo={customerInfo}
+            selectedPromotion={selectedPromotion}
             usePoints={usePoints}
             getSeatDisplayNames={getSeatDisplayNames}
             calculateSeatPrice={calculateSeatPrice}

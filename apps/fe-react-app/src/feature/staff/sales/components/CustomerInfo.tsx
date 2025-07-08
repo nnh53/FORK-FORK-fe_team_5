@@ -45,7 +45,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
         <div className="rounded-lg border bg-blue-50 p-4">
           <h3 className="mb-3 font-semibold">Tìm Hội Viên</h3>
           <div className="flex gap-2">
-            <Input placeholder="Số điện thoại hội viên" value={memberPhone} onChange={(e) => onMemberPhoneChange(e.target.value)} />
+            <Input placeholder="Số điện thoại hoặc email hội viên" value={memberPhone} onChange={(e) => onMemberPhoneChange(e.target.value)} />
             <Button onClick={onSearchMember}>Tìm kiếm</Button>
           </div>
 

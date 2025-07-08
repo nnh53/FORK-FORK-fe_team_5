@@ -1,4 +1,4 @@
-import BookingBreadcrumb from "@/components/shared/BookingBreadcrumb.tsx";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
 import UserLayout from "@/layouts/user/UserLayout.tsx";
 import { transformSeatsToSeatMap, useSeatsByShowtimeId } from "@/services/bookingService.ts";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -192,7 +192,22 @@ const BookingPage: React.FC = () => {
     <UserLayout>
       <div className="mx-auto max-w-screen-2xl p-4 md:p-8">
         {/* Breadcrumb */}
-        <BookingBreadcrumb movieTitle={movie?.title} className="mb-6" />
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Trang chủ</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                Chọn ghế
+                {movie?.title && <span className="text-muted-foreground ml-2">- {movie.title}</span>}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Left Column: Seat Map */}

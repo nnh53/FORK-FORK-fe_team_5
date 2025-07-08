@@ -1,6 +1,8 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import UserLayout from "@/layouts/user/UserLayout";
 import { transformBookingResponse, useBooking } from "@/services/bookingService";
+import { useCinemaRoom } from "@/services/cinemaRoomService";
+import { useMovie } from "@/services/movieService";
 import { CheckCircle } from "lucide-react";
 import React, { useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
@@ -24,6 +26,34 @@ const BookingSuccessPage: React.FC = () => {
     }
     return transformBookingResponse(bookingData.result);
   }, [bookingData, location.state?.booking]);
+
+  // Fetch additional data based on booking showtime
+  const movieId = booking?.showtime?.movie_id || 0;
+  const roomId = booking?.showtime?.room_id || 0;
+
+  const { data: movieData } = useMovie(movieId);
+  const { data: cinemaRoomData } = useCinemaRoom(roomId);
+
+  // Transform movie and cinema room data
+  const movieInfo = useMemo(() => {
+    if (!movieData?.result) return null;
+    return {
+      name: movieData.result.name || "N/A",
+      duration: movieData.result.duration || 0,
+    };
+  }, [movieData]);
+
+  const cinemaRoomInfo = useMemo(() => {
+    if (!cinemaRoomData?.result) {
+      // Fallback to roomName from showtime if available
+      return {
+        room_number: booking?.showtime?.cinema_room?.room_number || booking?.showtime?.roomName || `${roomId}` || "N/A",
+      };
+    }
+    return {
+      room_number: cinemaRoomData.result.name || `${roomId}` || "N/A",
+    };
+  }, [cinemaRoomData, booking?.showtime, roomId]);
 
   // Show loading state
   if (isLoading && !location.state?.booking) {
@@ -114,11 +144,11 @@ const BookingSuccessPage: React.FC = () => {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <p className="text-sm text-gray-500">Tên phim</p>
-                  <p className="font-semibold">{booking.showtime.movie?.name || "N/A"}</p>
+                  <p className="font-semibold">{movieInfo?.name || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Phòng chiếu</p>
-                  <p className="font-semibold">Phòng {booking.showtime.cinema_room?.room_number || "N/A"}</p>
+                  <p className="font-semibold">Phòng {cinemaRoomInfo?.room_number || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Thời gian chiếu</p>
@@ -128,7 +158,7 @@ const BookingSuccessPage: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Thời lượng</p>
-                  <p className="font-semibold">{booking.showtime.movie?.duration || "N/A"} phút</p>
+                  <p className="font-semibold">{movieInfo?.duration ? `${movieInfo.duration} phút` : "N/A"}</p>
                 </div>
               </div>
             </div>
@@ -190,14 +220,14 @@ const BookingSuccessPage: React.FC = () => {
                 {booking.promotion && (
                   <div>
                     <p className="text-sm text-gray-500">Khuyến mãi áp dụng</p>
-                    <p className="font-semibold text-green-600">{booking.promotion.title}</p>
-                    <p className="text-sm text-gray-600">Giảm {booking.promotion.discount_value.toLocaleString("vi-VN")} VNĐ</p>
+                    <p className="font-semibold text-green-600">{booking.promotion.title || "Khuyến mãi"}</p>
+                    <p className="text-sm text-gray-600">Giảm {(booking.promotion.discount_value || 0).toLocaleString("vi-VN")} VNĐ</p>
                   </div>
                 )}
                 {booking.loyalty_point_used && booking.loyalty_point_used > 0 && (
                   <div>
                     <p className="text-sm text-gray-500">Điểm thưởng sử dụng</p>
-                    <p className="font-semibold text-blue-600">{booking.loyalty_point_used.toLocaleString("vi-VN")} điểm</p>
+                    <p className="font-semibold text-blue-600">{(booking.loyalty_point_used || 0).toLocaleString("vi-VN")} điểm</p>
                   </div>
                 )}
               </div>

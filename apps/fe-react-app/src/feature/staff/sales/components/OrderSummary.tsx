@@ -2,7 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui
 import { Separator } from "@/components/Shadcn/ui/separator";
 import type { Combo } from "@/interfaces/combo.interface";
 import type { Movie } from "@/interfaces/movies.interface";
+import type { Promotion } from "@/interfaces/promotion.interface";
 import type { Snack } from "@/interfaces/snacks.interface";
+import { calculateDiscount, formatCurrency } from "@/services/promotionService";
 import React from "react";
 import type { UIShowtime } from "../types";
 
@@ -18,6 +20,7 @@ interface OrderSummaryProps {
     phone: string;
     email: string;
   };
+  selectedPromotion?: Promotion | null;
   usePoints: number;
   getSeatDisplayNames: () => string[];
   calculateSeatPrice: () => number;
@@ -32,6 +35,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   selectedSnacks,
   snacks,
   customerInfo,
+  selectedPromotion,
   usePoints,
   getSeatDisplayNames,
   calculateSeatPrice,
@@ -124,6 +128,35 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           <div>
             <h4 className="font-semibold">Giảm giá điểm</h4>
             <p className="text-sm text-green-600">-{(usePoints * 1000).toLocaleString("vi-VN")} VNĐ</p>
+          </div>
+        )}
+
+        {selectedPromotion && (
+          <div>
+            <h4 className="font-semibold">Khuyến mãi</h4>
+            <p className="text-sm">{selectedPromotion.title}</p>
+            <p className="text-sm text-green-600">
+              -
+              {formatCurrency(
+                calculateDiscount(
+                  selectedPromotion,
+                  calculateSeatPrice() +
+                    selectedCombos.reduce((sum, { combo, quantity }) => {
+                      const comboPrice =
+                        combo.snacks?.reduce((total, comboSnack) => {
+                          const snackPrice = comboSnack.snack?.price || 0;
+                          const snackQuantity = comboSnack.quantity || 1;
+                          return total + snackPrice * snackQuantity;
+                        }, 0) || 0;
+                      return sum + comboPrice * quantity;
+                    }, 0) +
+                    Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
+                      const snack = snacks.find((s) => s.id === parseInt(snackId));
+                      return sum + (snack ? snack.price * quantity : 0);
+                    }, 0),
+                ),
+              )}
+            </p>
           </div>
         )}
 

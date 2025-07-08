@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
-import { Clock, CreditCard, Film, Ticket, User } from "lucide-react";
+import { Clock, CreditCard, Film, Popcorn, Ticket, User } from "lucide-react";
 import React from "react";
 
 type Step = "movie" | "showtime" | "seats" | "snacks" | "customer" | "payment";
@@ -13,6 +13,7 @@ const StepProgress: React.FC<StepProgressProps> = ({ currentStep }) => {
     { key: "movie" as Step, label: "Chọn phim", icon: Film },
     { key: "showtime" as Step, label: "Chọn suất", icon: Clock },
     { key: "seats" as Step, label: "Chọn ghế", icon: Ticket },
+    { key: "snacks" as Step, label: "Đồ ăn & Khuyến mãi", icon: Popcorn },
     { key: "customer" as Step, label: "Thông tin KH", icon: User },
     { key: "payment" as Step, label: "Thanh toán", icon: CreditCard },
   ];

@@ -1,11 +1,13 @@
-import BookingBreadcrumb from "@/components/shared/BookingBreadcrumb.tsx";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
 import DiscountSection from "@/components/shared/DiscountSection.tsx";
 import { useAuth } from "@/hooks/useAuth";
 import type { Booking, PaymentMethod } from "@/interfaces/booking.interface.ts";
 import type { Member } from "@/interfaces/member.interface.ts";
+import type { Promotion } from "@/interfaces/promotion.interface.ts";
 import UserLayout from "@/layouts/user/UserLayout.tsx";
 import { transformBookingToRequest, useCreateBooking } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
+import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import { useGetUserById } from "@/services/userService";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
@@ -17,6 +19,7 @@ import ComboList from "./components/ComboList/ComboList.tsx";
 import PaymentInfo from "./components/PaymentInfo/PaymentInfo.tsx";
 import PaymentMethodSelector from "./components/PaymentMethodSelector/PaymentMethodSelector.tsx";
 import PaymentSummary from "./components/PaymentSummary/PaymentSummary.tsx";
+import PromotionSelection from "./components/PromotionSelection/PromotionSelection.tsx";
 import SnackList from "./components/SnackList/SnackList.tsx";
 
 const CheckoutPage: React.FC = () => {
@@ -52,7 +55,19 @@ const CheckoutPage: React.FC = () => {
   // React Query hooks
   const { data: combosData } = useCombos();
   const { data: snacksData } = useSnacks();
+  const { data: promotionsData, isLoading: isPromotionsLoading } = usePromotions();
   const createBookingMutation = useCreateBooking();
+
+  // Display promotion API messages
+  useEffect(() => {
+    if (promotionsData?.message) {
+      console.log("Promotion API message:", promotionsData.message);
+      // Display warning or info message from API if needed
+      if (promotionsData.message.toLowerCase().includes("warning") || promotionsData.message.toLowerCase().includes("error")) {
+        toast.warning(promotionsData.message);
+      }
+    }
+  }, [promotionsData?.message]);
 
   // Transform API data to internal format - show all combos (available and unavailable)
   const combos = useMemo(() => {
@@ -99,6 +114,16 @@ const CheckoutPage: React.FC = () => {
     }
   }, [snacksData]);
 
+  // Transform promotions data
+  const promotions = useMemo(() => {
+    if (!promotionsData?.result) return [];
+    if (Array.isArray(promotionsData.result)) {
+      return transformPromotionsResponse(promotionsData.result);
+    } else {
+      return transformPromotionsResponse([promotionsData.result]);
+    }
+  }, [promotionsData]);
+
   // Always prioritize localStorage for consistent state
   const [bookingState, setBookingState] = useState(() => {
     const stored = localStorage.getItem("bookingState");
@@ -109,6 +134,7 @@ const CheckoutPage: React.FC = () => {
   });
   const [selectedCombos, setSelectedCombos] = useState<Record<number, number>>({});
   const [selectedSnacks, setSelectedSnacks] = useState<Record<number, number>>({});
+  const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("ONLINE");
   const [isCreatingBooking, setIsCreatingBooking] = useState(false);
   const [usePoints, setUsePoints] = useState(0);
@@ -164,7 +190,6 @@ const CheckoutPage: React.FC = () => {
     // Calculate combo price from snacks
     const comboPrice = combo.snacks.reduce((snackTotal, comboSnack) => snackTotal + comboSnack.snack.price * comboSnack.quantity, 0);
     const cost = comboPrice * quantity;
-    console.log(`Combo ${comboId}: ${quantity} x ${comboPrice} = ${cost}`);
     return total + cost;
   }, 0);
 
@@ -173,21 +198,12 @@ const CheckoutPage: React.FC = () => {
     if (!snack) return total;
 
     const cost = snack.price * quantity;
-    console.log(`Snack ${snackId}: ${quantity} x ${snack.price} = ${cost}`);
     return total + cost;
   }, 0);
 
-  console.log("Total combo cost:", comboCost);
-  console.log("Total snack cost:", snackCost);
-  console.log("Selected combos:", selectedCombos);
-  console.log("Selected snacks:", selectedSnacks);
-  console.log("Available combos from API:", combos);
-  console.log("Current user info:", currentUser);
-  console.log("Auth user:", user);
-  console.log("User details from API:", userDetails?.result);
-
   const subtotal = ticketCost + comboCost + snackCost;
-  const totalDiscount = pointsDiscount + voucherDiscount;
+  const promotionDiscount = selectedPromotion ? calculateDiscount(selectedPromotion, subtotal) : 0;
+  const totalDiscount = pointsDiscount + voucherDiscount + promotionDiscount;
   const finalTotalCost = Math.max(0, subtotal - totalDiscount);
 
   // Handle points change
@@ -204,6 +220,11 @@ const CheckoutPage: React.FC = () => {
   // Handle member change
   const handleMemberChange = (member: Member | null) => {
     setCurrentMember(member);
+  };
+
+  // Handle promotion selection
+  const handlePromotionSelect = (promotion: Promotion | null) => {
+    setSelectedPromotion(promotion);
   };
 
   const handleCreateBooking = async () => {
@@ -225,7 +246,7 @@ const CheckoutPage: React.FC = () => {
       const internalBookingData: Partial<Booking> = {
         user_id: userId || currentMember?.id, // Use actual user ID from auth
         showtime_id: 1, // Mock showtime ID - should come from bookingState
-        promotion_id: voucherCode ? 1 : undefined,
+        promotion_id: selectedPromotion?.id || (voucherCode ? 1 : undefined),
         loyalty_point_used: usePoints > 0 ? usePoints : undefined,
         payment_method: paymentMethod,
         staff_id: undefined, // For customer bookings
@@ -324,7 +345,28 @@ const CheckoutPage: React.FC = () => {
       <div className="mx-auto max-w-screen-2xl p-4 md:p-8">
         {" "}
         {/* Breadcrumb */}
-        <BookingBreadcrumb movieTitle={bookingState.movie?.title} className="mb-6" />
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Trang chủ</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/booking">Chọn ghế</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                Thanh toán
+                {bookingState.movie?.title && <span className="text-muted-foreground ml-2">- {bookingState.movie.title}</span>}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {" "}
           {/* Cột trái: Thông tin và lựa chọn */}
@@ -332,8 +374,29 @@ const CheckoutPage: React.FC = () => {
             <PaymentInfo user={currentUser} selectedSeats={selectedSeats} />{" "}
             <ComboList combos={uiCombos} selectedCombos={selectedCombos} onQuantityChange={handleQuantityChange} />
             <SnackList snacks={snacks} selectedSnacks={selectedSnacks} onQuantityChange={handleSnackQuantityChange} />
+            {/* Promotion Selection */}
+            <PromotionSelection
+              promotions={promotions}
+              selectedPromotion={selectedPromotion}
+              onPromotionSelect={handlePromotionSelect}
+              orderAmount={subtotal}
+              loading={isPromotionsLoading}
+              disabled={!selectedSeats || selectedSeats.length === 0}
+            />
             {/* Discount Section */}
             <DiscountSection
+              mode="auto"
+              currentUser={
+                userDetails?.result
+                  ? {
+                      id: userDetails.result.id || "",
+                      full_name: userDetails.result.fullName || "",
+                      phone: userDetails.result.phone || "",
+                      email: userDetails.result.email || "",
+                      loyalty_point: userDetails.result.loyaltyPoint,
+                    }
+                  : null
+              }
               orderAmount={subtotal}
               movieId={bookingState.movie?.id?.toString()}
               onPointsChange={handlePointsChange}
@@ -346,6 +409,7 @@ const CheckoutPage: React.FC = () => {
               snackCost={snackCost}
               pointsDiscount={pointsDiscount}
               voucherDiscount={voucherDiscount}
+              promotionDiscount={promotionDiscount}
               totalCost={finalTotalCost}
             />{" "}
             <PaymentMethodSelector selectedMethod={paymentMethod} onMethodChange={(method) => setPaymentMethod(method as PaymentMethod)} />
