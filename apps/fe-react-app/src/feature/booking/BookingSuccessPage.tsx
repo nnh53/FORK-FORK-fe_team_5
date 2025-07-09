@@ -2,7 +2,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import UserLayout from "@/layouts/user/UserLayout";
 import { transformBookingResponse, useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
-import { useMovie } from "@/services/movieService";
+import { queryMovie } from "@/services/movieService";
 import { CheckCircle } from "lucide-react";
 import React, { useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
@@ -12,34 +12,34 @@ const BookingSuccessPage: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   // Get booking ID from URL params or location state
-  const bookingId = searchParams.get("bookingId") || location.state?.bookingId;
+  const bookingId = searchParams.get("bookingId") ?? location.state?.bookingId;
   const bookingIdNumber = bookingId ? parseInt(bookingId.toString()) : null;
 
   // Use React Query hook to fetch booking data
-  const { data: bookingData, isLoading, error } = useBooking(bookingIdNumber || 0);
+  const { data: bookingData, isLoading, error } = useBooking(bookingIdNumber ?? 0);
 
   // Transform API response to internal format
   const booking = useMemo(() => {
     if (!bookingData?.result) {
       // Fallback to location state if available
-      return location.state?.booking || null;
+      return location.state?.booking ?? null;
     }
     return transformBookingResponse(bookingData.result);
   }, [bookingData, location.state?.booking]);
 
   // Fetch additional data based on booking showtime
-  const movieId = booking?.showtime?.movie_id || 0;
-  const roomId = booking?.showtime?.room_id || 0;
+  const movieId = booking?.showtime?.movie_id ?? 0;
+  const roomId = booking?.showtime?.room_id ?? 0;
 
-  const { data: movieData } = useMovie(movieId);
+  const { data: movieData } = queryMovie(movieId);
   const { data: cinemaRoomData } = useCinemaRoom(roomId);
 
   // Transform movie and cinema room data
   const movieInfo = useMemo(() => {
     if (!movieData?.result) return null;
     return {
-      name: movieData.result.name || "N/A",
-      duration: movieData.result.duration || 0,
+      name: movieData.result.name ?? "N/A",
+      duration: movieData.result.duration ?? 0,
     };
   }, [movieData]);
 
@@ -47,11 +47,11 @@ const BookingSuccessPage: React.FC = () => {
     if (!cinemaRoomData?.result) {
       // Fallback to roomName from showtime if available
       return {
-        room_number: booking?.showtime?.cinema_room?.room_number || booking?.showtime?.roomName || `${roomId}` || "N/A",
+        room_number: booking?.showtime?.cinema_room?.room_number ?? booking?.showtime?.roomName ?? (roomId ? `${roomId}` : "N/A"),
       };
     }
     return {
-      room_number: cinemaRoomData.result.name || `${roomId}` || "N/A",
+      room_number: cinemaRoomData.result.name ?? (roomId ? `${roomId}` : "N/A"),
     };
   }, [cinemaRoomData, booking?.showtime, roomId]);
 
@@ -120,11 +120,11 @@ const BookingSuccessPage: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-500">Ghế ngồi</p>
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                <p className="font-semibold">{booking.booking_seats?.map((bs: any) => bs.seat?.name).join(", ") || "N/A"}</p>
+                <p className="font-semibold">{booking.booking_seats?.map((bs: any) => bs.seat?.name).join(", ") ?? "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Tổng tiền</p>
-                <p className="font-semibold text-red-600">{booking.total_price?.toLocaleString("vi-VN") || "0"} VNĐ</p>
+                <p className="font-semibold text-red-600">{booking.total_price?.toLocaleString("vi-VN") ?? "0"} VNĐ</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Phương thức thanh toán</p>
@@ -144,11 +144,11 @@ const BookingSuccessPage: React.FC = () => {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <p className="text-sm text-gray-500">Tên phim</p>
-                  <p className="font-semibold">{movieInfo?.name || "N/A"}</p>
+                  <p className="font-semibold">{movieInfo?.name ?? "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Phòng chiếu</p>
-                  <p className="font-semibold">Phòng {cinemaRoomInfo?.room_number || "N/A"}</p>
+                  <p className="font-semibold">Phòng {cinemaRoomInfo?.room_number ?? "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Thời gian chiếu</p>
@@ -170,15 +170,15 @@ const BookingSuccessPage: React.FC = () => {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
                 <p className="text-sm text-gray-500">Họ và tên</p>
-                <p className="font-semibold">{booking.user?.full_name || "N/A"}</p>
+                <p className="font-semibold">{booking.user?.full_name ?? "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Số điện thoại</p>
-                <p className="font-semibold">{booking.user?.phone || "N/A"}</p>
+                <p className="font-semibold">{booking.user?.phone ?? "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Email</p>
-                <p className="font-semibold">{booking.user?.email || "N/A"}</p>
+                <p className="font-semibold">{booking.user?.email ?? "N/A"}</p>
               </div>
             </div>
           </div>
@@ -191,11 +191,14 @@ const BookingSuccessPage: React.FC = () => {
               {/* Combos */}
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {booking.booking_combos?.map((bookingCombo: any, index: number) => (
-                <div key={`combo-${index}`} className="flex items-center justify-between py-2">
-                  <span>{bookingCombo.combo?.name || "Combo"}</span>
+                <div
+                  key={bookingCombo.combo?.id ? `combo-${bookingCombo.combo.id}` : `combo-idx-${index}`}
+                  className="flex items-center justify-between py-2"
+                >
+                  <span>{bookingCombo.combo?.name ?? "Combo"}</span>
                   <span>x{bookingCombo.quantity}</span>
                   <span className="font-semibold">
-                    {((bookingCombo.combo?.total_price || 0) * bookingCombo.quantity).toLocaleString("vi-VN")} VNĐ
+                    {((bookingCombo.combo?.total_price ?? 0) * bookingCombo.quantity).toLocaleString("vi-VN")} VNĐ
                   </span>
                 </div>
               ))}
@@ -203,10 +206,13 @@ const BookingSuccessPage: React.FC = () => {
               {/* Individual Snacks */}
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {booking.booking_snacks?.map((bookingSnack: any, index: number) => (
-                <div key={`snack-${index}`} className="flex items-center justify-between py-2">
-                  <span>{bookingSnack.snack?.name || "Snack"}</span>
+                <div
+                  key={bookingSnack.snack?.id ? `snack-${bookingSnack.snack.id}` : `snack-idx-${index}`}
+                  className="flex items-center justify-between py-2"
+                >
+                  <span>{bookingSnack.snack?.name ?? "Snack"}</span>
                   <span>x{bookingSnack.quantity}</span>
-                  <span className="font-semibold">{((bookingSnack.snack?.price || 0) * bookingSnack.quantity).toLocaleString("vi-VN")} VNĐ</span>
+                  <span className="font-semibold">{((bookingSnack.snack?.price ?? 0) * bookingSnack.quantity).toLocaleString("vi-VN")} VNĐ</span>
                 </div>
               ))}
             </div>
@@ -220,14 +226,14 @@ const BookingSuccessPage: React.FC = () => {
                 {booking.promotion && (
                   <div>
                     <p className="text-sm text-gray-500">Khuyến mãi áp dụng</p>
-                    <p className="font-semibold text-green-600">{booking.promotion.title || "Khuyến mãi"}</p>
-                    <p className="text-sm text-gray-600">Giảm {(booking.promotion.discount_value || 0).toLocaleString("vi-VN")} VNĐ</p>
+                    <p className="font-semibold text-green-600">{booking.promotion.title ?? "Khuyến mãi"}</p>
+                    <p className="text-sm text-gray-600">Giảm {(booking.promotion.discount_value ?? 0).toLocaleString("vi-VN")} VNĐ</p>
                   </div>
                 )}
                 {booking.loyalty_point_used && booking.loyalty_point_used > 0 && (
                   <div>
                     <p className="text-sm text-gray-500">Điểm thưởng sử dụng</p>
-                    <p className="font-semibold text-blue-600">{(booking.loyalty_point_used || 0).toLocaleString("vi-VN")} điểm</p>
+                    <p className="font-semibold text-blue-600">{(booking.loyalty_point_used ?? 0).toLocaleString("vi-VN")} điểm</p>
                   </div>
                 )}
               </div>

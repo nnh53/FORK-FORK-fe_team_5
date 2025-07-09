@@ -17,7 +17,14 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar } from "@/components/shared/SearchBar";
 import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
 import { MovieGenre, MovieStatus } from "@/interfaces/movies.interface";
-import { queryCreateMovie, queryDeleteMovie, queryUpdateMovie, transformMovieResponse, transformMovieToRequest, useMovies } from "@/services/movieService";
+import {
+  queryCreateMovie,
+  queryDeleteMovie,
+  queryUpdateMovie,
+  transformMovieResponse,
+  transformMovieToRequest,
+  useMovies,
+} from "@/services/movieService";
 import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
