@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/Shadcn/ui/alert-dialog";
 import { Button } from "@/components/Shadcn/ui/button";
 import {
   DropdownMenu,
@@ -38,6 +48,8 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
       startDate: "",
       endDate: "",
     });
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [showtimeToDelete, setShowtimeToDelete] = useState<Showtime | null>(null);
 
     useImperativeHandle(ref, () => ({
       resetPagination: () => {
@@ -138,18 +150,26 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
       return room?.name || `Room ${roomId}`;
     };
 
-    const handleDelete = async (id: number) => {
-      if (confirm("Bạn có chắc chắn muốn xóa lịch chiếu này?")) {
-        try {
-          await deleteShowtimeMutation.mutateAsync({
-            params: { path: { id } },
-          });
-          toast.success("Xóa lịch chiếu thành công");
-          refetchShowtimes();
-        } catch (error) {
-          console.error("Error deleting showtime:", error);
-          toast.error("Có lỗi xảy ra khi xóa lịch chiếu");
-        }
+    const handleDelete = (showtime: Showtime) => {
+      setShowtimeToDelete(showtime);
+      setIsDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+      if (!showtimeToDelete?.id) return;
+
+      try {
+        await deleteShowtimeMutation.mutateAsync({
+          params: { path: { id: showtimeToDelete.id } },
+        });
+        toast.success("Xóa lịch chiếu thành công");
+        refetchShowtimes();
+      } catch (error) {
+        console.error("Error deleting showtime:", error);
+        toast.error("Có lỗi xảy ra khi xóa lịch chiếu");
+      } finally {
+        setIsDeleteDialogOpen(false);
+        setShowtimeToDelete(null);
       }
     };
 
@@ -214,7 +234,8 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
     }
 
     return (
-      <div className="space-y-4">
+      <>
+        <div className="space-y-4">
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -276,7 +297,7 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
                         )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          onClick={() => handleDelete(showtime.id)}
+                          onClick={() => handleDelete(showtime)}
                           className="text-red-600 focus:text-red-600"
                           disabled={deleteShowtimeMutation.isPending}
                         >
@@ -292,6 +313,26 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
           </Table>
         </div>
       </div>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa lịch chiếu</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa lịch chiếu "{showtimeToDelete ? getMovieName(showtimeToDelete.movieId) : ''}" 
+              vào ngày {showtimeToDelete ? formatDateTimeDisplay(showtimeToDelete.showDateTime, "date-only") : ''}? 
+              Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      </>
     );
   },
 );

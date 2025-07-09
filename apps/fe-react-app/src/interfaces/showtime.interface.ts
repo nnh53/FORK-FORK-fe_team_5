@@ -1,9 +1,3 @@
-export enum ShowtimeStatus {
-  SCHEDULE = "SCHEDULE",
-  ONSCREEN = "ONSCREEN",
-  COMPLETE = "COMPLETE",
-}
-
 export interface Showtime {
   id: number;
   movieId: number;
