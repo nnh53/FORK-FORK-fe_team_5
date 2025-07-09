@@ -3,6 +3,7 @@ import {
   MOVIE_STATUS_COLORS,
   ROOM_STATUS_BADGE_VARIANTS,
   ROOM_STATUS_COLORS,
+  SHOWTIME_STATUS_COLORS,
   USER_STATUS_COLORS,
   USER_STATUS_LABELS,
 } from "@/constants/status";
@@ -95,4 +96,14 @@ export const formatCurrency = (value?: number): string => {
     currency: "VND",
     maximumFractionDigits: 0,
   }).format(value);
+};
+
+/**
+ * Get showtime status display color
+ */
+export const getShowtimeStatusColor = (status?: string) => {
+  if (!status || !(status in SHOWTIME_STATUS_COLORS)) {
+    return "bg-gray-100 text-gray-800";
+  }
+  return SHOWTIME_STATUS_COLORS[status as keyof typeof SHOWTIME_STATUS_COLORS];
 };

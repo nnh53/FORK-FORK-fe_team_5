@@ -7,7 +7,7 @@ import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal
 import type { Showtime as OldShowtime } from "@/interfaces/movies.interface";
 import type { Showtime as NewShowtime } from "@/interfaces/showtime.interface";
 import { queryMovie } from "@/services/movieService";
-import { transformShowtimesResponse, useShowtimesByMovie } from "@/services/showtimeService";
+import { queryShowtimesByMovie, transformShowtimesResponse } from "@/services/showtimeService";
 import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "@/utils/showtimeUtils";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -51,7 +51,7 @@ const MovieDetailPage: React.FC = () => {
   const { data: movieResponse, isLoading, error } = queryMovie(Number(movieId));
 
   // Use React Query to fetch showtimes for this movie
-  const { data: showtimesResponse, isLoading: showtimesLoading, error: showtimesError } = useShowtimesByMovie(Number(movieId));
+  const { data: showtimesResponse, isLoading: showtimesLoading, error: showtimesError } = queryShowtimesByMovie(Number(movieId));
 
   // Extract movie from response
   const movie = movieResponse?.result;

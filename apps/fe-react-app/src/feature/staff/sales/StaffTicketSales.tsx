@@ -9,7 +9,7 @@ import { transformSeatsToSeatMap, useCreateBooking, useSeatsByShowtimeId } from 
 import { transformComboResponse, useCombos } from "@/services/comboService";
 import { transformMovieResponse, useMovies } from "@/services/movieService";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
-import { useShowtimesByMovie } from "@/services/showtimeService";
+import { queryShowtimesByMovie } from "@/services/showtimeService";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import type { BookingRequest, MovieResponse, ShowtimeResponse } from "@/type-from-be";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -65,7 +65,7 @@ const StaffTicketSales: React.FC = () => {
 
   // React Query hook for showtimes (will be enabled when selectedMovie changes)
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
-  const showtimesQuery = useShowtimesByMovie(selectedMovieId ?? 0);
+  const showtimesQuery = queryShowtimesByMovie(selectedMovieId ?? 0);
 
   // React Query hooks for combos and snacks
   const combosQuery = useCombos();

@@ -68,3 +68,24 @@ export const ROOM_STATUS_COLORS = {
   [ROOM_STATUS.MAINTENANCE]: "bg-yellow-100 text-yellow-800",
   [ROOM_STATUS.CLOSED]: "bg-red-100 text-red-800",
 } as const;
+
+// Showtime Status
+export const SHOWTIME_STATUS = {
+  SCHEDULE: "SCHEDULE",
+  ONSCREEN: "ONSCREEN",
+  COMPLETE: "COMPLETE",
+} as const;
+
+export type ShowtimeStatus = (typeof SHOWTIME_STATUS)[keyof typeof SHOWTIME_STATUS];
+
+export const SHOWTIME_STATUS_LABELS = {
+  [SHOWTIME_STATUS.SCHEDULE]: "Đã lập lịch",
+  [SHOWTIME_STATUS.ONSCREEN]: "Đang chiếu",
+  [SHOWTIME_STATUS.COMPLETE]: "Hoàn thành",
+} as const;
+
+export const SHOWTIME_STATUS_COLORS = {
+  [SHOWTIME_STATUS.SCHEDULE]: "bg-blue-100 text-blue-800",
+  [SHOWTIME_STATUS.ONSCREEN]: "bg-green-100 text-green-800",
+  [SHOWTIME_STATUS.COMPLETE]: "bg-gray-100 text-gray-800",
+} as const;

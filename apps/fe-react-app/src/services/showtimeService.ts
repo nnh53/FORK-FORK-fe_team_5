@@ -3,47 +3,47 @@ import type { ShowtimeResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
 
 // React Query hooks using $api - dựa trên API documentation thực tế
-export const useShowtimes = () => {
+export const queryShowtimes = () => {
   return $api.useQuery("get", "/showtimes", {});
 };
 
-export const useShowtime = (id: number) => {
+export const queryShowtime = (id: number) => {
   return $api.useQuery("get", "/showtimes/{id}", {
     params: { path: { id } },
   });
 };
 
-export const useShowtimesByMovie = (movieId: number) => {
+export const queryShowtimesByMovie = (movieId: number) => {
   return $api.useQuery("get", "/showtimes/movie/{movieId}", {
     params: { path: { movieId } },
   });
 };
 
-export const useShowtimesByRoom = (roomId: number) => {
+export const queryShowtimesByRoom = (roomId: number) => {
   return $api.useQuery("get", "/showtimes/room/{roomId}", {
     params: { path: { roomId } },
   });
 };
 
-export const useShowtimeSearch = () => {
+export const queryShowtimeSearch = () => {
   return $api.useQuery("get", "/showtimes/search");
 };
 
-export const useShowtimeSeats = (showtimeId: number) => {
+export const queryShowtimeSeats = (showtimeId: number) => {
   return $api.useQuery("get", "/showtimes/seats/{showtimeId}", {
     params: { path: { showtimeId } },
   });
 };
 
-export const useCreateShowtime = () => {
+export const queryCreateShowtime = () => {
   return $api.useMutation("post", "/showtimes");
 };
 
-export const useUpdateShowtime = () => {
+export const queryUpdateShowtime = () => {
   return $api.useMutation("put", "/showtimes/{id}");
 };
 
-export const useDeleteShowtime = () => {
+export const queryDeleteShowtime = () => {
   return $api.useMutation("delete", "/showtimes/{id}");
 };
 
@@ -84,19 +84,16 @@ export const prepareUpdateShowtimeData = (data: Showtime) => {
   return transformShowtimeToRequest(data);
 };
 
-// Legacy service object for backward compatibility
 export const showtimeService = {
   getShowtimesByMovieId: async (movieId: string) => {
-    // This function would need to be called within a component using React Query
-    // For now, we'll throw an error suggesting to use the hook instead
-    throw new Error("Use useShowtimesByMovie hook instead of showtimeService.getShowtimesByMovieId");
+    throw new Error("Use queryShowtimesByMovie hook instead of showtimeService.getShowtimesByMovieId");
   },
 
   getAllShowtimes: async () => {
-    throw new Error("Use useShowtimes hook instead of showtimeService.getAllShowtimes");
+    throw new Error("Use queryShowtimes hook instead of showtimeService.getAllShowtimes");
   },
 
   getShowtimeById: async (id: string) => {
-    throw new Error("Use useShowtime hook instead of showtimeService.getShowtimeById");
+    throw new Error("Use queryShowtime hook instead of showtimeService.getShowtimeById");
   },
 };
