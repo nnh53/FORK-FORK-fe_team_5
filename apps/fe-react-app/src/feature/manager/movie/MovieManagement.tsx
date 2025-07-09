@@ -6,7 +6,7 @@ import { Filter } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar } from "@/components/shared/SearchBar";
 import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
-import { MovieGenre, MovieStatus, MovieVersion } from "@/interfaces/movies.interface";
+import { MovieGenre, MovieStatus } from "@/interfaces/movies.interface";
 import { queryCreateMovie, queryUpdateMovie, transformMovieResponse, transformMovieToRequest, useMovies } from "@/services/movieService";
 import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
@@ -17,26 +17,22 @@ import MovieDetail from "./MovieDetail";
 import { MovieGenreManagement } from "./MovieGenreManagement";
 import { MovieViewDialog } from "./MovieViewDialog";
 
-// SearchBar options
 const searchOptions = [
-  { value: "id", label: "ID" },
   { value: "name", label: "Tên phim" },
   { value: "actor", label: "Diễn viên" },
   { value: "director", label: "Đạo diễn" },
   { value: "studio", label: "Hãng phim" },
-  { value: "description", label: "Mô tả" },
 ];
 
-// Filter options
 const filterOptions = [
   {
     label: "Trạng thái",
     value: "status",
     type: "select" as const,
     selectOptions: [
-      { value: MovieStatus.ACTIVE, label: "Đang chiếu" },
-      { value: MovieStatus.UPCOMING, label: "Sắp chiếu" },
-      { value: MovieStatus.INACTIVE, label: "Ngừng chiếu" },
+      { value: MovieStatus.ACTIVE, label: "Active" },
+      { value: MovieStatus.UPCOMING, label: "Upcoming" },
+      { value: MovieStatus.INACTIVE, label: "Canceled" },
     ],
     placeholder: "Chọn trạng thái",
   },
@@ -46,54 +42,10 @@ const filterOptions = [
     type: "select" as const,
     selectOptions: Object.values(MovieGenre).map((genre) => ({
       value: genre,
-      label: genre.charAt(0) + genre.slice(1).toLowerCase(), // hoặc map sang tiếng Việt nếu muốn
+      label: genre.charAt(0) + genre.slice(1).toLowerCase(),
     })),
     placeholder: "Chọn thể loại",
   },
-  {
-    label: "Phiên bản",
-    value: "version",
-    type: "select" as const,
-    selectOptions: Object.values(MovieVersion).map((ver) => ({
-      value: ver,
-      label: ver,
-    })),
-    placeholder: "Chọn phiên bản",
-  },
-  {
-    label: "Độ tuổi giới hạn",
-    value: "ageRestrict",
-    type: "numberRange" as const,
-    numberRangeConfig: {
-      fromPlaceholder: "Từ tuổi",
-      toPlaceholder: "Đến tuổi",
-      min: 13,
-      max: 18,
-      step: 1,
-    },
-  },
-  {
-    label: "Thời lượng (phút)",
-    value: "duration",
-    type: "numberRange" as const,
-    numberRangeConfig: {
-      fromPlaceholder: "Từ phút",
-      toPlaceholder: "Đến phút",
-      min: 1,
-      step: 1,
-    },
-  },
-  {
-    label: "Ngày khởi chiếu",
-    value: "fromDate",
-    type: "dateRange" as const,
-  },
-  {
-    label: "Ngày kết thúc",
-    value: "toDate",
-    type: "dateRange" as const,
-  },
-  // Nếu muốn, có thể thêm filter cho studio, director, actor dạng select hoặc text
 ];
 
 const MovieManagement = () => {
@@ -262,7 +214,6 @@ const MovieManagement = () => {
         ...values,
         id: selectedMovie?.id,
         poster: posterUrl ?? values.poster,
-        showtimes: values.showtimes ?? [],
       });
 
       if (selectedMovie?.id) {
@@ -342,7 +293,6 @@ const MovieManagement = () => {
                   if (tableRef.current) tableRef.current.resetPagination();
                 }}
                 className="flex-1"
-                // groupMode={true} // Nếu muốn nhóm filter
               />
             </div>
             <MovieDataTable

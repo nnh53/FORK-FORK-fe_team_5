@@ -128,7 +128,10 @@ export function MovieGenreManagement({ movie, isOpen, onClose, onSuccess }: Read
               onCheckedChange={() => handleCategoryToggle(category.id!)}
             />
             <div className="flex-1">
-              <label htmlFor={`category-${category.id}`} className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <label
+                htmlFor={`category-${category.id}`}
+                className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
                 {category.name}
               </label>
               {category.description && <p className="mt-1 text-xs text-gray-500">{category.description}</p>}
@@ -168,9 +171,7 @@ export function MovieGenreManagement({ movie, isOpen, onClose, onSuccess }: Read
           {/* Available genres */}
           <div>
             <h4 className="mb-2 text-sm font-medium">Chọn thể loại:</h4>
-            <ScrollArea className="h-[300px] rounded border p-4">
-              {renderCategoriesList()}
-            </ScrollArea>
+            <ScrollArea className="h-[300px] rounded border p-4">{renderCategoriesList()}</ScrollArea>
           </div>
         </div>
 
