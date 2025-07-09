@@ -82,8 +82,11 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
         categoryIds: movie.categoryIds ?? [],
         description: movie.description ?? "",
         status: movie.status ?? MovieStatus.ACTIVE,
-        poster: movie.poster ?? "",
+        poster: movie.poster ?? "chưa có poster",
       });
+    } else {
+      // For new movie creation, set default poster text
+      form.setValue("poster", "chưa có poster");
     }
   }, [movie, form]);
 
@@ -104,10 +107,18 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
       // Create a URL for the file for preview
       const fileUrl = URL.createObjectURL(file);
       form.setValue("poster", fileUrl);
+    } else {
+      // If no file selected, set default text
+      form.setValue("poster", "chưa có poster");
+      form.setValue("posterFile", null);
     }
   };
 
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
+    // If no poster is provided or it's empty, set default text
+    if (!values.poster || values.poster.trim() === "") {
+      values.poster = "chưa có poster";
+    }
     onSubmit(values as MovieFormData);
   };
 
@@ -160,7 +171,38 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
           )}
         />
 
-        {/* Row 3: Director, Actor, Studio */}
+        {/* Row 3: From Date và To Date */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="fromDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>From Date</FormLabel>
+                <FormControl>
+                  <Input type="date" placeholder="Select from date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="toDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>To Date</FormLabel>
+                <FormControl>
+                  <Input type="date" placeholder="Select to date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Row 4: Director, Actor, Studio */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <FormField
             control={form.control}
@@ -205,7 +247,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
           />
         </div>
 
-        {/* Row 4: Age Restriction và Status */}
+        {/* Row 5: Age Restriction và Status */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -252,7 +294,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
           />
         </div>
 
-        {/* Row 5: Category Selection */}
+        {/* Row 6: Category Selection */}
         <FormField
           control={form.control}
           name="categoryIds"
@@ -300,15 +342,40 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
           )}
         />
 
-        {/* Row 6: Movie Poster */}
-        <div className="space-y-2">
-          <FormLabel>Movie Poster</FormLabel>
-          <Input type="file" accept="image/*" onChange={handleFileChange} />
-          {form.getValues("poster") && (
-            <div className="mt-2">
-              <img src={form.getValues("poster")} alt="Movie poster preview" className="h-32 w-24 rounded-md border object-cover" />
-            </div>
-          )}
+        {/* Row 7: Movie Poster và Trailer */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <FormLabel>Movie Poster</FormLabel>
+            <Input type="file" accept="image/*" onChange={handleFileChange} />
+            {form.getValues("poster") && form.getValues("poster") !== "chưa có poster" && (
+              <div className="mt-2">
+                <img src={form.getValues("poster")} alt="Movie poster preview" className="h-32 w-24 rounded-md border object-cover" />
+              </div>
+            )}
+            {(!form.getValues("poster") || form.getValues("poster") === "chưa có poster") && (
+              <div className="mt-2 flex h-32 w-24 items-center justify-center rounded-md border bg-gray-100 text-xs text-gray-500">
+                <span className="text-center">
+                  Chưa có poster
+                  <br />
+                  Sẽ cập nhật sau
+                </span>
+              </div>
+            )}
+          </div>
+
+          <FormField
+            control={form.control}
+            name="trailer"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Trailer URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter trailer URL (YouTube, etc.)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="flex justify-end space-x-2 pt-4">

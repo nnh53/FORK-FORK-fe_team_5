@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/Shadcn/ui/alert-dialog";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
@@ -7,7 +17,7 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar } from "@/components/shared/SearchBar";
 import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
 import { MovieGenre, MovieStatus } from "@/interfaces/movies.interface";
-import { queryCreateMovie, queryUpdateMovie, transformMovieResponse, transformMovieToRequest, useMovies } from "@/services/movieService";
+import { queryCreateMovie, queryDeleteMovie, queryUpdateMovie, transformMovieResponse, transformMovieToRequest, useMovies } from "@/services/movieService";
 import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
@@ -57,12 +67,15 @@ const MovieManagement = () => {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [genreManagementMovie, setGenreManagementMovie] = useState<Movie | undefined>();
   const [isGenreManagementOpen, setIsGenreManagementOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
   // Use React Query hooks
   const moviesQuery = useMovies();
   const createMovieMutation = queryCreateMovie();
   const updateMovieMutation = queryUpdateMovie();
+  const deleteMovieMutation = queryDeleteMovie();
 
   // Transform API response to Movie interface
   const movies: Movie[] = useMemo(() => {
@@ -134,11 +147,27 @@ const MovieManagement = () => {
   };
 
   const handleDelete = (movie: Movie) => {
-    // For now, just show a warning message
-    // In a real app, this would call a delete API
-    toast.warning(`Delete functionality for "${movie.name}" is not implemented yet`, {
-      description: "This feature requires backend API integration",
-    });
+    setMovieToDelete(movie);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!movieToDelete?.id) return;
+
+    try {
+      await deleteMovieMutation.mutateAsync({
+        params: { path: { id: movieToDelete.id } },
+      });
+
+      toast.success("Đã xóa phim thành công");
+      moviesQuery.refetch();
+    } catch (error) {
+      console.error("Error deleting movie:", error);
+      toast.error("Không thể xóa phim");
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setMovieToDelete(null);
+    }
   };
 
   const handleCancel = () => {
@@ -342,6 +371,23 @@ const MovieManagement = () => {
             moviesQuery.refetch();
           }}
         />
+
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận xóa phim</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc chắn muốn xóa phim "{movieToDelete?.name}"? Hành động này không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>Hủy</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+                Xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );
