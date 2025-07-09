@@ -1,5 +1,4 @@
 // Export new showtime components
-export { ShowtimeForm } from "./ShowtimeFormNew";
+export { ShowtimeForm } from "./ShowtimeForm";
 export { ShowtimeList } from "./ShowtimeList";
-export { ShowtimeManagementNew } from "./ShowtimeManagementNew";
-
+export { ShowtimeManagement } from "./ShowtimeManagement";

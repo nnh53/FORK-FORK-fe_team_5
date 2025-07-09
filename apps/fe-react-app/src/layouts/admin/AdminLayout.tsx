@@ -15,13 +15,12 @@ import MemberManagement from "@/feature/manager/member/MemberManagement";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import MovieCategoryManagement from "@/feature/manager/movie/settings/MovieCategoryManagement";
 import { PromotionManagement } from "@/feature/manager/promotion/PromotionManagement";
-// import ShowtimeManagement from "@/feature/manager/show-time/ShowtimeManagement";
+import { ShowtimeManagement } from "@/feature/manager/show-time";
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import type { ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 import dataMock from "./data.admin-layout.json";
 import { sidebarData } from "./sidebar-data";
-import ShowtimeDemoPage from "@/feature/manager/show-time/ShowtimeDemo";
 
 type AdminLayoutProps = {
   children?: ReactNode;
@@ -68,7 +67,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
           <Route path="cinema-room/edit/:id" element={<CinemaRoomEdit />} />
           <Route path="promotion" element={<PromotionManagement />} />
           <Route path="members" element={<MemberManagement />} />
-          <Route path="showtime" element={<ShowtimeDemoPage />} />
+          <Route path="showtime" element={<ShowtimeManagement />} />
           <Route path="staffs" element={<StaffManagement />} />
           <Route path="combo" element={<ComboManagement />} />
           <Route path="snacks" element={<SnackManagement />} />
