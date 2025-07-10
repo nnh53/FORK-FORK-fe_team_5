@@ -1,7 +1,6 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
-import { ScrollArea } from "@/components/Shadcn/ui/scroll-area";
 import { type Combo, type ComboSnack } from "@/interfaces/combo.interface";
 import { type Snack } from "@/interfaces/snacks.interface";
 import { calculateComboPrice, formatPrice, getComboStatusLabel } from "@/services/comboService";
@@ -34,49 +33,38 @@ const createFallbackSnack = (): Snack => ({
   status: "AVAILABLE",
 });
 
-// Extracted helper functions to reduce cognitive complexity
-const getGridColsClass = (snackCount: number): string => {
-  if (snackCount <= 2) return "grid-cols-1 md:grid-cols-2";
-  return "grid-cols-1 md:grid-cols-3"; // For 3+ we'll always enable horizontal scroll
-};
-
+// Extracted helper function to reduce cognitive complexity
 const needsHorizontalScrollCheck = (snackCount: number): boolean => {
   return snackCount >= 3; // Enable horizontal scroll for 3 or more snacks
 };
 
 // Extracted SnackGrid component to reduce complexity
 const SnackGrid = ({ snacks, needsScroll }: { snacks: ComboSnack[]; needsScroll: boolean }) => {
-  const snackCount = snacks?.length || 0;
   return (
     <div
-      className={`${needsScroll ? "custom-scrollbar overflow-x-auto" : ""}`}
+      className={`relative w-full ${needsScroll ? "custom-scrollbar" : ""}`}
       style={{
         width: "100%",
         position: "relative",
         overflowY: "hidden", // Tránh scroll dọc khi scroll ngang
+        overflowX: needsScroll ? "auto" : "visible",
       }}
     >
-      {needsScroll && (
-        <div className="absolute right-0 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-full bg-white/80 p-1 shadow-md">
-          <Icon icon="lucide:chevrons-right" className="h-5 w-5 animate-pulse text-gray-500" />
-        </div>
-      )}
       <div
-        className={`grid gap-4 ${getGridColsClass(snackCount)}`}
+        className="flex flex-nowrap gap-4 pb-3 pt-1"
         style={{
-          minWidth: needsScroll ? "960px" : "auto", // Make it wider to ensure scrolling is needed
-          width: needsScroll ? "fit-content" : "100%",
-          gridAutoFlow: needsScroll ? "column" : "row",
-          gridTemplateColumns: needsScroll ? `repeat(${snackCount}, minmax(300px, 1fr))` : "",
-          paddingBottom: "12px",
           paddingRight: needsScroll ? "24px" : "0",
+          paddingLeft: needsScroll ? "24px" : "0",
         }}
       >
         {snacks?.map((comboSnack) => {
-          console.log("Rendering snack:", comboSnack.snack);
           // Chỉ sử dụng fallback nếu thực sự không có dữ liệu snack
           const snackData = comboSnack.snack && Object.keys(comboSnack.snack).length > 0 ? comboSnack.snack : createFallbackSnack();
-          return <SnackCard key={comboSnack.id} snack={snackData} viewMode="grid" />;
+          return (
+            <div key={comboSnack.id} className="min-w-[280px] max-w-[320px] flex-shrink-0">
+              <SnackCard snack={snackData} viewMode="grid" />
+            </div>
+          );
         })}
       </div>
     </div>
@@ -106,7 +94,7 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="flex max-h-[90vh] w-full flex-col sm:max-w-[900px]">
+      <DialogContent className="flex max-h-[90vh] w-full flex-col sm:max-w-[1000px] md:max-w-[90vw] lg:max-w-[1070px]">
         <style
           dangerouslySetInnerHTML={{
             __html: `
@@ -185,7 +173,7 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
                 </div>
               </div>
 
-              <ScrollArea className="flex-1 pr-4" style={{ maxHeight: "60vh" }}>
+              <div className="flex-1 overflow-hidden" style={{ maxHeight: "60vh" }}>
                 {!displayCombo.snacks?.length ? (
                   <Card>
                     <CardContent className="py-8">
@@ -198,7 +186,7 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
                 ) : (
                   <SnackGrid snacks={displayCombo.snacks} needsScroll={needsHorizontalScroll} />
                 )}
-              </ScrollArea>
+              </div>
             </>
           ) : (
             <ComboDetailForm

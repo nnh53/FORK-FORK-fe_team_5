@@ -250,21 +250,57 @@ const ComboManagement: React.FC = () => {
 
   const handleUpdateSnack = async (comboSnack: ComboSnack) => {
     try {
+      // Cập nhật state UI ngay lập tức
+      setDetailsCombo((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          snacks: prev.snacks.map((s) => (s.id === comboSnack.id ? comboSnack : s)),
+        };
+      });
+
+      // Gọi API
       await updateComboSnackMutation.mutateAsync({
         params: { path: { id: comboSnack.id } },
         body: comboSnack,
       });
+
       toast.success("Đã cập nhật thực phẩm trong combo");
+
+      // Refresh dữ liệu từ server một cách yên lặng
       combosQuery.refetch();
     } catch (error) {
       console.error("Error updating combo snack:", error);
       toast.error("Lỗi khi cập nhật thực phẩm trong combo");
+
+      // Nếu lỗi, khôi phục lại dữ liệu từ server
+      combosQuery.refetch();
     }
   };
 
   const handleAddSnack = async (newComboSnack: Partial<ComboSnack>) => {
     if (!detailsCombo) return;
     try {
+      // Thêm snack tạm thời vào state trước khi gọi API để người dùng thấy phản hồi ngay lập tức
+      const tempComboSnack: ComboSnack = {
+        id: -Date.now(), // ID tạm thời
+        combo: detailsCombo,
+        snack: newComboSnack.snack!,
+        quantity: newComboSnack.quantity || 1,
+        snackSizeId: newComboSnack.snackSizeId || null,
+        discountPercentage: newComboSnack.discountPercentage || 0,
+      };
+
+      // Cập nhật state để hiển thị ngay
+      setDetailsCombo((prev) =>
+        prev
+          ? {
+              ...prev,
+              snacks: [...prev.snacks, tempComboSnack],
+            }
+          : prev,
+      );
+
       // Gọi API để thêm snack vào combo
       await addSnacksToComboMutation.mutateAsync({
         params: { path: { comboId: detailsCombo.id } },
@@ -278,22 +314,37 @@ const ComboManagement: React.FC = () => {
 
       toast.success("Đã thêm thực phẩm vào combo");
 
-      // Refresh dữ liệu từ server để lấy danh sách snack mới nhất
-      await combosQuery.refetch();
-
-      // Cập nhật lại modal chi tiết combo với dữ liệu mới nhất
-      if (detailsCombo && detailsOpen) {
-        const updatedCombos = combosQuery.data?.result;
-        if (updatedCombos && Array.isArray(updatedCombos)) {
-          const foundCombo = updatedCombos.find((c) => c.id === detailsCombo.id);
+      // Refresh dữ liệu từ server một cách yên lặng (không ảnh hưởng đến UI)
+      combosQuery.refetch().then((result) => {
+        if (result.data?.result && Array.isArray(result.data.result)) {
+          const foundCombo = result.data.result.find((c) => c.id === detailsCombo.id);
           if (foundCombo) {
-            setDetailsCombo(transformComboResponse(foundCombo));
+            // Cập nhật state mà không gây ra hiện tượng biến mất UI
+            setDetailsCombo((prev) => {
+              if (!prev) return prev;
+              const transformedCombo = transformComboResponse(foundCombo);
+              return {
+                ...transformedCombo,
+                // Đảm bảo giữ nguyên snacks mà người dùng có thể đang thêm/sửa
+                snacks: transformedCombo.snacks,
+              };
+            });
           }
         }
-      }
+      });
     } catch (error) {
       console.error("Lỗi khi thêm thực phẩm vào combo:", error);
       toast.error("Lỗi khi thêm thực phẩm vào combo");
+
+      // Nếu lỗi, xóa snack tạm thời khỏi UI
+      setDetailsCombo((prev) =>
+        prev
+          ? {
+              ...prev,
+              snacks: prev.snacks.filter((s) => s.id > 0), // Loại bỏ các ID tạm thời (âm)
+            }
+          : prev,
+      );
     }
   };
 
