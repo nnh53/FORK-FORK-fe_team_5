@@ -1,6 +1,10 @@
 import AuthPageProtector from "@/components/auth/AuthPageProtector";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { ChartAreaInteractive } from "@/components/Shadcn/chart-area-interactive";
+import { DataTable } from "@/components/Shadcn/data-table";
+import { SectionCards } from "@/components/Shadcn/section-cards";
 import Loading from "@/components/shared/Loading";
+import PageTransition from "@/components/shared/PageTransition";
 import Test from "@/components/shared/Test";
 import LogVIAReg from "@/feature/auth/LogVIAReg";
 import RoleRoute from "@/feature/auth/RoleRoute";
@@ -9,8 +13,19 @@ import BookingPage from "@/feature/booking/BookingPage";
 import BookingSuccessPage from "@/feature/booking/BookingSuccessPage.tsx";
 import CheckoutPage from "@/feature/booking/CheckoutPage.tsx";
 import ScrollVelocityTest from "@/feature/booking/components/Scroll-Velocitys/ScrollVelocityTest";
+import CinemaRoomAdd from "@/feature/manager/cinema-room/CinemaRoomAdd";
+import CinemaRoomDetail from "@/feature/manager/cinema-room/CinemaRoomDetail";
+import CinemaRoomEdit from "@/feature/manager/cinema-room/CinemaRoomEdit";
+import CinemaRoomManagement from "@/feature/manager/cinema-room/CinemaRoomManagement";
+import SeatMapManagement from "@/feature/manager/cinema-room/components/SeatMapManagement";
+import ComboManagement from "@/feature/manager/food/ComboManagement";
+import SnackManagement from "@/feature/manager/food/snack/SnackManagement";
 import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
+import { MovieCategoryManagement } from "@/feature/manager/movie/settings";
+import { PromotionManagement } from "@/feature/manager/promotion/PromotionManagement";
+import { ShowtimeManagement } from "@/feature/manager/show-time";
+import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import CinemaExperience from "@/feature/views/CinemaExperience";
@@ -21,6 +36,7 @@ import MovieGallery from "@/feature/views/MovieGallery/MovieGallery";
 import NowShowing from "@/feature/views/NowShowing/NowShowing";
 import TrendingSection from "@/feature/views/TrendingSection/TrendingSection";
 import AdminLayout from "@/layouts/admin/AdminLayout";
+import dataMock from "@/layouts/admin/data.admin-layout.json";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
 import UserLayout from "@/layouts/user/UserLayout";
@@ -35,7 +51,7 @@ import PrivacyPolicy from "@/pages/static/rule/PrivacyPolicy";
 import TermOfService from "@/pages/static/rule/TermOfService";
 import MovieDetailPage from "@/pages/store/MovieDetailPage";
 import MovieSelection from "@/pages/store/MovieSelection";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
 
 // Main App Routes following React Router best practices
@@ -78,9 +94,57 @@ export const AppRoutes = () => (
     {/*----------------------------------- Ở DƯỚI LÀ ADMIN VÀ STAFF ---------------------------------------*/}
     {/* Admin Routes - Protected for ADMIN role */}
     <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
-      <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
-      <Route path={ROUTES.ADMIN.ROOT + "/*"} element={<AdminLayout />} />
+      <Route
+        path="/"
+        element={
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
+        }
+      >
+        <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
+        <Route path={ROUTES.ADMIN.ROOT} element={<AdminLayout />}>
+          <Route
+            path="dashboard"
+            element={
+              <div className="flex flex-1 flex-col">
+                <div className="@container/main flex flex-1 flex-col gap-2">
+                  <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+                    <SectionCards />
+                    <div className="px-4 lg:px-6">
+                      <ChartAreaInteractive />
+                    </div>
+                    <DataTable data={dataMock} />
+                  </div>
+                </div>
+              </div>
+            }
+          />
+          <Route
+            path="booking"
+            element={
+              <div className="p-6">
+                <h1 className="text-2xl font-bold">Booking Management</h1>
+              </div>
+            }
+          />
+          <Route path="movie" element={<MovieManagement />} />
+          <Route path="genres" element={<MovieCategoryManagement />} />
+          <Route path="cinema-room" element={<CinemaRoomManagement />} />
+          <Route path="cinema-room/:roomId" element={<CinemaRoomDetail />} />
+          <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />
+          <Route path="cinema-room/add" element={<CinemaRoomAdd />} />
+          <Route path="cinema-room/edit/:id" element={<CinemaRoomEdit />} />
+          <Route path="promotion" element={<PromotionManagement />} />
+          <Route path="members" element={<MemberManagement />} />
+          <Route path="showtime" element={<ShowtimeManagement />} />
+          <Route path="staffs" element={<StaffManagement />} />
+          <Route path="combo" element={<ComboManagement />} />
+          <Route path="snacks" element={<SnackManagement />} />
+        </Route>
+      </Route>
     </Route>
+
     {/* Staff Routes - Protected for STAFF role */}
     <Route element={<RoleRoute allowedRoles={["STAFF"]} />}>
       <Route path={ROUTES.STAFF.ROOT} element={<Navigate to={ROUTES.STAFF.DASHBOARD} replace />} />

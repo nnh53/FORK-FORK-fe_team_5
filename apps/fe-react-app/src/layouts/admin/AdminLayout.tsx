@@ -1,78 +1,65 @@
 import { AppSidebar } from "@/components/Shadcn/app-sidebar";
-import { ChartAreaInteractive } from "@/components/Shadcn/chart-area-interactive";
-import { DataTable } from "@/components/Shadcn/data-table";
-import { SectionCards } from "@/components/Shadcn/section-cards";
-import { SiteHeader } from "@/components/Shadcn/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/Shadcn/ui/sidebar";
-import CinemaRoomAdd from "@/feature/manager/cinema-room/CinemaRoomAdd";
-import CinemaRoomDetail from "@/feature/manager/cinema-room/CinemaRoomDetail";
-import CinemaRoomEdit from "@/feature/manager/cinema-room/CinemaRoomEdit";
-import CinemaRoomManagement from "@/feature/manager/cinema-room/CinemaRoomManagement";
-import SeatMapManagement from "@/feature/manager/cinema-room/components/SeatMapManagement";
-import ComboManagement from "@/feature/manager/food/ComboManagement";
-import SnackManagement from "@/feature/manager/food/snack/SnackManagement";
-import MemberManagement from "@/feature/manager/member/MemberManagement";
-import MovieManagement from "@/feature/manager/movie/MovieManagement";
-import MovieCategoryManagement from "@/feature/manager/movie/settings/MovieCategoryManagement";
-import { PromotionManagement } from "@/feature/manager/promotion/PromotionManagement";
-import { ShowtimeManagement } from "@/feature/manager/show-time";
-import StaffManagement from "@/feature/manager/staff/StaffManagement";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
+import { Separator } from "@/components/Shadcn/ui/separator";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/Shadcn/ui/sidebar";
 import type { ReactNode } from "react";
-import { Route, Routes } from "react-router-dom";
-import dataMock from "./data.admin-layout.json";
+import { Outlet, Route, useLocation } from "react-router-dom";
 import { sidebarData } from "./sidebar-data";
 
 type AdminLayoutProps = {
   children?: ReactNode;
 };
 
+// Helper function to generate breadcrumb based on current path using data object
+const getBreadcrumbFromPath = (pathname: string) => {
+  // Find matching item in data.navMain
+  for (const section of sidebarData.navMain) {
+    if (section.items) {
+      for (const item of section.items) {
+        if (item.url === pathname) {
+          return {
+            section: section.title,
+            page: item.title,
+          };
+        }
+      }
+    }
+  }
+
+  // Fallback for paths not found in data structure
+  return { section: "FCinema Admin", page: "Dashboard" };
+};
+
 export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
+  const location = useLocation();
+  const breadcrumb = getBreadcrumbFromPath(location.pathname);
+
   return (
     <SidebarProvider>
       <AppSidebar data={sidebarData} />
       <SidebarInset>
-        <SiteHeader />
+        <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="/admin/dashboard">{breadcrumb.section}</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{breadcrumb.page}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </header>
 
-        <Routes>
-          <Route
-            path="dashboard"
-            element={
-              <div className="flex flex-1 flex-col">
-                <div className="@container/main flex flex-1 flex-col gap-2">
-                  <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                    <SectionCards />
-                    <div className="px-4 lg:px-6">
-                      <ChartAreaInteractive />
-                    </div>
-                    <DataTable data={dataMock} />
-                  </div>
-                </div>
-              </div>
-            }
-          />
-          <Route
-            path="booking"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl font-bold">Booking Management</h1>
-              </div>
-            }
-          />
-          <Route path="movie" element={<MovieManagement />} />
-          <Route path="genres" element={<MovieCategoryManagement />} />
-          <Route path="cinema-room" element={<CinemaRoomManagement />} />
-          <Route path="cinema-room/:roomId" element={<CinemaRoomDetail />} />
-          <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />
-          <Route path="cinema-room/add" element={<CinemaRoomAdd />} />
-          <Route path="cinema-room/edit/:id" element={<CinemaRoomEdit />} />
-          <Route path="promotion" element={<PromotionManagement />} />
-          <Route path="members" element={<MemberManagement />} />
-          <Route path="showtime" element={<ShowtimeManagement />} />
-          <Route path="staffs" element={<StaffManagement />} />
-          <Route path="combo" element={<ComboManagement />} />
-          <Route path="snacks" element={<SnackManagement />} />
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <Outlet />
           {children && <Route path="*" element={children} />}
-        </Routes>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
