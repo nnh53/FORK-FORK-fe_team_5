@@ -10,24 +10,13 @@ export interface MovieCardProps {
   genres: string[];
   duration: string;
   isHot?: boolean;
-  ageBadgeUrl: string;
   trailerUrl: string;
   onPosterClick?: () => void;
   onTitleClick?: () => void;
   onBuyTicketClick?: () => void;
 }
 
-const MovieCard: React.FC<MovieCardProps> = ({
-  posterUrl,
-  title,
-  genres,
-  duration,
-  isHot,
-  ageBadgeUrl,
-  onPosterClick,
-  onTitleClick,
-  onBuyTicketClick,
-}) => {
+const MovieCard: React.FC<MovieCardProps> = ({ posterUrl, title, genres, duration, isHot, onPosterClick, onTitleClick, onBuyTicketClick }) => {
   return (
     <div className="flex h-[580px] w-72 flex-col overflow-hidden rounded-xl bg-white shadow-lg transition-shadow duration-300 hover:shadow-2xl">
       {/* --- Phần Poster --- */}
@@ -42,11 +31,6 @@ const MovieCard: React.FC<MovieCardProps> = ({
             <Icon icon="mdi:play-circle" width="60" height="60" />
           </div>
         </div>
-        {ageBadgeUrl && (
-          <div className="absolute left-3 top-3 z-10">
-            <img src={ageBadgeUrl} alt="Phân loại phim" className="h-9 w-auto" />
-          </div>
-        )}
         {isHot && (
           <div className="absolute right-0 top-0 z-10">
             <img src={hotBadgeImage} alt="Hot" className="h-20 w-20" />

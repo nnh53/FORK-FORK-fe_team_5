@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes/route.constants";
 import { useGetUserById } from "@/services/userService";
 import { getCookie } from "@/utils/cookie.utils";
-import { IconCreditCard, IconDotsVertical, IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
+import { IconDotsVertical, IconLogout, IconNotification, IconUserCircle, IconLayoutDashboard } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
 interface AuthSectionProps {
@@ -33,6 +33,19 @@ const AuthSection = ({ className = "header-actions", loginText = "Login", logout
 
   // User is considered authenticated if logged in OR has valid roles in cookies
   const isAuthenticated = isLoggedIn || hasRoles;
+
+  // Parse user roles for dropdown menu items
+  const roles = user?.roles || [];
+  if (userRoles && typeof userRoles === "string") {
+    try {
+      const parsedRoles = JSON.parse(userRoles);
+      if (Array.isArray(parsedRoles)) {
+        roles.push(...parsedRoles);
+      }
+    } catch {
+      // Ignore parsing errors
+    }
+  }
 
   // Get user ID from cookies or context
   const userId = user?.id || getCookie("user_id");
@@ -94,13 +107,28 @@ const AuthSection = ({ className = "header-actions", loginText = "Login", logout
                   Account
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard className="mr-2 h-4 w-4" />
-                Billing
-              </DropdownMenuItem>
+
+              {/* Add dashboard items based on specific roles */}
+              {roles.includes("ADMIN") && (
+                <DropdownMenuItem asChild>
+                  <Link to={ROUTES.ADMIN.DASHBOARD} className="cursor-pointer">
+                    <IconLayoutDashboard className="mr-2 h-4 w-4" />
+                    Admin Dashboard
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              {roles.includes("STAFF") && (
+                <DropdownMenuItem asChild>
+                  <Link to={ROUTES.STAFF.DASHBOARD} className="cursor-pointer">
+                    <IconLayoutDashboard className="mr-2 h-4 w-4" />
+                    Staff Dashboard
+                  </Link>
+                </DropdownMenuItem>
+              )}
+
               <DropdownMenuItem>
                 <IconNotification className="mr-2 h-4 w-4" />
-                Notifications
+                More
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

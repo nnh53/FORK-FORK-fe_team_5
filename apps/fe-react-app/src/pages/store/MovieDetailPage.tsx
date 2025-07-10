@@ -1,6 +1,5 @@
 // ✅ File: src/feature/movie/MovieDetailPage.tsx
 
-import pTagImage from "@/assets/pTag.png";
 import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/ShowDateSelector";
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
@@ -100,7 +99,6 @@ const MovieDetailPage: React.FC = () => {
             title: movie.name, // Use 'name' from new interface
             genres: movie.categories ? movie.categories.map((cat) => cat.name ?? "") : [],
             duration: `${movie.duration ?? 0} phút`,
-            ageBadgeUrl: pTagImage,
             trailerUrl: movie.trailer, // Use 'trailer' from new interface
           },
           selection: {

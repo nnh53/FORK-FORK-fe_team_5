@@ -1,4 +1,3 @@
-import pTagImage from "@/assets/pTag.png";
 import type { Movie } from "@/interfaces/movies.interface";
 import type { MovieCardProps } from "../components/movie/MovieCard";
 
@@ -10,7 +9,6 @@ export const convertMovieToMovieCard = (movie: Movie): MovieCardProps => {
     genres: movie.categories ? movie.categories.map((cat) => cat.name ?? "") : ["Unknown"],
     duration: movie.duration ? `${movie.duration} phút` : "N/A",
     isHot: false, // Since we don't have rating in new Movie interface
-    ageBadgeUrl: pTagImage,
     trailerUrl: movie.trailer ?? "",
     onPosterClick: undefined,
     onTitleClick: undefined,

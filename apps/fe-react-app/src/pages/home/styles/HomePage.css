@@ -112,7 +112,6 @@ body {
 
 .coming-soon-image {
   flex: 1;
-  background-image: url("../../../assets/bg-top.png");
   background-position: center;
   background-size: cover;
   height: 400px;

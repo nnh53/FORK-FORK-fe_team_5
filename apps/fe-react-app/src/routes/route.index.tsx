@@ -30,7 +30,7 @@ import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import FAQ from "@/feature/views/FAQ/FAQ";
-import FlowingMenuSection from "@/feature/views/FlowingMenu/FlowingMenuSection";
+import FlowingMenuSection from "@/feature/views/FlowingMenuSection";
 import HeroSection from "@/feature/views/HeroSection/HeroSection";
 import MovieGallery from "@/feature/views/MovieGallery/MovieGallery";
 import NowShowing from "@/feature/views/NowShowing/NowShowing";

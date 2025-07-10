@@ -1,0 +1,26 @@
+/* Custom styles for curved header */
+.curved-header {
+  position: relative;
+}
+
+/* Curve overlay for the header */
+.curved-header::before {
+  content: "";
+  position: absolute;
+  top: -20px; /* Negative value to create the upward curve and overlap FlowingMenu */
+  left: 0;
+  right: 0;
+  height: 22px; /* Slightly larger than top value to ensure no gaps */
+  background-color: var(--background, rgba(20, 20, 20, 0.8)); /* Match theme background */
+  opacity: 0.8;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  backdrop-filter: blur(12px);
+  z-index: -1;
+  border-top: none;
+}
+
+/* Adjust header spacing to account for the curve */
+header {
+  overflow: visible !important;
+}
+
