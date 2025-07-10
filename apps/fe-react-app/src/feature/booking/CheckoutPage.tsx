@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { Booking, PaymentMethod } from "@/interfaces/booking.interface.ts";
 import type { Member } from "@/interfaces/member.interface.ts";
 import type { Promotion } from "@/interfaces/promotion.interface.ts";
+import { ROUTES } from "@/routes/route.constants.ts";
 import { transformBookingToRequest, useCreateBooking } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
@@ -24,6 +25,16 @@ import SnackList from "./components/SnackList/SnackList.tsx";
 const CheckoutPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Handle payment cancellation message
+  useEffect(() => {
+    if (location.state?.paymentCancelled) {
+      toast.error(location.state.message || "Thanh toán đã bị hủy. Vui lòng thử lại.");
+
+      // Clear the cancellation state to avoid showing the message again
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Auth hooks
   const { user } = useAuth();
@@ -321,20 +332,22 @@ const CheckoutPage: React.FC = () => {
       const bookingResponse = await createBookingMutation.mutateAsync({
         body: apiRequest,
       });
-      console.log("Booking created successfully:", apiRequest);
-      toast.success("Đặt vé thành công!");
 
-      // Clear localStorage and navigate to success page
-      localStorage.removeItem("bookingState");
-      navigate("/booking-success", {
-        state: {
-          booking: bookingResponse.result,
-          bookingId: bookingResponse.result?.id,
-        },
-      });
+      // Save booking data to localStorage
+      localStorage.setItem("bookingSuccessData", JSON.stringify(bookingResponse.result));
+
+      // Navigate with bookingId as URL parameter
+      navigate(`/booking-success?bookingId=${bookingResponse.result?.id}`);
+
+      if (paymentMethod === "ONLINE" && bookingResponse.result?.payOsLink) {
+        window.location.href = bookingResponse.result.payOsLink;
+      } else {
+        throw new Error("Đặt vé thất bại. Vui lòng thử lại!");
+      }
     } catch (error) {
       console.error("Error creating booking:", error);
       toast.error(getErrorMessage(error));
+      navigate(ROUTES.BOOKING);
     } finally {
       setIsCreatingBooking(false);
     }

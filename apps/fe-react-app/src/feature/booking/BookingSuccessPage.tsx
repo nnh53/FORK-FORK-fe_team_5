@@ -1,18 +1,23 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { transformBookingResponse, useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
-import { CheckCircle } from "lucide-react";
-import React, { useMemo } from "react";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { queryMovie } from "@/services/movieService.ts";
+import { CheckCircle } from "lucide-react";
+import React, { useEffect, useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const BookingSuccessPage: React.FC = () => {
-  const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  // Get booking ID from URL params or location state
-  const bookingId = searchParams.get("bookingId") || location.state?.bookingId;
-  const bookingIdNumber = bookingId ? parseInt(bookingId.toString()) : null;
+  // Get booking ID from URL params
+  const bookingId = searchParams.get("bookingId");
+  const bookingIdNumber = bookingId ? parseInt(bookingId) : null;
+
+  useEffect(() => {
+    // Show success message when component mounts (booking is successful)
+    toast.success("Đặt vé thành công!");
+  }, []); // Empty dependency array means this runs once when component mounts
 
   // Use React Query hook to fetch booking data
   const { data: bookingData, isLoading, error } = useBooking(bookingIdNumber || 0);
@@ -20,11 +25,21 @@ const BookingSuccessPage: React.FC = () => {
   // Transform API response to internal format
   const booking = useMemo(() => {
     if (!bookingData?.result) {
-      // Fallback to location state if available
-      return location.state?.booking || null;
+      // Try to get booking data from localStorage first
+      const savedBookingData = localStorage.getItem("bookingSuccessData");
+      if (savedBookingData) {
+        try {
+          const parsedData = JSON.parse(savedBookingData);
+          return transformBookingResponse(parsedData);
+        } catch (error) {
+          console.error("Error parsing saved booking data:", error);
+          return null;
+        }
+      }
+      return null;
     }
     return transformBookingResponse(bookingData.result);
-  }, [bookingData, location.state?.booking]);
+  }, [bookingData]);
 
   // Fetch additional data based on booking showtime
   const movieId = booking?.showtime?.movie_id || 0;
@@ -44,9 +59,9 @@ const BookingSuccessPage: React.FC = () => {
 
   const cinemaRoomInfo = useMemo(() => {
     if (!cinemaRoomData?.result) {
-      // Fallback to roomName from showtime if available
+      // Fallback to room number from showtime if available
       return {
-        room_number: booking?.showtime?.cinema_room?.room_number || booking?.showtime?.roomName || `${roomId}` || "N/A",
+        room_number: booking?.showtime?.cinema_room?.room_number || `${roomId}` || "N/A",
       };
     }
     return {
@@ -55,7 +70,7 @@ const BookingSuccessPage: React.FC = () => {
   }, [cinemaRoomData, booking?.showtime, roomId]);
 
   // Show loading state
-  if (isLoading && !location.state?.booking) {
+  if (isLoading && !booking) {
     return (
       <div>
         <div className="mx-auto max-w-2xl p-8 text-center">
@@ -66,7 +81,7 @@ const BookingSuccessPage: React.FC = () => {
   }
 
   // Show error state
-  if (error && !location.state?.booking) {
+  if (error && !booking) {
     return (
       <div>
         <div className="mx-auto max-w-2xl p-8 text-center">

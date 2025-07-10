@@ -1,9 +1,6 @@
 import React from "react";
 
-const paymentMethods = [
-  { id: "card", name: "QR thanh toán", logo: "https://cdn-icons-png.flaticon.com/512/349/349221.png" },
-  { id: "cash", name: "Tiền mặt", logo: "https://cdn-icons-png.flaticon.com/512/1611/1611179.png" },
-];
+const paymentMethods = [{ id: "card", name: "QR thanh toán", logo: "https://cdn-icons-png.flaticon.com/512/349/349221.png" }];
 
 interface PaymentMethodSelectorProps {
   selectedMethod?: string;

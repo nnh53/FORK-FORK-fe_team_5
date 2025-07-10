@@ -8,7 +8,7 @@ export const ROUTES = {
   CHECKOUT: "/checkout",
   BOOKING_SUCCESS: "/booking-success",
   MOVIE_DETAIL: "/movie/:movieId",
-
+  PAYMENT_RETURN: "/return-url",
   //viewing test
   CAROUSEL_SECTION: "/carousel-section",
   SCROLL_VELOCITY: "/scroll-velocity",

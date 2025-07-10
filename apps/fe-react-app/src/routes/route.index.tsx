@@ -27,6 +27,7 @@ import { PromotionManagement } from "@/feature/manager/promotion/PromotionManage
 import { ShowtimeManagement } from "@/feature/manager/show-time";
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import TrendingManagement from "@/feature/manager/trending/TrendingManagement";
+import PaymentReturn from "@/feature/payment/PaymentReturn";
 import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import CinemaExperience from "@/feature/views/CinemaExperience";
@@ -83,6 +84,7 @@ export const AppRoutes = () => (
         <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
         <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
         <Route path={ROUTES.ACCOUNT} element={<MyUserManagement />} />
+        <Route path={ROUTES.PAYMENT_RETURN} element={<PaymentReturn />} />
       </Route>
       {/* Legacy route for backward compatibility */}
       <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />

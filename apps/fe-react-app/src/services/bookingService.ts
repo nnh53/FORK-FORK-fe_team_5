@@ -91,12 +91,14 @@ export const useUpdateBooking = () => {
   return $api.useMutation("put", "/bookings/{id}");
 };
 
-/**
- * Hook for deleting a booking
- */
-export const useDeleteBooking = () => {
-  return $api.useMutation("delete", "/bookings/{id}");
-};
+// /**
+//  * Hook for deleting a booking
+//  */
+// export const useDeleteBooking = (id: number) => {
+//   return $api.useMutation("delete", "/bookings/{id}", {
+//     params: { path: { id } },
+//   });
+// };
 
 /**
  * Hook for getting seats by showtime (for seat selection)
@@ -197,7 +199,7 @@ export const transformBookingResponse = (bookingResponse: BookingResponse): Book
           full_name: bookingResponse.user.fullName || "",
           email: bookingResponse.user.email || "",
           phone: bookingResponse.user.phone || "",
-          loyalty_point: bookingResponse.loyaltyPoints || 0,
+          loyalty_point: bookingResponse.loyaltyPointsUsed || 0,
         }
       : undefined,
     showtime_id: bookingResponse.showTime?.id || 0,
@@ -233,7 +235,7 @@ export const transformBookingResponse = (bookingResponse: BookingResponse): Book
     booking_status: mapBookingStatus(bookingResponse.status),
     staff_id: bookingResponse.staffId || undefined,
     pay_os_code: bookingResponse.payOsCode || undefined,
-    loyalty_point_used: bookingResponse.loyaltyPoints && bookingResponse.loyaltyPoints > 0 ? bookingResponse.loyaltyPoints : undefined,
+    loyalty_point_used: bookingResponse.loyaltyPointsUsed && bookingResponse.loyaltyPointsUsed > 0 ? bookingResponse.loyaltyPointsUsed : undefined,
 
     // Transform seats - using booking_seats relation format
     booking_seats:
@@ -319,6 +321,7 @@ export const transformBookingResponse = (bookingResponse: BookingResponse): Book
  * Transform internal Booking to API BookingRequest
  */
 export const transformBookingToRequest = (booking: Partial<Booking>): BookingRequest => {
+  const { origin } = window.location;
   return {
     userId: booking.user_id || "",
     showtimeId: booking.showtime_id || 0,
@@ -339,5 +342,6 @@ export const transformBookingToRequest = (booking: Partial<Booking>): BookingReq
         snackId: relation.snack_id,
         quantity: relation.quantity,
       })) || undefined,
+    feUrl: origin,
   };
 };

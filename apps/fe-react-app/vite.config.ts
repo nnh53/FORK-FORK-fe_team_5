@@ -14,4 +14,10 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["@jsquash/png", "@jsquash/webp"],
   },
+  server: {
+    port: 5173,
+  },
+  preview: {
+    port: 5173,
+  },
 });

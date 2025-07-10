@@ -208,8 +208,7 @@ export interface paths {
         /** Update booking */
         put: operations["updateBooking"];
         post?: never;
-        /** Delete booking */
-        delete: operations["deleteBooking"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -473,6 +472,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bookings/{id}/confirm-payment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm booking payment
+         * @description Confirm payment for a booking and cancel automatic expiration
+         */
+        post: operations["confirmBookingPayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bookings/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel a booking manually
+         * @description Cancel a booking with optional reason. This will also cancel any scheduled automatic expiration.
+         */
+        post: operations["cancelBooking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/introspect": {
         parameters: {
             query?: never;
@@ -649,6 +688,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getReceipts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/combo-snacks/snack/{snackId}": {
         parameters: {
             query?: never;
@@ -811,6 +866,8 @@ export interface components {
             role?: string;
             status?: string;
             gender?: string;
+            /** Format: int32 */
+            loyaltyPoint?: number;
             /** Format: date */
             dateOfBirth?: string;
         };
@@ -1186,8 +1243,6 @@ export interface components {
             /** Format: int32 */
             price?: number;
             cancelUrl?: string;
-            /** Format: int64 */
-            expiredTime?: number;
         };
         MovieRequest: {
             name: string;
@@ -1250,6 +1305,7 @@ export interface components {
             loyaltyPointsUsed?: number;
             bookingCombos?: components["schemas"]["BookingComboRequest"][];
             bookingSnacks?: components["schemas"]["BookingSnackRequest"][];
+            feUrl?: string;
         };
         BookingSnackRequest: {
             /** Format: int32 */
@@ -1282,7 +1338,7 @@ export interface components {
             promotion?: components["schemas"]["PromotionResponse"];
             seats?: components["schemas"]["SeatResponse"][];
             /** Format: int32 */
-            loyaltyPoints?: number;
+            loyaltyPointsUsed?: number;
             /** Format: float */
             totalPrice?: number;
             /** @enum {string} */
@@ -1401,6 +1457,342 @@ export interface components {
             code?: number;
             message?: string;
             result?: components["schemas"]["SeatTypeResponse"][];
+        };
+        ReceiptFilterRequest: {
+            userId?: string;
+            /** Format: date */
+            fromDate?: string;
+            /** Format: date */
+            toDate?: string;
+            bookingId?: string;
+            movieName?: string;
+            /** @enum {string} */
+            paymentMethod?: "CASH" | "ONLINE";
+            refunded?: boolean;
+            /** Format: float */
+            minAmount?: number;
+            /** Format: float */
+            maxAmount?: number;
+        };
+        ApiResponseListReceipt: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["Receipt"][];
+        };
+        Booking: {
+            /** Format: int32 */
+            id?: number;
+            user?: components["schemas"]["User"];
+            /** Format: date-time */
+            bookingDate?: string;
+            showTime?: components["schemas"]["Showtime"];
+            promotion?: components["schemas"]["Promotion"];
+            seats?: components["schemas"]["Seat"][];
+            bookingCombos?: components["schemas"]["BookingCombo"][];
+            bookingSnacks?: components["schemas"]["BookingSnack"][];
+            /** Format: int32 */
+            loyaltyPointsUsed?: number;
+            /** Format: float */
+            estimatedPrice?: number;
+            /** Format: float */
+            totalPrice?: number;
+            /** @enum {string} */
+            paymentMethod?: "CASH" | "ONLINE";
+            /** @enum {string} */
+            paymentStatus?: "PENDING" | "SUCCESS" | "FAILED";
+            staffId?: string;
+            /** @enum {string} */
+            status?: "PENDING" | "SUCCESS" | "CANCELLED";
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            payOsCode?: string;
+            payOsLink?: string;
+            feUrl?: string;
+        };
+        BookingCombo: {
+            /** Format: int32 */
+            id?: number;
+            booking?: components["schemas"]["Booking"];
+            combo?: components["schemas"]["Combo"];
+            /** Format: int32 */
+            quantity?: number;
+            /** Format: float */
+            unitPrice?: number;
+            /** Format: float */
+            totalPrice?: number;
+        };
+        BookingSnack: {
+            /** Format: int32 */
+            id?: number;
+            booking?: unknown;
+            snack?: components["schemas"]["Snack"];
+            /** Format: int32 */
+            quantity?: number;
+            /** Format: float */
+            unitPrice?: number;
+            /** Format: float */
+            totalPrice?: number;
+        };
+        CinemaRoom: {
+            /** Format: int32 */
+            id?: number;
+            name?: string;
+            type?: string;
+            /** Format: double */
+            fee?: number;
+            /** Format: int32 */
+            capacity?: number;
+            /** @enum {string} */
+            status?: "ACTIVE" | "MAINTENANCE" | "CLOSED";
+            /** Format: int32 */
+            width?: number;
+            /** Format: int32 */
+            length?: number;
+            seats?: components["schemas"]["Seat"][];
+            showtimes?: components["schemas"]["Showtime"][];
+        };
+        Combo: {
+            /** Format: int32 */
+            id?: number;
+            name?: string;
+            description?: string;
+            /** @enum {string} */
+            status?: "AVAILABLE" | "SOLD_OUT" | "UNAVAILABLE";
+            img?: string;
+            /** Format: float */
+            price?: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            comboSnacks?: components["schemas"]["ComboSnack"][];
+            /** Format: int32 */
+            quantity?: number;
+            snacks?: components["schemas"]["Snack"][];
+        };
+        ComboSnack: {
+            /** Format: int32 */
+            id?: number;
+            combo?: components["schemas"]["Combo"];
+            snack?: unknown;
+            /** Format: int32 */
+            quantity?: number;
+        };
+        Movie: {
+            showtimes?: components["schemas"]["Showtime"][];
+            /** Format: int32 */
+            id?: number;
+            name?: string;
+            /** Format: int32 */
+            ageRestrict?: number;
+            /** Format: date */
+            fromDate?: string;
+            /** Format: date */
+            toDate?: string;
+            actor?: string;
+            studio?: string;
+            director?: string;
+            /** Format: int32 */
+            duration?: number;
+            trailer?: string;
+            description?: string;
+            poster?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** @enum {string} */
+            status?: "ACTIVE" | "INACTIVE" | "UPCOMING";
+            categories?: components["schemas"]["MovieCategory"][];
+        };
+        MovieCategory: {
+            /** Format: int32 */
+            id?: number;
+            name?: string;
+            description?: string;
+            movies?: components["schemas"]["Movie"][];
+        };
+        Promotion: {
+            /** Format: int32 */
+            id?: number;
+            image?: string;
+            title?: string;
+            /** @enum {string} */
+            type?: "PERCENTAGE" | "AMOUNT";
+            /** Format: float */
+            minPurchase?: number;
+            /** Format: float */
+            discountValue?: number;
+            /** Format: date-time */
+            startTime?: string;
+            /** Format: date-time */
+            endTime?: string;
+            description?: string;
+            /** @enum {string} */
+            status?: "ACTIVE" | "INACTIVE";
+            bookings?: components["schemas"]["Booking"][];
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        Receipt: {
+            /** Format: int32 */
+            id?: number;
+            user?: components["schemas"]["User"];
+            /** Format: int32 */
+            bookingId?: number;
+            movieName?: string;
+            /** Format: date-time */
+            showtime?: string;
+            promotionName?: string;
+            roomName?: string;
+            items?: components["schemas"]["ReceiptItem"][];
+            /** Format: float */
+            totalAmount?: number;
+            /** @enum {string} */
+            paymentMethod?: "CASH" | "ONLINE";
+            refunded?: boolean;
+            paymentReference?: string;
+            /** Format: date-time */
+            issuedAt?: string;
+            /** Format: int32 */
+            addedPoints?: number;
+            /** Format: int32 */
+            usedPoints?: number;
+            /** Format: int32 */
+            refundedPoints?: number;
+        };
+        ReceiptItem: {
+            /** Format: int32 */
+            id?: number;
+            receipt?: components["schemas"]["Receipt"];
+            name?: string;
+            /** Format: float */
+            unitPrice?: number;
+            /** Format: float */
+            totalPrice?: number;
+            /** Format: int32 */
+            quantity?: number;
+            /** @enum {string} */
+            type?: "COMBO" | "SNACK" | "TICKET";
+        };
+        Seat: {
+            /** Format: int32 */
+            id?: number;
+            room?: unknown;
+            row?: string;
+            column?: string;
+            name?: string;
+            type?: components["schemas"]["SeatType"];
+            /** @enum {string} */
+            status?: "AVAILABLE" | "MAINTENANCE";
+            bookings?: components["schemas"]["Booking"][];
+            discarded?: boolean;
+            /** Format: int32 */
+            linkSeatId?: number;
+        };
+        SeatType: {
+            /** Format: int32 */
+            id?: number;
+            /** @enum {string} */
+            name?: "VIP" | "REGULAR" | "COUPLE" | "PATH" | "BLOCK";
+            /** Format: float */
+            price?: number;
+            seats?: components["schemas"]["Seat"][];
+        };
+        Showtime: {
+            /** Format: int32 */
+            id?: number;
+            movie?: components["schemas"]["Movie"];
+            /** Format: date-time */
+            showDateTime?: string;
+            room?: components["schemas"]["CinemaRoom"];
+            /** Format: date-time */
+            endDateTime?: string;
+            /** @enum {string} */
+            status?: "SCHEDULE" | "ONSCREEN" | "COMPLETED" | "CANCELLED";
+            bookings?: components["schemas"]["Booking"][];
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        Snack: {
+            /** Format: int32 */
+            id?: number;
+            /** @enum {string} */
+            category?: "FOOD" | "DRINK";
+            name?: string;
+            flavor?: string;
+            /** Format: float */
+            price?: number;
+            description?: string;
+            /** Format: int32 */
+            quantity?: number;
+            img?: string;
+            /** @enum {string} */
+            size?: "SMALL" | "MEDIUM" | "LARGE";
+            comboSnacks?: components["schemas"]["ComboSnack"][];
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** @enum {string} */
+            status?: "AVAILABLE" | "SOLD_OUT" | "UNAVAILABLE";
+            combos?: components["schemas"]["Combo"][];
+        };
+        /** @description User entity */
+        User: {
+            /**
+             * @description User ID
+             * @example uuid-1234
+             */
+            id?: string;
+            /**
+             * @description Full name
+             * @example John Doe
+             */
+            fullName?: string;
+            /**
+             * Format: date
+             * @description Date of birth
+             * @example 1990-01-01
+             */
+            dateOfBirth?: string;
+            /**
+             * @description Email address
+             * @example john@example.com
+             */
+            email?: string;
+            /**
+             * @description Password (hashed)
+             * @example hashedpassword
+             */
+            password?: string;
+            /** @enum {string} */
+            status?: "ACTIVE" | "INACTIVE" | "BANNED";
+            phone?: string;
+            address?: string;
+            /**
+             * @description Role name
+             * @example CUSTOMER
+             * @enum {string}
+             */
+            role?: "ADMIN" | "MANAGER" | "MEMBER" | "STAFF";
+            avatar?: string;
+            /** Format: int32 */
+            loyaltyPoint?: number;
+            bookings?: components["schemas"]["Booking"][];
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** @enum {string} */
+            gender?: "MALE" | "FEMALE" | "OTHER";
         };
         ApiResponseListPromotionResponse: {
             /** Format: int32 */
@@ -2271,28 +2663,6 @@ export interface operations {
             };
         };
     };
-    deleteBooking: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseVoid"];
-                };
-            };
-        };
-    };
     getUsers: {
         parameters: {
             query?: never;
@@ -2938,6 +3308,52 @@ export interface operations {
             };
         };
     };
+    confirmBookingPayment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    cancelBooking: {
+        parameters: {
+            query?: {
+                reason?: string;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
     introspect: {
         parameters: {
             query?: never;
@@ -3182,6 +3598,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseListSeatTypeResponse"];
+                };
+            };
+        };
+    };
+    getReceipts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ReceiptFilterRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListReceipt"];
                 };
             };
         };
