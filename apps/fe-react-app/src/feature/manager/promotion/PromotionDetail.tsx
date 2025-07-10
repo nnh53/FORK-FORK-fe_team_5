@@ -38,13 +38,16 @@ export const PromotionDetail: React.FC<PromotionDetailProps> = ({ open, setOpen,
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {/* Hình ảnh khuyến mãi */}
             <div>
-              <div className="flex w-full items-center justify-center rounded-md border bg-gray-100">
+              <div className="flex min-h-[240px] w-full items-center justify-center overflow-hidden rounded-md border bg-gray-100 p-4">
                 {promotion.image ? (
-                  <img
-                    src={promotion.image}
-                    alt={promotion.title}
-                    className="max-h-[400px] w-auto max-w-full object-contain transition-transform duration-300 hover:scale-105"
-                  />
+                  <div className="flex h-full max-h-[400px] w-full items-center justify-center">
+                    <img
+                      src={promotion.image}
+                      alt={promotion.title}
+                      className="max-h-[400px] min-h-[200px] w-auto min-w-[200px] max-w-[95%] object-contain transition-transform duration-300 hover:scale-105"
+                      style={{ objectFit: "contain", objectPosition: "center" }}
+                    />
+                  </div>
                 ) : (
                   <div className="flex aspect-square w-full flex-col items-center justify-center text-gray-400">
                     <Icon icon="tabler:photo" className="mb-2 h-16 w-16" />

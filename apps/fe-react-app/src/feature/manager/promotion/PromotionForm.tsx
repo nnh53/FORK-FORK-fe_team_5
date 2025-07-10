@@ -12,7 +12,7 @@ import { promotionValidationSchema } from "@/utils/validation.utils";
 import { Icon } from "@iconify/react";
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from "formik";
 import { ImageIcon } from "lucide-react";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 
 interface PromotionFormProps {
   selectedPromotion?: Promotion;
@@ -105,8 +105,8 @@ const SelectField = ({ name, label, icon, options, errors, touched, setFieldValu
 );
 
 export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion, onSubmit, onCancel }) => {
+  // Khởi tạo imagePreview là null để có thể phân biệt giữa chưa thay đổi (null) và đã xóa ("")
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // For datetime fields
   const [startDate, setStartDate] = useState<Date | undefined>(selectedPromotion?.startTime ? new Date(selectedPromotion.startTime) : undefined);
@@ -153,17 +153,14 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                   </CardHeader>
                   <CardContent className="flex h-full flex-col space-y-4">
                     <ImageUpload
-                      currentImage={imagePreview ?? formInitialValues.image ?? ""}
+                      currentImage={imagePreview ?? values.image}
                       onImageChange={(imageUrl) => {
                         setImagePreview(imageUrl);
                         setFieldValue("image", imageUrl);
                       }}
                       onImageClear={() => {
-                        setImagePreview(null);
+                        setImagePreview("");
                         setFieldValue("image", "");
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = "";
-                        }
                       }}
                       label=""
                       aspectRatio="16:9"
