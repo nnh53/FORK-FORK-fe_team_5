@@ -1,5 +1,4 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
-import UserLayout from "@/layouts/user/UserLayout.tsx";
 import { transformSeatsToSeatMap, useSeatsByShowtimeId } from "@/services/bookingService.ts";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -154,42 +153,42 @@ const BookingPage: React.FC = () => {
 
   if (!movie) {
     return (
-      <UserLayout>
+      <div>
         <div className="py-20 text-center">
           <p>Lỗi: Không có thông tin đặt vé.</p>
           <Link to="/" className="text-blue-500 hover:underline">
             Quay về trang chủ
           </Link>
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
   if (!selection?.showtimeId) {
     return (
-      <UserLayout>
+      <div>
         <div className="py-20 text-center">
           <p>Lỗi: Không có thông tin suất chiếu.</p>
           <Link to="/" className="text-blue-500 hover:underline">
             Quay về trang chủ
           </Link>
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
   if (seatsLoading) {
     return (
-      <UserLayout>
+      <div>
         <div className="py-20 text-center">
           <p>Đang tải dữ liệu ghế...</p>
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
   return (
-    <UserLayout>
+    <div>
       <div className="mx-auto max-w-screen-2xl p-4 md:p-8">
         {/* Breadcrumb */}
         <Breadcrumb className="mb-6">
@@ -235,7 +234,7 @@ const BookingPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </UserLayout>
+    </div>
   );
 };
 

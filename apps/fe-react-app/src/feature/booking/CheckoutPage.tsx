@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import type { Booking, PaymentMethod } from "@/interfaces/booking.interface.ts";
 import type { Member } from "@/interfaces/member.interface.ts";
 import type { Promotion } from "@/interfaces/promotion.interface.ts";
-import UserLayout from "@/layouts/user/UserLayout.tsx";
 import { transformBookingToRequest, useCreateBooking } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
@@ -313,7 +312,7 @@ const CheckoutPage: React.FC = () => {
   if (!movie) {
     // Xử lý khi không có dữ liệu
     return (
-      <UserLayout>
+      <div>
         <div className="p-10 text-center">
           Lỗi dữ liệu, vui lòng{" "}
           <Link to="/" className="text-blue-500">
@@ -321,19 +320,19 @@ const CheckoutPage: React.FC = () => {
           </Link>
           .
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
   // Show loading while fetching user data
   if (isUserLoading) {
     return (
-      <UserLayout>
+      <div>
         <div className="p-10 text-center">
           <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-red-600"></div>
           <p className="mt-4 text-gray-600">Đang tải thông tin người dùng...</p>
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
@@ -341,7 +340,7 @@ const CheckoutPage: React.FC = () => {
   const uiCombos = combos;
 
   return (
-    <UserLayout>
+    <div>
       <div className="mx-auto max-w-screen-2xl p-4 md:p-8">
         {" "}
         {/* Breadcrumb */}
@@ -442,7 +441,7 @@ const CheckoutPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </UserLayout>
+    </div>
   );
 };
 

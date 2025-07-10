@@ -1,5 +1,4 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import UserLayout from "@/layouts/user/UserLayout";
 import { transformBookingResponse, useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
 import { queryMovie } from "@/services/movieService";
@@ -58,44 +57,44 @@ const BookingSuccessPage: React.FC = () => {
   // Show loading state
   if (isLoading && !location.state?.booking) {
     return (
-      <UserLayout>
+      <div>
         <div className="mx-auto max-w-2xl p-8 text-center">
           <div className="text-lg">Đang tải thông tin booking...</div>
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
   // Show error state
   if (error && !location.state?.booking) {
     return (
-      <UserLayout>
+      <div>
         <div className="mx-auto max-w-2xl p-8 text-center">
           <div className="text-lg text-red-500">Không thể tải thông tin booking</div>
           <Link to="/">
             <Button className="mt-4">Về trang chủ</Button>
           </Link>
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
   // Show no booking found state
   if (!booking) {
     return (
-      <UserLayout>
+      <div>
         <div className="mx-auto max-w-2xl p-8 text-center">
           <div className="text-lg text-red-500">Không tìm thấy thông tin đặt vé.</div>
           <Link to="/">
             <Button className="mt-4">Về trang chủ</Button>
           </Link>
         </div>
-      </UserLayout>
+      </div>
     );
   }
 
   return (
-    <UserLayout>
+    <div>
       <div className="mx-auto max-w-4xl p-8">
         <div className="rounded-lg bg-white p-8 shadow-lg">
           {/* Success Icon */}
@@ -265,7 +264,7 @@ const BookingSuccessPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </UserLayout>
+    </div>
   );
 };
 
