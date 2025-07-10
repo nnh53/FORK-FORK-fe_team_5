@@ -1,13 +1,14 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
+import { useImageUpload } from "@/hooks/useImageUpload"; // Import hook
 import { ImageIcon, ImageOffIcon, LinkIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 interface ImageUploadProps {
-  currentImage: string;
-  onImageChange: (imageUrl: string) => void;
-  onImageClear: () => void;
+  currentImage: string; // URL hoặc ID hình ảnh hiện tại
+  onImageChange: (imageIdOrUrl: string) => void; // Callback trả về ID hoặc URL
+  onImageClear: () => void; // Callback khi xóa hình ảnh
   label?: string;
   aspectRatio?: string;
   className?: string;
@@ -24,17 +25,19 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   label = "Hình ảnh",
   aspectRatio = "1:1",
   className = "",
-  error,
+  error: externalError,
   previewSize = "md",
   layout = "horizontal",
   preserveAspectRatio = true,
 }) => {
+  const { uploadImage, isLoading, error: uploadError } = useImageUpload(); // Sử dụng hook
   const [dragActive, setDragActive] = useState(false);
   const [imageInfo, setImageInfo] = useState<{ width: number; height: number } | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(""); // URL tạm thời để preview
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
-  // Load image dimensions when image changes
+  // Load image dimensions when currentImage changes
   useEffect(() => {
     if (currentImage && preserveAspectRatio) {
       const img = new Image();
@@ -50,16 +53,47 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   }, [currentImage, preserveAspectRatio]);
 
-  // Handle file selection from input
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Giải phóng objectURL khi component unmount hoặc previewUrl thay đổi
+  useEffect(() => {
+    // Khi previewUrl thay đổi và là blob URL
+    if (previewUrl.startsWith("blob:")) {
+      // Lưu lại objectURL hiện tại để giải phóng
+      const currentUrl = previewUrl;
+
+      // Chỉ giải phóng URL khi component unmount hoặc sau khi tải lên xong
+      return () => {
+        URL.revokeObjectURL(currentUrl);
+      };
+    }
+
+    return () => {};
+  }, [previewUrl]);
+
+  // Xử lý file được chọn
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const fileUrl = URL.createObjectURL(file);
-      onImageChange(fileUrl);
+      const fileUrl = URL.createObjectURL(file); // Tạo URL tạm để preview
+      setPreviewUrl(fileUrl);
+      try {
+        const result = await uploadImage(file); // Tải lên server
+        onImageChange(result.result); // Trả về ID hình ảnh
+        setPreviewUrl(""); // Xóa previewUrl sau khi tải lên
+        // Reset file input để có thể chọn lại cùng một file
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      } catch (err) {
+        console.error("Upload failed:", err);
+        // Cũng reset khi có lỗi
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
     }
   };
 
-  // Handle drag events
+  // Xử lý kéo thả
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -70,16 +104,30 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
-  // Handle drop event
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
 
     if (e.dataTransfer.files?.[0]) {
       const file = e.dataTransfer.files[0];
-      const fileUrl = URL.createObjectURL(file);
-      onImageChange(fileUrl);
+      const fileUrl = URL.createObjectURL(file); // Tạo URL tạm để preview
+      setPreviewUrl(fileUrl);
+      try {
+        const result = await uploadImage(file); // Tải lên server
+        onImageChange(result.result); // Trả về ID hình ảnh
+        setPreviewUrl(""); // Xóa previewUrl sau khi tải lên
+        // Reset file input để có thể chọn lại cùng một file
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      } catch (err) {
+        console.error("Upload failed:", err);
+        // Cũng reset khi có lỗi
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
     }
   };
 
@@ -90,7 +138,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
-  // Handle keyboard events for accessibility
+  // Xử lý sự kiện bàn phím cho accessibility
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -98,50 +146,55 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
-  // Calculate preview container styles based on image dimensions
+  // Tính toán style cho container preview
   const getPreviewContainerStyle = () => {
     const sizeMap = {
-      sm: "h-32 w-32",
-      md: "h-48 w-48",
-      lg: "h-64 w-64",
-      auto: "h-auto w-full max-w-md",
+      sm: "h-32 w-32 min-h-[120px] min-w-[120px]",
+      md: "h-48 w-48 min-h-[180px] min-w-[180px]",
+      lg: "h-64 w-64 min-h-[240px] min-w-[240px]",
+      auto: "h-auto w-64 min-h-[200px] max-w-md",
     };
 
-    const baseClass = `relative overflow-hidden rounded-xl ${sizeMap[previewSize]} flex items-center justify-center`;
+    // Sử dụng baseClass với các thuộc tính bổ sung để tránh tràn ảnh
+    const baseClass = `relative overflow-hidden rounded-xl ${sizeMap[previewSize]} flex items-center justify-center p-2`;
 
     if (!imageInfo || !preserveAspectRatio) {
       return baseClass;
     }
 
-    // Adjust container aspect ratio to match image
+    // Kiểm tra tỉ lệ ảnh nhưng đảm bảo giới hạn kích thước
     const ratio = imageInfo.width / imageInfo.height;
     if (ratio > 1.3) {
-      // Landscape image (wider)
       return `${baseClass} aspect-video`;
     } else if (ratio < 0.8) {
-      // Portrait image (taller)
       return `${baseClass} aspect-[3/4]`;
     }
 
-    // Approximately square image
     return `${baseClass} aspect-square`;
   };
 
-  // Render image preview or placeholder
+  // Render nội dung preview hình ảnh
   const renderImageContent = () => {
-    if (currentImage) {
+    const displayImage = previewUrl || currentImage; // Ưu tiên previewUrl nếu có
+    if (displayImage) {
       return (
         <div className="group relative h-full w-full overflow-hidden">
           <img
             ref={imageRef}
-            src={currentImage}
+            src={displayImage}
             alt="Preview"
-            className="h-full w-full object-contain transition-all duration-300 group-hover:scale-105"
+            className="h-full max-h-[400px] min-h-[120px] w-full min-w-[120px] max-w-[100%] object-contain transition-all duration-300 group-hover:scale-105"
+            style={{ objectFit: "contain", objectPosition: "center" }}
             onError={() => {
-              // Handle image load error
               onImageClear();
+              setPreviewUrl("");
             }}
           />
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <p className="text-white">Đang tải lên...</p>
+            </div>
+          )}
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
             <p className="mb-2 text-sm font-medium text-white">Thay đổi hình ảnh</p>
             <div className="flex gap-2">
@@ -155,6 +208,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                   e.stopPropagation();
                   handleImageClick();
                 }}
+                disabled={isLoading}
               >
                 <UploadIcon className="mr-1 h-3 w-3" />
                 Tải lên
@@ -168,7 +222,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                   e.preventDefault();
                   e.stopPropagation();
                   onImageClear();
+                  setPreviewUrl("");
                 }}
+                disabled={isLoading}
               >
                 <ImageOffIcon className="mr-1 h-3 w-3" />
                 Xóa
@@ -191,7 +247,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     );
   };
 
-  // Determine the layout class based on the layout prop
+  // Xác định layout class
   const getLayoutClass = () => {
     return layout === "horizontal" ? "flex-col items-center gap-4 sm:flex-row sm:items-start" : "flex-col items-center gap-4";
   };
@@ -215,8 +271,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           onDragOver={handleDrag}
           onDrop={handleDrop}
           onKeyDown={handleKeyDown}
-          className={` ${getPreviewContainerStyle()} bg-background focus:ring-ring dark:bg-background border-2 border-dashed transition-all duration-200 focus:outline-none focus:ring-2 ${dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary"} ${error ? "border-destructive" : ""} `}
+          className={` ${getPreviewContainerStyle()} bg-background focus:ring-ring dark:bg-background border-2 border-dashed transition-all duration-200 focus:outline-none focus:ring-2 ${dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary"} ${uploadError || externalError ? "border-destructive" : ""} `}
           aria-label="Upload image"
+          disabled={isLoading}
         >
           {renderImageContent()}
         </button>
@@ -225,7 +282,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFileChange} aria-label="Upload image file" />
 
           <div className="space-y-3">
-            {!currentImage ? (
+            {!currentImage && !previewUrl ? (
               <div className="space-y-2">
                 <Button
                   onClick={(e) => {
@@ -234,6 +291,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                   }}
                   type="button"
                   className="w-full"
+                  disabled={isLoading}
                 >
                   <UploadIcon className="mr-2 h-4 w-4" />
                   Tải ảnh lên
@@ -256,6 +314,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                           if (input.value) {
                             onImageChange(input.value);
                             input.value = "";
+                            setPreviewUrl(input.value);
                           }
                         }
                       }}
@@ -269,8 +328,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                         if (input.value) {
                           onImageChange(input.value);
                           input.value = "";
+                          setPreviewUrl(input.value);
                         }
                       }}
+                      disabled={isLoading}
                     >
                       <LinkIcon className="h-4 w-4" />
                     </Button>
@@ -282,10 +343,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 onClick={(e) => {
                   e.preventDefault();
                   onImageClear();
+                  setPreviewUrl("");
                 }}
                 type="button"
                 variant="outline"
                 className="w-full sm:w-auto"
+                disabled={isLoading}
               >
                 <Trash2Icon className="text-destructive mr-2 h-4 w-4" />
                 Xóa ảnh
@@ -296,7 +359,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               {imageInfo ? `Kích thước ảnh: ${imageInfo.width}×${imageInfo.height}px` : "Hỗ trợ: JPEG, PNG, WebP. Kéo thả hoặc nhấn để tải lên."}
             </p>
 
-            {error && <p className="text-destructive text-sm font-medium">{error}</p>}
+            {(uploadError || externalError) && <p className="text-destructive text-sm font-medium">{uploadError ?? externalError}</p>}
           </div>
         </div>
       </div>
