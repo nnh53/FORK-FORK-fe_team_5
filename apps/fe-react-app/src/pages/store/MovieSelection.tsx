@@ -65,19 +65,16 @@ function MovieSelection() {
   const [selectedTrailerUrl, setSelectedTrailerUrl] = useState("");
 
   // Helper function to convert Movie to MovieCardProps
-  const convertMovieToMovieCard = useCallback(
-    (movie: Movie): MovieCardProps => {
-      return {
-        id: movie.id ?? 0,
-        title: movie.name ?? "Untitled",
-        posterUrl: movie.poster ?? "",
-        genres: movie.categories ? movie.categories.map((cat) => cat.name ?? "") : [],
-        duration: movie.duration ? `${movie.duration} phút` : "N/A",
-        trailerUrl: movie.trailer ?? "",
-      };
-    },
-    [],
-  );
+  const convertMovieToMovieCard = useCallback((movie: Movie): MovieCardProps => {
+    return {
+      id: movie.id ?? 0,
+      title: movie.name ?? "Untitled",
+      posterUrl: movie.poster ?? "",
+      genres: movie.categories ? movie.categories.map((cat) => cat.name ?? "") : [],
+      duration: movie.duration ? `${movie.duration} phút` : "N/A",
+      trailerUrl: movie.trailer ?? "",
+    };
+  }, []);
 
   // Transform API data when moviesQuery data changes
   useEffect(() => {

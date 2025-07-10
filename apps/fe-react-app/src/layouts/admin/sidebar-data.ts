@@ -1,8 +1,10 @@
 import {
   Building,
   Calendar,
+  Clapperboard,
   Cookie,
   Film,
+  GalleryHorizontalEnd,
   LayoutDashboard,
   Package,
   Settings,
@@ -14,8 +16,6 @@ import {
   UserCheck,
   Users,
   Utensils,
-  Clapperboard,
-  GalleryHorizontalEnd,
 } from "lucide-react";
 
 export const sidebarData = {
