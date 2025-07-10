@@ -120,7 +120,7 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
               <TableHead>
                 <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
               </TableHead>
-              <TableHead className="w-24 text-left">Địa chỉ</TableHead>
+              <TableHead className="w-24 text-center">Địa chỉ</TableHead>
               <TableHead className="w-16 text-center">Giới tính</TableHead>
               <TableHead className="w-16 text-center">Trạng thái</TableHead>
               <TableHead className="w-24 text-center">Thao tác</TableHead>

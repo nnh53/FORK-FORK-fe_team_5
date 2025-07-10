@@ -49,7 +49,7 @@ const ComboTable = forwardRef<{ resetPagination: () => void }, ComboTableProps>(
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    return sortedData.reverse().slice(pagination.startIndex, pagination.endIndex + 1);
+    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
   // Render pagination items

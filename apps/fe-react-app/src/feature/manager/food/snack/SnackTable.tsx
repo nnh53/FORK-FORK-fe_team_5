@@ -50,7 +50,7 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    const reversedData = [...sortedData].reverse();
+    const reversedData = [...sortedData];
     return reversedData.slice(pagination.startIndex, pagination.endIndex + 1);
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
