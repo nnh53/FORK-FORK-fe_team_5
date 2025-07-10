@@ -36,7 +36,6 @@ const Navigation = ({ isMenuOpen = false, navClassName = "", menuItems, onMenuIt
   const defaultMenuItems: MenuItem[] = [
     { label: "Home", to: ROUTES.HOME, id: "home" },
     { label: "Movies", to: ROUTES.MOVIES_SELECTION, id: "movies" },
-    
   ];
 
   // Add dashboard items based on specific roles only

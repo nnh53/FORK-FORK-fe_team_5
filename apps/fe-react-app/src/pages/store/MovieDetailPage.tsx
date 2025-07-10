@@ -8,7 +8,8 @@ import type { Showtime as OldShowtime } from "@/interfaces/movies.interface";
 import type { Showtime as NewShowtime } from "@/interfaces/showtime.interface";
 import { queryMovie } from "@/services/movieService";
 import { queryShowtimesByMovie, transformShowtimesResponse } from "@/services/showtimeService";
-import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "@/utils/showtimeUtils";
+import { getYouTubeEmbedUrl } from "@/utils/movie.utils";
+import { convertShowtimesToSchedulePerDay, getAvailableDatesFromShowtimes } from "@/utils/showtime.utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -18,12 +19,6 @@ const MovieInfoItem = ({ label, value }: { label: string; value: string | string
     <p className="flex-1 text-gray-800">{Array.isArray(value) ? value.join(", ") : value}</p>
   </div>
 );
-
-const getYouTubeId = (url: string) => {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = regExp.exec(url);
-  return match && match[2].length === 11 ? match[2] : null;
-};
 
 // Convert new Showtime format to old format for utility functions
 const convertToOldShowtimeFormat = (newShowtime: NewShowtime): OldShowtime => {
@@ -143,7 +138,11 @@ const MovieDetailPage: React.FC = () => {
     );
   }
 
-  const embedUrl = movie.trailer && getYouTubeId(movie.trailer) ? `https://www.youtube.com/embed/${getYouTubeId(movie.trailer)}?autoplay=0` : "";
+  const embedUrl = movie.trailer ? getYouTubeEmbedUrl(movie.trailer, { autoplay: false, rel: false }) : null;
+
+  // Debug log để kiểm tra trailer URL
+  console.log("Trailer URL:", movie.trailer);
+  console.log("Embed URL:", embedUrl);
 
   return (
     <div>
@@ -208,14 +207,28 @@ const MovieDetailPage: React.FC = () => {
                 {embedUrl ? (
                   <iframe
                     src={embedUrl}
-                    title="Trailer"
+                    title={`Trailer - ${movie.name}`}
                     style={{ border: 0 }}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     className="h-full w-full"
-                  ></iframe>
+                  />
                 ) : (
-                  <div className="py-20 text-center text-white">Không thể phát trailer.</div>
+                  <div className="flex h-full items-center justify-center">
+                    <div className="text-center text-white">
+                      <p className="mb-2">⚠️ Không thể phát trailer</p>
+                      <p className="mb-3 text-sm text-gray-300">URL không hợp lệ hoặc không phải YouTube link</p>
+                      <div className="mb-3 text-xs text-gray-400">URL: {movie.trailer}</div>
+                      <a
+                        href={movie.trailer}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
+                      >
+                        Mở link gốc
+                      </a>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

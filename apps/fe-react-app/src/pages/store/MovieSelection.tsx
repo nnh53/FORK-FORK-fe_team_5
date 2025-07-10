@@ -7,7 +7,7 @@ import type { Movie } from "@/interfaces/movies.interface.ts";
 import { transformMovieResponse, useMovies } from "@/services/movieService.ts";
 import { transformShowtimesResponse } from "@/services/showtimeService.ts";
 import type { MovieResponse } from "@/type-from-be";
-import { convertShowtimesToSchedulePerDay } from "@/utils/showtimeUtils.ts";
+import { convertShowtimesToSchedulePerDay } from "@/utils/showtime.utils.ts";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import createFetchClient from "openapi-fetch";
 import { useCallback, useEffect, useState } from "react";
