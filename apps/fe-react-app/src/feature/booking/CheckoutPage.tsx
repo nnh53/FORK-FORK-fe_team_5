@@ -223,7 +223,33 @@ const CheckoutPage: React.FC = () => {
 
   // Handle promotion selection
   const handlePromotionSelect = (promotion: Promotion | null) => {
+    console.log("handlePromotionSelect called with:", promotion);
     setSelectedPromotion(promotion);
+  };
+
+  // Extract error message from API response
+  const getErrorMessage = (error: unknown): string => {
+    let errorMessage = "Đặt vé thất bại. Vui lòng thử lại!";
+
+    if (error && typeof error === "object") {
+      // Check if error has a response (axios error)
+      if ("response" in error && error.response && typeof error.response === "object") {
+        const response = error.response as { data?: { message?: string } };
+        if (response.data?.message) {
+          errorMessage = response.data.message;
+        }
+      }
+      // Check if error has a message property
+      else if ("message" in error && typeof error.message === "string") {
+        errorMessage = error.message;
+      }
+      // Check if error has an error property with message
+      else if ("error" in error && error.error && typeof error.error === "object" && "message" in error.error) {
+        errorMessage = error.error.message as string;
+      }
+    }
+
+    return errorMessage;
   };
 
   const handleCreateBooking = async () => {
@@ -241,10 +267,15 @@ const CheckoutPage: React.FC = () => {
         return;
       }
 
+      if (!bookingState.selection.showtimeId) {
+        toast.error("Thông tin suất chiếu không hợp lệ");
+        return;
+      }
+
       // Prepare internal booking data - simplified version for transformBookingToRequest
       const internalBookingData: Partial<Booking> = {
         user_id: userId || currentMember?.id, // Use actual user ID from auth
-        showtime_id: 1, // Mock showtime ID - should come from bookingState
+        showtime_id: selection?.showtimeId ? parseInt(selection.showtimeId) : undefined,
         promotion_id: selectedPromotion?.id || (voucherCode ? 1 : undefined),
         loyalty_point_used: usePoints > 0 ? usePoints : undefined,
         payment_method: paymentMethod,
@@ -290,7 +321,7 @@ const CheckoutPage: React.FC = () => {
       const bookingResponse = await createBookingMutation.mutateAsync({
         body: apiRequest,
       });
-
+      console.log("Booking created successfully:", apiRequest);
       toast.success("Đặt vé thành công!");
 
       // Clear localStorage and navigate to success page
@@ -303,7 +334,7 @@ const CheckoutPage: React.FC = () => {
       });
     } catch (error) {
       console.error("Error creating booking:", error);
-      toast.error("Đặt vé thất bại. Vui lòng thử lại!");
+      toast.error(getErrorMessage(error));
     } finally {
       setIsCreatingBooking(false);
     }
@@ -409,6 +440,7 @@ const CheckoutPage: React.FC = () => {
               pointsDiscount={pointsDiscount}
               voucherDiscount={voucherDiscount}
               promotionDiscount={promotionDiscount}
+              selectedPromotion={selectedPromotion}
               totalCost={finalTotalCost}
             />{" "}
             <PaymentMethodSelector selectedMethod={paymentMethod} onMethodChange={(method) => setPaymentMethod(method as PaymentMethod)} />
@@ -435,6 +467,8 @@ const CheckoutPage: React.FC = () => {
               snackCost={snackCost}
               pointsDiscount={pointsDiscount}
               voucherDiscount={voucherDiscount}
+              selectedPromotion={selectedPromotion}
+              promotionDiscount={promotionDiscount}
               finalTotal={finalTotalCost}
               showBackButton={true}
             />

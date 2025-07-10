@@ -1,6 +1,7 @@
 // src/pages/SeatSelectionPage/components/BookingSummary.tsx
 import React from "react";
 
+import type { Promotion } from "@/interfaces/promotion.interface.ts";
 import { useNavigate } from "react-router-dom";
 import type { MovieCardProps } from "../../../../components/movie/MovieCard.tsx";
 
@@ -24,9 +25,11 @@ interface BookingSummaryProps {
   snackCost?: number; // Add snack cost
   pointsDiscount?: number; // Add points discount
   voucherDiscount?: number; // Add voucher discount
+  promotionDiscount?: number; // Add promotion discount
   finalTotal?: number; // Add final total after all discounts
   // Navigation props
   showContinueButton?: boolean;
+  selectedPromotion?: Promotion | null;
   showBackButton?: boolean;
   onContinueClick?: () => void;
   continueText?: string;
@@ -42,6 +45,8 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   snackCost = 0,
   pointsDiscount = 0,
   voucherDiscount = 0,
+  promotionDiscount = 0,
+  selectedPromotion = null,
   finalTotal,
   showContinueButton = false,
   showBackButton = false,
@@ -87,35 +92,41 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         {/* Ticket cost */}
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Tiền vé ({selectedSeats.length} ghế):</span>
-          <span className="font-semibold">{totalCost.toLocaleString("vi-VN")}đ</span>
+          <span className="font-semibold">{totalCost.toLocaleString("vi-VN")}VND</span>
         </div>
         {/* Combo cost */}
         {comboCost > 0 && (
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Combo bắp nước:</span>
-            <span className="font-semibold">{comboCost.toLocaleString("vi-VN")}đ</span>
+            <span className="font-semibold">{comboCost.toLocaleString("vi-VN")}VND</span>
           </div>
         )}
         {/* Subtotal */}
         {(comboCost > 0 || totalDiscounts > 0) && (
           <div className="flex justify-between border-t pt-2 text-sm">
             <span className="text-gray-600">Tạm tính:</span>
-            <span className="font-semibold">{subtotal.toLocaleString("vi-VN")}đ</span>
+            <span className="font-semibold">{subtotal.toLocaleString("vi-VN")}VND</span>
           </div>
         )}
         {/* Discounts */}
         {pointsDiscount > 0 && (
           <div className="flex justify-between text-sm text-green-600">
             <span>Giảm từ điểm:</span>
-            <span>-{pointsDiscount.toLocaleString("vi-VN")}đ</span>
+            <span>-{pointsDiscount.toLocaleString("vi-VN")}VND</span>
           </div>
         )}
         {voucherDiscount > 0 && (
           <div className="flex justify-between text-sm text-green-600">
             <span>Giảm từ voucher:</span>
-            <span>-{voucherDiscount.toLocaleString("vi-VN")}đ</span>
+            <span>-{voucherDiscount.toLocaleString("vi-VN")}VND</span>
           </div>
         )}{" "}
+        {selectedPromotion && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span>Giảm từ khuyến mãi:</span>
+            <span>{promotionDiscount > 0 ? `-${promotionDiscount.toLocaleString("vi-VN")}VND` : "0VND"}</span>
+          </div>
+        )}
         {/* Final total */}
         <div className="flex justify-between border-t pt-2 text-xl font-bold">
           <span>TỔNG TIỀN</span>
@@ -133,7 +144,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                 const bookingState = JSON.parse(localStorage.getItem("bookingState") || "{}");
                 navigate("/booking", { state: bookingState });
               }}
-              className="w-1/2 rounded-lg bg-gray-200 py-3 font-bold text-gray-800 transition hover:bg-gray-300"
+              className="w-full rounded-lg bg-gray-200 py-3 font-bold text-gray-800 transition hover:bg-gray-300"
             >
               QUAY LẠI
             </button>
