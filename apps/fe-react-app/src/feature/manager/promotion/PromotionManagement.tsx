@@ -25,9 +25,10 @@ import {
   usePromotions,
   useUpdatePromotion,
 } from "@/services/promotionService";
+import type { CustomAPIResponse } from "@/type-from-be";
 import { Icon } from "@iconify/react";
 import { type FormikHelpers } from "formik";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { PromotionDetail } from "./PromotionDetail";
 import { PromotionForm } from "./PromotionForm";
@@ -112,6 +113,70 @@ export const PromotionManagement: React.FC = () => {
   const updatePromotion = useUpdatePromotion();
   const deletePromotion = useDeletePromotion();
   const promotions = promotionsData?.result ? transformPromotionsResponse(promotionsData.result) : [];
+
+  // Kiểm tra trạng thái và hiển thị lỗi nếu có
+  useEffect(() => {
+    console.log("Promotions data:", promotionsData);
+    console.log("Promotions status:", isLoading);
+  }, [promotionsData, isLoading]);
+
+  useEffect(() => {
+    console.log("Create promotion status:", createPromotion.status);
+    console.log("Create promotion error:", createPromotion.error);
+  }, [createPromotion.status, createPromotion.error]);
+
+  useEffect(() => {
+    console.log("Update promotion status:", updatePromotion.status);
+    console.log("Update promotion error:", updatePromotion.error);
+  }, [updatePromotion.status, updatePromotion.error]);
+
+  useEffect(() => {
+    console.log("Delete promotion status:", deletePromotion.status);
+    console.log("Delete promotion error:", deletePromotion.error);
+  }, [deletePromotion.status, deletePromotion.error]);
+
+  // Xử lý kết quả của createPromotion mutation trong useEffect
+  useEffect(() => {
+    if (createPromotion.isSuccess) {
+      toast.success("Khuyến mãi đã được tạo thành công");
+      refetch(); // Refetch promotions to update the list
+      setDialogOpen(false);
+      setSelectedPromotion(undefined);
+    } else if (createPromotion.isError) {
+      toast.error((createPromotion.error as CustomAPIResponse)?.message ?? "Tạo khuyến mãi thất bại");
+    }
+  }, [createPromotion, refetch]);
+
+  // Xử lý kết quả của updatePromotion mutation trong useEffect
+  useEffect(() => {
+    if (updatePromotion.isSuccess) {
+      toast.success("Khuyến mãi đã được cập nhật thành công");
+      refetch(); // Refetch promotions to update the list
+      setDialogOpen(false);
+      setSelectedPromotion(undefined);
+    } else if (updatePromotion.isError) {
+      toast.error((updatePromotion.error as CustomAPIResponse)?.message ?? "Cập nhật khuyến mãi thất bại");
+    }
+  }, [updatePromotion, refetch]);
+
+  // Xử lý kết quả của deletePromotion mutation trong useEffect
+  useEffect(() => {
+    if (deletePromotion.isSuccess) {
+      toast.success("Khuyến mãi đã được xóa thành công");
+      refetch(); // Refetch promotions to update the list
+      setDeleteDialogOpen(false);
+      setPromotionToDelete(undefined);
+    } else if (deletePromotion.isError) {
+      toast.error((deletePromotion.error as CustomAPIResponse)?.message ?? "Xóa khuyến mãi thất bại");
+    }
+  }, [deletePromotion, refetch]);
+
+  // Reset pagination khi filter thay đổi
+  useEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.resetPagination();
+    }
+  }, [filterCriteria]);
 
   // Define filter options for the Filter component as groups
   const filterGroups: FilterGroup[] = [
@@ -324,51 +389,30 @@ export const PromotionManagement: React.FC = () => {
   };
 
   // Handle delete confirmation
-  const handleDeletePromotion = async () => {
+  const handleDeletePromotion = () => {
     if (!promotionToDelete) return;
 
-    try {
-      await deletePromotion.mutateAsync({
-        params: { path: { id: promotionToDelete.id } },
-      });
-      toast.success("Khuyến mãi đã được xóa thành công");
-
-      // Close the dialog and refresh data
-      setDeleteDialogOpen(false);
-      refetch();
-    } catch (error) {
-      console.error("Failed to delete promotion:", error);
-      toast.error("Xóa khuyến mãi thất bại");
-    }
+    deletePromotion.mutate({
+      params: { path: { id: promotionToDelete.id } },
+    });
   };
 
   // Handle form submission
-  const handleSubmitPromotion = async (values: Omit<Promotion, "id">, helpers: FormikHelpers<Omit<Promotion, "id">>) => {
-    try {
-      if (selectedPromotion) {
-        // Update existing promotion
-        await updatePromotion.mutateAsync({
-          params: { path: { id: selectedPromotion.id } },
-          body: values,
-        });
-        toast.success("Khuyến mãi đã được cập nhật thành công");
-      } else {
-        // Create new promotion
-        await createPromotion.mutateAsync({
-          body: values,
-        });
-        toast.success("Khuyến mãi đã được tạo thành công");
-      }
-
-      // Close dialog and refresh data
-      setDialogOpen(false);
-      setSelectedPromotion(undefined);
-      refetch();
-    } catch (error) {
-      console.error("Failed to save promotion:", error);
-      toast.error(selectedPromotion ? "Cập nhật khuyến mãi thất bại" : "Tạo khuyến mãi thất bại");
-      helpers.setSubmitting(false);
+  const handleSubmitPromotion = (values: Omit<Promotion, "id">, helpers: FormikHelpers<Omit<Promotion, "id">>) => {
+    if (selectedPromotion) {
+      // Update existing promotion
+      updatePromotion.mutate({
+        params: { path: { id: selectedPromotion.id } },
+        body: values,
+      });
+    } else {
+      // Create new promotion
+      createPromotion.mutate({
+        body: values,
+      });
     }
+
+    helpers.setSubmitting(false);
   };
 
   return (

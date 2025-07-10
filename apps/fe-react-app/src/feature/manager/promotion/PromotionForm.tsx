@@ -307,7 +307,14 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                         Hủy
                       </Button>
                       <Button type="submit" disabled={isSubmitting}>
-                        {buttonText}
+                        {isSubmitting ? (
+                          <>
+                            <Icon icon="tabler:loader-2" className="mr-2 h-4 w-4 animate-spin" />
+                            Đang lưu...
+                          </>
+                        ) : (
+                          buttonText
+                        )}
                       </Button>
                     </div>
                   </CardContent>
