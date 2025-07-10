@@ -103,11 +103,9 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
                 <SortButton {...getSortProps("email")}>Email</SortButton>
               </TableHead>
               <TableHead>
-                <SortButton {...getSortProps("phone")}>Số điện thoại</SortButton>
-              </TableHead>
-              <TableHead>
                 <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
               </TableHead>
+              <TableHead className="w-24 text-center">Số điện thoại</TableHead>
               <TableHead className="w-24 text-center">Địa chỉ</TableHead>
               <TableHead className="w-16 text-center">Giới tính</TableHead>
               <TableHead className="w-16 text-center">Trạng thái</TableHead>
@@ -144,8 +142,8 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
                     </TableCell>
                     <TableCell>{staff.fullName}</TableCell>
                     <TableCell>{staff.email}</TableCell>
-                    <TableCell>{staff.phone ?? "Chưa cập nhật"}</TableCell>
                     <TableCell>{formatDateTime(staff.dateOfBirth)}</TableCell>
+                    <TableCell>{staff.phone ?? "Chưa cập nhật"}</TableCell>
                     <TableCell>{staff.address ?? "Chưa cập nhật"}</TableCell>
                     <TableCell className="text-center">
                       {staff.gender ? (

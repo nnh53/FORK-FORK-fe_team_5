@@ -26,6 +26,8 @@ export type UserRequest = {
   dateOfBirth?: string;
   gender?: USER_GENDER;
   address?: string;
+  status?: USER_STATUS;
+  loyaltyPoint?: number;
 };
 
 export type UserUpdate = {

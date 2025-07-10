@@ -4,7 +4,7 @@ import { DialogFooter } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import type { StaffRequest, StaffUser } from "@/interfaces/staff.interface";
-import type { USER_GENDER } from "@/interfaces/users.interface";
+import type { USER_GENDER, USER_STATUS } from "@/interfaces/users.interface";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -21,6 +21,7 @@ interface StaffFormData extends StaffRequest {
   confirmPassword?: string;
   gender?: USER_GENDER;
   address?: string;
+  status?: USER_STATUS;
 }
 
 const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
@@ -38,6 +39,7 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
           role: "STAFF",
           gender: staff.gender as USER_GENDER,
           address: staff.address ?? "",
+          status: staff.status as USER_STATUS,
         }
       : {
           fullName: "",
@@ -49,6 +51,7 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
           role: "STAFF",
           gender: undefined,
           address: "",
+          status: "ACTIVE",
         },
   });
 
@@ -66,6 +69,7 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
         role: "STAFF",
         gender: staff.gender as USER_GENDER,
         address: staff.address ?? "",
+        status: staff.status as USER_STATUS,
       };
 
       reset(values);
@@ -129,6 +133,10 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
 
     if (data.address !== initialValues.address) {
       changedFields.address = data.address;
+    }
+
+    if (data.status !== initialValues.status) {
+      changedFields.status = data.status;
     }
 
     // Log the changed fields for debugging
@@ -240,6 +248,30 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
               Địa chỉ
             </label>
             <Controller name="address" control={control} render={({ field }) => <Input id="address" placeholder="Địa chỉ" {...field} />} />
+          </div>
+        )}
+
+        {/* Trạng thái - chỉ hiển thị khi đang cập nhật (edit) */}
+        {staff && (
+          <div className="space-y-2">
+            <label htmlFor="status" className="text-sm font-medium">
+              Trạng thái
+            </label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ACTIVE">Đã xác minh</SelectItem>
+                    <SelectItem value="BAN">Bị cấm</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
         )}
 
