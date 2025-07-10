@@ -44,9 +44,10 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
   // Keep local state in sync with props
   useEffect(() => {
     if (combo.snacks) {
+      console.log("Updating comboSnacks from props:", combo.snacks);
       setComboSnacks(combo.snacks);
     }
-  }, [combo]);
+  }, [combo, combo.snacks]); // Thêm combo.snacks vào dependencies để đảm bảo cập nhật khi snacks thay đổi
 
   const { data: snacksData } = useSnacks();
 
@@ -711,7 +712,7 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell>{comboSnack.quantity ?? 1}</TableCell>
+                            <TableCell>{comboSnack.quantity}</TableCell>
                             <TableCell>{sizeDisplay}</TableCell>
                             <TableCell>{comboSnack.discountPercentage ?? 0}%</TableCell>
                             <TableCell className="text-right">

@@ -77,7 +77,8 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
 
   // Update the displayed combo when the prop changes
   useEffect(() => {
-    // Chỉ cập nhật combo từ props, KHÔNG ghi đè thông tin snack
+    console.log("Combo props changed in ComboDetail, updating displayCombo", combo);
+    // Đảm bảo luôn sử dụng dữ liệu combo mới nhất từ props
     setDisplayCombo(combo);
   }, [combo]);
 
