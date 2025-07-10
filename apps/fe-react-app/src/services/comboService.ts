@@ -136,10 +136,13 @@ export const transformComboResponse = (comboResponse: ComboResponse): Combo => {
   let transformedSnacks: ComboSnack[] = [];
 
   if (comboResponse.snacks && Array.isArray(comboResponse.snacks)) {
+    // Trước khi map, ta cần phải lấy thông tin quantity từ combo-snacks API
     transformedSnacks = comboResponse.snacks.map((snackData) => {
+      // Tạo một đối tượng ComboSnack mới với thông tin cơ bản
+      // Chú ý: quantity sẽ được cập nhật sau bằng useComboSnacksByComboId
       return {
         id: Number(snackData.id ?? 0),
-        quantity: 1, // Mặc định, vì từ combo response không có thông tin này
+        quantity: 1, // Mặc định là 1, sẽ được cập nhật sau từ API combo-snacks
         snackSizeId: null,
         discountPercentage: null,
         combo: {
@@ -295,7 +298,7 @@ export const transformComboSnackToRequest = (comboSnack: Partial<ComboSnack>) =>
   return {
     comboId: comboSnack.combo?.id,
     snackId: comboSnack.snack?.id,
-    quantity: comboSnack.quantity,
+    quantity: comboSnack.quantity ?? 1, // Đảm bảo luôn có quantity, mặc định là 1
   };
 };
 
@@ -347,4 +350,56 @@ export const calculateComboPrice = (combo: Combo): number => {
  */
 export const formatPrice = (price: number): string => {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
+};
+
+/**
+ * Helper function to fetch and update combo with accurate quantity information
+ * This function gets the combo-snacks for a combo and updates the snacks in the combo with the correct quantity
+ */
+export const fetchAndUpdateComboSnacksQuantity = async (combo: Combo): Promise<Combo> => {
+  try {
+    // Sử dụng hook useComboSnacksByComboId để lấy combo-snacks
+    const comboId = combo.id;
+    // Gọi trực tiếp API theo endpoint
+    const response = await fetch(`/api/combo-snacks/combo/${comboId}`);
+    const responseData = await response.json();
+
+    if (responseData?.result) {
+      const comboSnacksData = Array.isArray(responseData.result) ? responseData.result : [responseData.result];
+
+      // Chuyển đổi response thành ComboSnack[]
+      const comboSnacks = transformComboSnacksResponse(comboSnacksData);
+
+      // Tạo một map của snack id -> quantity
+      const snackQuantityMap = new Map<number, number>();
+      comboSnacks.forEach((cs) => {
+        if (cs.snack?.id) {
+          snackQuantityMap.set(cs.snack.id, cs.quantity);
+        }
+      });
+
+      // Cập nhật quantity cho từng snack trong combo
+      const updatedSnacks = combo.snacks.map((comboSnack) => {
+        const snackId = comboSnack.snack?.id;
+        if (snackId && snackQuantityMap.has(snackId)) {
+          return {
+            ...comboSnack,
+            quantity: snackQuantityMap.get(snackId) ?? 1,
+          };
+        }
+        return comboSnack;
+      });
+
+      // Trả về combo đã được cập nhật
+      return {
+        ...combo,
+        snacks: updatedSnacks,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching combo-snacks:", error);
+  }
+
+  // Nếu có lỗi, trả về combo ban đầu
+  return combo;
 };

@@ -19,8 +19,11 @@ import {
   comboStatusOptions,
   createFallbackSnack,
   transformComboResponse,
+  transformComboSnackToRequest,
+  transformComboSnacksResponse,
   transformComboToRequest,
   useAddSnacksToCombo,
+  useComboSnacksByComboId,
   useCombos,
   useCreateCombo,
   useDeleteCombo,
@@ -89,6 +92,69 @@ const ComboManagement: React.FC = () => {
       setCombos(transformedCombos);
     }
   }, [combosQuery.data]);
+
+  // Thêm state mới để theo dõi combo ID hiện tại đang được xem chi tiết
+  const [selectedComboIdForDetails, setSelectedComboIdForDetails] = useState<number | null>(null);
+
+  // Sử dụng React Query hook để lấy thông tin combo-snacks khi có comboId
+  const comboSnacksQuery = useComboSnacksByComboId(selectedComboIdForDetails ?? 0);
+
+  // Sử dụng tham chiếu ổn định để theo dõi state trước đó
+  const prevDetailsRef = useRef<Combo | null>(null);
+
+  // Effect để xử lý khi comboSnacksQuery.data thay đổi
+  useEffect(() => {
+    // Nếu không có dữ liệu cần thiết, bỏ qua
+    if (!selectedComboIdForDetails || !comboSnacksQuery.data?.result || !detailsCombo) {
+      return;
+    }
+
+    // Nếu detailsCombo giống với giá trị trước đó, không làm gì cả
+    if (prevDetailsRef.current === detailsCombo) {
+      return;
+    }
+
+    // Lưu trữ tham chiếu hiện tại
+    prevDetailsRef.current = detailsCombo;
+
+    const comboSnacksData = Array.isArray(comboSnacksQuery.data.result) ? comboSnacksQuery.data.result : [comboSnacksQuery.data.result];
+
+    // Chuyển đổi response thành ComboSnack[]
+    const comboSnacks = transformComboSnacksResponse(comboSnacksData);
+
+    // Tạo một map của snack id -> combo snack data
+    const snackMap = new Map<number, ComboSnack>();
+    comboSnacks.forEach((cs) => {
+      if (cs.snack?.id) {
+        snackMap.set(cs.snack.id, cs);
+      }
+    });
+
+    // Cập nhật quantity cho từng snack trong detailsCombo
+    const updatedSnacks = detailsCombo.snacks.map((existingComboSnack) => {
+      const snackId = existingComboSnack.snack?.id;
+      if (snackId && snackMap.has(snackId)) {
+        const updatedSnack = snackMap.get(snackId)!;
+        return {
+          ...existingComboSnack,
+          id: updatedSnack.id,
+          quantity: updatedSnack.quantity,
+          snackSizeId: updatedSnack.snackSizeId,
+          discountPercentage: updatedSnack.discountPercentage,
+        };
+      }
+      return existingComboSnack;
+    });
+
+    // Chỉ cập nhật nếu có sự thay đổi thực sự
+    if (JSON.stringify(detailsCombo.snacks) !== JSON.stringify(updatedSnacks)) {
+      // Cập nhật state detailsCombo với dữ liệu mới
+      setDetailsCombo({
+        ...detailsCombo,
+        snacks: updatedSnacks,
+      });
+    }
+  }, [comboSnacksQuery.data, selectedComboIdForDetails, detailsCombo]);
 
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [
@@ -160,6 +226,9 @@ const ComboManagement: React.FC = () => {
     };
     setDetailsCombo(comboWithValidSnacks);
     setDetailsOpen(true);
+
+    // Cập nhật selectedComboIdForDetails để trigger API call
+    setSelectedComboIdForDetails(combo.id);
   };
 
   const confirmDelete = async () => {
@@ -241,34 +310,107 @@ const ComboManagement: React.FC = () => {
       );
 
       // Refresh data from server
-      combosQuery.refetch();
+      const refetchResult = await combosQuery.refetch();
+
+      // Cập nhật lại combo với dữ liệu mới nhất
+      if (refetchResult.data?.result && detailsCombo) {
+        const comboId = detailsCombo.id;
+
+        // Tìm combo vừa được cập nhật từ dữ liệu server
+        let updatedComboData = null;
+
+        if (Array.isArray(refetchResult.data.result)) {
+          updatedComboData = refetchResult.data.result.find((c) => c.id === comboId);
+        } else if (refetchResult.data.result && typeof refetchResult.data.result === "object") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const singleResult = refetchResult.data.result as any;
+          if (singleResult.id === comboId) {
+            updatedComboData = singleResult;
+          }
+        }
+
+        if (updatedComboData) {
+          // Chuyển đổi dữ liệu từ API response sang Combo type
+          const transformedCombo = transformComboResponse(updatedComboData);
+          console.log("Updated combo after removing snack:", transformedCombo);
+
+          // Cập nhật state
+          setDetailsCombo(transformedCombo);
+        }
+      }
     } catch (error) {
       console.error("Error removing snack from combo:", error);
       toast.error("Lỗi khi xóa thực phẩm khỏi combo");
     }
   };
-
   const handleUpdateSnack = async (comboSnack: ComboSnack) => {
     try {
-      // Cập nhật state UI ngay lập tức
+      // Lưu bản sao của snacks trước khi cập nhật
+      const previousSnacks = detailsCombo?.snacks || [];
+
+      // Cập nhật state UI ngay lập tức - tạo đối tượng comboSnack mới để đảm bảo tham chiếu thay đổi
+      const updatedComboSnack = { ...comboSnack };
+
       setDetailsCombo((prev) => {
         if (!prev) return prev;
+
+        // Tạo danh sách snacks mới với comboSnack được cập nhật
+        const updatedSnacks = prev.snacks.map((s) => (s.id === updatedComboSnack.id ? updatedComboSnack : s));
+
+        // Chỉ cập nhật nếu có thay đổi để tránh vòng lặp vô hạn
+        if (JSON.stringify(updatedSnacks) === JSON.stringify(previousSnacks)) {
+          return prev; // Không có thay đổi, trả về state cũ
+        }
+
         return {
           ...prev,
-          snacks: prev.snacks.map((s) => (s.id === comboSnack.id ? comboSnack : s)),
+          snacks: updatedSnacks,
         };
       });
 
-      // Gọi API
+      // Chuyển đổi dữ liệu ComboSnack thành định dạng đúng cho API request
+      const requestBody = transformComboSnackToRequest(updatedComboSnack);
+
+      console.log("Sending update request with transformed data:", requestBody);
+
+      // Gọi API với dữ liệu đã được chuyển đổi
       await updateComboSnackMutation.mutateAsync({
-        params: { path: { id: comboSnack.id } },
-        body: comboSnack,
+        params: { path: { id: updatedComboSnack.id } },
+        body: requestBody,
       });
 
       toast.success("Đã cập nhật thực phẩm trong combo");
 
-      // Refresh dữ liệu từ server một cách yên lặng
-      combosQuery.refetch();
+      // Cập nhật lại combo với dữ liệu mới nhất (giữ nguyên id)
+      const comboId = detailsCombo?.id;
+
+      // Refresh dữ liệu từ server
+      const result = await combosQuery.refetch();
+
+      if (result.data?.result && comboId) {
+        // Tìm combo vừa được cập nhật từ dữ liệu server
+        let updatedComboData = null;
+
+        if (Array.isArray(result.data.result)) {
+          updatedComboData = result.data.result.find((c) => c.id === comboId);
+        } else if (result.data.result && typeof result.data.result === "object") {
+          // Kiểm tra xem kết quả có phải là một đối tượng với ID không
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const singleResult = result.data.result as any;
+          if (singleResult.id === comboId) {
+            updatedComboData = singleResult;
+          }
+        }
+
+        if (updatedComboData) {
+          // Chuyển đổi dữ liệu từ API response sang Combo type
+          const transformedCombo = transformComboResponse(updatedComboData);
+          console.log("Updated combo from server:", transformedCombo);
+
+          // Cập nhật state
+          setDetailsCombo(transformedCombo);
+        }
+      }
     } catch (error) {
       console.error("Error updating combo snack:", error);
       toast.error("Lỗi khi cập nhật thực phẩm trong combo");
@@ -280,58 +422,79 @@ const ComboManagement: React.FC = () => {
 
   const handleAddSnack = async (newComboSnack: Partial<ComboSnack>) => {
     if (!detailsCombo) return;
+
     try {
+      // Tạo ID tạm thời cho combo snack mới
+      const tempId = -Date.now();
+
       // Thêm snack tạm thời vào state trước khi gọi API để người dùng thấy phản hồi ngay lập tức
       const tempComboSnack: ComboSnack = {
-        id: -Date.now(), // ID tạm thời
+        id: tempId, // ID tạm thời
         combo: detailsCombo,
         snack: newComboSnack.snack!,
-        quantity: newComboSnack.quantity || 1,
-        snackSizeId: newComboSnack.snackSizeId || null,
-        discountPercentage: newComboSnack.discountPercentage || 0,
+        quantity: newComboSnack.quantity ?? 1,
+        snackSizeId: newComboSnack.snackSizeId ?? null,
+        discountPercentage: newComboSnack.discountPercentage ?? 0,
       };
 
-      // Cập nhật state để hiển thị ngay
-      setDetailsCombo((prev) =>
-        prev
-          ? {
-              ...prev,
-              snacks: [...prev.snacks, tempComboSnack],
-            }
-          : prev,
-      );
+      // Cập nhật state để hiển thị ngay - sử dụng functional update để đảm bảo sử dụng state mới nhất
+      setDetailsCombo((prev) => {
+        if (!prev) return prev;
+        // Tạo bản sao mới của snacks để không mutate state
+        return {
+          ...prev,
+          snacks: [...prev.snacks, tempComboSnack],
+        };
+      });
+
+      // Chuẩn bị dữ liệu theo định dạng đúng cho API
+      const requestBody = [
+        {
+          snackId: newComboSnack.snack?.id,
+          quantity: newComboSnack.quantity ?? 1, // Đảm bảo gửi đúng quantity lên server
+        },
+      ];
+
+      console.log("Sending add snack request with data:", requestBody);
 
       // Gọi API để thêm snack vào combo
       await addSnacksToComboMutation.mutateAsync({
         params: { path: { comboId: detailsCombo.id } },
-        body: [
-          {
-            snackId: newComboSnack.snack?.id,
-            quantity: newComboSnack.quantity,
-          },
-        ],
+        body: requestBody,
       });
 
       toast.success("Đã thêm thực phẩm vào combo");
 
-      // Refresh dữ liệu từ server một cách yên lặng (không ảnh hưởng đến UI)
-      combosQuery.refetch().then((result) => {
-        if (result.data?.result && Array.isArray(result.data.result)) {
-          const foundCombo = result.data.result.find((c) => c.id === detailsCombo.id);
-          if (foundCombo) {
-            // Cập nhật state mà không gây ra hiện tượng biến mất UI
-            setDetailsCombo((prev) => {
-              if (!prev) return prev;
-              const transformedCombo = transformComboResponse(foundCombo);
-              return {
-                ...transformedCombo,
-                // Đảm bảo giữ nguyên snacks mà người dùng có thể đang thêm/sửa
-                snacks: transformedCombo.snacks,
-              };
-            });
+      // Refresh dữ liệu từ server
+      const refetchResult = await combosQuery.refetch();
+
+      // Cập nhật lại combo với dữ liệu mới nhất
+      const comboId = detailsCombo.id;
+
+      if (refetchResult.data?.result && comboId) {
+        // Tìm combo vừa được cập nhật từ dữ liệu server
+        let updatedComboData = null;
+
+        if (Array.isArray(refetchResult.data.result)) {
+          updatedComboData = refetchResult.data.result.find((c) => c.id === comboId);
+        } else if (refetchResult.data.result && typeof refetchResult.data.result === "object") {
+          // Kiểm tra xem kết quả có phải là một đối tượng với ID không
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const singleResult = refetchResult.data.result as any;
+          if (singleResult.id === comboId) {
+            updatedComboData = singleResult;
           }
         }
-      });
+
+        if (updatedComboData) {
+          // Chuyển đổi dữ liệu từ API response sang Combo type
+          const transformedCombo = transformComboResponse(updatedComboData);
+          console.log("Updated combo after adding snack:", transformedCombo);
+
+          // Cập nhật state
+          setDetailsCombo(transformedCombo);
+        }
+      }
     } catch (error) {
       console.error("Lỗi khi thêm thực phẩm vào combo:", error);
       toast.error("Lỗi khi thêm thực phẩm vào combo");
@@ -409,7 +572,10 @@ const ComboManagement: React.FC = () => {
         <ComboDetail
           combo={detailsCombo}
           open={detailsOpen}
-          onClose={() => setDetailsOpen(false)}
+          onClose={() => {
+            setDetailsOpen(false);
+            setSelectedComboIdForDetails(null); // Reset combo ID khi đóng dialog
+          }}
           onEdit={handleEdit}
           onAddSnack={handleAddSnack}
           onUpdateSnack={handleUpdateSnack}
