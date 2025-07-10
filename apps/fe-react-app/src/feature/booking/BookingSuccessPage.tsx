@@ -1,10 +1,10 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { transformBookingResponse, useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
-import { useMovie } from "@/services/movieService";
 import { CheckCircle } from "lucide-react";
 import React, { useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { queryMovie } from "@/services/movieService.ts";
 
 const BookingSuccessPage: React.FC = () => {
   const location = useLocation();
@@ -30,7 +30,7 @@ const BookingSuccessPage: React.FC = () => {
   const movieId = booking?.showtime?.movie_id || 0;
   const roomId = booking?.showtime?.room_id || 0;
 
-  const { data: movieData } = useMovie(movieId);
+  const { data: movieData } = queryMovie(movieId);
   const { data: cinemaRoomData } = useCinemaRoom(roomId);
 
   // Transform movie and cinema room data
