@@ -34,7 +34,7 @@ type SidebarData = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar> & { data: SidebarData }) {
   const { data } = props;
   const location = useLocation();
-  const { setOpen } = useSidebar();
+  const { open, setOpen } = useSidebar();
 
   // Function to check if a menu item is active
   const isActive = (itemUrl: string) => {
@@ -77,21 +77,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar> & 
           <SidebarMenu>
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton
-                  asChild
-                  tooltip={item.title}
-                  className={
-                    isActive(item.url)
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
-                      : ""
-                  }
-                  onClick={handleMenuItemClick}
-                >
-                  <Link to={item.url} className="font-medium">
+                {item.items?.length ? (
+                  // If the item has subitems, it should be a category header
+                  <SidebarMenuButton tooltip={item.title} className="cursor-default" onClick={handleMenuItemClick}>
                     <item.icon />
                     {item.title}
-                  </Link>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                ) : (
+                  // Regular clickable item
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    className={
+                      isActive(item.url)
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+                        : ""
+                    }
+                    onClick={handleMenuItemClick}
+                  >
+                    <Link to={item.url} className="font-medium">
+                      <item.icon />
+                      {item.title}
+                    </Link>
+                  </SidebarMenuButton>
+                )}
                 {item.items?.length ? (
                   <SidebarMenuSub>
                     {item.items.map((subItem) => (

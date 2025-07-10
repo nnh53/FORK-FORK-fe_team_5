@@ -32,7 +32,7 @@
     },
     {
       "title": "Users",
-      "url": "/admin/food",
+      "url": "#",
       "icon": "User",
       "items": [
         {
@@ -49,7 +49,7 @@
     },
     {
       "title": "Food & Beverages",
-      "url": "/admin/food",
+      "url": "#",
       "icon": "Utensils",
       "items": [
         {
