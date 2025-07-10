@@ -1,5 +1,6 @@
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/Shadcn/ui/dropdown-menu";
 import {
   Pagination,
   PaginationContent,
@@ -16,7 +17,7 @@ import { useSortable } from "@/hooks/useSortable";
 import type { MEMBERSHIP_LEVEL, User } from "@/interfaces/users.interface";
 import { formatUserDate } from "@/services/userService";
 import { getUserStatusDisplay } from "@/utils/color.utils";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 
 // Thêm hàm để định dạng thời gian
@@ -65,17 +66,19 @@ interface UserWithMembership extends User {
   membershipLevel?: MEMBERSHIP_LEVEL;
   totalSpent?: number;
   loyalty_point?: number;
+  loyaltyPoint?: number;
 }
 
 interface MemberTableProps {
   members: UserWithMembership[];
   onEdit: (member: UserWithMembership) => void;
   onDelete: (member: UserWithMembership) => void;
+  onView?: (member: UserWithMembership) => void;
 }
 
 // Sửa MemberTable component để có thể forward ref và expose resetPagination
-const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps>(({ members, onEdit, onDelete }, ref) => {
-  const { sortedData, getSortProps } = useSortable<UserWithMembership>(members);
+const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps>(({ members, onEdit, onDelete, onView }, ref) => {
+  const { sortedData } = useSortable<UserWithMembership>(members);
 
   // Pagination configuration
   const pagination = usePagination({
@@ -107,19 +110,19 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
           <TableHeader>
             <TableRow className="bg-gray-50">
               <TableHead className="w-16 text-center">STT</TableHead>
-              <TableHead className="w-16 text-center">Avatar</TableHead>
               <TableHead>
-                <SortButton {...getSortProps("fullName")}>Họ tên</SortButton>
+                <SortButton>Họ tên</SortButton>
               </TableHead>
               <TableHead>
-                <SortButton {...getSortProps("email")}>Email</SortButton>
+                <SortButton>Email</SortButton>
               </TableHead>
               <TableHead>
-                <SortButton {...getSortProps("phone")}>Số điện thoại</SortButton>
+                <SortButton>Ngày sinh</SortButton>
               </TableHead>
               <TableHead>
-                <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
+                <SortButton>Điểm tích lũy</SortButton>
               </TableHead>
+              <TableHead className="w-24 text-center">Số điện thoại</TableHead>
               <TableHead className="w-24 text-center">Địa chỉ</TableHead>
               <TableHead className="w-16 text-center">Giới tính</TableHead>
               <TableHead className="w-16 text-center">Trạng thái</TableHead>
@@ -133,31 +136,12 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
 
                 return (
                   <TableRow key={member.id}>
-                    <TableCell className="text-center font-medium">{pagination.startIndex + index + 1}</TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex justify-center">
-                        {member.avatar ? (
-                          <img
-                            src={member.avatar}
-                            alt={`Avatar của ${member.fullName}`}
-                            className="h-10 w-10 rounded-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.onerror = null;
-                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.fullName || "User")}`;
-                            }}
-                          />
-                        ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-600">
-                            {member.fullName?.charAt(0) || "U"}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
+                    <TableCell className="text-center">{pagination.startIndex + index + 1}</TableCell>
                     <TableCell>{member.fullName}</TableCell>
                     <TableCell>{member.email}</TableCell>
-                    <TableCell>{member.phone ?? "Chưa cập nhật"}</TableCell>
                     <TableCell>{member.dateOfBirth ? formatDateTime(member.dateOfBirth) : "Chưa cập nhật"}</TableCell>
+                    <TableCell className="text-center">{member.loyaltyPoint ?? 0}</TableCell>
+                    <TableCell>{member.phone ?? "Chưa cập nhật"}</TableCell>
                     <TableCell>{member.address ?? "Chưa cập nhật"}</TableCell>
                     <TableCell className="text-center">
                       {member.gender ? (
@@ -170,13 +154,29 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                       <Badge className={statusDisplay.className}>{statusDisplay.label}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex justify-center gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => onEdit(member)} title="Chỉnh sửa">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => onDelete(member)} title="Xóa">
-                          <Trash className="h-4 w-4 text-red-600" />
-                        </Button>
+                      <div className="flex justify-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Mở menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => onView?.(member)}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              <span>Xem chi tiết</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => onEdit(member)}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              <span>Chỉnh sửa</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer text-red-600" onClick={() => onDelete(member)}>
+                              <Trash className="mr-2 h-4 w-4" />
+                              <span>Xóa</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>

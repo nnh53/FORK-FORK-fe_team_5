@@ -4,7 +4,7 @@ import { DialogFooter } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { ROLES } from "@/interfaces/roles.interface";
-import type { User, UserRequest } from "@/interfaces/users.interface";
+import type { USER_STATUS, User, UserRequest } from "@/interfaces/users.interface";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -18,11 +18,10 @@ interface MemberFormProps {
 
 interface MemberFormData extends UserRequest {
   confirmPassword?: string;
-  membershipLevel?: string | null;
-  totalSpent?: number;
-  loyalty_point?: number;
+  loyaltyPoint?: number;
   gender?: "MALE" | "FEMALE" | "OTHER";
   address?: string;
+  status?: USER_STATUS;
 }
 
 const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
@@ -40,6 +39,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
           role: ROLES.MEMBER,
           gender: member.gender,
           address: member.address ?? "",
+          status: member.status as USER_STATUS,
         }
       : {
           fullName: "",
@@ -51,6 +51,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
           role: ROLES.MEMBER,
           gender: undefined,
           address: "",
+          status: "ACTIVE",
         },
   });
 
@@ -68,6 +69,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
         role: ROLES.MEMBER,
         gender: member.gender,
         address: member.address ?? "",
+        status: member.status as USER_STATUS,
       };
 
       reset(values);
@@ -129,6 +131,10 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
 
     if (data.address !== initialValues.address) {
       changedFields.address = data.address;
+    }
+
+    if (data.status !== initialValues.status) {
+      changedFields.status = data.status;
     }
 
     // Log the changed fields for debugging
@@ -218,6 +224,30 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
                     <SelectItem value="MALE">Nam</SelectItem>
                     <SelectItem value="FEMALE">Nữ</SelectItem>
                     <SelectItem value="OTHER">Khác</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+        )}
+
+        {/* Trạng thái - chỉ hiển thị khi đang cập nhật (edit) */}
+        {member && (
+          <div className="space-y-2">
+            <label htmlFor="status" className="text-sm font-medium">
+              Trạng thái
+            </label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ACTIVE">Đã xác minh</SelectItem>
+                    <SelectItem value="BAN">Bị cấm</SelectItem>
                   </SelectContent>
                 </Select>
               )}

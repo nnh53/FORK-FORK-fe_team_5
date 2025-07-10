@@ -19,6 +19,7 @@ import {
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import MemberDetail from "./MemberDetail";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 
@@ -144,6 +145,8 @@ const MemberManagement = () => {
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<User | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [memberToView, setMemberToView] = useState<User | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
   // React Query hooks
@@ -215,6 +218,11 @@ const MemberManagement = () => {
 
     return result;
   }, [members, searchTerm, filterCriteria]);
+
+  const handleViewDetail = (member: User) => {
+    setMemberToView(member);
+    setDetailOpen(true);
+  };
 
   const handleCreate = () => {
     setSelectedMember(undefined);
@@ -340,7 +348,7 @@ const MemberManagement = () => {
           </CardHeader>
 
           <CardContent>
-            <MemberTable ref={tableRef} members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} />
+            <MemberTable ref={tableRef} members={filteredMembers} onEdit={handleEdit} onDelete={handleDeleteClick} onView={handleViewDetail} />
           </CardContent>
         </Card>
       </div>
@@ -377,6 +385,9 @@ const MemberManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Member Detail Dialog */}
+      <MemberDetail member={memberToView} open={detailOpen} onClose={() => setDetailOpen(false)} />
     </>
   );
 };
