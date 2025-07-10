@@ -2,9 +2,7 @@ import { StaffSidebar } from "@/components/Shadcn/staff-sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
 import { Separator } from "@/components/Shadcn/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/Shadcn/ui/sidebar";
-// import StaffBookingManagement from "@/feature/staff/booking/StaffBookingManagement";
-// import StaffCheckinManagement from "@/feature/staff/checkin/StaffCheckinManagement";
-// import StaffDashboard from "@/feature/staff/dashboard/StaffDashboard";
+import StaffBookingManagement from "@/feature/staff/booking/StaffBookingManagement";
 import StaffTicketSales from "@/feature/staff/sales/StaffTicketSales";
 import type { ReactNode } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
@@ -66,8 +64,16 @@ export default function StaffLayout({ children }: Readonly<StaffLayoutProps>) {
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <Routes>
-            {/* <Route path="/dashboard" element={<StaffDashboard />} />
-            <Route path="/booking" element={<StaffBookingManagement />} /> */}
+            <Route
+              path="/dashboard"
+              element={
+                <div className="p-4">
+                  <h1 className="text-2xl font-bold">Staff Dashboard</h1>
+                  <p>Welcome to staff dashboard!</p>
+                </div>
+              }
+            />
+            <Route path="/booking" element={<StaffBookingManagement />} />
             <Route path="/sales" element={<StaffTicketSales />} />
             {/* <Route path="/checkin" element={<StaffCheckinManagement />} /> */}
             {/* If children are provided, render them */}
