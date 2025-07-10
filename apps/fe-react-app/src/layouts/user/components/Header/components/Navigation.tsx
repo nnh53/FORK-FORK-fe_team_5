@@ -1,6 +1,14 @@
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/Shadcn/ui/navigation-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes/route.constants";
 import { getCookie, parseRoles } from "@/utils/cookie.utils";
+import { cn } from "@/utils/utils";
 import { Link } from "react-router-dom";
 
 interface MenuItem {
@@ -11,21 +19,12 @@ interface MenuItem {
 
 interface NavigationProps {
   isMenuOpen?: boolean;
-  className?: string;
   navClassName?: string;
-  linkClassName?: string;
   menuItems?: MenuItem[];
   onMenuItemClick?: (item: MenuItem) => void;
 }
 
-const Navigation = ({
-  isMenuOpen = false,
-  className = "nav-menu",
-  navClassName = "",
-  linkClassName = "nav-link",
-  menuItems,
-  onMenuItemClick,
-}: NavigationProps) => {
+const Navigation = ({ isMenuOpen = false, navClassName = "", menuItems, onMenuItemClick }: NavigationProps) => {
   const { user } = useAuth();
 
   // Get user roles from context or cookies
@@ -37,7 +36,7 @@ const Navigation = ({
   const defaultMenuItems: MenuItem[] = [
     { label: "Home", to: ROUTES.HOME, id: "home" },
     { label: "Movies", to: ROUTES.MOVIES_SELECTION, id: "movies" },
-    { label: "Membership", to: ROUTES.ACCOUNT, id: "membership" },
+    
   ];
 
   // Add dashboard items based on specific roles only
@@ -57,23 +56,25 @@ const Navigation = ({
   };
 
   return (
-    <nav className={`${className} ${isMenuOpen ? "active" : ""} ${navClassName}`}>
-      <ul>
+    <NavigationMenu className={cn("", navClassName)}>
+      <NavigationMenuList className={cn("gap-6", isMenuOpen ? "active" : "")}>
         {finalMenuItems.map((item) => (
-          <li key={item.id ?? item.label}>
+          <NavigationMenuItem key={item.id ?? item.label}>
             {item.to === "#" ? (
-              <a href={item.to} className={linkClassName} onClick={() => handleItemClick(item)}>
+              <NavigationMenuLink href={item.to} className={cn(navigationMenuTriggerStyle())} onClick={() => handleItemClick(item)}>
                 {item.label}
-              </a>
+              </NavigationMenuLink>
             ) : (
-              <Link to={item.to} className={linkClassName} onClick={() => handleItemClick(item)}>
-                {item.label}
-              </Link>
+              <NavigationMenuLink asChild>
+                <Link to={item.to} className={cn(navigationMenuTriggerStyle())} onClick={() => handleItemClick(item)}>
+                  {item.label}
+                </Link>
+              </NavigationMenuLink>
             )}
-          </li>
+          </NavigationMenuItem>
         ))}
-      </ul>
-    </nav>
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 };
 

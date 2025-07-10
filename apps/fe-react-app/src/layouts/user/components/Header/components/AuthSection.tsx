@@ -1,34 +1,30 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/Shadcn/ui/avatar";
+import { Button } from "@/components/Shadcn/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/Shadcn/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes/route.constants";
-import { getCookie, parseRoles } from "@/utils/cookie.utils";
+import { useGetUserById } from "@/services/userService";
+import { getCookie } from "@/utils/cookie.utils";
+import { IconCreditCard, IconDotsVertical, IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
 interface AuthSectionProps {
   className?: string;
-  loginButtonClassName?: string;
-  bookButtonClassName?: string;
-  showBookButton?: boolean;
   loginText?: string;
   logoutText?: string;
-  bookText?: string;
-  onLoginClick?: () => void;
   onLogoutClick?: () => void;
-  onBookClick?: () => void;
 }
 
-const AuthSection = ({
-  className = "header-actions",
-  loginButtonClassName = "login-button",
-  bookButtonClassName = "book-button",
-  showBookButton = true,
-  loginText = "Login",
-  logoutText = "Logout",
-  bookText = "Book Now",
-  onLoginClick,
-  onLogoutClick,
-  onBookClick,
-}: AuthSectionProps) => {
-  const { isLoggedIn, authLogout } = useAuth();
+const AuthSection = ({ className = "header-actions", loginText = "Login", logoutText = "Logout", onLogoutClick }: AuthSectionProps) => {
+  const { isLoggedIn, authLogout, user } = useAuth();
 
   // Check if user has any roles in cookies
   const userRoles = getCookie("user_roles");
@@ -38,6 +34,12 @@ const AuthSection = ({
   // User is considered authenticated if logged in OR has valid roles in cookies
   const isAuthenticated = isLoggedIn || hasRoles;
 
+  // Get user ID from cookies or context
+  const userId = user?.id || getCookie("user_id");
+
+  // Query user details by ID
+  const { data: userDetails } = useGetUserById(userId || "");
+
   const handleLogout = () => {
     authLogout();
     if (onLogoutClick) {
@@ -45,32 +47,73 @@ const AuthSection = ({
     }
   };
 
-  // Get user roles for display
-  const roles = hasRoles ? parseRoles(userRoles) : [];
+  // Use real user data or fallback to cookie data
+  const displayName = userDetails?.result?.fullName || fullName || "User";
+  const displayEmail = userDetails?.result?.email || "user@fcinema.com";
+  const initials = displayName
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <div className={className}>
       {isAuthenticated ? (
-        <div className="flex items-center gap-3">
-          {fullName && (
-            <span className="text-sm text-gray-600">
-              Welcome, {fullName}
-              {roles.length > 0 && <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{roles[0]}</span>}
-            </span>
-          )}
-          <button className={`${loginButtonClassName} bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded`} onClick={handleLogout}>
-            {logoutText}
-          </button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-auto justify-start px-3 py-2">
+              <Avatar className="mr-2 h-8 w-8 rounded-lg p-0">
+                <AvatarImage src="https://ui.shadcn.com/avatars/shadcn.jpg" alt={displayName} />
+                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col items-start text-left">
+                <span className="text-sm font-medium">{displayName}</span>
+              </div>
+              <IconDotsVertical className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src="https://ui.shadcn.com/avatars/shadcn.jpg" alt={displayName} />
+                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{displayName}</span>
+                  <span className="text-muted-foreground truncate text-xs">{displayEmail}</span>
+                </div>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link to={ROUTES.ACCOUNT} className="cursor-pointer">
+                  <IconUserCircle className="mr-2 h-4 w-4" />
+                  Account
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <IconCreditCard className="mr-2 h-4 w-4" />
+                Billing
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <IconNotification className="mr-2 h-4 w-4" />
+                Notifications
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <IconLogout className="mr-2 h-4 w-4" />
+              {logoutText}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ) : (
-        <button className={loginButtonClassName} onClick={onLoginClick}>
+        <Button variant="default" asChild>
           <Link to={ROUTES.AUTH.LOGIN}>{loginText}</Link>
-        </button>
-      )}
-      {showBookButton && (
-        <button className={bookButtonClassName} onClick={onBookClick}>
-          <Link to={ROUTES.MOVIES_SELECTION}>{bookText}</Link>
-        </button>
+        </Button>
       )}
     </div>
   );

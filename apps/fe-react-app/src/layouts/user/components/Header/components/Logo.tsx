@@ -3,14 +3,12 @@ import FCinemaLogo from "@/assets/FCinema_Logo.webp";
 interface LogoProps {
   className?: string;
   altText?: string;
-  logoText?: string;
 }
 
-const Logo = ({ className = "logo", altText = "F-Cinema Logo", logoText = "F-Cinema" }: LogoProps) => {
+const Logo = ({ className = "flex items-center", altText = "F-Cinema Logo" }: LogoProps) => {
   return (
     <div className={className}>
-      <img src={FCinemaLogo} alt={altText} />
-      <span>{logoText}</span>
+      <img src={FCinemaLogo} alt={altText} className="h-10" />
     </div>
   );
 };
