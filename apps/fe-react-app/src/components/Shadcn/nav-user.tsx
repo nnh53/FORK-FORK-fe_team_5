@@ -1,4 +1,5 @@
-import { IconCreditCard, IconDotsVertical, IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
+import { IconCreditCard, IconDotsVertical, IconHome, IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/Shadcn/ui/avatar";
 import {
@@ -18,6 +19,7 @@ import { getCookie } from "@/utils/cookie.utils";
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { user, authLogout } = useAuth();
+  const navigate = useNavigate();
 
   // Get user ID from cookies or context
   const userId = user?.id || getCookie("user_id");
@@ -28,6 +30,10 @@ export function NavUser() {
 
   const handleLogout = () => {
     authLogout();
+  };
+
+  const handleNavigateHome = () => {
+    navigate("/");
   };
 
   // Use real user data or fallback to cookie data
@@ -77,6 +83,10 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem onClick={handleNavigateHome}>
+                <IconHome />
+                Homepage
+              </DropdownMenuItem>
               <DropdownMenuItem>
                 <IconUserCircle />
                 Account

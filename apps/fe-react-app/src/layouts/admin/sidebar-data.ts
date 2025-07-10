@@ -62,7 +62,7 @@ export const sidebarData = {
     },
     {
       title: "Users",
-      url: "/admin/food",
+      url: "#",
       icon: User,
       items: [
         {
@@ -79,7 +79,7 @@ export const sidebarData = {
     },
     {
       title: "Food & Beverages",
-      url: "/admin/food",
+      url: "#",
       icon: Utensils,
       items: [
         {

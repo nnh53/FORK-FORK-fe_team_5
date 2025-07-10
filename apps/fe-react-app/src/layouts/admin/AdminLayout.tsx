@@ -1,32 +1,32 @@
 import { AppSidebar } from "@/components/Shadcn/app-sidebar";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
 import { Separator } from "@/components/Shadcn/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/Shadcn/ui/sidebar";
 import type { ReactNode } from "react";
-import { Outlet, Route, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { sidebarData } from "./sidebar-data";
 
 type AdminLayoutProps = {
   children?: ReactNode;
 };
 
-// Helper function to generate breadcrumb based on current path using data object
+// Helper function to generate breadcrumb based on current path
 const getBreadcrumbFromPath = (pathname: string) => {
-  // Find matching item in data.navMain
+  // Check top-level items first
+  const topLevelItem = sidebarData.navMain.find((item) => item.url === pathname);
+  if (topLevelItem) {
+    return { section: "FCinema Admin", page: topLevelItem.title };
+  }
+
+  // Check sub-items
   for (const section of sidebarData.navMain) {
-    if (section.items) {
-      for (const item of section.items) {
-        if (item.url === pathname) {
-          return {
-            section: section.title,
-            page: item.title,
-          };
-        }
-      }
+    const subItem = section.items?.find((item) => item.url === pathname);
+    if (subItem) {
+      return { section: section.title, page: subItem.title };
     }
   }
 
-  // Fallback for paths not found in data structure
+  // Fallback for unknown paths
   return { section: "FCinema Admin", page: "Dashboard" };
 };
 
@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/admin/dashboard">{breadcrumb.section}</BreadcrumbLink>
+                  <BreadcrumbPage>{breadcrumb.section}</BreadcrumbPage>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
@@ -58,7 +58,7 @@ export default function AdminLayout({ children }: Readonly<AdminLayoutProps>) {
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <Outlet />
-          {children && <Route path="*" element={children} />}
+          {children}
         </div>
       </SidebarInset>
     </SidebarProvider>

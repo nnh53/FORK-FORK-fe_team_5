@@ -102,8 +102,8 @@ export const AppRoutes = () => (
           </PageTransition>
         }
       >
-        <Route path={ROUTES.ADMIN.ROOT} element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
         <Route path={ROUTES.ADMIN.ROOT} element={<AdminLayout />}>
+          <Route index element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
           <Route
             path="dashboard"
             element={
