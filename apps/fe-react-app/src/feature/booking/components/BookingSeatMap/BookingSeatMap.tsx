@@ -3,15 +3,49 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui
 import type { Seat, SeatMap } from "@/interfaces/seat.interface";
 import { Icon } from "@iconify/react";
 import React from "react";
+import { toast } from "sonner";
 
 interface BookingSeatMapProps {
   seatMap: SeatMap | null;
   selectedSeats: number[];
   onSeatSelect: (seatId: number) => void;
   bookedSeats?: number[]; // Seats that are already booked by others
+  allowGapSeats?: boolean; // Allow gap seats for admin/staff
 }
 
-const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats = [], onSeatSelect, bookedSeats = [] }) => {
+const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats = [], onSeatSelect, bookedSeats = [], allowGapSeats = false }) => {
+  // Function to check if selecting a seat (single or couple) would create invalid gaps
+  const wouldCreateGap = React.useCallback(
+    (seatToSelect: Seat): boolean => {
+      if (allowGapSeats || !seatMap) return false;
+
+      // Build set of seats occupied after selecting this one (including seats selected by others)
+      const occupiedByOthers = seatMap.gridData.filter((s) => s.selected === true).map((s) => s.id);
+      const occupied = new Set([...(selectedSeats || []), ...(bookedSeats || []), ...occupiedByOthers, seatToSelect.id]);
+
+      // Get available seats in the same row
+      const rowSeats = seatMap.gridData
+        .filter(
+          (s) => s.row === seatToSelect.row && s.status === "AVAILABLE" && !s.discarded && !s.selected && !["PATH", "BLOCK"].includes(s.type.name),
+        )
+        .sort((a, b) => parseInt(a.column) - parseInt(b.column));
+
+      // Check each empty seat for isolated gaps
+      const hasGap = rowSeats.some((seat, i) => {
+        if (occupied.has(seat.id)) return false;
+        const leftOccupied = i > 0 && occupied.has(rowSeats[i - 1].id);
+        const rightOccupied = i < rowSeats.length - 1 && occupied.has(rowSeats[i + 1].id);
+        return (
+          (leftOccupied && rightOccupied) || // gap in middle
+          (i === 0 && rightOccupied) || // gap at start
+          (i === rowSeats.length - 1 && leftOccupied) // gap at end
+        );
+      });
+      return hasGap;
+    },
+    [seatMap, selectedSeats, bookedSeats, allowGapSeats],
+  );
+
   // Calculate actual dimensions based on seat data
   const actualDimensions = React.useMemo(() => {
     if (!seatMap || seatMap.gridData.length === 0) {
@@ -120,6 +154,8 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
     const isAvailable = seat.status === "AVAILABLE";
     const isMaintenance = seat.status === "MAINTENANCE";
     const isDiscarded = seat.discarded;
+    // Do not apply gap logic for COUPLE seats
+    const wouldCreateGapIfSelected = seat.type.name !== "COUPLE" && !isSelected && wouldCreateGap(seat);
 
     return {
       isSelected,
@@ -127,7 +163,8 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
       isAvailable,
       isMaintenance,
       isDiscarded,
-      isSelectable: isAvailable && !isBooked && !isMaintenance && !isDiscarded,
+      wouldCreateGapIfSelected,
+      isSelectable: isAvailable && !isBooked && !isMaintenance && !isDiscarded && !isSelected && !wouldCreateGapIfSelected,
     };
   };
 
@@ -143,6 +180,11 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
     if (state.isBooked) {
       return `${baseClass} bg-red-500 text-white border-red-500 cursor-not-allowed`;
     }
+
+    // Show warning style for seats that would create gaps
+    // if (state.wouldCreateGapIfSelected && !allowGapSeats) {
+    //   return `${baseClass} bg-orange-100 border-orange-300 text-orange-800 cursor-not-allowed opacity-60`;
+    // }
 
     // Determine base color based on seat type
     let baseColor: string;
@@ -169,16 +211,22 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
     // Apply maintenance overlay if needed
     const maintenanceOverlay = seat.status === "MAINTENANCE" ? "opacity-50" : "";
 
-    // Apply not selectable overlay if needed
-    const notSelectableOverlay = !state.isSelectable ? "cursor-not-allowed" : "";
-
-    return `${baseColor} ${maintenanceOverlay} ${notSelectableOverlay}`;
+    // Remove indicator for non-selectable seats
+    return `${baseColor} ${maintenanceOverlay}`;
   };
 
   const handleSeatClick = (seat: Seat) => {
     const state = getSeatState(seat);
+    // Allow deselecting a selected seat
+    if (state.isSelected && seat.id) {
+      onSeatSelect(seat.id);
+      return;
+    }
     if (state.isSelectable && seat.id) {
       onSeatSelect(seat.id);
+    } else if (state.wouldCreateGapIfSelected && !allowGapSeats) {
+      // Show warning message about gap creation
+      toast.warning("Việc chọn ghế của bạn không được để trống 1 ghế ở bên trái, giữa hoặc bên phải trên cùng một hàng ghế mà bạn vừa chọn!");
     }
   };
 
@@ -279,19 +327,20 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
               >
                 {/* Using render items for proper double seat handling */}
                 {createRenderItems.map((item) => {
-                  const isSelected = item.seat.id ? selectedSeats.includes(item.seat.id) : false;
+                  const { isSelected, isSelectable } = getSeatState(item.seat);
 
                   if (item.type === "double") {
                     return (
                       <div
                         key={item.seat.id || item.index}
-                        className={`flex cursor-pointer items-center justify-center rounded border text-xs hover:opacity-80 ${getSeatColor(item.seat, isSelected)}`}
+                        className={getSeatColor(item.seat, isSelected)}
                         onClick={() => handleSeatClick(item.seat)}
                         style={{
                           gridColumn: "span 2",
                           height: "32px", // Fixed height
                           width: "68px", // 32px * 2 + 4px gap
                         }}
+                        aria-disabled={!isSelectable}
                       >
                         {item.displayCol}
                         {/* Maintenance icon overlay for double seats */}
@@ -312,16 +361,16 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
                     } else if (item.seat.type.name === "BLOCK") {
                       content = <Icon icon="mdi:close" className="h-3 w-3" />;
                     }
-
                     return (
                       <div
                         key={item.seat.id || item.index}
-                        className={`${getSeatColor(item.seat, isSelected)}`}
+                        className={getSeatColor(item.seat, isSelected)}
                         onClick={() => handleSeatClick(item.seat)}
                         style={{
                           height: "32px", // Fixed height
                           width: "32px", // Fixed width
                         }}
+                        aria-disabled={!isSelectable}
                       >
                         {content}
                         {/* Maintenance icon overlay for single seats */}
@@ -410,6 +459,12 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
             <div className="h-4 w-4 rounded bg-green-500"></div>
             <span className="text-sm">Đã chọn</span>
           </div>
+          {!allowGapSeats && (
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 rounded border border-orange-300 bg-orange-100 opacity-60"></div>
+              <span className="text-sm">Không thể chọn (tạo khoảng trống)</span>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <div className="relative h-4 w-4 rounded border border-gray-300 bg-gray-100 opacity-50">
               <Icon icon="mdi:wrench" className="absolute right-0 top-0 h-2 w-2 text-orange-600" style={{ transform: "translate(25%, -25%)" }} />
