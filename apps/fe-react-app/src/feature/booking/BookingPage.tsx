@@ -40,6 +40,28 @@ const BookingPage: React.FC = () => {
     return [];
   });
 
+  // Update selectedSeatIds when returning from checkout page
+  useEffect(() => {
+    const currentBookingState = location.state || JSON.parse(localStorage.getItem("bookingState") || "{}");
+
+    if (currentBookingState.selectedSeats && Array.isArray(currentBookingState.selectedSeats)) {
+      const newSelectedIds = currentBookingState.selectedSeats
+        .map((seat: unknown) => {
+          const seatObj = seat as Record<string, unknown>;
+          if (typeof seatObj.id === "number") return seatObj.id;
+          if (typeof seatObj.id === "string") return parseInt(seatObj.id);
+          return null;
+        })
+        .filter((id: number | null) => id !== null);
+
+      setSelectedSeatIds(newSelectedIds);
+    }
+    // Also check if selectedSeatIds exists directly in the state
+    else if (currentBookingState.selectedSeatIds && Array.isArray(currentBookingState.selectedSeatIds)) {
+      setSelectedSeatIds(currentBookingState.selectedSeatIds);
+    }
+  }, [location.state]);
+
   // Fetch seat data for the showtime
   const showtimeId = selection?.showtimeId ? parseInt(selection.showtimeId) : 0;
   const roomId = selection?.roomId ? parseInt(selection.roomId) : 0;
@@ -88,10 +110,6 @@ const BookingPage: React.FC = () => {
     const cost = seatMap.gridData
       .filter((seat) => selectedSeatIds.includes(seat.id))
       .reduce((total, seat) => {
-        // Debug logging
-        console.log("Seat data:", seat);
-        console.log("Seat type price:", seat.type?.price);
-
         const price = seat.type?.price || 0;
         if (isNaN(price)) {
           console.warn("Invalid price for seat:", seat);
@@ -100,7 +118,6 @@ const BookingPage: React.FC = () => {
         return total + price;
       }, 0);
 
-    console.log("Total cost calculated:", cost);
     return cost;
   }, [seatMap, selectedSeatIds]);
 
@@ -116,8 +133,8 @@ const BookingPage: React.FC = () => {
     });
   }, []);
 
-  // Save booking state to localStorage whenever selectedSeats changes
-  const updateBookingState = useCallback(() => {
+  // Update localStorage when selected seats change
+  useEffect(() => {
     const updatedBookingState = {
       ...initialBookingState,
       selectedSeats: selectedSeats,
@@ -126,11 +143,6 @@ const BookingPage: React.FC = () => {
     };
     localStorage.setItem("bookingState", JSON.stringify(updatedBookingState));
   }, [initialBookingState, selectedSeats, selectedSeatIds, totalCost]);
-
-  // Update localStorage when selected seats change
-  useEffect(() => {
-    updateBookingState();
-  }, [updateBookingState]);
 
   // Handle continue to checkout
   const handleContinue = useCallback(() => {

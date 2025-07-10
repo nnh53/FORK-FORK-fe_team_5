@@ -233,7 +233,7 @@ export const transformBookingResponse = (bookingResponse: BookingResponse): Book
     booking_status: mapBookingStatus(bookingResponse.status),
     staff_id: bookingResponse.staffId || undefined,
     pay_os_code: bookingResponse.payOsCode || undefined,
-    loyalty_point_used: bookingResponse.loyaltyPoints || 0,
+    loyalty_point_used: bookingResponse.loyaltyPoints && bookingResponse.loyaltyPoints > 0 ? bookingResponse.loyaltyPoints : undefined,
 
     // Transform seats - using booking_seats relation format
     booking_seats:
