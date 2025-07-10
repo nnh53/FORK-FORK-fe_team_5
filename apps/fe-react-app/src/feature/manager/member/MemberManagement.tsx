@@ -16,6 +16,7 @@ import {
   useUpdateUser,
   useUsers,
 } from "@/services/userService";
+import type { CustomAPIResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -138,7 +139,6 @@ const filterGroups: FilterGroup[] = [
 
 const MemberManagement = () => {
   const [members, setMembers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<User | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
@@ -164,8 +164,8 @@ const MemberManagement = () => {
     { value: "address", label: "Địa chỉ" },
   ];
 
+  // Xử lý dữ liệu từ API
   useEffect(() => {
-    console.log(usersQuery.status);
     if (usersQuery.data?.result) {
       // Transform API response to User[] and filter for MEMBER role
       let transformedUsers: User[] = [];
@@ -181,9 +181,74 @@ const MemberManagement = () => {
 
       setMembers(transformedUsers);
     }
-    setLoading(usersQuery.isLoading);
-  }, [usersQuery.data, usersQuery.isLoading, usersQuery.error, usersQuery.isError, usersQuery.isSuccess]);
+  }, [usersQuery.data]);
 
+  //kiểm tra trang thai cua query
+  useEffect(() => {
+    console.log("Member data:", usersQuery.data);
+    console.log("Member status:", usersQuery.status);
+    console.log("Member error:", usersQuery.error);
+  }, [usersQuery.data, usersQuery.status, usersQuery.error]);
+
+  useEffect(() => {
+    console.log("Create member status:", registerMutation.status);
+    console.log("Create member error:", registerMutation.error);
+  }, [registerMutation.status, registerMutation.error]);
+
+  useEffect(() => {
+    console.log("Update member status:", updateUserMutation.status);
+    console.log("Update member error:", updateUserMutation.error);
+  }, [updateUserMutation.status, updateUserMutation.error]);
+
+  useEffect(() => {
+    console.log("Delete member status:", deleteUserMutation.status);
+    console.log("Delete member error:", deleteUserMutation.error);
+  }, [deleteUserMutation.status, deleteUserMutation.error]);
+
+  // Xử lý trạng thái của register mutation
+  useEffect(() => {
+    if (registerMutation.isSuccess) {
+      toast.success("Thêm thành viên thành công");
+      usersQuery.refetch(); // Refetch users to get the latest data
+      setIsModalOpen(false);
+      setSelectedMember(undefined);
+    } else if (registerMutation.isError) {
+      toast.error((registerMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi thêm thành viên");
+    }
+  }, [registerMutation.isSuccess, registerMutation.isError, registerMutation.error]);
+
+  // Xử lý trạng thái của update mutation
+  useEffect(() => {
+    if (updateUserMutation.isSuccess) {
+      toast.success("Cập nhật thành viên thành công");
+      usersQuery.refetch(); // Refetch users to get the latest data
+      setIsModalOpen(false);
+      setSelectedMember(undefined);
+    } else if (updateUserMutation.isError) {
+      toast.error((updateUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi cập nhật thành viên");
+    }
+  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error]);
+
+  // Xử lý trạng thái của delete mutation
+  useEffect(() => {
+    if (deleteUserMutation.isSuccess) {
+      toast.success("Xóa thành viên thành công");
+      usersQuery.refetch(); // Refetch users to get the latest data
+      setDeleteDialogOpen(false);
+      setMemberToDelete(null);
+    } else if (deleteUserMutation.isError) {
+      toast.error((deleteUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi xóa thành viên");
+    }
+  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error]);
+
+  // Reset pagination khi filter thay đổi
+  useEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.resetPagination();
+    }
+  }, [filterCriteria]);
+
+  // Lọc members theo các tiêu chí
   const filteredMembers = useMemo(() => {
     if (!members) return [];
 
@@ -239,41 +304,29 @@ const MemberManagement = () => {
     setSelectedMember(undefined);
   };
 
-  const handleSubmit = async (values: UserRequest) => {
-    try {
-      if (selectedMember) {
-        // Update existing member
-        const updateData: UserUpdate = transformUserUpdateRequest({
-          ...values,
-          role: ROLES.MEMBER,
-        });
+  const handleSubmit = (values: UserRequest) => {
+    if (selectedMember) {
+      // Update existing member
+      const updateData: UserUpdate = transformUserUpdateRequest({
+        ...values,
+        role: ROLES.MEMBER,
+      });
 
-        await updateUserMutation.mutateAsync({
-          params: { path: { userId: selectedMember.id } },
-          body: updateData,
-        });
+      updateUserMutation.mutate({
+        params: { path: { userId: selectedMember.id } },
+        body: updateData,
+      });
+    } else {
+      // Create new member
+      const registerData: UserRequest = transformRegisterRequest({
+        ...values,
+        role: ROLES.MEMBER,
+        phone: values.phone ?? "",
+      });
 
-        toast.success("Cập nhật thành viên thành công");
-      } else {
-        // Create new member
-        const registerData: UserRequest = transformRegisterRequest({
-          ...values,
-          role: ROLES.MEMBER,
-          phone: values.phone ?? "",
-        });
-
-        await registerMutation.mutateAsync({
-          body: registerData,
-        });
-
-        toast.success("Thêm thành viên thành công");
-      }
-      setIsModalOpen(false);
-      setSelectedMember(undefined);
-      usersQuery.refetch();
-    } catch (error) {
-      console.error("Lỗi khi lưu thành viên:", error);
-      toast.error("Lỗi khi lưu thành viên");
+      registerMutation.mutate({
+        body: registerData,
+      });
     }
   };
 
@@ -282,26 +335,16 @@ const MemberManagement = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (memberToDelete) {
-      try {
-        await deleteUserMutation.mutateAsync({
-          params: { path: { userId: memberToDelete.id } },
-        });
-
-        toast.success("Xóa thành viên thành công");
-        usersQuery.refetch();
-      } catch (error) {
-        console.error("Lỗi khi xóa thành viên:", error);
-        toast.error("Lỗi khi xóa thành viên");
-      }
+      deleteUserMutation.mutate({
+        params: { path: { userId: memberToDelete.id } },
+      });
     }
-    setDeleteDialogOpen(false);
-    setMemberToDelete(null);
   };
 
-  // Cập nhật phần loading
-  if (loading) {
+  // Hiển thị loading khi đang tải dữ liệu
+  if (usersQuery.isLoading) {
     return <LoadingSpinner name="thành viên" />;
   }
 

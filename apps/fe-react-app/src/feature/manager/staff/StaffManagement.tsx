@@ -6,7 +6,6 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import { ROLES } from "@/interfaces/roles.interface";
 import type { StaffRequest, StaffUser } from "@/interfaces/staff.interface";
-import { filterStaffUsers } from "@/interfaces/staff.interface";
 import type { USER_GENDER } from "@/interfaces/users.interface";
 import {
   formatUserDate,
@@ -18,8 +17,9 @@ import {
   useUpdateUser,
   useUsers,
 } from "@/services/userService";
+import type { CustomAPIResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import StaffForm from "./StaffForm";
 import StaffTable from "./StaffTable";
@@ -87,7 +87,6 @@ const filterByGender = (staff: StaffUser, gender: string): boolean => {
 
 const StaffManagement = () => {
   const [staffs, setStaffs] = useState<StaffUser[]>([]);
-  const [loading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffUser | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
@@ -111,14 +110,14 @@ const StaffManagement = () => {
     { value: "address", label: "Địa chỉ" },
   ];
 
+  // Chuyển đổi dữ liệu từ API sang dạng StaffUser
   useEffect(() => {
     if (usersQuery.data?.result) {
       // Transform API response to StaffUser[] by filtering for STAFF role
       let transformedUsers: StaffUser[] = [];
 
       if (Array.isArray(usersQuery.data.result)) {
-        const users = usersQuery.data.result.map(transformUserResponse);
-        transformedUsers = filterStaffUsers(users);
+        transformedUsers = usersQuery.data.result.map(transformUserResponse).filter((user) => user.role === ROLES.STAFF) as StaffUser[];
       } else if (usersQuery.data.result) {
         const user = transformUserResponse(usersQuery.data.result);
         if (user.role === ROLES.STAFF) {
@@ -130,93 +129,101 @@ const StaffManagement = () => {
     }
   }, [usersQuery.data]);
 
-  // Apply search and filter
-  const filteredStaffs = staffs.filter((staff) => {
+  //kiểm tra trang thai cua query
+  useEffect(() => {
+    console.log("Staff data:", usersQuery.data);
+    console.log("Staff status:", usersQuery.status);
+    console.log("Staff error:", usersQuery.error);
+  }, [usersQuery.data, usersQuery.status, usersQuery.error]);
+
+  useEffect(() => {
+    console.log("Create staff status:", registerMutation.status);
+    console.log("Create staff error:", registerMutation.error);
+  }, [registerMutation.status, registerMutation.error]);
+
+  useEffect(() => {
+    console.log("Update staff status:", updateUserMutation.status);
+    console.log("Update staff error:", updateUserMutation.error);
+  }, [updateUserMutation.status, updateUserMutation.error]);
+
+  useEffect(() => {
+    console.log("Delete staff status:", deleteUserMutation.status);
+    console.log("Delete staff error:", deleteUserMutation.error);
+  }, [deleteUserMutation.status, deleteUserMutation.error]);
+
+  // Xử lý trạng thái của register mutation
+  useEffect(() => {
+    if (registerMutation.isSuccess) {
+      toast.success("Đã thêm nhân viên mới thành công");
+      usersQuery.refetch(); // Refetch users to get the latest data
+      setIsModalOpen(false);
+      setSelectedStaff(undefined);
+    } else if (registerMutation.isError) {
+      toast.error((registerMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi thêm nhân viên");
+    }
+  }, [registerMutation.isSuccess, registerMutation.isError, registerMutation.error]);
+
+  // Xử lý trạng thái của update mutation
+  useEffect(() => {
+    if (updateUserMutation.isSuccess) {
+      toast.success("Đã cập nhật nhân viên thành công");
+      usersQuery.refetch(); // Refetch users to get the latest data
+      setIsModalOpen(false);
+      setSelectedStaff(undefined);
+    } else if (updateUserMutation.isError) {
+      toast.error((updateUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi cập nhật nhân viên");
+    }
+  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error]);
+
+  // Xử lý trạng thái của delete mutation
+  useEffect(() => {
+    if (deleteUserMutation.isSuccess) {
+      toast.success("Đã xóa nhân viên thành công");
+      usersQuery.refetch(); // Refetch users to get the latest data
+      setDeleteDialogOpen(false);
+      setStaffToDelete(null);
+    } else if (deleteUserMutation.isError) {
+      toast.error((deleteUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi xóa nhân viên");
+    }
+  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error]);
+
+  // Reset pagination khi filter thay đổi
+  useEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.resetPagination();
+    }
+  }, [filterCriteria]);
+
+  // Lọc staff theo các tiêu chí
+  const filteredStaffs = useMemo(() => {
     // Apply global search
-    if (!filterByGlobalSearch(staff, searchTerm)) return false;
+    let filtered = staffs.filter((staff) => filterByGlobalSearch(staff, searchTerm));
 
     // Apply all filter criteria
-    return filterCriteria.every((criteria) => {
-      switch (criteria.field) {
-        case "birth_date_range":
-          return filterByDateRange(staff, criteria.value as { from: Date | undefined; to: Date | undefined });
-        case "status":
-          return filterByStatus(staff, criteria.value as string);
-        case "gender":
-          return filterByGender(staff, criteria.value as string);
-        default:
-          return true;
-      }
-    });
-  });
-
-  // CRUD Operations
-  const handleCreateStaff = async (staffData: StaffRequest) => {
-    try {
-      // Ensure phone is not undefined for the transform function
-      const transformedData = transformRegisterRequest({
-        ...staffData,
-        role: ROLES.STAFF,
-        phone: staffData.phone ?? "",
+    if (filterCriteria.length > 0) {
+      filtered = filtered.filter((staff) => {
+        return filterCriteria.every((criteria) => {
+          switch (criteria.field) {
+            case "birth_date_range":
+              return filterByDateRange(staff, criteria.value as { from: Date; to: Date });
+            case "status":
+              return filterByStatus(staff, criteria.value as string);
+            case "gender":
+              return filterByGender(staff, criteria.value as string);
+            default:
+              return true;
+          }
+        });
       });
-
-      await registerMutation.mutateAsync({
-        body: transformedData,
-      });
-      toast.success("Đã thêm nhân viên mới thành công");
-      setIsModalOpen(false);
-      usersQuery.refetch(); // Refresh list
-    } catch (error) {
-      console.error("Error creating staff:", error);
-      toast.error("Lỗi khi thêm nhân viên: " + (error instanceof Error ? error.message : "Lỗi không xác định"));
     }
-  };
 
-  const handleUpdateStaff = async (staffData: StaffRequest) => {
-    if (!selectedStaff) return;
+    return filtered;
+  }, [staffs, searchTerm, filterCriteria]);
 
-    try {
-      const transformedData = transformUserUpdateRequest({
-        ...staffData,
-        id: selectedStaff.id,
-        role: ROLES.STAFF,
-      });
-
-      await updateUserMutation.mutateAsync({
-        params: { path: { userId: selectedStaff.id } },
-        body: transformedData,
-      });
-
-      toast.success("Đã cập nhật nhân viên thành công");
-      setIsModalOpen(false);
-      usersQuery.refetch(); // Refresh list
-    } catch (error) {
-      console.error("Error updating staff:", error);
-      toast.error("Lỗi khi cập nhật nhân viên: " + (error instanceof Error ? error.message : "Lỗi không xác định"));
-    }
-  };
-
-  const handleDeleteStaff = async () => {
-    if (!staffToDelete) return;
-
-    try {
-      await deleteUserMutation.mutateAsync({
-        params: { path: { userId: staffToDelete.id } },
-      });
-
-      toast.success("Đã xóa nhân viên thành công");
-      setDeleteDialogOpen(false);
-      usersQuery.refetch(); // Refresh list
-    } catch (error) {
-      console.error("Error deleting staff:", error);
-      toast.error("Lỗi khi xóa nhân viên: " + (error instanceof Error ? error.message : "Lỗi không xác định"));
-    }
-  };
-
-  // Hiển thị Dialog xác nhận xóa
-  const confirmDelete = (staff: StaffUser) => {
-    setStaffToDelete(staff);
-    setDeleteDialogOpen(true);
+  // Mở form thêm mới
+  const handleAdd = () => {
+    setSelectedStaff(undefined);
+    setIsModalOpen(true);
   };
 
   // Mở form chỉnh sửa
@@ -225,11 +232,53 @@ const StaffManagement = () => {
     setIsModalOpen(true);
   };
 
-  // Mở form thêm mới
-  const handleAdd = () => {
-    setSelectedStaff(undefined);
-    setIsModalOpen(true);
+  // CRUD Operations
+  const handleCreateStaff = (staffData: StaffRequest) => {
+    // Ensure phone is not undefined for the transform function
+    const transformedData = transformRegisterRequest({
+      ...staffData,
+      role: ROLES.STAFF,
+      phone: staffData.phone ?? "",
+    });
+
+    registerMutation.mutate({
+      body: transformedData,
+    });
   };
+
+  const handleUpdateStaff = (staffData: StaffRequest) => {
+    if (!selectedStaff) return;
+
+    const transformedData = transformUserUpdateRequest({
+      ...staffData,
+      id: selectedStaff.id,
+      role: ROLES.STAFF,
+    });
+
+    updateUserMutation.mutate({
+      params: { path: { userId: selectedStaff.id } },
+      body: transformedData,
+    });
+  };
+
+  // Hiển thị Dialog xác nhận xóa
+  const confirmDelete = (staff: StaffUser) => {
+    setStaffToDelete(staff);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteStaff = () => {
+    if (!staffToDelete) return;
+
+    deleteUserMutation.mutate({
+      params: { path: { userId: staffToDelete.id } },
+    });
+  };
+
+  // Hiển thị loading khi đang tải dữ liệu
+  if (usersQuery.isLoading) {
+    return <LoadingSpinner name="nhân viên" />;
+  }
 
   // Filter configuration - sử dụng FilterGroup giống như Member
   const filterGroups: FilterGroup[] = [
@@ -314,7 +363,7 @@ const StaffManagement = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {loading ? (
+          {usersQuery.isLoading ? (
             <LoadingSpinner name="nhân viên..." />
           ) : (
             <StaffTable ref={tableRef} staffs={filteredStaffs} onEdit={handleEdit} onDelete={confirmDelete} />
