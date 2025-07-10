@@ -14,6 +14,8 @@ import {
   UserCheck,
   Users,
   Utensils,
+  Clapperboard,
+  GalleryHorizontalEnd,
 } from "lucide-react";
 
 export const sidebarData = {
@@ -30,9 +32,19 @@ export const sidebarData = {
     },
     {
       title: "Movies",
-      url: "/admin/movie",
+      url: "#",
       icon: Film,
       items: [
+        {
+          title: "Management",
+          url: "/admin/movie",
+          icon: Clapperboard,
+        },
+        {
+          title: "Carousels",
+          url: "/admin/carousels",
+          icon: GalleryHorizontalEnd,
+        },
         {
           title: "Trending",
           url: "/admin/trending",

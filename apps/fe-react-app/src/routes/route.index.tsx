@@ -26,6 +26,7 @@ import { MovieCategoryManagement } from "@/feature/manager/movie/settings";
 import { PromotionManagement } from "@/feature/manager/promotion/PromotionManagement";
 import { ShowtimeManagement } from "@/feature/manager/show-time";
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
+import TrendingManagement from "@/feature/manager/trending/TrendingManagement";
 import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
 import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
 import CinemaExperience from "@/feature/views/CinemaExperience";
@@ -141,6 +142,7 @@ export const AppRoutes = () => (
           <Route path="staffs" element={<StaffManagement />} />
           <Route path="combo" element={<ComboManagement />} />
           <Route path="snacks" element={<SnackManagement />} />
+          <Route path="trending" element={<TrendingManagement />} />
         </Route>
       </Route>
     </Route>

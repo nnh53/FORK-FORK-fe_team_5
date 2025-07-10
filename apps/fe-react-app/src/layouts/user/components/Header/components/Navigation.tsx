@@ -23,7 +23,6 @@ interface NavigationProps {
 }
 
 const Navigation = ({ isMenuOpen = false, navClassName = "", menuItems, onMenuItemClick }: NavigationProps) => {
-
   // Default menu items - explicitly type as MenuItem[]
   const defaultMenuItems: MenuItem[] = [
     { label: "Home", to: ROUTES.HOME, id: "home" },

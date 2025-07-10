@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes/route.constants";
 import { useGetUserById } from "@/services/userService";
 import { getCookie } from "@/utils/cookie.utils";
-import { IconDotsVertical, IconLogout, IconNotification, IconUserCircle, IconLayoutDashboard } from "@tabler/icons-react";
+import { IconDotsVertical, IconLayoutDashboard, IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
 interface AuthSectionProps {

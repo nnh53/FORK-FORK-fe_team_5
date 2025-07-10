@@ -17,7 +17,6 @@ import type { SchedulePerDay } from "../../feature/booking/components/ShowtimesM
 import ShowtimesModal from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
 import TicketConfirmModal from "../../feature/booking/components/TicketConfirmModal/TicketConfirmModal.tsx";
 
-// 1. MOCK DATA PHIM
 interface FinalSelection {
   date: string;
   time: string;
@@ -65,29 +64,6 @@ function MovieSelection() {
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [selectedTrailerUrl, setSelectedTrailerUrl] = useState("");
 
-  // Helper function to validate age restriction (13-18 as per backend requirement)
-  const validateAgeRestriction = useCallback((ageRestrict?: number): boolean => {
-    if (!ageRestrict) return false; // Age restriction is required in backend
-    return ageRestrict >= 13 && ageRestrict <= 18;
-  }, []);
-
-  // Helper function to get age badge URL based on age restriction
-  const getAgeBadgeUrl = useCallback(
-    (ageRestrict?: number): string => {
-      if (!ageRestrict || !validateAgeRestriction(ageRestrict)) {
-        return "/badges/unknown-age.png"; // Default for invalid ages
-      }
-
-      // Return appropriate badge based on age (13-18 range)
-      if (ageRestrict === 18) return "/badges/18+.png";
-      if (ageRestrict >= 16) return "/badges/16+.png";
-      if (ageRestrict >= 13) return "/badges/13+.png";
-
-      return "/badges/13+.png"; // Default fallback for valid range
-    },
-    [validateAgeRestriction],
-  );
-
   // Helper function to convert Movie to MovieCardProps
   const convertMovieToMovieCard = useCallback(
     (movie: Movie): MovieCardProps => {
@@ -97,11 +73,10 @@ function MovieSelection() {
         posterUrl: movie.poster ?? "",
         genres: movie.categories ? movie.categories.map((cat) => cat.name ?? "") : [],
         duration: movie.duration ? `${movie.duration} phút` : "N/A",
-        ageBadgeUrl: getAgeBadgeUrl(movie.ageRestrict),
         trailerUrl: movie.trailer ?? "",
       };
     },
-    [getAgeBadgeUrl],
+    [],
   );
 
   // Transform API data when moviesQuery data changes

@@ -1,32 +1,54 @@
 import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardSwap/CardSwap";
-import { forwardRef } from "react";
+import { AuthContext } from "@/contexts/AuthContext";
+import type { Movie } from "@/interfaces/movies.interface";
+import { ROUTES } from "@/routes/route.constants";
+import { transformMoviesResponse, useMovies } from "@/services/movieService";
+import { getYouTubeEmbedUrl, getYouTubeVideoId } from "@/utils/movie.utils";
+import { forwardRef, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface TrendingSectionProps {
   className?: string;
 }
 
 const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ className }, ref) => {
+  const navigate = useNavigate();
+  const authContext = useContext(AuthContext);
+  const isAdmin = authContext?.user?.roles?.includes("ADMIN");
+  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const moviesQuery = useMovies();
+
+  useEffect(() => {
+    if (moviesQuery.data?.result) {
+      // Transform the API response to Movie interface
+      const movies = transformMoviesResponse(moviesQuery.data.result);
+
+      // Take the first 4 movies for the trending section
+      const topTrendingMovies = movies.slice(0, 4);
+      setTrendingMovies(topTrendingMovies);
+      setIsLoading(false);
+    }
+  }, [moviesQuery.data]);
+
+  const handleAdminNavigation = () => {
+    navigate(ROUTES.ADMIN.TRENDING);
+  };
+
   return (
     <section className={`card-swap-section ${className ?? ""}`} ref={ref} id="trending-movies">
       <div className="section-title">
-        <h2
-          style={{
-            background: "linear-gradient(to right, #946b38, #392819)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-            fontWeight: "800",
-          }}
-        >
-          Trending Movies
-        </h2>
-        <div
-          className="section-line"
-          style={{
-            background: "linear-gradient(to right, #946b38, #392819)",
-            height: "3px",
-          }}
-        ></div>
+        <div className="flex items-center justify-between">
+          {isAdmin && (
+            <button
+              onClick={handleAdminNavigation}
+              className="rounded-md bg-gray-800 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-700"
+            >
+              Back to Admin
+            </button>
+          )}
+        </div>
       </div>
 
       <div
@@ -64,7 +86,7 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
               lineHeight: "1.2",
             }}
           >
-            Elevate your viewing.
+            Trending Movies
           </h3>
           <p
             style={{
@@ -89,8 +111,17 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
               alignSelf: "flex-start",
               transition: "all 0.3s ease",
             }}
+            onClick={() => {
+              // If we have trending movies, navigate to the first one's detail page
+              if (trendingMovies.length > 0 && trendingMovies[0].id) {
+                navigate(ROUTES.MOVIE_DETAIL.replace(":movieId", trendingMovies[0].id.toString()));
+              } else {
+                // Fallback to movies selection if no trending movies available
+                navigate(ROUTES.MOVIES_SELECTION);
+              }
+            }}
           >
-            Explore More
+            Book Now
           </button>
         </div>
 
@@ -108,80 +139,98 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
           }}
         >
           <div style={{ height: "600px", position: "relative", transform: "translateY(-50px)" }}>
-            <CardSwap cardDistance={60} verticalDistance={70} delay={3000} pauseOnHover={false}>
-              <Card
-                style={{
-                  backgroundColor: "#faf8f3",
-                  color: "#333",
-                  padding: "2rem",
-                  borderRadius: "12px",
-                  border: "1px solid #e8e5e0",
-                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem", color: "#946b38" }}>Trending Movie 1</h3>
-                <p style={{ fontSize: "1rem", lineHeight: "1.5", color: "#666" }}>Experience the latest blockbuster with stunning visuals</p>
-              </Card>
-              <Card
-                style={{
-                  backgroundColor: "#faf8f3",
-                  color: "#333",
-                  padding: "2rem",
-                  borderRadius: "12px",
-                  border: "1px solid #e8e5e0",
-                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem", color: "#946b38" }}>Trending Movie 2</h3>
-                <p style={{ fontSize: "1rem", lineHeight: "1.5", color: "#666" }}>Action-packed adventure that will keep you on edge</p>
-              </Card>
-              <Card
-                style={{
-                  backgroundColor: "#faf8f3",
-                  color: "#333",
-                  padding: "2rem",
-                  borderRadius: "12px",
-                  border: "1px solid #e8e5e0",
-                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem", color: "#946b38" }}>Trending Movie 3</h3>
-                <p style={{ fontSize: "1rem", lineHeight: "1.5", color: "#666" }}>Drama and emotion in perfect harmony</p>
-              </Card>
-              <Card
-                style={{
-                  backgroundColor: "#faf8f3",
-                  color: "#333",
-                  padding: "2rem",
-                  borderRadius: "12px",
-                  border: "1px solid #e8e5e0",
-                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
-                <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem", color: "#946b38" }}>Trending Movie 4</h3>
-                <p style={{ fontSize: "1rem", lineHeight: "1.5", color: "#666" }}>Comedy that brings joy and laughter</p>
-              </Card>
-            </CardSwap>
+            {isLoading ? (
+              <div className="flex h-full items-center justify-center">
+                <p className="text-lg">Loading trending movies...</p>
+              </div>
+            ) : (
+              <CardSwap cardDistance={80} verticalDistance={90} delay={5000} pauseOnHover={false} skewAmount={0}>
+                {trendingMovies.map((movie) => (
+                  <Card
+                    key={movie.id}
+                    style={{
+                      padding: "0",
+                      borderRadius: "16px",
+                      border: "1px solid #e8e5e0",
+                      boxShadow: "0 12px 32px rgba(0, 0, 0, 0.15)",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "700px",
+                      height: "450px",
+                      overflow: "hidden",
+                      // cursor: "pointer",
+                      pointerEvents: "none", // Disable interactions with card
+                    }}
+                    // onClick={() => movie.id && navigate(ROUTES.MOVIE_DETAIL.replace(":movieId", movie.id.toString()))}
+                  >
+                    {(() => {
+                      // Media content rendering - now takes the entire card
+                      if (movie.trailer && getYouTubeEmbedUrl(movie.trailer)) {
+                        // Get video ID for the playlist parameter
+                        const videoId = getYouTubeVideoId(movie.trailer || "");
+                        // Calculate a start time based on the movie ID to show different parts of trailers
+                        const startTime = movie.id ? (movie.id % 60) + 10 : 0;
+                        // Create the embed URL with the appropriate parameters
+                        const embedUrl = getYouTubeEmbedUrl(movie.trailer, {
+                          autoplay: true,
+                          rel: false,
+                          showinfo: false,
+                        });
+
+                        // Construct the final URL properly
+                        let finalUrl = embedUrl || "";
+                        finalUrl = finalUrl + "&start=" + startTime + "&mute=1&loop=1";
+                        if (videoId) {
+                          finalUrl = finalUrl + "&playlist=" + videoId;
+                        }
+
+                        return (
+                          <div className="relative h-full w-full overflow-hidden">
+                            <iframe
+                              src={finalUrl}
+                              title={`Trailer - ${movie.name}`}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="absolute left-0 top-0 h-full w-full border-0"
+                            />
+                          </div>
+                        );
+                      } else if (movie.poster) {
+                        return (
+                          <div className="h-full w-full overflow-hidden">
+                            {/* <img src={movie.poster} alt={movie.name} className="h-full w-full object-cover transition-transform hover:scale-105" loading="lazy" /> */}
+                            <img src={movie.poster} alt={movie.name} className="h-full w-full object-cover" loading="lazy" />
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </Card>
+                ))}
+                {trendingMovies.length === 0 && (
+                  <Card
+                    style={{
+                      padding: "1rem",
+                      borderRadius: "16px",
+                      border: "1px solid #e8e5e0",
+                      boxShadow: "0 12px 32px rgba(0, 0, 0, 0.15)",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      textAlign: "center",
+                      width: "700px",
+                      height: "450px",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem", color: "#946b38" }}>No trending movies found</h3>
+                  </Card>
+                )}
+              </CardSwap>
+            )}
           </div>
         </div>
       </div>

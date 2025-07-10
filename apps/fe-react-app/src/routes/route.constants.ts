@@ -17,7 +17,7 @@ export const ROUTES = {
   CINEMA_EXPERIENCE: "/cinema-experience",
   HERO_SECTION: "/welcome",
   NOW_SHOWING: "/now-showing",
-  TRENDING_SECTION: "/trending-section",
+  TRENDING_SECTION: "/trending",
   FLOWING_MENU_SECTION: "/flowing-menu",
   MOVIE_GALLERY: "/movie-gallery",
   SCROLL_FLOAT: "/scroll-float",
@@ -64,6 +64,7 @@ export const ROUTES = {
     SETTINGS: "/admin/settings",
     HELP: "/admin/help",
     SEARCH: "/admin/search",
+    TRENDING: "/admin/trending",
   }, // Staff Routes
   STAFF: {
     ROOT: "/staff",
