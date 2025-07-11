@@ -215,7 +215,7 @@ const MemberManagement = () => {
     } else if (registerMutation.isError) {
       toast.error((registerMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi thêm thành viên");
     }
-  }, [registerMutation.isSuccess, registerMutation.isError, registerMutation.error]);
+  }, [registerMutation.isSuccess, registerMutation.isError, registerMutation.error, usersQuery]);
 
   // Xử lý trạng thái của update mutation
   useEffect(() => {
@@ -227,7 +227,7 @@ const MemberManagement = () => {
     } else if (updateUserMutation.isError) {
       toast.error((updateUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi cập nhật thành viên");
     }
-  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error]);
+  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error, usersQuery]);
 
   // Xử lý trạng thái của delete mutation
   useEffect(() => {
@@ -239,7 +239,7 @@ const MemberManagement = () => {
     } else if (deleteUserMutation.isError) {
       toast.error((deleteUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi xóa thành viên");
     }
-  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error]);
+  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error, usersQuery]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {

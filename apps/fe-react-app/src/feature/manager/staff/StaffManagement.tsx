@@ -161,7 +161,7 @@ const StaffManagement = () => {
     } else if (registerMutation.isError) {
       toast.error((registerMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi thêm nhân viên");
     }
-  }, [registerMutation.isSuccess, registerMutation.isError, registerMutation.error]);
+  }, [registerMutation.isSuccess, registerMutation.isError, registerMutation.error, usersQuery]);
 
   // Xử lý trạng thái của update mutation
   useEffect(() => {
@@ -173,7 +173,7 @@ const StaffManagement = () => {
     } else if (updateUserMutation.isError) {
       toast.error((updateUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi cập nhật nhân viên");
     }
-  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error]);
+  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error, usersQuery]);
 
   // Xử lý trạng thái của delete mutation
   useEffect(() => {
@@ -185,7 +185,7 @@ const StaffManagement = () => {
     } else if (deleteUserMutation.isError) {
       toast.error((deleteUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi xóa nhân viên");
     }
-  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error]);
+  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error, usersQuery]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {

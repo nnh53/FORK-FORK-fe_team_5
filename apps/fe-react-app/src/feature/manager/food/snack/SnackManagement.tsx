@@ -166,7 +166,7 @@ const SnackManagement: React.FC = () => {
     } else if (createSnackMutation.isError) {
       toast.error((createSnackMutation.error as CustomAPIResponse)?.message || "Lỗi khi thêm thực phẩm");
     }
-  }, [createSnackMutation.isSuccess, createSnackMutation.isError, createSnackMutation.error, queryClient]);
+  }, [createSnackMutation.isSuccess, createSnackMutation.isError, createSnackMutation.error, queryClient, snacksQuery]);
 
   useEffect(() => {
     if (updateSnackMutation.isSuccess) {
@@ -177,7 +177,7 @@ const SnackManagement: React.FC = () => {
     } else if (updateSnackMutation.isError) {
       toast.error((updateSnackMutation.error as CustomAPIResponse)?.message || "Lỗi khi cập nhật thực phẩm");
     }
-  }, [updateSnackMutation.isSuccess, updateSnackMutation.isError, updateSnackMutation.error, queryClient]);
+  }, [updateSnackMutation.isSuccess, updateSnackMutation.isError, updateSnackMutation.error, queryClient, snacksQuery]);
 
   useEffect(() => {
     if (deleteSnackMutation.isSuccess) {
@@ -188,7 +188,7 @@ const SnackManagement: React.FC = () => {
     } else if (deleteSnackMutation.isError) {
       toast.error((deleteSnackMutation.error as CustomAPIResponse)?.message || "Lỗi khi xóa thực phẩm");
     }
-  }, [deleteSnackMutation.isSuccess, deleteSnackMutation.isError, deleteSnackMutation.error, queryClient]);
+  }, [deleteSnackMutation.isSuccess, deleteSnackMutation.isError, deleteSnackMutation.error, queryClient, snacksQuery]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {

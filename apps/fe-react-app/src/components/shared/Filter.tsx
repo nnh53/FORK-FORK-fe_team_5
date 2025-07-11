@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, Filter as FilterIcon, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
@@ -61,7 +61,11 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
 
   // Kiểm tra nếu options được phân nhóm
   const isGrouped = groupMode && filterOptions.length > 0 && "name" in filterOptions[0];
-  const filterGroups = isGrouped ? (filterOptions as FilterGroup[]) : [];
+
+  const filterGroups = useMemo(() => {
+    return isGrouped ? (filterOptions as FilterGroup[]) : [];
+  }, [isGrouped, filterOptions]);
+
   const flatOptions = isGrouped ? filterGroups.flatMap((group) => group.options) : (filterOptions as FilterOption[]);
 
   // Tạo defaultTab nếu dùng groupMode
@@ -305,7 +309,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
             <Button variant="outline" size="sm" className="gap-1">
               <FilterIcon className="h-4 w-4" />
               {getActiveFiltersCount() > 0 && (
-                <Badge variant="secondary" className="h-4 px-1 text-xs ml-1">
+                <Badge variant="secondary" className="ml-1 h-4 px-1 text-xs">
                   {getActiveFiltersCount()}
                 </Badge>
               )}
@@ -315,14 +319,14 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
           <PopoverContent className="w-80 p-0" align="end" side="bottom">
             <div className="p-4">
               {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-medium text-sm">Bộ lọc</h4>
+              <div className="mb-4 flex items-center justify-between">
+                <h4 className="text-sm font-medium">Bộ lọc</h4>
                 {hasAnyValues() && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setTempValues({})}
-                    className="h-auto p-1 text-xs text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground h-auto p-1 text-xs"
                   >
                     Xóa tất cả
                   </Button>
@@ -332,7 +336,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
               {/* Filter inputs - hiển thị theo nhóm hoặc không */}
               {isGrouped ? (
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="w-full mb-4 grid" style={{ gridTemplateColumns: `repeat(${filterGroups.length}, 1fr)` }}>
+                  <TabsList className="mb-4 grid w-full" style={{ gridTemplateColumns: `repeat(${filterGroups.length}, 1fr)` }}>
                     {filterGroups.map((group) => (
                       <TabsTrigger key={group.name} value={group.name}>
                         {group.label}
@@ -341,7 +345,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
                   </TabsList>
 
                   {filterGroups.map((group) => (
-                    <TabsContent key={group.name} value={group.name} className="space-y-4 max-h-80 overflow-y-auto">
+                    <TabsContent key={group.name} value={group.name} className="max-h-80 space-y-4 overflow-y-auto">
                       {group.options.map((option) => (
                         <div key={option.value}>
                           {option.type === "dateRange" && renderDateRangeFilter(option)}
@@ -353,7 +357,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
                   ))}
                 </Tabs>
               ) : (
-                <div className="space-y-4 max-h-80 overflow-y-auto">
+                <div className="max-h-80 space-y-4 overflow-y-auto">
                   {flatOptions.map((option) => (
                     <div key={option.value}>
                       {option.type === "dateRange" && renderDateRangeFilter(option)}
@@ -365,7 +369,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
               )}
 
               {/* Action buttons */}
-              <div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t">
+              <div className="mt-4 flex items-center justify-end gap-2 border-t pt-4">
                 <Button variant="outline" size="sm" onClick={handleCancel}>
                   Hủy
                 </Button>
@@ -381,14 +385,14 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
       {/* Applied filters display */}
       {showActiveFilters && appliedFilters.length > 0 && (
         <div className="flex justify-end">
-          <div className="flex flex-wrap gap-2 justify-end max-w-3xl">
+          <div className="flex max-w-3xl flex-wrap justify-end gap-2">
             {appliedFilters.map((filter, index) => (
               <Badge key={`applied-${filter.field}-${index}`} variant="secondary" className="flex items-center gap-1">
                 <span className="text-xs">
                   {filter.label}
                   {formatFilterValue(filter)}
                 </span>
-                <Button variant="ghost" size="sm" onClick={() => handleRemoveAppliedFilter(index)} className="h-3 w-3 p-0 hover:bg-destructive/20">
+                <Button variant="ghost" size="sm" onClick={() => handleRemoveAppliedFilter(index)} className="hover:bg-destructive/20 h-3 w-3 p-0">
                   <X className="h-2 w-2" />
                 </Button>
               </Badge>
