@@ -14,36 +14,82 @@ interface BookingSeatMapProps {
 }
 
 const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats = [], onSeatSelect, bookedSeats = [], allowGapSeats = false }) => {
+  // Helper function to get consecutive groups of empty seats
+  const getConsecutiveGroups = React.useCallback((emptySeats: Seat[], selectableRowSeats: Seat[]): number[][] => {
+    const consecutiveGroups: number[][] = [];
+    let currentGroup: number[] = [];
+
+    for (const seat of selectableRowSeats) {
+      const isEmpty = emptySeats.some((emptySeat) => emptySeat.id === seat.id);
+
+      if (isEmpty) {
+        currentGroup.push(seat.id);
+      } else {
+        if (currentGroup.length > 0) {
+          consecutiveGroups.push([...currentGroup]);
+          currentGroup = [];
+        }
+      }
+    }
+
+    if (currentGroup.length > 0) {
+      consecutiveGroups.push(currentGroup);
+    }
+
+    return consecutiveGroups;
+  }, []);
+
+  // Helper function to check if seat is at edge of any group
+  const isAtEdgeOfGroup = React.useCallback((seatId: number, groups: number[][]): boolean => {
+    return groups.some((group) => group[0] === seatId || group[group.length - 1] === seatId);
+  }, []);
+
   // Function to check if selecting a seat (single or couple) would create invalid gaps
   const wouldCreateGap = React.useCallback(
     (seatToSelect: Seat): boolean => {
       if (allowGapSeats || !seatMap) return false;
 
-      // Build set of seats occupied after selecting this one (including seats selected by others)
+      // Get all seats in the same row (including all types to check gaps properly)
+      const allRowSeats = seatMap.gridData.filter((s) => s.row === seatToSelect.row).sort((a, b) => parseInt(a.column) - parseInt(b.column));
+
+      // Get only selectable seats for gap checking
+      const selectableRowSeats = allRowSeats.filter((s) => s.status === "AVAILABLE" && !s.discarded && !["PATH", "BLOCK"].includes(s.type.name));
+
+      // Build current state: which seats are already taken
       const occupiedByOthers = seatMap.gridData.filter((s) => s.selected === true).map((s) => s.id);
-      const occupied = new Set([...(selectedSeats || []), ...(bookedSeats || []), ...occupiedByOthers, seatToSelect.id]);
+      const currentlyOccupied = new Set([...(selectedSeats || []), ...(bookedSeats || []), ...occupiedByOthers]);
 
-      // Get available seats in the same row
-      const rowSeats = seatMap.gridData
-        .filter(
-          (s) => s.row === seatToSelect.row && s.status === "AVAILABLE" && !s.discarded && !s.selected && !["PATH", "BLOCK"].includes(s.type.name),
-        )
-        .sort((a, b) => parseInt(a.column) - parseInt(b.column));
+      // Check current gaps before selecting this seat
+      const currentEmptySeats = selectableRowSeats.filter((seat) => !currentlyOccupied.has(seat.id));
 
-      // Check each empty seat for isolated gaps
-      const hasGap = rowSeats.some((seat, i) => {
-        if (occupied.has(seat.id)) return false;
-        const leftOccupied = i > 0 && occupied.has(rowSeats[i - 1].id);
-        const rightOccupied = i < rowSeats.length - 1 && occupied.has(rowSeats[i + 1].id);
-        return (
-          (leftOccupied && rightOccupied) || // gap in middle
-          (i === 0 && rightOccupied) || // gap at start
-          (i === rowSeats.length - 1 && leftOccupied) // gap at end
-        );
-      });
-      return hasGap;
+      // If the seat to select is not in the current empty seats, something's wrong
+      if (!currentEmptySeats.some((seat) => seat.id === seatToSelect.id)) {
+        return false;
+      }
+
+      // Special case: If there are only 1 or 2 empty seats left, allow any selection
+      if (currentEmptySeats.length <= 2) {
+        return false;
+      }
+
+      // Group current empty seats into consecutive blocks
+      const currentConsecutiveGroups = getConsecutiveGroups(currentEmptySeats, selectableRowSeats);
+
+      // Check if target seat is at the edge of any group (can be selected safely)
+      if (isAtEdgeOfGroup(seatToSelect.id, currentConsecutiveGroups)) {
+        return false;
+      }
+
+      // Simulate what would happen if we select this seat
+      const futureEmptySeats = currentEmptySeats.filter((seat) => seat.id !== seatToSelect.id);
+
+      // Group consecutive empty seats and check for single-seat gaps
+      const consecutiveGroups = getConsecutiveGroups(futureEmptySeats, selectableRowSeats);
+
+      // Check if any group has exactly 1 seat (this would be a gap)
+      return consecutiveGroups.some((group) => group.length === 1);
     },
-    [seatMap, selectedSeats, bookedSeats, allowGapSeats],
+    [seatMap, selectedSeats, bookedSeats, allowGapSeats, getConsecutiveGroups, isAtEdgeOfGroup],
   );
 
   // Calculate actual dimensions based on seat data
@@ -224,9 +270,21 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
     }
     if (state.isSelectable && seat.id) {
       onSeatSelect(seat.id);
-    } else if (state.wouldCreateGapIfSelected && !allowGapSeats) {
-      // Show warning message about gap creation
-      toast.warning("Việc chọn ghế của bạn không được để trống 1 ghế ở bên trái, giữa hoặc bên phải trên cùng một hàng ghế mà bạn vừa chọn!");
+    } else {
+      // Debug: log why seat is not selectable
+      console.log("Seat not selectable:", seat.name, {
+        isAvailable: state.isAvailable,
+        isBooked: state.isBooked,
+        isMaintenance: state.isMaintenance,
+        isDiscarded: state.isDiscarded,
+        isSelected: state.isSelected,
+        wouldCreateGapIfSelected: state.wouldCreateGapIfSelected,
+      });
+
+      if (state.wouldCreateGapIfSelected && !allowGapSeats) {
+        // Show warning message about gap creation
+        toast.warning("Việc chọn ghế của bạn không được để trống 1 ghế ở bên trái, giữa hoặc bên phải trên cùng một hàng ghế mà bạn vừa chọn!");
+      }
     }
   };
 
