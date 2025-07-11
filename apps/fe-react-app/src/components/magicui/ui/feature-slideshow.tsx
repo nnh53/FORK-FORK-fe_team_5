@@ -281,9 +281,7 @@ export const Feature = ({
                           "left-0 top-0 w-full": ["left", "right"].includes(linePosition),
                           "left-0 top-0 h-full": ["top", "bottom"].includes(linePosition),
                         },
-                        currentIndex === index
-                          ? getProgressClassForActive()
-                          : getProgressClassForInactive(),
+                        currentIndex === index ? getProgressClassForActive() : getProgressClassForInactive(),
                       )}
                       style={{
                         transitionDuration: currentIndex === index ? `${collapseDelay}ms` : "0s",
@@ -309,10 +307,10 @@ export const Feature = ({
               <button
                 key={item.id}
                 type="button"
-                className="card bg-background relative grid h-full max-w-64 shrink-0 items-start justify-center border-b border-l border-t p-3 first:rounded-tl-xl last:rounded-tr-xl last:border-r text-left"
+                className="card bg-background relative grid h-full max-w-64 shrink-0 items-start justify-center border-b border-l border-t p-3 text-left first:rounded-tl-xl last:rounded-tr-xl last:border-r"
                 onClick={() => setCurrentIndex(index)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     setCurrentIndex(index);
                   }
@@ -346,9 +344,7 @@ export const Feature = ({
                         "left-0 top-0 w-full": ["left", "right"].includes(linePosition),
                         "left-0 top-0 h-full": ["top", "bottom"].includes(linePosition),
                       },
-                      currentIndex === index
-                        ? getProgressClassForActive()
-                        : getProgressClassForInactive(),
+                      currentIndex === index ? getProgressClassForActive() : getProgressClassForInactive(),
                     )}
                     style={{
                       transitionDuration: currentIndex === index ? `${collapseDelay}ms` : "0s",

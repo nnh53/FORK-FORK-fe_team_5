@@ -21,9 +21,7 @@ export function NavMenu() {
 
   React.useEffect(() => {
     // Initialize with first nav item
-    const firstItem = ref.current?.querySelector(
-      `[href="#${navs[0].href.substring(1)}"]`,
-    )?.parentElement;
+    const firstItem = ref.current?.querySelector(`[href="#${navs[0].href.substring(1)}"]`)?.parentElement;
     if (firstItem) {
       const rect = firstItem.getBoundingClientRect();
       setLeft(firstItem.offsetLeft);
@@ -57,9 +55,7 @@ export function NavMenu() {
 
       // Update active section and nav indicator
       setActiveSection(closestSection);
-      const navItem = ref.current?.querySelector(
-        `[href="#${closestSection}"]`,
-      )?.parentElement;
+      const navItem = ref.current?.querySelector(`[href="#${closestSection}"]`)?.parentElement;
       if (navItem) {
         const rect = navItem.getBoundingClientRect();
         setLeft(navItem.offsetLeft);
@@ -72,10 +68,7 @@ export function NavMenu() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isManualScroll]);
 
-  const handleClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    item: NavItem,
-  ) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
     e.preventDefault();
 
     const targetId = item.href.substring(1);
@@ -112,18 +105,13 @@ export function NavMenu() {
   };
 
   return (
-    <div className="w-full hidden md:block">
-      <ul
-        className="relative mx-auto flex w-fit rounded-full h-11 px-2 items-center justify-center"
-        ref={ref}
-      >
+    <div className="hidden w-full md:block">
+      <ul className="relative mx-auto flex h-11 w-fit items-center justify-center rounded-full px-2" ref={ref}>
         {navs.map((item) => (
           <li
             key={item.name}
-            className={`z-10 cursor-pointer h-full flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-              activeSection === item.href.substring(1)
-                ? "text-primary"
-                : "text-primary/60 hover:text-primary"
+            className={`z-10 flex h-full cursor-pointer items-center justify-center px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+              activeSection === item.href.substring(1) ? "text-primary" : "text-primary/60 hover:text-primary"
             } tracking-tight`}
           >
             <a href={item.href} onClick={(e) => handleClick(e, item)}>
@@ -135,7 +123,7 @@ export function NavMenu() {
           <motion.li
             animate={{ left, width }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className="absolute inset-0 my-1.5 rounded-full bg-accent/60 border border-border"
+            className="bg-accent/60 border-border absolute inset-0 my-1.5 rounded-full border"
           />
         )}
       </ul>
