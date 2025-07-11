@@ -27,11 +27,11 @@ const Navigation = ({ isMenuOpen = false, navClassName = "", menuItems, onMenuIt
   const defaultMenuItems: MenuItem[] = [
     { label: "Home", to: ROUTES.HOME, id: "home" },
     { label: "Movies", to: ROUTES.MOVIES_SELECTION, id: "movies" },
-    { label: "Trending", to: ROUTES.HOME, id: "home" },
-    { label: "Cinemas", to: ROUTES.HOME, id: "home" },
-    { label: "Chairs", to: ROUTES.HOME, id: "home" },
-    { label: "Promotions", to: ROUTES.HOME, id: "home" },
-    { label: "Foods", to: ROUTES.HOME, id: "home" },
+    { label: "Trending", to: ROUTES.HOME, id: "trending" },
+    { label: "Cinemas", to: ROUTES.HOME, id: "cinemas" },
+    { label: "Chairs", to: ROUTES.HOME, id: "chairs" },
+    { label: "Promotions", to: ROUTES.HOME, id: "promotions" },
+    { label: "Foods", to: ROUTES.HOME, id: "foods" },
   ];
 
   const finalMenuItems = menuItems || defaultMenuItems;

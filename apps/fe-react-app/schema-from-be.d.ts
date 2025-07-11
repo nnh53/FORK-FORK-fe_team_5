@@ -512,6 +512,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bookings/cancel/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["cancelBookingWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/introspect": {
         parameters: {
             query?: never;
@@ -696,6 +712,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getReceipts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/movies/status/{status}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMoviesByStatus"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1244,6 +1276,9 @@ export interface components {
             price?: number;
             cancelUrl?: string;
         };
+        ConfirmWebhookRequest: {
+            webhookUrl?: string;
+        };
         MovieRequest: {
             name: string;
             /** Format: int32 */
@@ -1361,6 +1396,12 @@ export interface components {
             unitPrice?: number;
             /** Format: float */
             totalPrice?: number;
+        };
+        ApiResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: unknown;
         };
         IntrospectRequest: {
             token?: string;
@@ -1483,14 +1524,8 @@ export interface components {
         Booking: {
             /** Format: int32 */
             id?: number;
-            user?: components["schemas"]["User"];
             /** Format: date-time */
             bookingDate?: string;
-            showTime?: components["schemas"]["Showtime"];
-            promotion?: components["schemas"]["Promotion"];
-            seats?: components["schemas"]["Seat"][];
-            bookingCombos?: components["schemas"]["BookingCombo"][];
-            bookingSnacks?: components["schemas"]["BookingSnack"][];
             /** Format: int32 */
             loyaltyPointsUsed?: number;
             /** Format: float */
@@ -1511,133 +1546,6 @@ export interface components {
             payOsCode?: string;
             payOsLink?: string;
             feUrl?: string;
-        };
-        BookingCombo: {
-            /** Format: int32 */
-            id?: number;
-            booking?: components["schemas"]["Booking"];
-            combo?: components["schemas"]["Combo"];
-            /** Format: int32 */
-            quantity?: number;
-            /** Format: float */
-            unitPrice?: number;
-            /** Format: float */
-            totalPrice?: number;
-        };
-        BookingSnack: {
-            /** Format: int32 */
-            id?: number;
-            booking?: unknown;
-            snack?: components["schemas"]["Snack"];
-            /** Format: int32 */
-            quantity?: number;
-            /** Format: float */
-            unitPrice?: number;
-            /** Format: float */
-            totalPrice?: number;
-        };
-        CinemaRoom: {
-            /** Format: int32 */
-            id?: number;
-            name?: string;
-            type?: string;
-            /** Format: double */
-            fee?: number;
-            /** Format: int32 */
-            capacity?: number;
-            /** @enum {string} */
-            status?: "ACTIVE" | "MAINTENANCE" | "CLOSED";
-            /** Format: int32 */
-            width?: number;
-            /** Format: int32 */
-            length?: number;
-            seats?: components["schemas"]["Seat"][];
-            showtimes?: components["schemas"]["Showtime"][];
-        };
-        Combo: {
-            /** Format: int32 */
-            id?: number;
-            name?: string;
-            description?: string;
-            /** @enum {string} */
-            status?: "AVAILABLE" | "SOLD_OUT" | "UNAVAILABLE";
-            img?: string;
-            /** Format: float */
-            price?: number;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            comboSnacks?: components["schemas"]["ComboSnack"][];
-            /** Format: int32 */
-            quantity?: number;
-            snacks?: components["schemas"]["Snack"][];
-        };
-        ComboSnack: {
-            /** Format: int32 */
-            id?: number;
-            combo?: components["schemas"]["Combo"];
-            snack?: unknown;
-            /** Format: int32 */
-            quantity?: number;
-        };
-        Movie: {
-            showtimes?: components["schemas"]["Showtime"][];
-            /** Format: int32 */
-            id?: number;
-            name?: string;
-            /** Format: int32 */
-            ageRestrict?: number;
-            /** Format: date */
-            fromDate?: string;
-            /** Format: date */
-            toDate?: string;
-            actor?: string;
-            studio?: string;
-            director?: string;
-            /** Format: int32 */
-            duration?: number;
-            trailer?: string;
-            description?: string;
-            poster?: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            /** @enum {string} */
-            status?: "ACTIVE" | "INACTIVE" | "UPCOMING";
-            categories?: components["schemas"]["MovieCategory"][];
-        };
-        MovieCategory: {
-            /** Format: int32 */
-            id?: number;
-            name?: string;
-            description?: string;
-            movies?: components["schemas"]["Movie"][];
-        };
-        Promotion: {
-            /** Format: int32 */
-            id?: number;
-            image?: string;
-            title?: string;
-            /** @enum {string} */
-            type?: "PERCENTAGE" | "AMOUNT";
-            /** Format: float */
-            minPurchase?: number;
-            /** Format: float */
-            discountValue?: number;
-            /** Format: date-time */
-            startTime?: string;
-            /** Format: date-time */
-            endTime?: string;
-            description?: string;
-            /** @enum {string} */
-            status?: "ACTIVE" | "INACTIVE";
-            bookings?: components["schemas"]["Booking"][];
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
         };
         Receipt: {
             /** Format: int32 */
@@ -1679,71 +1587,6 @@ export interface components {
             quantity?: number;
             /** @enum {string} */
             type?: "COMBO" | "SNACK" | "TICKET";
-        };
-        Seat: {
-            /** Format: int32 */
-            id?: number;
-            room?: unknown;
-            row?: string;
-            column?: string;
-            name?: string;
-            type?: components["schemas"]["SeatType"];
-            /** @enum {string} */
-            status?: "AVAILABLE" | "MAINTENANCE";
-            bookings?: components["schemas"]["Booking"][];
-            discarded?: boolean;
-            /** Format: int32 */
-            linkSeatId?: number;
-        };
-        SeatType: {
-            /** Format: int32 */
-            id?: number;
-            /** @enum {string} */
-            name?: "VIP" | "REGULAR" | "COUPLE" | "PATH" | "BLOCK";
-            /** Format: float */
-            price?: number;
-            seats?: components["schemas"]["Seat"][];
-        };
-        Showtime: {
-            /** Format: int32 */
-            id?: number;
-            movie?: components["schemas"]["Movie"];
-            /** Format: date-time */
-            showDateTime?: string;
-            room?: components["schemas"]["CinemaRoom"];
-            /** Format: date-time */
-            endDateTime?: string;
-            /** @enum {string} */
-            status?: "SCHEDULE" | "ONSCREEN" | "COMPLETED" | "CANCELLED";
-            bookings?: components["schemas"]["Booking"][];
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        Snack: {
-            /** Format: int32 */
-            id?: number;
-            /** @enum {string} */
-            category?: "FOOD" | "DRINK";
-            name?: string;
-            flavor?: string;
-            /** Format: float */
-            price?: number;
-            description?: string;
-            /** Format: int32 */
-            quantity?: number;
-            img?: string;
-            /** @enum {string} */
-            size?: "SMALL" | "MEDIUM" | "LARGE";
-            comboSnacks?: components["schemas"]["ComboSnack"][];
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            /** @enum {string} */
-            status?: "AVAILABLE" | "SOLD_OUT" | "UNAVAILABLE";
-            combos?: components["schemas"]["Combo"][];
         };
         /** @description User entity */
         User: {
@@ -2896,9 +2739,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    [key: string]: string;
-                };
+                "application/json": components["schemas"]["ConfirmWebhookRequest"];
             };
         };
         responses: {
@@ -3332,9 +3173,7 @@ export interface operations {
     };
     cancelBooking: {
         parameters: {
-            query?: {
-                reason?: string;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: number;
@@ -3350,6 +3189,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    cancelBookingWebhook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse"];
                 };
             };
         };
@@ -3622,6 +3483,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseListReceipt"];
+                };
+            };
+        };
+    };
+    getMoviesByStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                status: "ACTIVE" | "INACTIVE" | "UPCOMING";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListMovieResponse"];
                 };
             };
         };
