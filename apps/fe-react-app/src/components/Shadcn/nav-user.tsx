@@ -1,4 +1,4 @@
-import { IconCreditCard, IconDotsVertical, IconHome, IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
+import { IconDotsVertical, IconHome, IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/Shadcn/ui/avatar";
@@ -26,7 +26,7 @@ export function NavUser() {
   const fullName = user?.fullName || getCookie("fullName");
 
   // Query user details by ID
-  const { data: userDetails, isLoading, error } = useGetUserById(userId || "");
+  const { data: userDetails } = useGetUserById(userId || "");
 
   const handleLogout = () => {
     authLogout();
@@ -35,6 +35,10 @@ export function NavUser() {
   const handleNavigateHome = () => {
     navigate("/");
   };
+
+   const handleNavigateAccount = () => {
+     navigate("/account");
+   };
 
   // Use real user data or fallback to cookie data
   const displayName = userDetails?.result?.fullName || fullName || "User";
@@ -87,17 +91,9 @@ export function NavUser() {
                 <IconHome />
                 Homepage
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconUserCircle />
+              <DropdownMenuItem onClick={handleNavigateAccount}>
+                <IconUserCircle className="mr-2 h-4 w-4" />
                 Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification />
-                Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

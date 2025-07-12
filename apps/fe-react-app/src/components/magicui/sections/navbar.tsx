@@ -1,5 +1,6 @@
 "use client";
 
+import AuthAvatar from "@/components/shared/AuthAvatar";
 import { siteConfig } from "@/config/config";
 import Logo from "@/layouts/user/components/Header/components/Logo";
 import { cn } from "@/utils/utils";
@@ -110,12 +111,7 @@ export function Navbar() {
 
             <div className="flex shrink-0 flex-row items-center gap-1 md:gap-3">
               <div className="flex items-center space-x-6">
-                <Link
-                  className="bg-secondary text-primary-foreground dark:text-secondary-foreground hidden h-8 w-fit items-center justify-center rounded-full border border-white/[0.12] px-4 text-sm font-normal tracking-wide shadow-[inset_0_1px_2px_rgba(255,255,255,0.25),0_3px_3px_-1.5px_rgba(16,24,40,0.06),0_1px_1px_rgba(16,24,40,0.08)] md:flex"
-                  to="/login"
-                >
-                  Try now
-                </Link>
+                <AuthAvatar />
               </div>
               <ThemeToggle />
               <button
@@ -184,14 +180,8 @@ export function Navbar() {
                   </AnimatePresence>
                 </motion.ul>
 
-                {/* Action buttons */}
                 <div className="flex flex-col gap-2">
-                  <Link
-                    to="#"
-                    className="bg-secondary text-primary-foreground dark:text-secondary-foreground hover:bg-secondary/80 flex h-8 w-full items-center justify-center rounded-full border border-white/[0.12] px-4 text-sm font-normal tracking-wide shadow-[inset_0_1px_2px_rgba(255,255,255,0.25),0_3px_3px_-1.5px_rgba(16,24,40,0.06),0_1px_1px_rgba(16,24,40,0.08)] transition-all ease-out active:scale-95"
-                  >
-                    Try for free
-                  </Link>
+                  <AuthAvatar />
                 </div>
               </div>
             </motion.div>
