@@ -205,7 +205,9 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="movieId">Chọn phim *</Label>
+              <Label htmlFor="movieId">
+                Chọn phim <span className="text-red-500">*</span>
+              </Label>
               <Select value={formData.movieId} onValueChange={handleMovieChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn phim" />
@@ -222,7 +224,9 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="roomId">Chọn phòng chiếu *</Label>
+              <Label htmlFor="roomId">
+                Chọn phòng chiếu <span className="text-red-500">*</span>
+              </Label>
               <Select value={formData.roomId} onValueChange={(value) => setFormData((prev) => ({ ...prev, roomId: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn phòng chiếu" />
@@ -243,7 +247,9 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Ngày chiếu *</Label>
+              <Label htmlFor="startDate">
+                Ngày chiếu <span className="text-red-500">*</span>
+              </Label>
               <div className="relative">
                 <Calendar className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
                 <Input id="startDate" name="startDate" type="date" value={formData.startDate} onChange={handleChange} className="pl-10" required />
@@ -251,7 +257,9 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="startTime">Giờ bắt đầu *</Label>
+              <Label htmlFor="startTime">
+                Giờ bắt đầu <span className="text-red-500">*</span>
+              </Label>
               <div className="relative">
                 <Clock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
                 <Input id="startTime" name="startTime" type="time" value={formData.startTime} onChange={handleChange} className="pl-10" required />
@@ -261,7 +269,9 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="endTime">Giờ kết thúc *</Label>
+              <Label htmlFor="endTime">
+                Giờ kết thúc <span className="text-red-500">*</span>
+              </Label>
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"

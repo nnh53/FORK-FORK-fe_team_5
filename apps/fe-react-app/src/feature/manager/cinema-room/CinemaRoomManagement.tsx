@@ -307,7 +307,7 @@ const CinemaRoomManagement: React.FC = () => {
           <div className="space-y-4">
             <div>
               <Label className="mb-1" htmlFor="name">
-                Tên phòng
+                Tên phòng <span className="text-red-500">*</span>
               </Label>
               <Input id="name" value={formData.name} onChange={(e) => handleFormChange("name", e.target.value)} placeholder="Ví dụ: Phòng 1" />
             </div>
@@ -315,7 +315,7 @@ const CinemaRoomManagement: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="mb-1" htmlFor="type">
-                  Loại phòng
+                  Loại phòng <span className="text-red-500">*</span>
                 </Label>
                 <Select value={formData.type} onValueChange={(value) => handleFormChange("type", value)}>
                   <SelectTrigger>
@@ -331,7 +331,7 @@ const CinemaRoomManagement: React.FC = () => {
               </div>
               <div>
                 <Label className="mb-1" htmlFor="fee">
-                  Tỉ lệ giá
+                  Tỉ lệ giá <span className="text-red-500">*</span>
                 </Label>
                 <Input id="fee" type="number" value={formData.fee} onChange={(e) => handleFormChange("fee", parseInt(e.target.value) || 0)} />
               </div>
@@ -340,7 +340,7 @@ const CinemaRoomManagement: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="mb-1" htmlFor="width">
-                  Chiều rộng
+                  Chiều rộng <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="width"
@@ -353,7 +353,7 @@ const CinemaRoomManagement: React.FC = () => {
               </div>
               <div>
                 <Label className="mb-1" htmlFor="length">
-                  Chiều dài
+                  Chiều dài <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="length"
@@ -387,7 +387,7 @@ const CinemaRoomManagement: React.FC = () => {
           <div className="space-y-4">
             <div>
               <Label className="mb-1" htmlFor="edit-name">
-                Tên phòng
+                Tên phòng <span className="text-red-500">*</span>
               </Label>
               <Input id="edit-name" value={formData.name} onChange={(e) => handleFormChange("name", e.target.value)} placeholder="Ví dụ: Phòng 1" />
             </div>
@@ -395,7 +395,7 @@ const CinemaRoomManagement: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="mb-1" htmlFor="edit-type">
-                  Loại phòng
+                  Loại phòng <span className="text-red-500">*</span>
                 </Label>
                 <Select value={formData.type} onValueChange={(value) => handleFormChange("type", value)}>
                   <SelectTrigger>
@@ -411,7 +411,7 @@ const CinemaRoomManagement: React.FC = () => {
               </div>
               <div>
                 <Label className="mb-1" htmlFor="edit-fee">
-                  Tỉ lệ giá
+                  Tỉ lệ giá <span className="text-red-500">*</span>
                 </Label>
                 <Input id="edit-fee" type="number" value={formData.fee} onChange={(e) => handleFormChange("fee", parseInt(e.target.value) || 0)} />
               </div>
@@ -420,7 +420,7 @@ const CinemaRoomManagement: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="mb-1" htmlFor="edit-width">
-                  Chiều rộng
+                  Chiều rộng <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="edit-width"
@@ -433,7 +433,7 @@ const CinemaRoomManagement: React.FC = () => {
               </div>
               <div>
                 <Label className="mb-1" htmlFor="edit-length">
-                  Chiều dài
+                  Chiều dài <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="edit-length"

@@ -1,21 +1,3 @@
-/**
- * Staff Booking Management Component
- *
- * Features:
- * - Display all bookings with filtering and search
- * - View booking details in modal
- * - Edit booking status and payment status
- * - Filter by booking status, payment status
- * - Search by customer info or booking ID
- *
- * To run this application:
- * 1. cd d:\Workspace\fe_team_5
- * 2. pnpm install (if not installed)
- * 3. npx nx dev fe-react-app
- * 4. Open http://localhost:5173 in browser
- * 5. Navigate to /staff/booking to see this page
- */
-
 import {
   AlertDialog,
   AlertDialogAction,

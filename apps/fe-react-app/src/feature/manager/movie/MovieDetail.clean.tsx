@@ -97,7 +97,9 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Movie Name*</FormLabel>
+                <FormLabel>
+                  Movie Name <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Enter movie name" {...field} />
                 </FormControl>
@@ -111,7 +113,9 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
             name="director"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Director*</FormLabel>
+                <FormLabel>
+                  Director <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Enter director name" {...field} />
                 </FormControl>
@@ -139,7 +143,9 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
             name="studio"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Studio*</FormLabel>
+                <FormLabel>
+                  Studio <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Enter studio name" {...field} />
                 </FormControl>
@@ -167,7 +173,9 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
             name="ageRestrict"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Age Restriction*</FormLabel>
+                <FormLabel>
+                  Age Restriction <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -264,7 +272,9 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description*</FormLabel>
+              <FormLabel>
+                Description <span className="text-red-500">*</span>
+              </FormLabel>
               <FormControl>
                 <Textarea placeholder="Movie description" {...field} rows={3} />
               </FormControl>

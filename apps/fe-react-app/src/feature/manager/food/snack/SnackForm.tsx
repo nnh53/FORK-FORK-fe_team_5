@@ -139,7 +139,9 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Tên đồ ăn*</FormLabel>
+                          <FormLabel>
+                            Tên đồ ăn <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input placeholder="VD: Pizza Hải Sản Deluxe" {...field} className="h-11" />
                           </FormControl>
@@ -168,7 +170,9 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mô tả*</FormLabel>
+                        <FormLabel>
+                          Mô tả <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Textarea placeholder="Mô tả sản phẩm..." {...field} className="resize-none" rows={3} />
                         </FormControl>
@@ -185,7 +189,9 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                       name="category"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Danh mục*</FormLabel>
+                          <FormLabel>
+                            Danh mục <span className="text-red-500">*</span>
+                          </FormLabel>
                           <Select onValueChange={field.onChange} value={field.value || ""} defaultValue="">
                             <FormControl>
                               <SelectTrigger className="h-11">
@@ -217,7 +223,9 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                       name="size"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Kích thước*</FormLabel>
+                          <FormLabel>
+                            Kích thước <span className="text-red-500">*</span>
+                          </FormLabel>
                           <Select onValueChange={field.onChange} value={field.value || ""} defaultValue="">
                             <FormControl>
                               <SelectTrigger className="h-11">
@@ -247,7 +255,9 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                       name="price"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Giá bán (VNĐ)*</FormLabel>
+                          <FormLabel>
+                            Giá bán (VNĐ) <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Input

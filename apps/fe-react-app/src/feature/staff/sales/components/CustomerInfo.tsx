@@ -64,11 +64,15 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
         {/* Customer Info Form */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="name">Họ và tên *</Label>
+            <Label htmlFor="name">
+              Họ và tên <span className="text-red-500">*</span>
+            </Label>
             <Input id="name" value={customerInfo.name} onChange={(e) => onCustomerInfoChange("name", e.target.value)} placeholder="Nhập họ và tên" />
           </div>
           <div>
-            <Label htmlFor="phone">Số điện thoại *</Label>
+            <Label htmlFor="phone">
+              Số điện thoại <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="phone"
               value={customerInfo.phone}
