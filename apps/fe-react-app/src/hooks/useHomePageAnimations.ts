@@ -22,20 +22,6 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
   useSmoothScroll();
 
   useEffect(() => {
-    // Hero section parallax and text animation
-    const heroTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: heroRef.current,
-        start: "top top",
-        end: "bottom top",
-        scrub: true,
-      },
-    });
-    heroTl
-      .to(".hero-bg", { yPercent: 50, ease: "none" })
-      .to(".hero-content h1", { yPercent: -50, opacity: 0.5 }, 0)
-      .to(".hero-content p", { yPercent: -30, opacity: 0.5 }, 0);
-
     // Card Swap section animation
     gsap.fromTo(
       ".card-swap-section",
@@ -53,16 +39,6 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
         },
       },
     );
-
-    // Create a floating badge
-    gsap.to(".hot-badge", {
-      y: -15,
-      rotation: 5,
-      duration: 2,
-      ease: "power1.inOut",
-      repeat: -1,
-      yoyo: true,
-    });
 
     // Create section transitions with pinning
     gsap.utils.toArray<HTMLElement>(".panel").forEach((panel) => {
@@ -119,19 +95,7 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
         },
       },
     );
-
-    // Experience section parallax
-    const experienceTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: experienceRef.current,
-        start: "top 80%",
-        end: "bottom 20%",
-        scrub: 1,
-      },
-    });
-
-    experienceTl.fromTo(".experience-image", { y: 100 }, { y: -100 }).fromTo(".experience-text", { y: 50 }, { y: -50 }, "<");
-
+    
     // Add parallax layers
     gsap.utils.toArray<HTMLElement>(".parallax-layer").forEach((layer) => {
       const depth = Number(layer.dataset.depth ?? "0");
