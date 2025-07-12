@@ -1,12 +1,12 @@
 "use client";
 
 import { siteConfig } from "@/config/config";
+import Logo from "@/layouts/user/components/Header/components/Logo";
 import { cn } from "@/utils/utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Icons } from "../icons";
 import { NavMenu } from "../nav-menu";
 import { ThemeToggle } from "../theme-toggle";
 
@@ -103,8 +103,7 @@ export function Navbar() {
         >
           <div className="flex h-[56px] items-center justify-between p-4">
             <Link to="/" className="flex items-center gap-3">
-              <Icons.logo className="size-7 md:size-10" />
-              <p className="text-primary text-lg font-semibold">SkyAgent</p>
+              <Logo />
             </Link>
 
             <NavMenu />
@@ -113,9 +112,9 @@ export function Navbar() {
               <div className="flex items-center space-x-6">
                 <Link
                   className="bg-secondary text-primary-foreground dark:text-secondary-foreground hidden h-8 w-fit items-center justify-center rounded-full border border-white/[0.12] px-4 text-sm font-normal tracking-wide shadow-[inset_0_1px_2px_rgba(255,255,255,0.25),0_3px_3px_-1.5px_rgba(16,24,40,0.06),0_1px_1px_rgba(16,24,40,0.08)] md:flex"
-                  to="#"
+                  to="/login"
                 >
-                  Try for free
+                  Try now
                 </Link>
               </div>
               <ThemeToggle />
@@ -155,8 +154,7 @@ export function Navbar() {
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <Link to="/" className="flex items-center gap-3">
-                    <Icons.logo className="size-7 md:size-10" />
-                    <p className="text-primary text-lg font-semibold">SkyAgent</p>
+                    <Logo />
                   </Link>
                   <button onClick={toggleDrawer} className="border-border cursor-pointer rounded-md border p-1">
                     <X className="size-5" />

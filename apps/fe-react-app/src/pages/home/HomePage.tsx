@@ -40,17 +40,11 @@ const HomePage = () => {
     <div>
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="home-page">
-          {/* New Releases Carousel Section */}
           <CarouselSection ref={carouselRef} movies={recentMoviesData} />
-          {/* Trending Movies Section */}
           <TrendingSection ref={cardSwapRef} />
-          {/* Featured Movies */}
           <NowShowing ref={featuredMoviesRef} />
-          {/* Parallax Section */}
           <ParallaxSection ref={parallaxRef} />
-          {/* Cinema Experience */}
           <CinemaExperience ref={experienceRef} />
-          {/* FAQ Section */}
           <FAQ ref={faqRef} />
           {/* Button Thử ngay */}
           <div className="mt-8">

@@ -2,7 +2,7 @@ export const BLUR_FADE_DELAY = 0.15;
 
 export const siteConfig = {
   name: "F Cinema",
-  description: "Smart scheduling powered by AI.",
+  description: "A Movie Theater App.",
   cta: "Get Started",
   // url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5173",
   keywords: ["AI Calendar", "Smart Scheduling", "Productivity", "Time Management"],
@@ -15,10 +15,13 @@ export const siteConfig = {
   },
   nav: {
     links: [
-      { id: 1, name: "Home", href: "#" },
-      { id: 2, name: "Movies", href: "#" },
-      { id: 3, name: "Features", href: "#" },
-      { id: 4, name: "Pricing", href: "#" },
+      { id: 1, name: "Home", href: "#home" },
+      { id: 2, name: "Movies", href: "#movies" },
+      { id: 3, name: "Trending", href: "#trending" },
+      { id: 4, name: "Cinemas", href: "#cinemas" },
+      { id: 5, name: "Chairs", href: "#chairs" },
+      { id: 6, name: "Promotions", href: "#promotions" },
+      { id: 7, name: "Foods", href: "#foods" },
     ],
   },
   featureSection: {
