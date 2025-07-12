@@ -42,6 +42,7 @@ export const useGetUserById = (userId: string) => {
 
   return $api.useQuery("get", "/users/{userId}", {
     params: { path: { userId } },
+    enabled: !!userId && userId.trim() !== "", // Chỉ gọi API khi userId hợp lệ
   });
 };
 
