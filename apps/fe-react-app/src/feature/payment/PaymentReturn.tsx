@@ -1,5 +1,6 @@
 import { ROUTES } from "@/routes/route.constants";
 import { $api } from "@/utils/api";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -19,49 +20,51 @@ const PaymentReturn = () => {
 
   console.log("Payment return params:", { code, id, cancel, status, orderCode });
 
-  // Check if payment was cancelled
-  if (cancel === "true" && orderCode != null) {
-    console.log("orderCode:", orderCode);
-    cancelRequestWithOrderCode.mutate({
-      params: {
-        path: {
-          id: parseInt(orderCode),
+  useEffect(() => {
+    // Check if payment was cancelled
+    if (cancel === "true" && orderCode != null) {
+      console.log("orderCode:", orderCode);
+      cancelRequestWithOrderCode.mutate({
+        params: {
+          path: {
+            id: parseInt(orderCode),
+          },
         },
-      },
-    });
-    // quay về movies tạm
-    toast.error("Bạn đã hủy thanh toán. Vui lòng thử lại.");
-    navigate(ROUTES.MOVIES_SELECTION);
-    // navigate(ROUTES.BOOKING, {
-    //   state: {
-    //     paymentCancelled: true, // khúc này chưa làm, phải route ngược lại trang booking nhưng thiếu state
-    //     message: "Bạn đã hủy thanh toán. Vui lòng đặt lại lại.",
-    //   },
-    // });
-    return;
-  }
+      });
+      // quay về movies tạm
+      toast.error("Bạn đã hủy thanh toán. Vui lòng thử lại.");
+      navigate(ROUTES.MOVIES_SELECTION);
+      // navigate(ROUTES.BOOKING, {
+      //   state: {
+      //     paymentCancelled: true, // khúc này chưa làm, phải route ngược lại trang booking nhưng thiếu state
+      //     message: "Bạn đã hủy thanh toán. Vui lòng đặt lại lại.",
+      //   },
+      // });
+      return;
+    }
 
-  // Check if payment was successful
-  if (status === "PAID" && cancel === "false") {
-    // Navigate to booking success page with the booking ID
-    navigate(ROUTES.BOOKING_SUCCESS, {
-      state: {
-        bookingId: id,
-        orderCode: orderCode,
-        paymentSuccess: true,
-      },
-    });
+    // Check if payment was successful
+    if (status === "PAID" && cancel === "false") {
+      // Navigate to booking success page with the booking ID
+      console.log("navigate");
+      navigate(ROUTES.BOOKING_SUCCESS, {
+        state: {
+          bookingId: id,
+          orderCode: orderCode,
+          paymentSuccess: true,
+        },
+      });
 
-    // // Clear the booking state from localStorage since booking is complete
-    // localStorage.removeItem("bookingState");
+      // // Clear the booking state from localStorage since booking is complete
+      // localStorage.removeItem("bookingState");
 
-    return;
-  }
+      return;
+    }
 
-  // Handle other cases (failed payment, invalid status, etc.)
-
-  toast.error("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
-  navigate(ROUTES.CHECKOUT);
+    // Handle other cases (failed payment, invalid status, etc.)
+    toast.error("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
+    navigate(ROUTES.CHECKOUT);
+  }, [cancel, orderCode, status, id, navigate, cancelRequestWithOrderCode]);
 
   // Show loading while processing
   return (

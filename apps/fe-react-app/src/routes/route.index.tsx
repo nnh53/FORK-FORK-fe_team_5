@@ -59,6 +59,7 @@ import { ROUTES } from "./route.constants";
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
   <Routes>
+    <Route path={ROUTES.PAYMENT_RETURN} element={<PaymentReturn />} />
     {/* Auth Routes - standalone without layout */}
     <Route element={<AuthPageProtector />}>
       <Route path={ROUTES.AUTH.ROOT}>
@@ -84,7 +85,6 @@ export const AppRoutes = () => (
         <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
         <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
         <Route path={ROUTES.ACCOUNT} element={<MyUserManagement />} />
-        <Route path={ROUTES.PAYMENT_RETURN} element={<PaymentReturn />} />
       </Route>
       {/* Legacy route for backward compatibility */}
       <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
