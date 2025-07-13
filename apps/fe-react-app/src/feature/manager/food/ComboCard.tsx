@@ -2,7 +2,7 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Combo } from "@/interfaces/combo.interface";
-import { calculateComboPrice, formatPrice, getComboStatusLabel } from "@/services/comboService";
+import { formatPrice, getComboStatusLabel, useComboPrice } from "@/services/comboService";
 import { cn } from "@/utils/utils";
 import { Edit, Eye, Trash, Utensils } from "lucide-react";
 
@@ -15,7 +15,18 @@ interface ComboCardProps {
 }
 
 const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDetails, viewMode = "grid" }) => {
-  // Badge trạng thái
+  const { totalPrice, isLoading, error } = useComboPrice(combo.id);
+
+  const getDisplayPrice = () => {
+    if (isLoading) {
+      return "Đang tải...";
+    }
+    if (error) {
+      return "Lỗi";
+    }
+    return formatPrice(totalPrice);
+  };
+
   const StatusBadge = () => {
     const statusLabel = getComboStatusLabel(combo.status);
     const isAvailable = combo.status === "AVAILABLE";
@@ -26,8 +37,6 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
       </Badge>
     );
   };
-
-  const totalPrice = calculateComboPrice(combo);
 
   const ActionButtons = ({ isFullWidth = false }: { isFullWidth?: boolean }) => (
     <>
@@ -57,7 +66,6 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
     </>
   );
 
-  // Grid View Image
   const GridImageComponent = () => (
     <div className="flex-shrink-0">
       {combo.img ? (
@@ -76,7 +84,6 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
     </div>
   );
 
-  // List View Image
   const ListImageComponent = () => (
     <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg">
       {combo.img ? (
@@ -89,7 +96,6 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
     </div>
   );
 
-  // Grid View
   if (viewMode === "grid") {
     return (
       <Card className={cn("w-full max-w-md p-4 transition-all duration-200 hover:shadow-lg")}>
@@ -108,15 +114,13 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
               </div>
             </div>
             <div className="text-right">
-              <div className="text-primary text-lg font-bold">{formatPrice(totalPrice)}</div>
+              <div className="text-primary text-lg font-bold">{getDisplayPrice()}</div>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3 p-0">
           <GridImageComponent />
-
           {combo.description && <div className="line-clamp-2 text-sm text-gray-600">{combo.description}</div>}
-
           <div className="flex justify-end gap-2 pt-2">
             <ActionButtons />
           </div>
@@ -125,7 +129,6 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
     );
   }
 
-  // List View
   return (
     <Card className="w-full transition-all duration-200 hover:bg-gray-50">
       <CardContent className="flex items-center gap-4 p-4">
@@ -139,7 +142,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
           </div>
           <div className="col-span-2 text-gray-600">{combo.snacks?.length || 0} món</div>
           <div className="col-span-3 line-clamp-1 text-gray-600">{combo.description || "Không có mô tả"}</div>
-          <div className="text-primary col-span-2 font-semibold">{formatPrice(totalPrice)}</div>
+          <div className="text-primary col-span-2 font-semibold">{getDisplayPrice()}</div>
           <div className="col-span-1 flex justify-end gap-1">
             <ActionButtons />
           </div>
