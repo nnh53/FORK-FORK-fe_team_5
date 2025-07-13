@@ -1,5 +1,4 @@
 import Aurora from "@/components/Reactbits/reactbit-backgrounds/Aurora/Aurora";
-import { CardContent, Card as ShadcnCard } from "@/components/Shadcn/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/Shadcn/ui/carousel";
 import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { Image } from "@unpic/react";
@@ -74,7 +73,10 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
           }}
         >
           <Carousel
-            className="mx-auto w-full max-w-xs"
+            className="mx-auto w-full max-w-lg"
+            opts={{
+              loop: true,
+            }}
             plugins={[
               Autoplay({
                 delay: 2000,
@@ -83,27 +85,23 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
           >
             <CarouselContent>
               {latestMovies.map((movie) => (
-                <CarouselItem key={movie.id}>
-                  <div className="p-1">
-                    <ShadcnCard>
-                      <CardContent className="flex aspect-square flex-col items-center justify-center p-6">
-                        {movie.poster && (
-                          <div className="mb-4 h-32 w-32 overflow-hidden rounded-lg">
-                            <Image
-                              src={movie.poster}
-                              alt={movie.name || "Movie poster"}
-                              className="h-full w-full object-cover"
-                              width={128}
-                              height={128}
-                            />
-                          </div>
-                        )}
-                        <h3 className="mb-2 text-center text-lg font-bold">{movie.name || "Untitled Movie"}</h3>
-                        <button className="bg-primary text-primary-foreground hover:bg-primary/90 mt-auto rounded-md px-4 py-2 transition-colors">
-                          View Details
-                        </button>
-                      </CardContent>
-                    </ShadcnCard>
+                <CarouselItem key={movie.id} className="relative overflow-hidden rounded-lg">
+                  {movie.poster && (
+                    <div className="aspect-[3/4] w-full overflow-hidden rounded-lg">
+                      <Image
+                        src={movie.poster}
+                        alt={movie.name || "Movie poster"}
+                        className="h-full w-full object-cover"
+                        layout="fullWidth"
+                        height={400}
+                        priority
+                        background="auto"
+                        loading="eager"
+                      />
+                    </div>
+                  )}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <h3 className="mb-2 text-center text-lg font-bold text-white">{movie.name || "Untitled Movie"}</h3>
                   </div>
                 </CarouselItem>
               ))}

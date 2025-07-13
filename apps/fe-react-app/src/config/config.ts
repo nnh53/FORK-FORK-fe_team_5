@@ -21,7 +21,7 @@ export const siteConfig = {
       { id: 2, name: "Movies", href: "/movies" },
       { id: 3, name: "Trending", href: "/trending" },
       { id: 4, name: "Cinemas", href: "#cinemas" },
-      { id: 5, name: "Chairs", href: "/chairs" }
+      { id: 5, name: "Chairs", href: "/chairs" },
     ],
   },
   featureSection: {
