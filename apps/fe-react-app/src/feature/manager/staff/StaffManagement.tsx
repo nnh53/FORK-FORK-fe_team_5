@@ -95,6 +95,11 @@ const StaffManagement = () => {
   const [staffToDelete, setStaffToDelete] = useState<StaffUser | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
+  // Sử dụng refs để theo dõi xem đã hiển thị toast chưa
+  const registerToastShownRef = useRef(false);
+  const updateToastShownRef = useRef(false);
+  const deleteToastShownRef = useRef(false);
+
   // React Query hooks
   const usersQuery = useUsers();
   const registerMutation = useRegister();
@@ -154,10 +159,17 @@ const StaffManagement = () => {
   // Xử lý trạng thái của register mutation
   useEffect(() => {
     if (registerMutation.isSuccess) {
-      toast.success("Đã thêm nhân viên mới thành công");
+      if (!registerToastShownRef.current) {
+        toast.success("Đã thêm nhân viên mới thành công");
+        registerToastShownRef.current = true;
+      }
       usersQuery.refetch(); // Refetch users to get the latest data
       setIsModalOpen(false);
       setSelectedStaff(undefined);
+      setTimeout(() => {
+        registerMutation.reset();
+        registerToastShownRef.current = false;
+      }, 100);
     } else if (registerMutation.isError) {
       toast.error((registerMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi thêm nhân viên");
     }
@@ -166,26 +178,40 @@ const StaffManagement = () => {
   // Xử lý trạng thái của update mutation
   useEffect(() => {
     if (updateUserMutation.isSuccess) {
-      toast.success("Đã cập nhật nhân viên thành công");
+      if (!updateToastShownRef.current) {
+        toast.success("Đã cập nhật nhân viên thành công");
+        updateToastShownRef.current = true;
+      }
       usersQuery.refetch(); // Refetch users to get the latest data
       setIsModalOpen(false);
       setSelectedStaff(undefined);
+      setTimeout(() => {
+        updateUserMutation.reset();
+        updateToastShownRef.current = false;
+      }, 100);
     } else if (updateUserMutation.isError) {
       toast.error((updateUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi cập nhật nhân viên");
     }
-  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error, usersQuery]);
+  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error, usersQuery, updateUserMutation]);
 
   // Xử lý trạng thái của delete mutation
   useEffect(() => {
     if (deleteUserMutation.isSuccess) {
-      toast.success("Đã xóa nhân viên thành công");
+      if (!deleteToastShownRef.current) {
+        toast.success("Đã xóa nhân viên thành công");
+        deleteToastShownRef.current = true;
+      }
       usersQuery.refetch(); // Refetch users to get the latest data
       setDeleteDialogOpen(false);
       setStaffToDelete(null);
+      setTimeout(() => {
+        deleteUserMutation.reset();
+        deleteToastShownRef.current = false;
+      }, 100);
     } else if (deleteUserMutation.isError) {
       toast.error((deleteUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi xóa nhân viên");
     }
-  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error, usersQuery]);
+  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error, usersQuery, deleteUserMutation]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {

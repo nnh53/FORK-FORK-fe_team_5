@@ -142,10 +142,15 @@ export const PromotionManagement: React.FC = () => {
       refetch(); // Refetch promotions to update the list
       setDialogOpen(false);
       setSelectedPromotion(undefined);
-    } else if (createPromotion.isError) {
+    }
+  }, [createPromotion.isSuccess, refetch]);
+
+  // Xử lý lỗi khi tạo khuyến mãi
+  useEffect(() => {
+    if (createPromotion.isError) {
       toast.error((createPromotion.error as CustomAPIResponse)?.message ?? "Tạo khuyến mãi thất bại");
     }
-  }, [createPromotion, refetch]);
+  }, [createPromotion.isError, createPromotion.error]);
 
   // Xử lý kết quả của updatePromotion mutation trong useEffect
   useEffect(() => {
@@ -154,10 +159,15 @@ export const PromotionManagement: React.FC = () => {
       refetch(); // Refetch promotions to update the list
       setDialogOpen(false);
       setSelectedPromotion(undefined);
-    } else if (updatePromotion.isError) {
+    }
+  }, [updatePromotion.isSuccess, refetch]);
+
+  // Xử lý lỗi khi cập nhật khuyến mãi
+  useEffect(() => {
+    if (updatePromotion.isError) {
       toast.error((updatePromotion.error as CustomAPIResponse)?.message ?? "Cập nhật khuyến mãi thất bại");
     }
-  }, [updatePromotion, refetch]);
+  }, [updatePromotion.isError, updatePromotion.error]);
 
   // Xử lý kết quả của deletePromotion mutation trong useEffect
   useEffect(() => {
@@ -166,10 +176,15 @@ export const PromotionManagement: React.FC = () => {
       refetch(); // Refetch promotions to update the list
       setDeleteDialogOpen(false);
       setPromotionToDelete(undefined);
-    } else if (deletePromotion.isError) {
+    }
+  }, [deletePromotion.isSuccess, refetch]);
+
+  // Xử lý lỗi khi xóa khuyến mãi
+  useEffect(() => {
+    if (deletePromotion.isError) {
       toast.error((deletePromotion.error as CustomAPIResponse)?.message ?? "Xóa khuyến mãi thất bại");
     }
-  }, [deletePromotion, refetch]);
+  }, [deletePromotion.isError, deletePromotion.error]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {

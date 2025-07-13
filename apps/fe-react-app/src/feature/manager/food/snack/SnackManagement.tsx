@@ -7,6 +7,7 @@ import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import type { Snack } from "@/interfaces/snacks.interface";
 import {
   snackCategoryOptions,
+  transformSnackResponse,
   transformSnacksResponse,
   transformSnackToRequest,
   useCreateSnack,
@@ -15,22 +16,33 @@ import {
   useUpdateSnack,
 } from "@/services/snackService";
 import type { CustomAPIResponse } from "@/type-from-be";
-import { useQueryClient } from "@tanstack/react-query";
+import { type UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import SnackForm from "./SnackForm";
 import SnackTable from "./SnackTable";
 
+// Định nghĩa type chặt chẽ hơn cho FilterCriteria
+type FilterValue = string | { from: number | undefined; to: number | undefined };
+interface StrictFilterCriteria extends FilterCriteria {
+  field: string;
+  value: FilterValue;
+}
+
+// Type guard để kiểm tra Snack hợp lệ
+const isValidSnack = (snack: Snack | undefined | null): snack is Snack => {
+  return !!snack && typeof snack.id === "number" && !!snack.name;
+};
+
 // Hàm filter toàn cục với kiểm tra null/undefined
 const filterByGlobalSearch = (snack: Snack, searchTerm: string): boolean => {
-  if (!searchTerm) return true;
-  if (!snack) return false;
+  if (!searchTerm || !isValidSnack(snack)) return false;
 
   const lowerSearchTerm = searchTerm.toLowerCase().trim();
   return (
-    (snack.id?.toString() || "").includes(searchTerm) ||
-    (snack.name?.toLowerCase() || "").includes(lowerSearchTerm) ||
+    snack.id.toString().includes(searchTerm) ||
+    snack.name.toLowerCase().includes(lowerSearchTerm) ||
     (snack.flavor?.toLowerCase() || "").includes(lowerSearchTerm) ||
     (snack.description?.toLowerCase() || "").includes(lowerSearchTerm)
   );
@@ -39,11 +51,11 @@ const filterByGlobalSearch = (snack: Snack, searchTerm: string): boolean => {
 // Hàm filter số trong khoảng
 const filterByNumberRange = (snack: Snack, field: string, range: { from: number | undefined; to: number | undefined }): boolean => {
   if (!range.from && !range.to) return true;
-  if (!snack) return false;
+  if (!isValidSnack(snack)) return false;
 
   let value: number;
   if (field === "price_range") {
-    value = snack.price || 0;
+    value = snack.price ?? 0;
   } else {
     return true;
   }
@@ -52,36 +64,102 @@ const filterByNumberRange = (snack: Snack, field: string, range: { from: number 
 };
 
 // Hàm filter theo các enum
-const filterByCategory = (snack: Snack, category: string): boolean => {
-  if (!snack) return false;
+const filterByCategory = (snack: Snack, category: FilterValue): boolean => {
+  if (typeof category !== "string" || !isValidSnack(snack)) return false;
   return snack.category === category;
 };
 
-const filterBySize = (snack: Snack, size: string): boolean => {
-  if (!snack) return false;
+const filterBySize = (snack: Snack, size: FilterValue): boolean => {
+  if (typeof size !== "string" || !isValidSnack(snack)) return false;
   return snack.size === size;
 };
 
-const filterByStatus = (snack: Snack, status: string): boolean => {
-  if (!snack) return false;
+const filterByStatus = (snack: Snack, status: FilterValue): boolean => {
+  if (typeof status !== "string" || !isValidSnack(snack)) return false;
   return snack.status === status;
+};
+
+// Tách logic lọc thành hàm riêng
+const applyFilters = (snacks: Snack[], criteria: StrictFilterCriteria[], searchTerm: string): Snack[] => {
+  let result = snacks;
+
+  if (searchTerm) {
+    result = result.filter((snack) => filterByGlobalSearch(snack, searchTerm));
+  }
+
+  return result.filter((snack) =>
+    criteria.every((criterion) => {
+      switch (criterion.field) {
+        case "price_range":
+        case "quantity_range":
+          return filterByNumberRange(snack, criterion.field, criterion.value as { from: number | undefined; to: number | undefined });
+        case "category":
+          return filterByCategory(snack, criterion.value);
+        case "size":
+          return filterBySize(snack, criterion.value);
+        case "status":
+          return filterByStatus(snack, criterion.value);
+        default:
+          return true;
+      }
+    }),
+  );
+};
+
+// Custom hook để xử lý mutation
+const useSnackMutationHandler = <TData, TError extends CustomAPIResponse, TVariables>(
+  mutation: UseMutationResult<TData, TError, TVariables>,
+  successMessage: string,
+  errorMessage: string,
+  onSuccess?: () => void,
+) => {
+  const queryClient = useQueryClient();
+  const snacksQuery = useSnacks();
+
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      toast.success(successMessage, { id: successMessage });
+      snacksQuery.refetch();
+      onSuccess?.();
+      setTimeout(() => mutation.reset(), 100);
+    } else if (mutation.isError) {
+      toast.error(mutation.error?.message || errorMessage, {
+        id: `${successMessage}-error`,
+      });
+    }
+  }, [mutation, queryClient, snacksQuery, successMessage, errorMessage, onSuccess]);
 };
 
 const SnackManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSnack, setSelectedSnack] = useState<Snack | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
+  const [filterCriteria, setFilterCriteria] = useState<StrictFilterCriteria[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [snackToDelete, setSnackToDelete] = useState<Snack | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
-  const queryClient = useQueryClient();
 
   // React Query hooks
   const snacksQuery = useSnacks();
   const createSnackMutation = useCreateSnack();
   const updateSnackMutation = useUpdateSnack();
   const deleteSnackMutation = useDeleteSnack();
+
+  // Sử dụng custom hook để xử lý mutation
+  useSnackMutationHandler(createSnackMutation, "Thêm thực phẩm thành công", "Lỗi khi thêm thực phẩm", () => {
+    setIsModalOpen(false);
+    setSelectedSnack(undefined);
+  });
+
+  useSnackMutationHandler(updateSnackMutation, "Cập nhật thực phẩm thành công", "Lỗi khi cập nhật thực phẩm", () => {
+    setIsModalOpen(false);
+    setSelectedSnack(undefined);
+  });
+
+  useSnackMutationHandler(deleteSnackMutation, "Xóa thực phẩm thành công", "Lỗi khi xóa thực phẩm", () => {
+    setDeleteDialogOpen(false);
+    setSnackToDelete(null);
+  });
 
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [
@@ -134,61 +212,6 @@ const SnackManagement: React.FC = () => {
       placeholder: "Chọn trạng thái",
     },
   ];
-  //kiểm tra trang thai cua query
-  useEffect(() => {
-    console.log("Snacks data:", snacksQuery.data);
-    console.log("Snacks status:", snacksQuery.status);
-    console.log("Snacks error:", snacksQuery.error);
-  }, [snacksQuery.data, snacksQuery.status, snacksQuery.error]);
-
-  useEffect(() => {
-    console.log("Create mutation status:", createSnackMutation.status);
-    console.log("Create mutation error:", createSnackMutation.error);
-  }, [createSnackMutation.status, createSnackMutation.error]);
-
-  useEffect(() => {
-    console.log("Update mutation status:", updateSnackMutation.status);
-    console.log("Update mutation error:", updateSnackMutation.error);
-  }, [updateSnackMutation.status, updateSnackMutation.error]);
-
-  useEffect(() => {
-    console.log("Delete mutation status:", deleteSnackMutation.status);
-    console.log("Delete mutation error:", deleteSnackMutation.error);
-  }, [deleteSnackMutation.status, deleteSnackMutation.error]);
-
-  // Xử lý kết quả của mutations trong useEffect
-  useEffect(() => {
-    if (createSnackMutation.isSuccess) {
-      toast.success("Thêm thực phẩm thành công");
-      snacksQuery.refetch(); // Refetch snacks to update the list
-      setIsModalOpen(false);
-      setSelectedSnack(undefined);
-    } else if (createSnackMutation.isError) {
-      toast.error((createSnackMutation.error as CustomAPIResponse)?.message || "Lỗi khi thêm thực phẩm");
-    }
-  }, [createSnackMutation.isSuccess, createSnackMutation.isError, createSnackMutation.error, queryClient, snacksQuery]);
-
-  useEffect(() => {
-    if (updateSnackMutation.isSuccess) {
-      toast.success("Cập nhật thực phẩm thành công");
-      snacksQuery.refetch(); // Refetch snacks to update the list
-      setIsModalOpen(false);
-      setSelectedSnack(undefined);
-    } else if (updateSnackMutation.isError) {
-      toast.error((updateSnackMutation.error as CustomAPIResponse)?.message || "Lỗi khi cập nhật thực phẩm");
-    }
-  }, [updateSnackMutation.isSuccess, updateSnackMutation.isError, updateSnackMutation.error, queryClient, snacksQuery]);
-
-  useEffect(() => {
-    if (deleteSnackMutation.isSuccess) {
-      toast.success("Xóa thực phẩm thành công");
-      snacksQuery.refetch(); // Refetch snacks to update the list
-      setDeleteDialogOpen(false);
-      setSnackToDelete(null);
-    } else if (deleteSnackMutation.isError) {
-      toast.error((deleteSnackMutation.error as CustomAPIResponse)?.message || "Lỗi khi xóa thực phẩm");
-    }
-  }, [deleteSnackMutation.isSuccess, deleteSnackMutation.isError, deleteSnackMutation.error, queryClient, snacksQuery]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {
@@ -203,8 +226,10 @@ const SnackManagement: React.FC = () => {
   };
 
   const handleEdit = (snack: Snack) => {
-    setSelectedSnack(snack);
-    setIsModalOpen(true);
+    if (isValidSnack(snack)) {
+      setSelectedSnack(snack);
+      setIsModalOpen(true);
+    }
   };
 
   const handleCancel = () => {
@@ -214,11 +239,19 @@ const SnackManagement: React.FC = () => {
 
   const handleSubmit = (data: Omit<Snack, "id">) => {
     if (selectedSnack) {
+      // Tạo một object mới kết hợp dữ liệu của selectedSnack và data
+      const updatedSnack: Snack = {
+        ...selectedSnack,
+        ...data,
+        id: selectedSnack.id, // Đảm bảo id luôn tồn tại và có kiểu number
+      };
+
       updateSnackMutation.mutate({
         params: { path: { id: selectedSnack.id } },
-        body: transformSnackToRequest({ ...selectedSnack, ...data }),
+        body: transformSnackToRequest(updatedSnack),
       });
     } else {
+      // Đối với trường hợp tạo mới, không cần id (sử dụng SnackForm)
       createSnackMutation.mutate({
         body: transformSnackToRequest(data),
       });
@@ -226,10 +259,14 @@ const SnackManagement: React.FC = () => {
   };
 
   const handleDeleteClick = (id: number) => {
-    const snack = snacksQuery.data?.result?.find((f) => f.id === id);
-    if (snack && typeof snack.id === "number") {
-      setSnackToDelete(snack as Snack); // Ép kiểu để đảm bảo id là number
+    const apiSnack = snacksQuery.data?.result?.find((f) => f.id === id);
+    if (apiSnack) {
+      // Chuyển đổi apiSnack thành Snack với đúng kiểu dữ liệu
+      const snack: Snack = transformSnackResponse(apiSnack);
+      setSnackToDelete(snack);
       setDeleteDialogOpen(true);
+    } else {
+      toast.error("Không tìm thấy thực phẩm để xóa", { id: "delete-snack-error" });
     }
   };
 
@@ -244,40 +281,7 @@ const SnackManagement: React.FC = () => {
   // Lọc snacks theo các tiêu chí
   const filteredSnacks = useMemo(() => {
     const snacks = snacksQuery.data?.result ? transformSnacksResponse(snacksQuery.data.result) : [];
-    let result = snacks;
-
-    // Tìm kiếm toàn cục
-    if (searchTerm) {
-      result = result.filter((snack) => filterByGlobalSearch(snack, searchTerm));
-    }
-
-    // Áp dụng các bộ lọc
-    if (filterCriteria.length > 0) {
-      result = result.filter((snack) => {
-        return filterCriteria.every((criteria) => {
-          switch (criteria.field) {
-            case "price_range":
-            case "quantity_range": {
-              const range = criteria.value as { from: number | undefined; to: number | undefined };
-              return filterByNumberRange(snack, criteria.field, range);
-            }
-            case "category": {
-              return filterByCategory(snack, criteria.value as string);
-            }
-            case "size": {
-              return filterBySize(snack, criteria.value as string);
-            }
-            case "status": {
-              return filterByStatus(snack, criteria.value as string);
-            }
-            default:
-              return true;
-          }
-        });
-      });
-    }
-
-    return result;
+    return applyFilters(snacks, filterCriteria, searchTerm);
   }, [snacksQuery.data, searchTerm, filterCriteria]);
 
   if (snacksQuery.isLoading) {
@@ -289,7 +293,6 @@ const SnackManagement: React.FC = () => {
       <div className="container mx-auto p-4">
         <Card className="w-full">
           <CardHeader className="space-y-4">
-            {/* Tiêu đề và nút thêm */}
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <CardTitle className="text-2xl font-bold">Quản lý thực phẩm</CardTitle>
@@ -301,7 +304,6 @@ const SnackManagement: React.FC = () => {
               </Button>
             </div>
 
-            {/* Thanh tìm kiếm và bộ руководитель */}
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <SearchBar
                 searchOptions={searchOptions}
@@ -315,7 +317,7 @@ const SnackManagement: React.FC = () => {
                 <Filter
                   filterOptions={filterOptions}
                   onFilterChange={(criteria) => {
-                    setFilterCriteria(criteria);
+                    setFilterCriteria(criteria as StrictFilterCriteria[]);
                     if (tableRef.current) {
                       tableRef.current.resetPagination();
                     }
@@ -331,7 +333,6 @@ const SnackManagement: React.FC = () => {
         </Card>
       </div>
 
-      {/* Form Dialog */}
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => {
@@ -351,7 +352,6 @@ const SnackManagement: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -362,7 +362,7 @@ const SnackManagement: React.FC = () => {
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Hủy
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleteSnackMutation.isPending}>
+            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleteSnackMutation.isPending || !snackToDelete}>
               {deleteSnackMutation.isPending ? "Đang xóa..." : "Xóa"}
             </Button>
           </DialogFooter>
