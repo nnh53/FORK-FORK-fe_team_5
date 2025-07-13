@@ -5,6 +5,7 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { ScrollArea } from "@/components/Shadcn/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
+import ImageUpload from "@/components/shared/ImageUpload"; // Import ImageUpload
 import type { MovieCategory } from "@/interfaces/movie-category.interface";
 import { MovieStatus } from "@/interfaces/movies.interface";
 import { queryMovieCategories, transformMovieCategoriesResponse } from "@/services/movieCategoryService";
@@ -82,11 +83,11 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
         categoryIds: movie.categoryIds ?? [],
         description: movie.description ?? "",
         status: movie.status ?? MovieStatus.ACTIVE,
-        poster: movie.poster ?? "chưa có poster",
+        poster: movie.poster ?? "",
       });
     } else {
       // For new movie creation, set default poster text
-      form.setValue("poster", "chưa có poster");
+      form.setValue("poster", "");
     }
   }, [movie, form]);
 
@@ -99,25 +100,20 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      form.setValue("posterFile", file);
+  const handleImageChange = (imageIdOrUrl: string) => {
+    form.setValue("poster", imageIdOrUrl);
+    form.setValue("posterFile", null); // Reset posterFile if URL is used
+  };
 
-      // Create a URL for the file for preview
-      const fileUrl = URL.createObjectURL(file);
-      form.setValue("poster", fileUrl);
-    } else {
-      // If no file selected, set default text
-      form.setValue("poster", "chưa có poster");
-      form.setValue("posterFile", null);
-    }
+  const handleImageClear = () => {
+    form.setValue("poster", "");
+    form.setValue("posterFile", null);
   };
 
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
     // If no poster is provided or it's empty, set default text
     if (!values.poster || values.poster.trim() === "") {
-      values.poster = "chưa có poster";
+      values.poster = "";
     }
     onSubmit(values as MovieFormData);
   };
@@ -356,21 +352,15 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <FormLabel>Movie Poster</FormLabel>
-            <Input type="file" accept="image/*" onChange={handleFileChange} />
-            {form.getValues("poster") && form.getValues("poster") !== "chưa có poster" && (
-              <div className="mt-2">
-                <img src={form.getValues("poster")} alt="Movie poster preview" className="h-32 w-24 rounded-md border object-cover" />
-              </div>
-            )}
-            {(!form.getValues("poster") || form.getValues("poster") === "chưa có poster") && (
-              <div className="mt-2 flex h-32 w-24 items-center justify-center rounded-md border bg-gray-100 text-xs text-gray-500">
-                <span className="text-center">
-                  Chưa có poster
-                  <br />
-                  Sẽ cập nhật sau
-                </span>
-              </div>
-            )}
+            <ImageUpload
+              currentImage={form.watch("poster") || ""}
+              onImageChange={handleImageChange}
+              onImageClear={handleImageClear}
+              previewSize="md"
+              preserveAspectRatio={true}
+              maxPreviewHeight={200}
+              layout="horizontal"
+            />
           </div>
 
           <FormField
