@@ -67,19 +67,19 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
       <div className="carousel-wrapper">
         <div
           style={{
-            padding: "0 20px",
-            maxWidth: "1800px",
+            padding: "0 60px",
+            maxWidth: "100%",
             margin: "0 auto",
           }}
         >
           <Carousel
-            className="mx-auto w-full max-w-lg"
+            className="mx-auto w-full max-w-4xl"
             opts={{
               loop: true,
             }}
             plugins={[
               Autoplay({
-                delay: 2000,
+                delay: 4000,
               }),
             ]}
           >
@@ -87,11 +87,11 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
               {latestMovies.map((movie) => (
                 <CarouselItem key={movie.id} className="relative overflow-hidden rounded-lg">
                   {movie.poster && (
-                    <div className="aspect-[3/4] w-full overflow-hidden rounded-lg">
+                    <div className="flex h-96 w-full items-center justify-center overflow-hidden rounded-lg bg-black">
                       <Image
                         src={movie.poster}
                         alt={movie.name || "Movie poster"}
-                        className="h-full w-full object-cover"
+                        className="max-h-full max-w-full object-contain"
                         layout="fullWidth"
                         height={400}
                         priority
