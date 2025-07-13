@@ -1,3 +1,5 @@
+import ctaImage from "@/assets/cta.png";
+
 export const BLUR_FADE_DELAY = 0.15;
 
 export const siteConfig = {
@@ -111,13 +113,13 @@ export const siteConfig = {
   },
   ctaSection: {
     id: "cta",
-    title: "Automate. Simplify. Thrive",
-    backgroundImage: "/agent-cta-background.png",
+    title: "Đến Với Chúng Tôi",
+    backgroundImage: ctaImage,
     button: {
-      text: "Start Your 30-Day Free Trial Today",
-      href: "#",
+      text: "Đặt phim ngay",
+      href: "/movies",
     },
-    subtext: "Cancel anytime, no questions asked",
+    subtext: "Hủy vé bất cứ lúc nào, không cần lo lắng",
   },
 };
 

@@ -1,3 +1,4 @@
+import Magnet from "@/components/Reactbits/reactbit-animations/Magnet/Magnet";
 import { siteConfig } from "@/config/config";
 import { Link } from "react-router-dom";
 
@@ -16,12 +17,20 @@ export function CTASection() {
           <div className="absolute inset-0 -top-32 flex flex-col items-center justify-center md:-top-40">
             <h1 className="max-w-xs text-center text-4xl font-medium tracking-tighter text-white md:max-w-xl md:text-7xl">{ctaSection.title}</h1>
             <div className="absolute bottom-10 flex flex-col items-center justify-center gap-2">
-              <Link
-                to={ctaSection.button.href}
-                className="flex h-10 w-fit items-center justify-center rounded-full bg-white px-4 text-sm font-semibold text-black shadow-md"
+              <Magnet
+                padding={50}
+                disabled={false}
+                magnetStrength={3}
+                activeTransition="transform 0.2s ease-out"
+                inactiveTransition="transform 0.4s ease-in-out"
               >
-                {ctaSection.button.text}
-              </Link>
+                <Link
+                  to={ctaSection.button.href}
+                  className="flex h-10 w-fit items-center justify-center rounded-full bg-white px-4 text-sm font-semibold text-black shadow-md"
+                >
+                  {ctaSection.button.text}
+                </Link>
+              </Magnet>
               <span className="text-sm text-white">{ctaSection.subtext}</span>
             </div>
           </div>

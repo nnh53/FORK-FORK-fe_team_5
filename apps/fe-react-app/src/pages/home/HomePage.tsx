@@ -15,6 +15,8 @@ import { ROUTES } from "@/routes/route.constants";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/HomePage.css";
+import { FeatureSection } from "@/components/magicui/sections/feature-section";
+import { CTASection } from "@/components/magicui/sections/cta-section";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -45,6 +47,7 @@ const HomePage = () => {
           <NowShowing ref={featuredMoviesRef} />
           <ParallaxSection ref={parallaxRef} />
           <CinemaExperience ref={experienceRef} />
+          <FeatureSection />
           <FAQ ref={faqRef} />
           {/* Button Thử ngay */}
           <div className="mt-8">
@@ -89,6 +92,7 @@ const HomePage = () => {
             </div>
           </div>
         </div>
+        <CTASection />
       </ClickSpark>
     </div>
   );
