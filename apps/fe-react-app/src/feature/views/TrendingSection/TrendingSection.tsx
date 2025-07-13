@@ -1,10 +1,9 @@
 import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardSwap/CardSwap";
 import { AuthContext } from "@/contexts/AuthContext";
-import type { Movie } from "@/interfaces/movies.interface";
 import { ROUTES } from "@/routes/route.constants";
-import { transformMoviesResponse, useMovies } from "@/services/movieService";
+import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { getYouTubeEmbedUrl, getYouTubeVideoId } from "@/utils/movie.utils";
-import { forwardRef, useContext, useEffect, useState } from "react";
+import { forwardRef, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface TrendingSectionProps {
@@ -15,22 +14,17 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
   const isAdmin = authContext?.user?.roles?.includes("ADMIN");
-  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  const moviesQuery = useMovies();
+  const { data: moviesData, isLoading } = queryMovies();
 
-  useEffect(() => {
-    if (moviesQuery.data?.result) {
-      // Transform the API response to Movie interface
-      const movies = transformMoviesResponse(moviesQuery.data.result);
+  // Transform and get first 4 movies for trending
+  const trendingMovies = useMemo(() => {
+    if (!moviesData?.result) return [];
 
-      // Take the first 4 movies for the trending section
-      const topTrendingMovies = movies.slice(0, 4);
-      setTrendingMovies(topTrendingMovies);
-      setIsLoading(false);
-    }
-  }, [moviesQuery.data]);
+    const transformedMovies = transformMoviesResponse(moviesData.result);
+    // Take the first 4 movies for the trending section
+    return transformedMovies.slice(0, 4);
+  }, [moviesData]);
 
   const handleAdminNavigation = () => {
     navigate(ROUTES.ADMIN.TRENDING);

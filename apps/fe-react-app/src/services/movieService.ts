@@ -3,7 +3,7 @@ import type { MovieResponse } from "@/type-from-be";
 import { $api } from "@/utils/api";
 
 // React Query hooks using $api
-export const useMovies = () => {
+export const queryMovies = () => {
   return $api.useQuery("get", "/movies", {});
 };
 
@@ -17,6 +17,12 @@ export const queryMovieSearch = () => {
   return $api.useQuery("get", "/movies");
 };
 
+export const queryMoviesByStatus = (status: "ACTIVE" | "INACTIVE" | "UPCOMING") => {
+  return $api.useQuery("get", "/movies/status/{status}", {
+    params: { path: { status } },
+  });
+};
+
 export const queryCreateMovie = () => {
   return $api.useMutation("post", "/movies");
 };
@@ -27,6 +33,14 @@ export const queryUpdateMovie = () => {
 
 export const queryDeleteMovie = () => {
   return $api.useMutation("delete", "/movies/{id}");
+};
+
+export const queryAddCategoryToMovie = () => {
+  return $api.useMutation("post", "/movies/{movieId}/categories");
+};
+
+export const queryRemoveCategoryFromMovie = () => {
+  return $api.useMutation("delete", "/movies/{movieId}/categories");
 };
 
 // Utility functions to transform API responses to Movie interface

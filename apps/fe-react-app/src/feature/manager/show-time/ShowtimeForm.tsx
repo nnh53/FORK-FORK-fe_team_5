@@ -11,7 +11,7 @@ import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import type { Movie } from "@/interfaces/movies.interface";
 import type { Showtime, ShowtimeFormData } from "@/interfaces/showtime.interface";
 import { transformCinemaRoomsResponse, useCinemaRooms } from "@/services/cinemaRoomService";
-import { transformMoviesResponse, useMovies } from "@/services/movieService";
+import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { prepareCreateShowtimeData, prepareUpdateShowtimeData, queryCreateShowtime, queryUpdateShowtime } from "@/services/showtimeService";
 import { AlertTriangle, Calendar, Clock, Film, Home } from "lucide-react";
 import type React from "react";
@@ -40,7 +40,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
   const [conflictError, setConflictError] = useState<string>("");
 
   // React Query hooks
-  const { data: moviesData, isLoading: moviesLoading } = useMovies();
+  const { data: moviesData, isLoading: moviesLoading } = queryMovies();
   const { data: roomsData, isLoading: roomsLoading } = useCinemaRooms();
   const createShowtimeMutation = queryCreateShowtime();
   const updateShowtimeMutation = queryUpdateShowtime();

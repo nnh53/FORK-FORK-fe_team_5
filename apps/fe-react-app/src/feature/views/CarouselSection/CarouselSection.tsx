@@ -1,55 +1,53 @@
 import Aurora from "@/components/Reactbits/reactbit-backgrounds/Aurora/Aurora";
 import { CardContent, Card as ShadcnCard } from "@/components/Shadcn/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/Shadcn/ui/carousel";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { forwardRef, useEffect } from "react";
+import { queryMovies, transformMoviesResponse } from "@/services/movieService";
+import Autoplay from "embla-carousel-autoplay";
+import { forwardRef, useMemo } from "react";
 import "./CarouselSection.css";
 
-interface MovieData {
-  title: string;
-  description: string;
-  id: number;
-  icon: string;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface CarouselSectionProps {}
 
-interface CarouselSectionProps {
-  movies: MovieData[];
-}
+const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) => {
+  // Use React Query to fetch movies with unique query key for carousel
+  const { data: moviesData, isLoading, error } = queryMovies();
 
-const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>(({ movies }, ref) => {
-  useEffect(() => {
-    const currentRef = typeof ref === "object" && ref ? ref.current : null;
+  // Transform and get latest 5 movies
+  const latestMovies = useMemo(() => {
+    if (!moviesData?.result) return [];
 
-    // Carousel section animation
-    gsap.fromTo(
-      ".carousel-section",
-      {
-        opacity: 0,
-        y: 50,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: currentRef,
-          start: "top 80%",
-          toggleActions: "play none none none",
-        },
-      },
+    const transformedMovies = transformMoviesResponse(moviesData.result);
+    // Sort by id descending and take first 5
+    const sortedMovies = [...transformedMovies].sort((a, b) => (b.id || 0) - (a.id || 0));
+    return sortedMovies.slice(0, 5);
+  }, [moviesData]);
+
+  if (isLoading) {
+    return (
+      <section className="carousel-section" ref={ref} id="new-releases">
+        <div className="aurora-background">
+          <Aurora colorStops={["#F5DEB3", "#FFDEAD", "#FFE4C4"]} blend={0.5} amplitude={1.0} speed={0.5} />
+        </div>
+        <div className="flex h-64 items-center justify-center">
+          <div className="text-lg">Loading movies...</div>
+        </div>
+      </section>
     );
+  }
 
-    return () => {
-      // Clean up ScrollTrigger instances for this component
-      ScrollTrigger.getAll().forEach((trigger) => {
-        if (trigger.trigger === currentRef) {
-          trigger.kill();
-        }
-      });
-    };
-  }, [ref]);
+  if (error) {
+    return (
+      <section className="carousel-section" ref={ref} id="new-releases">
+        <div className="aurora-background">
+          <Aurora colorStops={["#F5DEB3", "#FFDEAD", "#FFE4C4"]} blend={0.5} amplitude={1.0} speed={0.5} />
+        </div>
+        <div className="flex h-64 items-center justify-center">
+          <div className="text-lg text-red-500">Failed to load movies</div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="carousel-section" ref={ref} id="new-releases">
       {" "}
@@ -58,17 +56,6 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>(({ movies 
         <Aurora colorStops={["#F5DEB3", "#FFDEAD", "#FFE4C4"]} blend={0.5} amplitude={1.0} speed={0.5} />
       </div>
       <div className="section-title">
-        <h2
-          style={{
-            background: "linear-gradient(to right, #946b38, #392819)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-            fontWeight: "800",
-          }}
-        >
-          New Releases
-        </h2>
         <div
           className="section-line"
           style={{
@@ -85,16 +72,39 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>(({ movies 
             margin: "0 auto",
           }}
         >
-          <Carousel className="w-full">
+          <Carousel
+            className="w-full"
+            plugins={[
+              Autoplay({
+                delay: 2000,
+              }),
+            ]}
+          >
             <CarouselContent>
-              {movies.map((movie) => (
+              {latestMovies.map((movie) => (
                 <CarouselItem key={movie.id} className="md:basis-1/2 lg:basis-1/3">
                   <div className="p-1">
                     <ShadcnCard>
-                      <CardContent className="flex flex-col items-center justify-center p-6 aspect-video">
-                        <h3 className="text-xl font-bold mb-2">{movie.title}</h3>
-                        <p className="text-sm text-center">{movie.description}</p>
-                        <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+                      <CardContent className="flex aspect-video flex-col items-center justify-center p-6">
+                        {movie.poster && (
+                          <div className="mb-4 h-48 w-full overflow-hidden rounded-lg">
+                            <img
+                              src={movie.poster}
+                              alt={movie.name || "Movie poster"}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/placeholder-movie.jpg";
+                              }}
+                            />
+                          </div>
+                        )}
+                        <h3 className="mb-2 text-center text-xl font-bold">{movie.name || "Untitled Movie"}</h3>
+                        <p className="mb-2 text-center text-sm">{movie.description || "No description available"}</p>
+                        <div className="mb-4 text-center text-xs text-gray-500">
+                          {movie.duration ? `${movie.duration} phút` : ""}
+                          {movie.ageRestrict ? ` • ${movie.ageRestrict}+` : ""}
+                        </div>
+                        <button className="bg-primary text-primary-foreground hover:bg-primary/90 mt-auto rounded-md px-4 py-2 transition-colors">
                           View Details
                         </button>
                       </CardContent>
@@ -115,4 +125,3 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>(({ movies 
 CarouselSection.displayName = "CarouselSection";
 
 export default CarouselSection;
-export type { MovieData };

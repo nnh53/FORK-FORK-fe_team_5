@@ -3,10 +3,10 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Input } from "@/components/Shadcn/ui/input";
 import type { Movie } from "@/interfaces/movies.interface";
-import { transformMovieResponse, useMovies } from "@/services/movieService";
+import { queryMovieSearch, transformMovieResponse } from "@/services/movieService";
 import type { MovieResponse } from "@/type-from-be";
 import { Calendar, Clock, Search, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 interface MovieSearchProps {
   onMovieSelect?: (movie: Movie) => void;
@@ -17,37 +17,35 @@ interface MovieSearchProps {
 
 const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = "Tìm kiếm phim...", showResults = true, className = "" }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Fetch all movies using React Query
-  const moviesQuery = useMovies();
+  // Fetch all movies using React Query with queryMovieSearch for separation
+  const { data: moviesData, isLoading } = queryMovieSearch();
 
-  useEffect(() => {
-    const filterMovies = () => {
-      if (!moviesQuery.data?.result || searchTerm.length < 2) {
-        setFilteredMovies([]);
-        setShowDropdown(false);
-        return;
-      }
+  // Use useMemo instead of useEffect for filtering
+  const filteredMovies = useMemo(() => {
+    if (!moviesData?.result || searchTerm.length < 2) {
+      return [];
+    }
 
-      const filtered = moviesQuery.data.result
-        .map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
-        .filter(
-          (movie: Movie) =>
-            movie.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            movie.director?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            movie.actor?.toLowerCase().includes(searchTerm.toLowerCase()),
-        )
-        .slice(0, 8); // Limit to 8 results
+    return moviesData.result
+      .map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
+      .filter(
+        (movie: Movie) =>
+          movie.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          movie.director?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          movie.actor?.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .slice(0, 8); // Limit to 8 results
+  }, [searchTerm, moviesData]);
 
-      setFilteredMovies(filtered);
-      setShowDropdown(true);
-    };
+  // Update showDropdown based on filtered results
+  const shouldShowDropdown = searchTerm.length >= 2 && (isLoading || filteredMovies.length > 0);
 
-    const delayedSearch = setTimeout(filterMovies, 300);
-    return () => clearTimeout(delayedSearch);
-  }, [searchTerm, moviesQuery.data]);
+  // Update showDropdown when search term or results change
+  React.useEffect(() => {
+    setShowDropdown(shouldShowDropdown);
+  }, [shouldShowDropdown]);
 
   const handleMovieSelect = (movie: Movie) => {
     setSearchTerm(movie.name ?? "");
@@ -57,7 +55,6 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
 
   const clearSearch = () => {
     setSearchTerm("");
-    setFilteredMovies([]);
     setShowDropdown(false);
   };
 
@@ -95,13 +92,13 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
       {showResults && showDropdown && (
         <Card className="absolute left-0 right-0 top-full z-50 mt-1 max-h-96 overflow-y-auto shadow-lg">
           <CardContent className="p-0">
-            {moviesQuery.isLoading && <div className="p-4 text-center text-gray-500">Đang tìm kiếm...</div>}
+            {isLoading && <div className="p-4 text-center text-gray-500">Đang tìm kiếm...</div>}
 
-            {!moviesQuery.isLoading && filteredMovies.length === 0 && searchTerm.length >= 2 && (
+            {!isLoading && filteredMovies.length === 0 && searchTerm.length >= 2 && (
               <div className="p-4 text-center text-gray-500">Không tìm thấy phim nào cho "{searchTerm}"</div>
             )}
 
-            {!moviesQuery.isLoading && filteredMovies.length > 0 && (
+            {!isLoading && filteredMovies.length > 0 && (
               <div className="divide-y">
                 {filteredMovies.map((movie) => (
                   <button

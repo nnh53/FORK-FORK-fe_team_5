@@ -20,10 +20,10 @@ import { MovieGenre, MovieStatus } from "@/interfaces/movies.interface";
 import {
   queryCreateMovie,
   queryDeleteMovie,
+  queryMovies,
   queryUpdateMovie,
   transformMovieResponse,
   transformMovieToRequest,
-  useMovies,
 } from "@/services/movieService";
 import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
@@ -79,7 +79,7 @@ const MovieManagement = () => {
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
   // Use React Query hooks
-  const moviesQuery = useMovies();
+  const moviesQuery = queryMovies();
   const createMovieMutation = queryCreateMovie();
   const updateMovieMutation = queryUpdateMovie();
   const deleteMovieMutation = queryDeleteMovie();

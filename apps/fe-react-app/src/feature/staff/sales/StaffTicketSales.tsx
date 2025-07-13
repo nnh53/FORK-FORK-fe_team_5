@@ -7,7 +7,7 @@ import type { Movie } from "@/interfaces/movies.interface";
 import type { Promotion } from "@/interfaces/promotion.interface";
 import { transformSeatsToSeatMap, useCreateBooking, useSeatsByShowtimeId } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
-import { transformMovieResponse, useMovies } from "@/services/movieService";
+import { queryMovies, transformMovieResponse } from "@/services/movieService";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
 import { queryShowtimesByMovie } from "@/services/showtimeService";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
@@ -58,7 +58,7 @@ const StaffTicketSales: React.FC = () => {
   const { user } = useAuth();
 
   // Use React Query to fetch movies
-  const moviesQuery = useMovies();
+  const moviesQuery = queryMovies();
 
   // React Query hook for creating bookings
   const createBookingMutation = useCreateBooking();

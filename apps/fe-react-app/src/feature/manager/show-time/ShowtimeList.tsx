@@ -23,7 +23,7 @@ import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import type { Movie } from "@/interfaces/movies.interface";
 import type { Showtime } from "@/interfaces/showtime.interface";
 import { transformCinemaRoomsResponse, useCinemaRooms } from "@/services/cinemaRoomService";
-import { transformMoviesResponse, useMovies } from "@/services/movieService";
+import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { queryDeleteShowtime, queryShowtimes, transformShowtimesResponse } from "@/services/showtimeService";
 import { getShowtimeStatusColor } from "@/utils/color.utils";
 import { Building, Calendar, Clock, Edit, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
@@ -59,7 +59,7 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
 
     // React Query hooks
     const { data: showtimesData, isLoading: showtimesLoading, refetch: refetchShowtimes } = queryShowtimes();
-    const { data: moviesData, isLoading: moviesLoading } = useMovies();
+    const { data: moviesData, isLoading: moviesLoading } = queryMovies();
     const { data: roomsData, isLoading: roomsLoading } = useCinemaRooms();
     const deleteShowtimeMutation = queryDeleteShowtime();
 
@@ -236,102 +236,101 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
     return (
       <>
         <div className="space-y-4">
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Phim</TableHead>
-                <TableHead>Phòng chiếu</TableHead>
-                <TableHead>Ngày chiếu</TableHead>
-                <TableHead>Giờ bắt đầu</TableHead>
-                <TableHead>Giờ kết thúc</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredShowtimes.map((showtime) => (
-                <TableRow key={showtime.id}>
-                  <TableCell className="font-medium">{getMovieName(showtime.movieId)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Building className="mr-1 h-4 w-4" />
-                      {getRoomName(showtime.roomId)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Calendar className="mr-1 h-4 w-4" />
-                      {formatDateTimeDisplay(showtime.showDateTime, "date-only")}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Clock className="mr-1 h-4 w-4" />
-                      {formatDateTimeDisplay(showtime.showDateTime, "time-only")}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Clock className="mr-1 h-4 w-4" />
-                      {formatDateTimeDisplay(showtime.endDateTime, "time-only")}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className={`rounded-full px-2 py-1 text-xs ${getShowtimeStatusColor(showtime.status)}`}>{showtime.status}</span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {onEditShowtime && (
-                          <DropdownMenuItem onClick={() => onEditShowtime(showtime)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Chỉnh sửa
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(showtime)}
-                          className="text-red-600 focus:text-red-600"
-                          disabled={deleteShowtimeMutation.isPending}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Xóa
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Phim</TableHead>
+                  <TableHead>Phòng chiếu</TableHead>
+                  <TableHead>Ngày chiếu</TableHead>
+                  <TableHead>Giờ bắt đầu</TableHead>
+                  <TableHead>Giờ kết thúc</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredShowtimes.map((showtime) => (
+                  <TableRow key={showtime.id}>
+                    <TableCell className="font-medium">{getMovieName(showtime.movieId)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Building className="mr-1 h-4 w-4" />
+                        {getRoomName(showtime.roomId)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Calendar className="mr-1 h-4 w-4" />
+                        {formatDateTimeDisplay(showtime.showDateTime, "date-only")}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Clock className="mr-1 h-4 w-4" />
+                        {formatDateTimeDisplay(showtime.showDateTime, "time-only")}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Clock className="mr-1 h-4 w-4" />
+                        {formatDateTimeDisplay(showtime.endDateTime, "time-only")}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`rounded-full px-2 py-1 text-xs ${getShowtimeStatusColor(showtime.status)}`}>{showtime.status}</span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {onEditShowtime && (
+                            <DropdownMenuItem onClick={() => onEditShowtime(showtime)}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Chỉnh sửa
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(showtime)}
+                            className="text-red-600 focus:text-red-600"
+                            disabled={deleteShowtimeMutation.isPending}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Xóa
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
-      </div>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa lịch chiếu</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa lịch chiếu "{showtimeToDelete ? getMovieName(showtimeToDelete.movieId) : ''}" 
-              vào ngày {showtimeToDelete ? formatDateTimeDisplay(showtimeToDelete.showDateTime, "date-only") : ''}? 
-              Hành động này không thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>Hủy</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
-              Xóa
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận xóa lịch chiếu</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc chắn muốn xóa lịch chiếu "{showtimeToDelete ? getMovieName(showtimeToDelete.movieId) : ""}" vào ngày{" "}
+                {showtimeToDelete ? formatDateTimeDisplay(showtimeToDelete.showDateTime, "date-only") : ""}? Hành động này không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>Hủy</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+                Xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </>
     );
   },

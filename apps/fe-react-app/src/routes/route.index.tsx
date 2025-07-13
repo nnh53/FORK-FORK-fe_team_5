@@ -29,13 +29,12 @@ import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import TrendingManagement from "@/feature/manager/trending/TrendingManagement";
 import PaymentReturn from "@/feature/payment/PaymentReturn";
 import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
-import CarouselTest from "@/feature/views/CarouselSection/CarouselTest";
+import CarouselSection from "@/feature/views/CarouselSection/CarouselSection";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import FAQ from "@/feature/views/FAQ/FAQ";
 import FlowingMenuSection from "@/feature/views/FlowingMenuSection";
 import HeroSection from "@/feature/views/HeroSection/HeroSection";
-import MovieGallery from "@/feature/views/MovieGallery/MovieGallery";
-import NowShowing from "@/feature/views/NowShowing/NowShowing";
+
 import TrendingSection from "@/feature/views/TrendingSection/TrendingSection";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import dataMock from "@/layouts/admin/data.admin-layout.json";
@@ -179,15 +178,15 @@ export const AppRoutes = () => (
     <Route path={ROUTES.ABOUT} element={<About />} />
     {/* Viewing Test Route */}
     <Route path={ROUTES.FAQ} element={<FAQ />} />
-    <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselTest />} />
+    <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselSection />} />
     <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
     <Route path={ROUTES.HEADER_TEST} element={<Header />} />
     <Route path={ROUTES.CINEMA_EXPERIENCE} element={<CinemaExperience />} />
     <Route path={ROUTES.HERO_SECTION} element={<HeroSection />} />
-    <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} />
+    {/* <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} /> */}
     <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
     <Route path={ROUTES.FLOWING_MENU_SECTION} element={<FlowingMenuSection />} />
-    <Route path={ROUTES.MOVIE_GALLERY} element={<MovieGallery />} />
+
     {/* Catch-all for unknown routes */}
   </Routes>
 );

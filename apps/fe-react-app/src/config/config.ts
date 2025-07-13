@@ -17,13 +17,11 @@ export const siteConfig = {
   },
   nav: {
     links: [
-      { id: 1, name: "Home", href: "#home" },
-      { id: 2, name: "Movies", href: "#movies" },
-      { id: 3, name: "Trending", href: "#trending" },
-      { id: 4, name: "Cinemas", href: "#cinemas" },
-      { id: 5, name: "Chairs", href: "#chairs" },
-      { id: 6, name: "Promotions", href: "#promotions" },
-      { id: 7, name: "Foods", href: "#foods" },
+      { id: 1, name: "Home", href: "/home" },
+      { id: 2, name: "Movies", href: "/movies" },
+      { id: 3, name: "Trending", href: "/trending" },
+      { id: 4, name: "Cinemas", href: "/cinemas" },
+      { id: 5, name: "Chairs", href: "/chairs" }
     ],
   },
   featureSection: {

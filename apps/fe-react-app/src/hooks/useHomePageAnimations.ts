@@ -6,17 +6,15 @@ import { useSmoothScroll } from "./useSmoothScroll";
 gsap.registerPlugin(ScrollTrigger);
 
 interface AnimationRefs {
-  heroRef: RefObject<HTMLElement | null>;
   carouselRef: RefObject<HTMLElement | null>;
   cardSwapRef: RefObject<HTMLElement | null>;
-  featuredMoviesRef: RefObject<HTMLElement | null>;
   experienceRef: RefObject<HTMLElement | null>;
   faqRef: RefObject<HTMLElement | null>;
   parallaxRef: RefObject<HTMLElement | null>;
 }
 
 export const useHomePageAnimations = (refs: AnimationRefs) => {
-  const { heroRef, carouselRef, cardSwapRef, featuredMoviesRef, experienceRef, faqRef, parallaxRef } = refs;
+  const { carouselRef, cardSwapRef, experienceRef, faqRef, parallaxRef } = refs;
 
   // Use smooth scroll hook
   useSmoothScroll();
@@ -51,51 +49,6 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
       });
     });
 
-    // Featured movies animation with staggering
-    gsap.fromTo(
-      ".movie-card",
-      {
-        y: 100,
-        opacity: 0,
-        scale: 0.8,
-      },
-      {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        stagger: 0.2,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: featuredMoviesRef.current,
-          start: "top 80%",
-          toggleActions: "play none none none",
-        },
-      },
-    );
-
-    // Now showing text animation
-    gsap.fromTo(
-      ".now-showing-title",
-      {
-        x: -100,
-        opacity: 0,
-        scale: 0.5,
-      },
-      {
-        x: 0,
-        opacity: 1,
-        scale: 1,
-        duration: 1.2,
-        ease: "elastic.out(1, 0.3)",
-        scrollTrigger: {
-          trigger: featuredMoviesRef.current,
-          start: "top 70%",
-          toggleActions: "play none none none",
-        },
-      },
-    );
-    
     // Add parallax layers
     gsap.utils.toArray<HTMLElement>(".parallax-layer").forEach((layer) => {
       const depth = Number(layer.dataset.depth ?? "0");
@@ -163,5 +116,5 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
       // Clean up all ScrollTrigger instances
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, [heroRef, carouselRef, cardSwapRef, featuredMoviesRef, experienceRef, faqRef, parallaxRef]);
+  }, [carouselRef, cardSwapRef, experienceRef, faqRef, parallaxRef]);
 };

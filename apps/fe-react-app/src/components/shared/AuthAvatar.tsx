@@ -1,6 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/Shadcn/ui/avatar";
 import { Button } from "@/components/Shadcn/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/Shadcn/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/Shadcn/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes/route.constants";
 import { useGetUserById } from "@/services/userService";
@@ -67,7 +75,7 @@ const AuthAvatar = () => {
 
   if (!isAuthenticated) {
     return (
-      <Button variant="default" asChild>
+      <Button variant="default" asChild className="rounded-full">
         <Link to={ROUTES.AUTH.LOGIN}>Login</Link>
       </Button>
     );

@@ -4,13 +4,13 @@ import SplitText from "@/components/Reactbits/reactbit-text-animations/SplitText
 import MovieSearch from "@/components/shared/MovieSearch.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import type { Movie } from "@/interfaces/movies.interface.ts";
-import { transformMovieResponse, useMovies } from "@/services/movieService.ts";
+import { queryMovies, transformMovieResponse } from "@/services/movieService.ts";
 import { transformShowtimesResponse } from "@/services/showtimeService.ts";
 import type { MovieResponse } from "@/type-from-be";
 import { convertShowtimesToSchedulePerDay } from "@/utils/showtime.utils.ts";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import createFetchClient from "openapi-fetch";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { paths } from "../../../schema-from-be";
 import type { SchedulePerDay } from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
@@ -47,12 +47,6 @@ function MovieSelection() {
     },
   });
 
-  // Use React Query hook to fetch movies
-  const moviesQuery = useMovies();
-
-  // State for movies from API - now derived from React Query
-  const [movies, setMovies] = useState<MovieCardProps[]>([]);
-
   // State for showtimes
   const [showtimes, setShowtimes] = useState<SchedulePerDay[]>([]);
   const [showtimesLoading, setShowtimesLoading] = useState(false);
@@ -76,26 +70,18 @@ function MovieSelection() {
     };
   }, []);
 
-  // Transform API data when moviesQuery data changes
-  useEffect(() => {
-    if (moviesQuery.data?.result) {
-      const transformedMovies = moviesQuery.data.result.map((movieResponse: MovieResponse) => {
-        const movie = transformMovieResponse(movieResponse);
-        return convertMovieToMovieCard(movie);
-      });
-      setMovies(transformedMovies);
-    }
-  }, [moviesQuery.data, convertMovieToMovieCard]);
+  // Use React Query hook to fetch movies
+  const { data: moviesData, isLoading, error } = queryMovies();
 
-  // Refresh ScrollTrigger after components mount to ensure Footer animations work
-  useEffect(() => {
-    // Small delay to ensure SplitText animations are initialized
-    const timeoutId = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 100);
+  // Transform API data using useMemo instead of useState + useEffect
+  const movies = useMemo(() => {
+    if (!moviesData?.result) return [];
 
-    return () => clearTimeout(timeoutId);
-  }, [movies]); // Refresh when movies change
+    return moviesData.result.map((movieResponse: MovieResponse) => {
+      const movie = transformMovieResponse(movieResponse);
+      return convertMovieToMovieCard(movie);
+    });
+  }, [moviesData, convertMovieToMovieCard]);
 
   const handleBuyTicketClick = async (movie: MovieCardProps) => {
     setSelectedMovie(movie);
@@ -256,19 +242,19 @@ function MovieSelection() {
         }}
       />
       {/* Loading state */}
-      {moviesQuery.isLoading && (
+      {isLoading && (
         <div className="flex items-center justify-center py-12">
           <div className="text-lg text-white">Đang tải phim...</div>
         </div>
       )}
       {/* Error state */}
-      {moviesQuery.error && (
+      {error && (
         <div className="flex items-center justify-center py-12">
           <div className="text-lg text-red-500">Có lỗi xảy ra khi tải danh sách phim</div>
         </div>
       )}
       {/* Movies list */}
-      {!moviesQuery.isLoading && !moviesQuery.error && (
+      {!isLoading && !error && (
         <MovieList
           horizontal={true}
           movies={movies}
@@ -296,7 +282,7 @@ function MovieSelection() {
         }}
       />
       {/* Upcoming movies - for now, show same movies but could be filtered differently */}
-      {!moviesQuery.isLoading && !moviesQuery.error && (
+      {!isLoading && !error && (
         <MovieList
           horizontal={true}
           movies={movies.slice(0, 6)} // Show first 6 movies as upcoming

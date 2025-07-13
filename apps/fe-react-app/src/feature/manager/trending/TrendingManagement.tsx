@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import type { Movie } from "@/interfaces/movies.interface";
 import { ROUTES } from "@/routes/route.constants";
-import { transformMoviesResponse, useMovies } from "@/services/movieService";
+import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -100,7 +100,7 @@ export function TrendingManagement() {
   const navigate = useNavigate();
 
   // Get all movies using React Query
-  const moviesQuery = useMovies();
+  const moviesQuery = queryMovies();
 
   // Initialize movies from API when data is ready
   useEffect(() => {

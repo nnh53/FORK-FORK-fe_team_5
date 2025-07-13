@@ -1,38 +1,27 @@
 import ClickSpark from "@/components/Reactbits/reactbit-animations/ClickSpark/ClickSpark";
-import Magnet from "@/components/Reactbits/reactbit-animations/Magnet/Magnet";
 import Stack from "@/components/Reactbits/reactbit-components/Stack/Stack";
-import { Button } from "@/components/Shadcn/ui/button";
 import CarouselSection from "@/feature/views/CarouselSection/CarouselSection";
-import { recentMoviesData } from "@/feature/views/CarouselSection/data/movies.data";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import { FAQ } from "@/feature/views/FAQ";
-import NowShowing from "@/feature/views/NowShowing/NowShowing";
 import ParallaxSection from "@/feature/views/ParallaxSection";
 import TrendingSection from "@/feature/views/TrendingSection/TrendingSection";
 import { useHomePageAnimations } from "@/hooks/useHomePageAnimations";
 
-import { ROUTES } from "@/routes/route.constants";
-import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import "./styles/HomePage.css";
-import { FeatureSection } from "@/components/magicui/sections/feature-section";
 import { CTASection } from "@/components/magicui/sections/cta-section";
+import { FeatureSection } from "@/components/magicui/sections/feature-section";
+import { useRef } from "react";
+import "./styles/HomePage.css";
 
 const HomePage = () => {
-  const navigate = useNavigate();
-  const heroRef = useRef<HTMLElement | null>(null);
   const carouselRef = useRef<HTMLElement | null>(null);
   const cardSwapRef = useRef<HTMLElement | null>(null);
-  const featuredMoviesRef = useRef<HTMLElement | null>(null);
   const experienceRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
   const parallaxRef = useRef<HTMLElement | null>(null);
 
   useHomePageAnimations({
-    heroRef,
     carouselRef,
     cardSwapRef,
-    featuredMoviesRef,
     experienceRef,
     faqRef,
     parallaxRef,
@@ -42,30 +31,12 @@ const HomePage = () => {
     <div>
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="home-page">
-          <CarouselSection ref={carouselRef} movies={recentMoviesData} />
+          <CarouselSection ref={carouselRef} />
           <TrendingSection ref={cardSwapRef} />
-          <NowShowing ref={featuredMoviesRef} />
           <ParallaxSection ref={parallaxRef} />
           <CinemaExperience ref={experienceRef} />
           <FeatureSection />
           <FAQ ref={faqRef} />
-          {/* Button Thử ngay */}
-          <div className="mt-8">
-            <Magnet
-              padding={50}
-              disabled={false}
-              magnetStrength={3}
-              activeTransition="transform 0.2s ease-out"
-              inactiveTransition="transform 0.4s ease-in-out"
-            >
-              <Button
-                onClick={() => navigate(ROUTES.MOVIES_SELECTION)}
-                className="transform rounded-lg bg-gradient-to-r from-amber-700 to-orange-800 px-8 py-3 text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:from-amber-800 hover:to-orange-900"
-              >
-                Đặt phim ngay
-              </Button>{" "}
-            </Magnet>
-          </div>
           {/* Admin Team Stack */}
           <div className="flex h-screen items-center justify-center">
             <div className="text-center">
