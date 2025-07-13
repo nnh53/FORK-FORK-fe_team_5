@@ -12,7 +12,7 @@ export function FeatureSection() {
         <p className="text-muted-foreground text-balance text-center font-medium">{description}</p>
       </SectionHeader>
       <div className="flex h-full w-full items-center justify-center lg:h-[450px]">
-        <FeatureComponent collapseDelay={5000} linePosition="bottom" featureItems={items} lineColor="bg-secondary" />
+      <FeatureComponent collapseDelay={5000} linePosition="bottom" featureItems={items} lineColor="bg-secondary" />
       </div>
     </section>
   );

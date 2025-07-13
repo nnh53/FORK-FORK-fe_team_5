@@ -2,6 +2,7 @@ import Aurora from "@/components/Reactbits/reactbit-backgrounds/Aurora/Aurora";
 import { CardContent, Card as ShadcnCard } from "@/components/Shadcn/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/Shadcn/ui/carousel";
 import { queryMovies, transformMoviesResponse } from "@/services/movieService";
+import { Image } from "@unpic/react";
 import Autoplay from "embla-carousel-autoplay";
 import { forwardRef, useMemo } from "react";
 import "./CarouselSection.css";
@@ -73,7 +74,7 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
           }}
         >
           <Carousel
-            className="w-full"
+            className="mx-auto w-full max-w-xs"
             plugins={[
               Autoplay({
                 delay: 2000,
@@ -82,28 +83,22 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
           >
             <CarouselContent>
               {latestMovies.map((movie) => (
-                <CarouselItem key={movie.id} className="md:basis-1/2 lg:basis-1/3">
+                <CarouselItem key={movie.id}>
                   <div className="p-1">
                     <ShadcnCard>
-                      <CardContent className="flex aspect-video flex-col items-center justify-center p-6">
+                      <CardContent className="flex aspect-square flex-col items-center justify-center p-6">
                         {movie.poster && (
-                          <div className="mb-4 h-48 w-full overflow-hidden rounded-lg">
-                            <img
+                          <div className="mb-4 h-32 w-32 overflow-hidden rounded-lg">
+                            <Image
                               src={movie.poster}
                               alt={movie.name || "Movie poster"}
                               className="h-full w-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/placeholder-movie.jpg";
-                              }}
+                              width={128}
+                              height={128}
                             />
                           </div>
                         )}
-                        <h3 className="mb-2 text-center text-xl font-bold">{movie.name || "Untitled Movie"}</h3>
-                        <p className="mb-2 text-center text-sm">{movie.description || "No description available"}</p>
-                        <div className="mb-4 text-center text-xs text-gray-500">
-                          {movie.duration ? `${movie.duration} phút` : ""}
-                          {movie.ageRestrict ? ` • ${movie.ageRestrict}+` : ""}
-                        </div>
+                        <h3 className="mb-2 text-center text-lg font-bold">{movie.name || "Untitled Movie"}</h3>
                         <button className="bg-primary text-primary-foreground hover:bg-primary/90 mt-auto rounded-md px-4 py-2 transition-colors">
                           View Details
                         </button>
