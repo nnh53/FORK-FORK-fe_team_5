@@ -1,22 +1,20 @@
+import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/Shadcn/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
-
-import { Badge } from "@/components/Shadcn/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/Shadcn/ui/dialog";
 import { ScrollArea } from "@/components/Shadcn/ui/scroll-area";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { type Combo, type ComboSnack } from "@/interfaces/combo.interface";
 import { type Snack } from "@/interfaces/snacks.interface";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
-import { ArrowLeft, Edit, ListPlus, MinusCircle, Plus, Save, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, ListPlus, Save, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
+import ComboDetailTable from "./ComboDetailTable";
 
 interface ComboDetailFormProps {
   combo: Combo;
@@ -27,13 +25,67 @@ interface ComboDetailFormProps {
 }
 
 const comboSnackFormSchema = z.object({
-  snackId: z.number({
-    required_error: "Vui lòng chọn thực phẩm",
-  }),
+  snackId: z.number({ required_error: "Vui lòng chọn thực phẩm" }),
   quantity: z.number().min(1, "Số lượng tối thiểu là 1"),
   snackSizeId: z.number().nullable(),
   discountPercentage: z.number().min(0, "Giảm giá không được âm").max(100, "Giảm giá tối đa 100%").nullable(),
 });
+
+const SnackInfo: React.FC<{ snack: Snack }> = ({ snack }) => (
+  <div className="flex items-center gap-4 rounded-md">
+    <div className="h-15 w-15 flex-shrink-0 overflow-hidden rounded-lg">
+      {snack?.img ? (
+        <img
+          src={snack.img}
+          alt={snack?.name || "Snack image"}
+          className="h-full w-full object-cover"
+          onError={(e) => {
+            const imgElement = e.target as HTMLImageElement;
+            imgElement.style.display = "none";
+            imgElement.parentElement!.innerHTML = `
+              <div class="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-gray-400">
+                  <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
+                  <path d="M7 2v20"></path>
+                  <path d="M21 15V2"></path>
+                  <path d="M18 15c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h3v-6h-3Z"></path>
+                </svg>
+              </div>
+            `;
+          }}
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
+          <Icon icon="lucide:utensils" className="h-6 w-6 text-gray-400" />
+        </div>
+      )}
+    </div>
+    <div className="grid flex-1 grid-cols-12 gap-2 text-sm">
+      <div className="col-span-8 flex flex-col gap-1">
+        <div className="flex items-center gap-1">
+          <Badge
+            variant="secondary"
+            className={`flex items-center gap-1 text-xs ${snack.category === "FOOD" ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}
+          >
+            {snack.category === "FOOD" ? (
+              <Icon icon="lucide:popcorn" className="text-shadow-background h-4 w-4" />
+            ) : (
+              <Icon icon="ri:drinks-2-line" className="text-shadow-background h-4 w-4" />
+            )}
+            {snack.category === "FOOD" ? "Thức ăn" : "Đồ uống"}
+          </Badge>
+        </div>
+        <h3 className="line-clamp-1 font-semibold">{snack?.name || "Unknown Snack"}</h3>
+        <p className="text-xs text-gray-500">ID: #{snack?.id}</p>
+      </div>
+      <div className="col-span-4 flex items-center justify-end">
+        <span className="text-lg font-bold text-green-600">
+          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(snack.price || 0)}
+        </span>
+      </div>
+    </div>
+  </div>
+);
 
 const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAddSnack, onUpdateSnack, onDeleteSnack }) => {
   const [isAddingSnack, setIsAddingSnack] = useState(false);
@@ -41,67 +93,28 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
   const [comboSnacks, setComboSnacks] = useState<ComboSnack[]>(combo.snacks || []);
   const [snackSearchTerm, setSnackSearchTerm] = useState("");
 
-  // Keep local state in sync with props
-  useEffect(() => {
-    if (combo.snacks) {
-      console.log("Updating comboSnacks from props:", combo.snacks);
-      setComboSnacks(combo.snacks);
-    }
-  }, [combo, combo.snacks]); // Thêm combo.snacks vào dependencies để đảm bảo cập nhật khi snacks thay đổi
-
   const { data: snacksData } = useSnacks();
+  const snacks: Snack[] = useMemo(() => {
+    if (!snacksData?.result) return [];
+    return Array.isArray(snacksData.result) ? transformSnacksResponse(snacksData.result) : transformSnacksResponse([snacksData.result]);
+  }, [snacksData]);
 
-  // Transform the API response to Snack[] format
-  let snacks: Snack[] = [];
-  if (snacksData?.result) {
-    if (Array.isArray(snacksData.result)) {
-      snacks = transformSnacksResponse(snacksData.result);
-    } else {
-      snacks = transformSnacksResponse([snacksData.result]);
-    }
-  }
+  useEffect(() => {
+    if (combo.snacks) setComboSnacks(combo.snacks);
+  }, [combo.snacks]);
 
-  // Helper function to get the style class for snack size
-  const getSnackSizeClass = (size?: string) => {
-    if (size === "SMALL") return "bg-gray-200 text-gray-800";
-    if (size === "MEDIUM") return "bg-yellow-100 text-yellow-800";
-    if (size === "LARGE") return "bg-purple-100 text-purple-800";
-    return "bg-gray-200 text-gray-800"; // Default style
-  };
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
 
   const form = useForm<z.infer<typeof comboSnackFormSchema>>({
     resolver: zodResolver(comboSnackFormSchema),
-    defaultValues: {
-      snackId: 0,
-      quantity: 1,
-      snackSizeId: null,
-      discountPercentage: 0,
-    },
+    defaultValues: { snackId: 0, quantity: 1, snackSizeId: null, discountPercentage: 0 },
   });
 
   const handleAddNewSnack = () => {
     setIsAddingSnack(true);
     setSelectedComboSnack(null);
-    form.reset({
-      snackId: 0,
-      quantity: 1,
-      snackSizeId: null,
-      discountPercentage: 0,
-    });
+    form.reset({ snackId: 0, quantity: 1, snackSizeId: null, discountPercentage: 0 });
   };
-
-  // Tạo một đối tượng snack mặc định khi không có dữ liệu
-  const createDefaultSnack = (): Snack => ({
-    id: 0,
-    name: "Unknown Snack",
-    description: "No description available",
-    price: 0,
-    img: "",
-    category: "FOOD",
-    size: "MEDIUM",
-    flavor: "",
-    status: "AVAILABLE",
-  });
 
   const handleEditSnack = (comboSnack: ComboSnack) => {
     setIsAddingSnack(true);
@@ -112,22 +125,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       snackSizeId: comboSnack.snackSizeId,
       discountPercentage: comboSnack.discountPercentage,
     });
-  };
-
-  const handleDeleteSnack = (comboSnackId: number) => {
-    if (onDeleteSnack) {
-      try {
-        // Call the API first to ensure it succeeds
-        onDeleteSnack(comboSnackId);
-
-        // Then update local state for immediate UI feedback
-        setComboSnacks((prevSnacks) => prevSnacks.filter((s) => s.id !== comboSnackId));
-        // Đã loại bỏ toast ở đây để tránh hiển thị 2 lần
-      } catch (error) {
-        console.error("Error deleting combo snack:", error);
-        toast.error("Có lỗi khi xóa thực phẩm. Vui lòng thử lại sau.");
-      }
-    }
   };
 
   const handleCancelAddEdit = () => {
@@ -143,73 +140,46 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
         snackSizeId: values.snackSizeId,
         discountPercentage: values.discountPercentage,
       };
-
       onUpdateSnack(updatedComboSnack);
-
-      // Update local state to reflect changes immediately
-      setComboSnacks((prevSnacks) => prevSnacks.map((snack) => (snack.id === updatedComboSnack.id ? updatedComboSnack : snack)));
-
-      // Đã loại bỏ toast ở đây để tránh hiển thị 2 lần
     } else if (onAddSnack) {
       const selectedSnack = snacks.find((s) => s.id === values.snackId);
-      if (!selectedSnack) {
-        toast.error("Không tìm thấy thực phẩm");
-        return;
+      if (selectedSnack) {
+        const newComboSnack: Partial<ComboSnack> = {
+          quantity: values.quantity,
+          snackSizeId: values.snackSizeId,
+          discountPercentage: values.discountPercentage,
+          snack: selectedSnack,
+          combo,
+        };
+        onAddSnack(newComboSnack);
       }
-
-      const newComboSnack: Partial<ComboSnack> = {
-        quantity: values.quantity,
-        snackSizeId: values.snackSizeId,
-        discountPercentage: values.discountPercentage,
-        snack: selectedSnack,
-        combo: combo,
-      };
-
-      onAddSnack(newComboSnack);
-
-      // Add to local state with a temporary ID for immediate display
-      const tempComboSnack: ComboSnack = {
-        ...newComboSnack,
-        id: -Date.now(), // Temporary negative ID until server responds
-        combo: combo,
-        snack: selectedSnack,
-      } as ComboSnack;
-
-      setComboSnacks((prevSnacks) => [...prevSnacks, tempComboSnack]);
-
-      // Đã loại bỏ toast ở đây để tránh hiển thị 2 lần
     }
-
     setIsAddingSnack(false);
     setSelectedComboSnack(null);
     form.reset();
   };
 
-  // Filter snacks not already in the combo (except the one being edited)
-  const availableSnacks = snacks
-    .filter((snack) => {
-      // If we're editing a combo snack, always allow its snack to be selected
-      if (selectedComboSnack && selectedComboSnack.snack?.id === snack.id) {
-        return true;
-      }
+  const availableSnacks = useMemo(() => {
+    return snacks
+      .filter((snack) => {
+        if (selectedComboSnack && selectedComboSnack.snack?.id === snack.id) return true;
+        return !comboSnacks.some((cs) => cs.snack?.id === snack.id);
+      })
+      .filter((snack) => {
+        if (!snackSearchTerm) return true;
+        const lowerSearchTerm = snackSearchTerm.toLowerCase();
+        return (
+          snack.name?.toLowerCase().includes(lowerSearchTerm) ||
+          snack.category?.toLowerCase().includes(lowerSearchTerm) ||
+          snack.flavor?.toLowerCase().includes(lowerSearchTerm) ||
+          snack.size?.toLowerCase().includes(lowerSearchTerm)
+        );
+      })
+      .filter((snack) => {
+        return selectedCategory === "ALL" || snack.category === selectedCategory;
+      });
+  }, [snacks, selectedComboSnack, comboSnacks, snackSearchTerm, selectedCategory]);
 
-      // Don't show snacks already in the combo
-      const isAlreadyInCombo = comboSnacks.some((comboSnack) => comboSnack.snack?.id === snack.id);
-
-      return !isAlreadyInCombo;
-    })
-    .filter((snack) => {
-      if (!snackSearchTerm) return true;
-      const lowerSearchTerm = snackSearchTerm.toLowerCase();
-      return (
-        (snack.name?.toLowerCase() || "").includes(lowerSearchTerm) ||
-        (snack.category?.toLowerCase() || "").includes(lowerSearchTerm) ||
-        (snack.flavor?.toLowerCase() || "").includes(lowerSearchTerm) ||
-        (snack.size?.toLowerCase() || "").includes(lowerSearchTerm)
-      );
-    });
-
-  // Snack sizes (placeholder - replace with actual data if available)
   const snackSizes = [
     { id: 1, name: "Nhỏ" },
     { id: 2, name: "Vừa" },
@@ -219,7 +189,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
 
   return (
     <div className="space-y-4">
-      {/* Back button at the top of the form */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" onClick={onCancel} className="flex items-center gap-1 text-gray-600 hover:text-gray-900">
           <ArrowLeft className="h-4 w-4" />
@@ -230,12 +199,10 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       {isAddingSnack ? (
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center text-lg">
-                <ListPlus className="mr-2 h-5 w-5" />
-                {selectedComboSnack ? "Cập nhật thực phẩm" : "Thêm thực phẩm mới"}
-              </CardTitle>
-            </div>
+            <CardTitle className="flex items-center text-lg">
+              <ListPlus className="mr-2 h-5 w-5" />
+              {selectedComboSnack ? "Cập nhật thực phẩm" : "Thêm thực phẩm mới"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -245,144 +212,31 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                     control={form.control}
                     name="snackId"
                     render={({ field }) => (
-                      <FormItem className="relative">
+                      <FormItem>
                         <FormLabel>Thực phẩm</FormLabel>
                         <div>
                           {selectedComboSnack ? (
-                            <div className="flex items-center gap-4 rounded-md border p-3">
-                              <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg">
-                                {selectedComboSnack.snack?.img ? (
-                                  <img
-                                    src={selectedComboSnack.snack.img}
-                                    alt={selectedComboSnack.snack?.name}
-                                    className="h-full w-full object-cover"
-                                    onError={(e) => {
-                                      const imgElement = e.target as HTMLImageElement;
-                                      imgElement.style.display = "none";
-                                      imgElement.parentElement!.innerHTML = `
-                                        <div class="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-gray-400">
-                                            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
-                                            <path d="M7 2v20"></path>
-                                            <path d="M21 15V2"></path>
-                                            <path d="M18 15c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h3v-6h-3Z"></path>
-                                          </svg>
-                                        </div>
-                                      `;
-                                    }}
-                                  />
-                                ) : (
-                                  <div className="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
-                                    <Icon icon="lucide:utensils" className="h-6 w-6 text-gray-400" />
-                                  </div>
-                                )}
-                              </div>
-                              <div className="grid flex-1 grid-cols-12 gap-2 text-sm">
-                                <div className="col-span-8 flex flex-col gap-1">
-                                  <div className="flex items-center gap-1">
-                                    <Badge
-                                      variant="secondary"
-                                      className={`flex items-center gap-1 text-xs ${selectedComboSnack.snack?.category === "FOOD" ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}
-                                    >
-                                      {selectedComboSnack.snack?.category === "FOOD" ? (
-                                        <Icon icon="lucide:popcorn" className="text-shadow-background h-4 w-4" />
-                                      ) : (
-                                        <Icon icon="ri:drinks-2-line" className="text-shadow-background h-4 w-4" />
-                                      )}
-                                      {selectedComboSnack.snack?.category === "FOOD" ? "Thức ăn" : "Đồ uống"}
-                                    </Badge>
-                                  </div>
-                                  <h3 className="line-clamp-1 font-semibold">{selectedComboSnack.snack?.name || "Unknown Snack"}</h3>
-                                  <p className="text-xs text-gray-500">ID: #{selectedComboSnack.snack?.id}</p>
-                                </div>
-                                <div className="col-span-4 flex items-center justify-end">
-                                  <span className="text-lg font-bold text-green-600">
-                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                      selectedComboSnack.snack?.price || 0,
-                                    )}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
+                            <SnackInfo snack={selectedComboSnack.snack!} />
                           ) : (
                             <Dialog>
                               <DialogTrigger asChild>
                                 {field.value ? (
-                                  <Button variant="outline" className="h-auto w-full justify-start overflow-hidden p-0 text-left font-normal">
-                                    {(() => {
-                                      const selectedSnack = snacks.find((s) => s.id === field.value);
-                                      if (!selectedSnack) return <span className="p-2">Chọn thực phẩm</span>;
-                                      return (
-                                        <div className="flex w-full items-center gap-4 p-3">
-                                          <div className="h-15 w-15 flex-shrink-0 overflow-hidden rounded-lg">
-                                            {selectedSnack?.img ? (
-                                              <img
-                                                src={selectedSnack.img}
-                                                alt={selectedSnack?.name || "Snack image"}
-                                                className="h-full w-full object-cover"
-                                                onError={(e) => {
-                                                  const imgElement = e.target as HTMLImageElement;
-                                                  imgElement.style.display = "none";
-                                                  imgElement.parentElement!.innerHTML = `
-                                                    <div class="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
-                                                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-gray-400">
-                                                        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
-                                                        <path d="M7 2v20"></path>
-                                                        <path d="M21 15V2"></path>
-                                                        <path d="M18 15c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h3v-6h-3Z"></path>
-                                                      </svg>
-                                                    </div>
-                                                  `;
-                                                }}
-                                              />
-                                            ) : (
-                                              <div className="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
-                                                <Icon icon="lucide:utensils" className="h-6 w-6 text-gray-400" />
-                                              </div>
-                                            )}
-                                          </div>
-                                          <div className="grid flex-1 grid-cols-12 gap-2 text-sm">
-                                            <div className="col-span-8 flex flex-col gap-1">
-                                              <div className="flex items-center gap-1">
-                                                <Badge
-                                                  variant="secondary"
-                                                  className={`flex items-center gap-1 text-xs ${selectedSnack.category === "FOOD" ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}
-                                                >
-                                                  {selectedSnack.category === "FOOD" ? (
-                                                    <Icon icon="lucide:popcorn" className="text-shadow-background h-4 w-4" />
-                                                  ) : (
-                                                    <Icon icon="ri:drinks-2-line" className="text-shadow-background h-4 w-4" />
-                                                  )}
-                                                  {selectedSnack.category === "FOOD" ? "Thức ăn" : "Đồ uống"}
-                                                </Badge>
-                                              </div>
-                                              <h3 className="line-clamp-1 font-semibold">{selectedSnack?.name || "Unknown Snack"}</h3>
-                                              <p className="text-xs text-gray-500">ID: #{selectedSnack?.id}</p>
-                                            </div>
-                                            <div className="col-span-4 flex items-center justify-end">
-                                              <span className="text-lg font-bold text-green-600">
-                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                  selectedSnack.price || 0,
-                                                )}
-                                              </span>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      );
-                                    })()}
+                                  <Button variant="outline" className="h-full w-auto justify-start overflow-hidden text-left">
+                                    <SnackInfo snack={snacks.find((s) => s.id === field.value)!} />
                                   </Button>
                                 ) : (
                                   <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    <span>Chọn thực phẩm</span>
+                                    Chọn thực phẩm
                                   </Button>
                                 )}
                               </DialogTrigger>
-                              <DialogContent className="sm:max-w-[425px]">
+                              <DialogContent className="sm:max-h-[825px]">
                                 <DialogHeader>
                                   <DialogTitle>Chọn thực phẩm</DialogTitle>
                                   <DialogDescription>Chọn một thực phẩm để thêm vào combo</DialogDescription>
                                 </DialogHeader>
                                 <div className="py-4">
+                                  {" "}
                                   <div className="mb-4 flex items-center gap-2">
                                     <div className="flex-1">
                                       <Input
@@ -393,9 +247,9 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                                     </div>
                                     <select
                                       className="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                      value={selectedCategory}
                                       onChange={(e) => {
-                                        if (e.target.value === "ALL") setSnackSearchTerm("");
-                                        else setSnackSearchTerm(e.target.value);
+                                        setSelectedCategory(e.target.value);
                                       }}
                                     >
                                       <option value="ALL">Tất cả</option>
@@ -403,7 +257,7 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                                       <option value="DRINK">Đồ uống</option>
                                     </select>
                                   </div>
-                                  <ScrollArea className="h-[300px]">
+                                  <ScrollArea className="h-[600px]">
                                     <div className="space-y-2">
                                       {availableSnacks.length === 0 ? (
                                         <div className="text-muted-foreground py-4 text-center">
@@ -421,83 +275,28 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                                               field.onChange(snack.id);
                                             }}
                                           >
-                                            <CardContent className="flex items-center gap-4 p-3">
-                                              <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg">
-                                                {snack?.img ? (
-                                                  <img
-                                                    src={snack.img}
-                                                    alt={snack?.name || "Snack image"}
-                                                    className="h-full w-full object-cover"
-                                                    onError={(e) => {
-                                                      const imgElement = e.target as HTMLImageElement;
-                                                      imgElement.style.display = "none";
-                                                      imgElement.parentElement!.innerHTML = `
-                                                        <div class="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
-                                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-gray-400">
-                                                            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
-                                                            <path d="M7 2v20"></path>
-                                                            <path d="M21 15V2"></path>
-                                                            <path d="M18 15c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h3v-6h-3Z"></path>
-                                                          </svg>
-                                                        </div>
-                                                      `;
-                                                    }}
-                                                  />
-                                                ) : (
-                                                  <div className="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
-                                                    <Icon icon="lucide:utensils" className="h-6 w-6 text-gray-400" />
-                                                  </div>
-                                                )}
-                                              </div>
-                                              <div className="grid flex-1 grid-cols-12 gap-2 text-sm">
-                                                <div className="col-span-6 flex flex-col gap-1">
-                                                  <div className="flex items-center gap-1">
-                                                    <Badge
-                                                      variant="secondary"
-                                                      className={`flex items-center gap-1 text-xs ${snack.category === "FOOD" ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}
-                                                    >
-                                                      {snack.category === "FOOD" ? (
-                                                        <Icon icon="lucide:popcorn" className="text-shadow-background h-4 w-4" />
-                                                      ) : (
-                                                        <Icon icon="ri:drinks-2-line" className="text-shadow-background h-4 w-4" />
-                                                      )}
-                                                      {snack.category === "FOOD" ? "Thức ăn" : "Đồ uống"}
-                                                    </Badge>
-                                                    <Badge
-                                                      variant="secondary"
-                                                      className={`text-xs ${snack.status === "AVAILABLE" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
-                                                    >
-                                                      {snack.status === "AVAILABLE" ? "Có sẵn" : "Không có sẵn"}
-                                                    </Badge>
-                                                  </div>
-                                                  <h3 className="line-clamp-1 font-semibold">{snack?.name || "Unknown Snack"}</h3>
-                                                  <p className="text-xs text-gray-500">ID: #{snack?.id}</p>
-                                                </div>
-                                                <div className="col-span-3 flex flex-col text-sm">
-                                                  <span className="text-gray-500">Kích cỡ:</span>
-                                                  <Badge variant="secondary" className={`text-xs ${getSnackSizeClass(snack.size)}`}>
-                                                    {snack.size ? snack.size : "N/A"}
-                                                  </Badge>
-                                                  {snack.flavor && (
-                                                    <div className="mt-1">
-                                                      <span className="text-gray-500">Hương vị:</span>
-                                                      <span className="ml-1 italic text-blue-600">{snack.flavor}</span>
-                                                    </div>
-                                                  )}
-                                                </div>
-                                                <div className="col-span-3 flex items-center justify-end">
-                                                  <span className="text-lg font-bold text-green-600">
-                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(snack.price)}
-                                                  </span>
-                                                </div>
-                                              </div>
+                                            <CardContent>
+                                              <SnackInfo snack={snack} />
                                             </CardContent>
                                           </Card>
                                         ))
                                       )}
                                     </div>
                                   </ScrollArea>
-                                  <div className="mt-4 flex justify-end">
+                                  <div className="mt-4 flex justify-end gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      onClick={() => {
+                                        // Reset field value
+                                        field.onChange(0);
+                                        // Đóng Dialog khi bấm hủy
+                                        const closeDialogButton = document.querySelector('[data-state="open"] button[type="button"]') as HTMLElement;
+                                        if (closeDialogButton) closeDialogButton.click();
+                                      }}
+                                    >
+                                      Hủy
+                                    </Button>
                                     <Button
                                       type="button"
                                       onClick={() => {
@@ -519,7 +318,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="quantity"
@@ -534,7 +332,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                     )}
                   />
                 </div>
-
                 <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -544,7 +341,7 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                         <FormLabel>Kích cỡ (nếu có)</FormLabel>
                         <FormControl>
                           <select
-                            className="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="border-input flex h-9 w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1"
                             value={field.value?.toString() || "0"}
                             onChange={(e) => field.onChange(e.target.value === "0" ? null : parseInt(e.target.value))}
                           >
@@ -560,7 +357,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="discountPercentage"
@@ -583,7 +379,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                     )}
                   />
                 </div>
-
                 <div className="flex justify-end gap-2 pt-2">
                   <Button type="button" variant="outline" onClick={handleCancelAddEdit}>
                     <X className="mr-1 h-4 w-4" />
@@ -599,144 +394,7 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
           </CardContent>
         </Card>
       ) : (
-        <div>
-          {comboSnacks.length === 0 ? (
-            <Card>
-              <CardContent className="py-8">
-                <div className="text-muted-foreground text-center">
-                  <Icon icon="lucide:popcorn" className="text-shadow-background mx-auto mb-0.5" />
-                  <div className="mb-2 text-lg font-medium">Chưa có thực phẩm trong combo</div>
-                  <div className="mb-4 text-sm">Hãy thêm thực phẩm để hoàn thiện combo</div>
-                  <div className="flex items-center justify-center gap-3">
-                    <Button onClick={handleAddNewSnack}>
-                      <Plus className="mr-1 h-4 w-4" />
-                      Thêm thực phẩm
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg">Danh sách thực phẩm</CardTitle>
-                {/* Add a footer with back button at the bottom of the card */}
-                <Button onClick={handleAddNewSnack} size="sm">
-                  <Plus className="mr-1 h-4 w-4" />
-                  Thêm thực phẩm
-                </Button>
-              </CardHeader>
-              <ScrollArea className="h-[300px]">
-                {" "}
-                {/* Đặt chiều cao cố định, điều chỉnh theo nhu cầu */}
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Tên thực phẩm</TableHead>
-                        <TableHead>Số lượng</TableHead>
-                        <TableHead>Kích cỡ</TableHead>
-                        <TableHead>Giảm giá</TableHead>
-                        <TableHead className="text-right">Thao tác</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {comboSnacks.map((comboSnack) => {
-                        // Đảm bảo luôn có một đối tượng snack hợp lệ với đầy đủ thuộc tính
-                        const snack = comboSnack.snack
-                          ? {
-                              ...createDefaultSnack(),
-                              ...comboSnack.snack,
-                            }
-                          : createDefaultSnack();
-
-                        let sizeDisplay = "Mặc định";
-
-                        if (comboSnack.snackSizeId && snack?.size) {
-                          sizeDisplay = snack.size;
-                        }
-
-                        return (
-                          <TableRow key={comboSnack.id}>
-                            <TableCell className="font-medium">
-                              <div className="flex items-center gap-2">
-                                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg">
-                                  {snack?.img ? (
-                                    <img
-                                      src={snack.img}
-                                      alt={snack?.name}
-                                      className="h-full w-full object-cover"
-                                      onError={(e) => {
-                                        const imgElement = e.target as HTMLImageElement;
-                                        imgElement.style.display = "none";
-                                        imgElement.parentElement!.innerHTML = `
-                                          <div class="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-gray-400">
-                                              <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
-                                              <path d="M7 2v20"></path>
-                                              <path d="M21 15V2"></path>
-                                              <path d="M18 15c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h3v-6h-3Z"></path>
-                                            </svg>
-                                          </div>
-                                        `;
-                                      }}
-                                    />
-                                  ) : (
-                                    <div className="flex h-full w-full items-center justify-center border border-gray-200 bg-gray-100">
-                                      <Icon icon="lucide:utensils" className="h-6 w-6 text-gray-400" />
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <div className="font-semibold">{snack?.name}</div>
-                                  <div className="flex items-center gap-1">
-                                    {snack?.category && (
-                                      <Badge
-                                        variant="secondary"
-                                        className={`flex items-center gap-1 text-xs ${snack.category === "FOOD" ? "bg-blue-200 text-blue-800" : "bg-yellow-400 text-green-800"}`}
-                                      >
-                                        {snack.category === "FOOD" ? (
-                                          <Icon icon="lucide:popcorn" className="text-shadow-background h-4 w-4" />
-                                        ) : (
-                                          <Icon icon="ri:drinks-2-line" className="text-shadow-background h-4 w-4" />
-                                        )}
-                                        {snack.category === "FOOD" ? "Thức ăn" : "Đồ uống"}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  {Boolean(snack?.price) && (
-                                    <div className="text-xs font-bold text-green-600">
-                                      {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(snack.price || 0)}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>{comboSnack.quantity}</TableCell>
-                            <TableCell>{sizeDisplay}</TableCell>
-                            <TableCell>{comboSnack.discountPercentage ?? 0}%</TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end gap-2">
-                                <Button variant="outline" size="sm" onClick={() => handleEditSnack(comboSnack)}>
-                                  <Edit className="h-3.5 w-3.5" />
-                                </Button>
-                                {onDeleteSnack && (
-                                  <Button variant="destructive" size="sm" onClick={() => handleDeleteSnack(comboSnack.id)}>
-                                    <MinusCircle className="h-3.5 w-3.5" />
-                                  </Button>
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </ScrollArea>
-            </Card>
-          )}
-        </div>
+        <ComboDetailTable comboSnacks={comboSnacks} onAddNewSnack={handleAddNewSnack} onEditSnack={handleEditSnack} onDeleteSnack={onDeleteSnack} />
       )}
     </div>
   );

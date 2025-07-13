@@ -131,18 +131,13 @@ export const useDeleteComboSnackByComboAndSnack = () => {
 export const transformComboResponse = (comboResponse: ComboResponse): Combo => {
   console.log("Raw combo response:", JSON.stringify(comboResponse, null, 2));
 
-  // Khi API trả về combo, snacks trong combo là dạng ApiSnack[], không phải dạng ComboSnackResponse[]
-  // Cần chuyển đổi đúng cách để bảo toàn thông tin
   let transformedSnacks: ComboSnack[] = [];
 
   if (comboResponse.snacks && Array.isArray(comboResponse.snacks)) {
-    // Trước khi map, ta cần phải lấy thông tin quantity từ combo-snacks API
     transformedSnacks = comboResponse.snacks.map((snackData) => {
-      // Tạo một đối tượng ComboSnack mới với thông tin cơ bản
-      // Chú ý: quantity sẽ được cập nhật sau bằng useComboSnacksByComboId
       return {
         id: Number(snackData.id ?? 0),
-        quantity: 1, // Mặc định là 1, sẽ được cập nhật sau từ API combo-snacks
+        quantity: 0, // Will be updated with correct quantity from combo-snacks API
         snackSizeId: null,
         discountPercentage: null,
         combo: {
@@ -151,7 +146,7 @@ export const transformComboResponse = (comboResponse: ComboResponse): Combo => {
           description: String(comboResponse.description ?? ""),
           status: comboResponse.status as ComboStatus,
           img: String(comboResponse.img ?? ""),
-          snacks: [], // Tránh đệ quy
+          snacks: [],
         },
         snack: {
           id: Number(snackData.id),
@@ -186,9 +181,6 @@ export const transformCombosResponse = (combosResponse: ComboResponse[]): Combo[
 };
 
 /**
- * Transform a combo-snack response from the API to the ComboSnack interface
- */
-/**
  * Create a fallback snack object to use when no snack data is available
  */
 export const createFallbackSnack = (): Snack => {
@@ -205,14 +197,14 @@ export const createFallbackSnack = (): Snack => {
   };
 };
 
+/**
+ * Transform a combo-snack response from the API to the ComboSnack interface
+ */
 export const transformComboSnackResponse = (comboSnackResponse: ComboSnackResponse): ComboSnack => {
   console.log("Raw comboSnack response:", JSON.stringify(comboSnackResponse, null, 2));
 
-  // Kiểm tra và xử lý dữ liệu snack
   let snackData: Snack;
-  // Chỉ sử dụng fallback khi thực sự không có dữ liệu snack
   if (comboSnackResponse.snack && typeof comboSnackResponse.snack === "object") {
-    // Chuyển đổi trực tiếp để đảm bảo đúng định dạng
     snackData = {
       id: Number(comboSnackResponse.snack.id),
       category: comboSnackResponse.snack.category as "DRINK" | "FOOD",
@@ -229,17 +221,15 @@ export const transformComboSnackResponse = (comboSnackResponse: ComboSnackRespon
     snackData = createFallbackSnack();
   }
 
-  // Kiểm tra và xử lý dữ liệu combo
   let comboData: Combo;
   if (comboSnackResponse.combo && typeof comboSnackResponse.combo === "object") {
-    // Tạo một phiên bản đơn giản của combo để tránh đệ quy vô hạn
     comboData = {
       id: Number(comboSnackResponse.combo.id),
       name: String(comboSnackResponse.combo.name ?? ""),
       description: String(comboSnackResponse.combo.description ?? ""),
       status: comboSnackResponse.combo.status as ComboStatus,
       img: String(comboSnackResponse.combo.img ?? ""),
-      snacks: [], // Không chuyển đổi danh sách snack của combo để tránh đệ quy
+      snacks: [],
     };
   } else {
     comboData = {
@@ -254,7 +244,7 @@ export const transformComboSnackResponse = (comboSnackResponse: ComboSnackRespon
 
   return {
     id: Number(comboSnackResponse.id),
-    quantity: Number(comboSnackResponse.quantity ?? 0),
+    quantity: Number(comboSnackResponse.quantity || 1),
     snackSizeId: comboSnackResponse.snackSizeId ?? null,
     discountPercentage: comboSnackResponse.discountPercentage ?? null,
     combo: comboData,
@@ -298,7 +288,7 @@ export const transformComboSnackToRequest = (comboSnack: Partial<ComboSnack>) =>
   return {
     comboId: comboSnack.combo?.id,
     snackId: comboSnack.snack?.id,
-    quantity: comboSnack.quantity ?? 1, // Đảm bảo luôn có quantity, mặc định là 1
+    quantity: comboSnack.quantity ?? 1,
   };
 };
 
@@ -332,17 +322,78 @@ export const getComboStatusLabel = (status: ComboStatus): string => {
 export const calculateComboPrice = (combo: Combo): number => {
   if (!combo.snacks || combo.snacks.length === 0) return 0;
 
+  console.log(
+    `Calculating price for combo ${combo.id} with ${combo.snacks.length} snacks:`,
+    combo.snacks.map((s) => ({
+      id: s.snack?.id,
+      name: s.snack?.name,
+      price: s.snack?.price,
+      quantity: s.quantity,
+    })),
+  );
+
   return combo.snacks.reduce((total, comboSnack) => {
     const basePrice = comboSnack.snack?.price ?? 0;
-    const quantity = comboSnack.quantity ?? 1;
+    const quantity = comboSnack.quantity || 1;
     const discountPercentage = comboSnack.discountPercentage ?? 0;
-
-    // Tính giá sau giảm giá
     const discountedPrice = basePrice * (1 - discountPercentage / 100);
+    const itemTotal = discountedPrice * quantity;
 
-    // Tính tổng giá dựa trên số lượng
-    return total + discountedPrice * quantity;
+    console.log(
+      `Combo ${combo.id} - Snack ${comboSnack.snack?.name}: price=${basePrice}, quantity=${quantity}, discount=${discountPercentage}%, itemTotal=${itemTotal}`,
+    );
+
+    return total + itemTotal;
   }, 0);
+};
+
+/**
+ * Calculate the total price of a combo based on provided combo-snacks data
+ */
+export const calculateComboPriceWithQuantity = (comboSnacks: ComboSnack[]): number => {
+  if (!comboSnacks || comboSnacks.length === 0) return 0;
+
+  console.log(
+    `Calculating price with ${comboSnacks.length} snacks:`,
+    comboSnacks.map((s) => ({
+      id: s.snack?.id,
+      name: s.snack?.name,
+      price: s.snack?.price,
+      quantity: s.quantity,
+    })),
+  );
+
+  return comboSnacks.reduce((total, comboSnack) => {
+    const basePrice = comboSnack.snack?.price ?? 0;
+    const quantity = comboSnack.quantity || 1;
+    const discountPercentage = comboSnack.discountPercentage ?? 0;
+    const discountedPrice = basePrice * (1 - discountPercentage / 100);
+    const itemTotal = discountedPrice * quantity;
+
+    console.log(`Snack ${comboSnack.snack?.name}: price=${basePrice}, quantity=${quantity}, discount=${discountPercentage}%, itemTotal=${itemTotal}`);
+
+    return total + itemTotal;
+  }, 0);
+};
+
+/**
+ * Custom hook to fetch combo-snacks and calculate the total price
+ */
+export const useComboPrice = (comboId: number) => {
+  const { data, isLoading, error } = useComboSnacksByComboId(comboId);
+
+  let resultData: ComboSnackResponse[] = [];
+  if (data?.result) {
+    resultData = Array.isArray(data.result) ? data.result : [data.result];
+  }
+
+  const comboSnacks = data?.result ? transformComboSnacksResponse(resultData) : [];
+  const totalPrice = calculateComboPriceWithQuantity(comboSnacks);
+  return {
+    totalPrice,
+    isLoading,
+    error,
+  };
 };
 
 /**
@@ -353,24 +404,33 @@ export const formatPrice = (price: number): string => {
 };
 
 /**
+ * Hàm để tải dữ liệu combo-snacks cho một danh sách combo
+ */
+export const loadCombosWithAccurateQuantity = async (combos: Combo[]): Promise<Combo[]> => {
+  try {
+    const updatedCombosPromises = combos.map((combo) => fetchAndUpdateComboSnacksQuantity(combo));
+    const updatedCombos = await Promise.all(updatedCombosPromises);
+    console.log("Loaded all combos with accurate quantities:", updatedCombos);
+    return updatedCombos;
+  } catch (error) {
+    console.error("Error loading combos with accurate quantities:", error);
+    return combos;
+  }
+};
+
+/**
  * Helper function to fetch and update combo with accurate quantity information
- * This function gets the combo-snacks for a combo and updates the snacks in the combo with the correct quantity
  */
 export const fetchAndUpdateComboSnacksQuantity = async (combo: Combo): Promise<Combo> => {
   try {
-    // Sử dụng hook useComboSnacksByComboId để lấy combo-snacks
     const comboId = combo.id;
-    // Gọi trực tiếp API theo endpoint
     const response = await fetch(`/api/combo-snacks/combo/${comboId}`);
     const responseData = await response.json();
 
     if (responseData?.result) {
       const comboSnacksData = Array.isArray(responseData.result) ? responseData.result : [responseData.result];
-
-      // Chuyển đổi response thành ComboSnack[]
       const comboSnacks = transformComboSnacksResponse(comboSnacksData);
 
-      // Tạo một map của snack id -> quantity
       const snackQuantityMap = new Map<number, number>();
       comboSnacks.forEach((cs) => {
         if (cs.snack?.id) {
@@ -378,7 +438,6 @@ export const fetchAndUpdateComboSnacksQuantity = async (combo: Combo): Promise<C
         }
       });
 
-      // Cập nhật quantity cho từng snack trong combo
       const updatedSnacks = combo.snacks.map((comboSnack) => {
         const snackId = comboSnack.snack?.id;
         if (snackId && snackQuantityMap.has(snackId)) {
@@ -390,7 +449,6 @@ export const fetchAndUpdateComboSnacksQuantity = async (combo: Combo): Promise<C
         return comboSnack;
       });
 
-      // Trả về combo đã được cập nhật
       return {
         ...combo,
         snacks: updatedSnacks,
@@ -400,6 +458,5 @@ export const fetchAndUpdateComboSnacksQuantity = async (combo: Combo): Promise<C
     console.error("Error fetching combo-snacks:", error);
   }
 
-  // Nếu có lỗi, trả về combo ban đầu
   return combo;
 };

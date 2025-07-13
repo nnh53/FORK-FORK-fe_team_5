@@ -33,51 +33,56 @@ interface PromotionTableProps {
 
 // Helper function to customize how data is displayed in the table
 const formatPromotionData = (promotions: Promotion[]) => {
-  return promotions.slice().map((pro) => {
-    // Process the image field
-    const imageElement = pro.image ? (
-      <img src={pro.image} alt={pro.title} className="h-14 w-14 rounded object-cover" />
-    ) : (
-      <div className="flex h-14 w-14 items-center justify-center rounded bg-gray-200">
-        <Image className="h-6 w-6 text-gray-400" />
-      </div>
-    );
+  return promotions
+    .slice()
+    .reverse()
+    .map((pro) => {
+      // Process the image field
+      const imageElement = pro.image ? (
+        <img src={pro.image} alt={pro.title} className="h-14 w-14 rounded object-cover" />
+      ) : (
+        <div className="flex h-14 w-14 items-center justify-center rounded bg-gray-200">
+          <Image className="h-6 w-6 text-gray-400" />
+        </div>
+      );
 
-    // Process the type field
-    const typeText = isValidPromotionType(pro.type) ? getPromotionTypeLabel(pro.type as "PERCENTAGE" | "AMOUNT") : "Loại không hợp lệ";
-    const typeClass = pro.type === "PERCENTAGE" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800";
-    const typeDisplay = (
-      <Badge variant="outline" className={typeClass}>
-        {typeText}
-      </Badge>
-    );
+      // Process the type field
+      const typeText = isValidPromotionType(pro.type) ? getPromotionTypeLabel(pro.type as "PERCENTAGE" | "AMOUNT") : "Loại không hợp lệ";
+      const typeClass = pro.type === "PERCENTAGE" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800";
+      const typeDisplay = (
+        <Badge variant="outline" className={typeClass}>
+          {typeText}
+        </Badge>
+      );
 
-    // Process the discount value
-    const discountDisplay = pro.type === "PERCENTAGE" ? `${pro.discountValue}%` : `${pro.discountValue.toLocaleString()} VNĐ`;
+      // Process the discount value
+      const discountDisplay = pro.type === "PERCENTAGE" ? `${pro.discountValue}%` : `${pro.discountValue.toLocaleString()} VNĐ`;
 
-    // Process the min purchase
-    const minPurchaseDisplay = `${pro.minPurchase.toLocaleString()} VNĐ`;
+      // Process the min purchase
+      const minPurchaseDisplay = `${pro.minPurchase.toLocaleString()} VNĐ`;
 
-    // Process the description (truncate if too long)
-    const descriptionDisplay = pro.description.length > 50 ? `${pro.description.substring(0, 50)}...` : pro.description;
+      // Process the description (truncate if too long)
+      const descriptionDisplay = pro.description.length > 50 ? `${pro.description.substring(0, 50)}...` : pro.description;
 
-    // Process the status
-    const statusText = isValidPromotionStatus(pro.status) ? getPromotionStatusLabel(pro.status as "ACTIVE" | "INACTIVE") : "Trạng thái không hợp lệ";
-    const statusClass = pro.status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
-    const statusDisplay = <Badge className={statusClass}>{statusText}</Badge>;
+      // Process the status
+      const statusText = isValidPromotionStatus(pro.status)
+        ? getPromotionStatusLabel(pro.status as "ACTIVE" | "INACTIVE")
+        : "Trạng thái không hợp lệ";
+      const statusClass = pro.status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
+      const statusDisplay = <Badge className={statusClass}>{statusText}</Badge>;
 
-    return {
-      ...pro,
-      startTime: formatPromotionDate(pro.startTime),
-      endTime: formatPromotionDate(pro.endTime),
-      image: imageElement,
-      type: typeDisplay,
-      discountValue: discountDisplay,
-      minPurchase: minPurchaseDisplay,
-      description: descriptionDisplay,
-      status: statusDisplay,
-    };
-  });
+      return {
+        ...pro,
+        startTime: formatPromotionDate(pro.startTime),
+        endTime: formatPromotionDate(pro.endTime),
+        image: imageElement,
+        type: typeDisplay,
+        discountValue: discountDisplay,
+        minPurchase: minPurchaseDisplay,
+        description: descriptionDisplay,
+        status: statusDisplay,
+      };
+    });
 };
 
 export const PromotionTable = forwardRef<{ resetPagination: () => void }, PromotionTableProps>(
