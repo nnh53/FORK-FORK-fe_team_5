@@ -24,7 +24,7 @@ export const useBooking = (id: number) => {
 /**
  * Hook for getting bookings by user ID
  */
-export const useBookingsByUserId = (userId: string) => {
+export const queryBookingsByUserId = (userId: string) => {
   return $api.useQuery("get", "/bookings/user/{userId}", {
     params: { path: { userId } },
   });
