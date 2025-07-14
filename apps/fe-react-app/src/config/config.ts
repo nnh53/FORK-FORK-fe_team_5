@@ -18,10 +18,11 @@ export const siteConfig = {
   nav: {
     links: [
       { id: 1, name: "Home", href: "#home" },
-      { id: 2, name: "Movies", href: "/movies" },
-      { id: 3, name: "Trending", href: "/trending" },
-      { id: 4, name: "Cinemas", href: "#cinemas" },
-      { id: 5, name: "Chairs", href: "/chairs" },
+      { id: 2, name: "Movies", href: "#movies" },
+      { id: 3, name: "Trending", href: "#trending" },
+      { id: 4, name: "Features", href: "#features" },
+      { id: 5, name: "Chairs", href: "#chairs" },
+      { id: 6, name: "FAQ", href: "#faq" },
     ],
   },
   featureSection: {
@@ -118,6 +119,32 @@ export const siteConfig = {
       href: "/movies",
     },
     subtext: "Hủy vé bất cứ lúc nào, không cần lo lắng",
+  },
+  chairSection: {
+    title: "Chair Experience",
+    description: "Discover our premium seating options for the ultimate movie experience",
+    chairs: [
+      {
+        imageSrc: "/assets/chair/normal.png",
+        alt: "Normal Chair",
+        title: "Normal Chair",
+      },
+      {
+        imageSrc: "/assets/chair/vip.png",
+        alt: "VIP Chair",
+        title: "VIP Chair",
+      },
+      {
+        imageSrc: "/assets/chair/premium.png",
+        alt: "Premium Chair",
+        title: "Premium Chair",
+      },
+      {
+        imageSrc: "/assets/chair/couple.png",
+        alt: "Couple Chair",
+        title: "Couple Chair",
+      },
+    ],
   },
 };
 

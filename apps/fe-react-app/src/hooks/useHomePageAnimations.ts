@@ -6,15 +6,14 @@ import { useSmoothScroll } from "./useSmoothScroll";
 gsap.registerPlugin(ScrollTrigger);
 
 interface AnimationRefs {
-  carouselRef: RefObject<HTMLElement | null>;
   cardSwapRef: RefObject<HTMLElement | null>;
-  experienceRef: RefObject<HTMLElement | null>;
+  experienceRef?: RefObject<HTMLElement | null>;
   faqRef: RefObject<HTMLElement | null>;
   parallaxRef: RefObject<HTMLElement | null>;
 }
 
 export const useHomePageAnimations = (refs: AnimationRefs) => {
-  const { carouselRef, cardSwapRef, experienceRef, faqRef, parallaxRef } = refs;
+  const { cardSwapRef, experienceRef, faqRef, parallaxRef } = refs;
 
   // Use smooth scroll hook
   useSmoothScroll();
@@ -116,5 +115,5 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
       // Clean up all ScrollTrigger instances
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, [carouselRef, cardSwapRef, experienceRef, faqRef, parallaxRef]);
+  }, [ cardSwapRef, experienceRef, faqRef, parallaxRef]);
 };

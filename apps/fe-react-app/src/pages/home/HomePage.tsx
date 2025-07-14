@@ -14,14 +14,12 @@ import MovieSelection from "../store/MovieSelection";
 import "./styles/HomePage.css";
 
 const HomePage = () => {
-  const carouselRef = useRef<HTMLElement | null>(null);
   const cardSwapRef = useRef<HTMLElement | null>(null);
   const experienceRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
   const parallaxRef = useRef<HTMLElement | null>(null);
 
   useHomePageAnimations({
-    carouselRef,
     cardSwapRef,
     experienceRef,
     faqRef,
@@ -32,13 +30,23 @@ const HomePage = () => {
     <div>
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="home-page">
-          <CarouselSection ref={carouselRef} />
-          <MovieSelection />
-          <TrendingSection ref={cardSwapRef} />
+          <section id="home">
+            <CarouselSection />
+          </section>
+          <section id="movies">
+            <MovieSelection />
+          </section>
+          <section id="trending">
+            <TrendingSection ref={cardSwapRef} />
+          </section>
           <ParallaxSection ref={parallaxRef} />
-          <CinemaExperience ref={experienceRef} />
           <FeatureSection />
-          <FAQ ref={faqRef} />
+          <section id="chairs">
+            <CinemaExperience ref={experienceRef} />
+          </section>
+          <section id="faq">
+            <FAQ ref={faqRef} />
+          </section>
           {/* Admin Team Stack */}
           <div className="flex h-screen items-center justify-center">
             <div className="text-center">
