@@ -25,9 +25,10 @@ import {
   transformMovieResponse,
   transformMovieToRequest,
 } from "@/services/movieService";
-import type { MovieResponse } from "@/type-from-be";
+import type { CustomAPIResponse, MovieResponse } from "@/type-from-be";
+import { type UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { MovieDataTable } from "./MovieDataTable";
 import MovieDetail from "./MovieDetail";
@@ -55,7 +56,7 @@ const filterOptions = [
   },
   {
     label: "Thể loại",
-    value: "type",
+    value: "category",
     type: "select" as const,
     selectOptions: Object.values(MovieGenre).map((genre) => ({
       value: genre,
@@ -64,6 +65,77 @@ const filterOptions = [
     placeholder: "Chọn thể loại",
   },
 ];
+
+// Type guard for Movie
+const isValidMovie = (movie: Movie | undefined | null): movie is Movie => {
+  return !!movie && typeof movie.id === "number" && !!movie.name;
+};
+
+// Filter functions
+const filterByGlobalSearch = (movie: Movie, searchTerm: string): boolean => {
+  if (!searchTerm || !isValidMovie(movie)) return false;
+  const lowerSearchTerm = searchTerm.toLowerCase().trim();
+  return (
+    (movie.name?.toLowerCase().includes(lowerSearchTerm) ?? false) ||
+    (movie.director?.toLowerCase().includes(lowerSearchTerm) ?? false) ||
+    (movie.studio?.toLowerCase().includes(lowerSearchTerm) ?? false) ||
+    (movie.categories?.some((cat) => cat.name?.toLowerCase().includes(lowerSearchTerm) ?? false) ?? false) ||
+    (movie.description?.toLowerCase().includes(lowerSearchTerm) ?? false)
+  );
+};
+
+const filterByStatus = (movie: Movie, status: string): boolean => {
+  return movie.status === status;
+};
+
+const filterByCategory = (movie: Movie, category: string): boolean => {
+  return movie.categories?.some((cat) => cat.name === category) ?? false;
+};
+
+const applyFilters = (movies: Movie[], criteria: FilterCriteria[], searchTerm: string): Movie[] => {
+  let result = movies;
+
+  if (searchTerm) {
+    result = result.filter((movie) => filterByGlobalSearch(movie, searchTerm));
+  }
+
+  return result.filter((movie) =>
+    criteria.every((criterion) => {
+      switch (criterion.field) {
+        case "status":
+          return filterByStatus(movie, criterion.value as string);
+        case "category":
+          return filterByCategory(movie, criterion.value as string);
+        default:
+          return true;
+      }
+    }),
+  );
+};
+
+// Custom hook for mutation handling
+const useMovieMutationHandler = <TData, TError extends CustomAPIResponse, TVariables>(
+  mutation: UseMutationResult<TData, TError, TVariables>,
+  successMessage: string,
+  errorMessage: string,
+  refetch: () => void,
+  onSuccess?: () => void,
+) => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      toast.success(successMessage, { id: successMessage });
+      refetch();
+      onSuccess?.();
+      setTimeout(() => mutation.reset(), 100);
+    } else if (mutation.isError) {
+      toast.error(mutation.error?.message || errorMessage, {
+        id: `${successMessage}-error`,
+      });
+    }
+  }, [mutation, queryClient, successMessage, errorMessage, onSuccess, refetch]);
+};
 
 const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,7 +150,7 @@ const MovieManagement = () => {
   const [movieToDelete, setMovieToDelete] = useState<Movie | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
-  // Use React Query hooks
+  // React Query hooks
   const moviesQuery = queryMovies();
   const createMovieMutation = queryCreateMovie();
   const updateMovieMutation = queryUpdateMovie();
@@ -89,44 +161,26 @@ const MovieManagement = () => {
     return moviesQuery.data?.result ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse)) : [];
   }, [moviesQuery.data?.result]);
 
-  // Helper function to match filter criteria
-  const matchesCriteria = (movie: Movie, criteria: FilterCriteria): boolean => {
-    switch (criteria.field) {
-      case "status":
-        return movie.status === criteria.value;
-      case "category":
-        return movie.categories?.some((cat) => cat.name === criteria.value) ?? false;
-      default:
-        return true;
-    }
-  };
-
-  // Lọc phim theo searchTerm và filterCriteria
+  // Filtered movies
   const filteredMovies = useMemo(() => {
-    let result = movies;
-
-    // Search
-    if (searchTerm) {
-      const lower = searchTerm.toLowerCase();
-      result = result.filter(
-        (movie) =>
-          movie.name?.toLowerCase().includes(lower) ||
-          movie.director?.toLowerCase().includes(lower) ||
-          movie.studio?.toLowerCase().includes(lower) ||
-          movie.categories?.some((cat) => cat.name?.toLowerCase().includes(lower)) ||
-          movie.description?.toLowerCase().includes(lower),
-      );
-    }
-
-    // Filter
-    if (filterCriteria.length > 0) {
-      result = result.filter((movie) => {
-        return filterCriteria.every((criteria) => matchesCriteria(movie, criteria));
-      });
-    }
-
-    return result;
+    return applyFilters(movies, filterCriteria, searchTerm);
   }, [movies, searchTerm, filterCriteria]);
+
+  // Mutation handlers
+  useMovieMutationHandler(createMovieMutation, "Thêm phim thành công", "Lỗi khi thêm phim", moviesQuery.refetch, () => {
+    setIsModalOpen(false);
+    setSelectedMovie(undefined);
+  });
+
+  useMovieMutationHandler(updateMovieMutation, "Cập nhật phim thành công", "Lỗi khi cập nhật phim", moviesQuery.refetch, () => {
+    setIsModalOpen(false);
+    setSelectedMovie(undefined);
+  });
+
+  useMovieMutationHandler(deleteMovieMutation, "Xóa phim thành công", "Lỗi khi xóa phim", moviesQuery.refetch, () => {
+    setIsDeleteDialogOpen(false);
+    setMovieToDelete(null);
+  });
 
   // Show loading state
   if (moviesQuery.isLoading) {
@@ -158,22 +212,11 @@ const MovieManagement = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!movieToDelete?.id) return;
-
-    try {
-      await deleteMovieMutation.mutateAsync({
+  const handleDeleteConfirm = () => {
+    if (movieToDelete && movieToDelete.id !== undefined) {
+      deleteMovieMutation.mutate({
         params: { path: { id: movieToDelete.id } },
       });
-
-      toast.success("Đã xóa phim thành công");
-      moviesQuery.refetch();
-    } catch (error) {
-      console.error("Error deleting movie:", error);
-      toast.error("Không thể xóa phim");
-    } finally {
-      setIsDeleteDialogOpen(false);
-      setMovieToDelete(null);
     }
   };
 
@@ -185,24 +228,20 @@ const MovieManagement = () => {
   const validateMovieData = (values: MovieFormData): { isValid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
-    // Required fields validation using new Movie interface
     if (!values.name) errors.push("Movie Name is required");
     if (!values.director) errors.push("Director is required");
     if (!values.studio) errors.push("Studio is required");
     if (!values.categoryIds || values.categoryIds.length === 0) errors.push("At least one category is required");
     if (!values.description) errors.push("Description is required");
 
-    // Age restriction validation (must be between 13-18)
     if (!values.ageRestrict) {
       errors.push("Age restriction is required");
     } else if (values.ageRestrict < 13 || values.ageRestrict > 18) {
       errors.push("Age restriction must be between 13 and 18");
     }
 
-    // Numeric validations
     if (!values.duration || values.duration <= 0) errors.push("Duration must be a positive number");
 
-    // Date validations
     if (values.fromDate && values.toDate) {
       const startDate = new Date(values.fromDate);
       const endDate = new Date(values.toDate);
@@ -217,8 +256,7 @@ const MovieManagement = () => {
     };
   };
 
-  const handleSubmit = async (values: MovieFormData) => {
-    // Validate the form data
+  const handleSubmit = (values: MovieFormData) => {
     const validation = validateMovieData(values);
     if (!validation.isValid) {
       toast.error("Please fix the following errors:", {
@@ -233,65 +271,20 @@ const MovieManagement = () => {
       return;
     }
 
-    try {
-      // Handle file upload if present
-      let posterUrl = values.poster;
-      if (values.posterFile) {
-        // In a real app, you would upload the file to a server
-        // For this mock, we'll just use a fake URL or the existing one
-        posterUrl = URL.createObjectURL(values.posterFile);
-        // Clean up the URL when no longer needed
-        if (posterUrl) {
-          setTimeout(() => URL.revokeObjectURL(posterUrl!), 5000);
-        }
-      }
+    const movieRequestData = transformMovieToRequest({
+      ...values,
+      id: selectedMovie?.id,
+    });
 
-      const movieRequestData = transformMovieToRequest({
-        ...values,
-        id: selectedMovie?.id,
-        poster: posterUrl ?? values.poster,
+    if (selectedMovie?.id) {
+      updateMovieMutation.mutate({
+        params: { path: { id: selectedMovie.id } },
+        body: movieRequestData,
       });
-
-      if (selectedMovie?.id) {
-        updateMovieMutation.mutate(
-          {
-            params: { path: { id: selectedMovie.id } },
-            body: movieRequestData,
-          },
-          {
-            onSuccess: () => {
-              toast.success("Movie updated successfully");
-              setIsModalOpen(false);
-              setSelectedMovie(undefined);
-            },
-            onError: (error) => {
-              toast.error("Failed to update movie");
-              console.error("Movie update error:", error);
-            },
-          },
-        );
-      } else {
-        createMovieMutation.mutate(
-          {
-            body: movieRequestData,
-          },
-          {
-            onSuccess: () => {
-              toast.success("Movie created successfully");
-              setIsModalOpen(false);
-              setSelectedMovie(undefined);
-            },
-            onError: (error) => {
-              toast.error("Failed to create movie");
-              console.error("Movie create error:", error);
-            },
-          },
-        );
-      }
-    } catch (error) {
-      const errorMessage = selectedMovie ? "Failed to update movie" : "Failed to create movie";
-      toast.error(errorMessage);
-      console.error("Movie operation error:", error);
+    } else {
+      createMovieMutation.mutate({
+        body: movieRequestData,
+      });
     }
   };
 
@@ -310,18 +303,16 @@ const MovieManagement = () => {
           </CardHeader>
           <CardContent>
             <div className="mb-6 flex flex-col gap-4 md:flex-row">
-              {/* SearchBar */}
               <SearchBar
                 searchOptions={searchOptions}
                 onSearchChange={(value) => {
                   setSearchTerm(value);
                   if (tableRef.current) tableRef.current.resetPagination();
                 }}
-                placeholder="Tìm kiến theo id, tên phim, hãng phim, diễn viên, đạo diễn, hoặc mô tả..."
+                placeholder="Tìm kiếm theo id, tên phim, hãng phim, diễn viên, đạo diễn, hoặc mô tả..."
                 className="flex-1"
                 resetPagination={() => tableRef.current?.resetPagination()}
               />
-              {/* Filter */}
               <Filter
                 filterOptions={filterOptions}
                 onFilterChange={(criteria) => {
