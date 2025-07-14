@@ -22,7 +22,7 @@ function App() {
 
   return (
     <AuthProvider>
-      <div data-theme="aaaaaa">
+      <div>
         <title>{TITLE}</title>
         <ConditionalPageTransition>
           <Toaster position="top-right" />
