@@ -64,7 +64,8 @@ const PaymentReturn = () => {
     // Handle other cases (failed payment, invalid status, etc.)
     toast.error("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
     navigate(ROUTES.CHECKOUT);
-  }, [cancel, orderCode, status, id, navigate, cancelRequestWithOrderCode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Show loading while processing
   return (
