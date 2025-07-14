@@ -1,4 +1,3 @@
-export * from "./api-response.interface";
 export * from "./auth.interface";
 export * from "./booking.interface";
 export * from "./cinemarooms.interface";
@@ -13,4 +12,3 @@ export * from "./snacks.interface";
 export * from "./staff.interface";
 export { type STAFF_STATUS, type Staff, type StaffFormData } from "./staff.interface";
 export * from "./users.interface";
-export * from "./voucher.interface";

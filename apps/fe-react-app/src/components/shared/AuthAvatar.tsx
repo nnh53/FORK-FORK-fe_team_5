@@ -19,7 +19,7 @@ import { Link } from "react-router-dom";
 const AuthAvatar = () => {
   const { isLoggedIn, authLogout, user } = useAuth();
   const userRoles = getCookie("user_roles");
-  const fullName = getCookie("fullName");
+  // const fullName = getCookie("fullName");
   const hasRoles = userRoles && userRoles !== "null" && userRoles !== "";
   const isAuthenticated = isLoggedIn || hasRoles;
 
@@ -35,7 +35,7 @@ const AuthAvatar = () => {
     }
   }
 
-  const userId = user?.id || getCookie("user_id");
+  const userId = getCookie("user_id");
   const { data: userDetails } = useGetUserById(userId ?? "");
 
   const handleLogout = () => {
@@ -64,8 +64,8 @@ const AuthAvatar = () => {
     }
   };
 
-  const displayName = userDetails?.result?.fullName || fullName || "User";
-  const displayEmail = userDetails?.result?.email || "user@fcinema.com";
+  const displayName = userDetails?.result?.fullName || "";
+  const displayEmail = userDetails?.result?.email;
   const initials = displayName
     .split(" ")
     .map((n: string) => n[0])

@@ -9,13 +9,10 @@ interface AnimationRefs {
   cardSwapRef: RefObject<HTMLElement | null>;
   experienceRef?: RefObject<HTMLElement | null>;
   faqRef: RefObject<HTMLElement | null>;
-  parallaxRef: RefObject<HTMLElement | null>;
 }
 
 export const useHomePageAnimations = (refs: AnimationRefs) => {
-  const { cardSwapRef, experienceRef, faqRef, parallaxRef } = refs;
-
-  // Use smooth scroll hook
+  const { cardSwapRef, experienceRef, faqRef } = refs;
   useSmoothScroll();
 
   useEffect(() => {
@@ -37,7 +34,6 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
       },
     );
 
-    // Create section transitions with pinning
     gsap.utils.toArray<HTMLElement>(".panel").forEach((panel) => {
       ScrollTrigger.create({
         trigger: panel,
@@ -48,48 +44,6 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
       });
     });
 
-    // Add parallax layers
-    gsap.utils.toArray<HTMLElement>(".parallax-layer").forEach((layer) => {
-      const depth = Number(layer.dataset.depth ?? "0");
-      const movement = -(layer.offsetHeight * depth);
-
-      gsap.fromTo(
-        layer,
-        { y: 0 },
-        {
-          y: movement,
-          ease: "none",
-          scrollTrigger: {
-            trigger: parallaxRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
-        },
-      );
-    });
-
-    // FAQ section animation
-    gsap.fromTo(
-      ".faq-content",
-      {
-        y: 100,
-        opacity: 0,
-      },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: faqRef.current,
-          start: "top 70%",
-          toggleActions: "play none none none",
-        },
-      },
-    );
-
-    // FAQ title animation
     gsap.fromTo(
       ".faq-title",
       {
@@ -112,8 +66,7 @@ export const useHomePageAnimations = (refs: AnimationRefs) => {
     );
 
     return () => {
-      // Clean up all ScrollTrigger instances
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, [ cardSwapRef, experienceRef, faqRef, parallaxRef]);
+  }, [cardSwapRef, experienceRef, faqRef]);
 };

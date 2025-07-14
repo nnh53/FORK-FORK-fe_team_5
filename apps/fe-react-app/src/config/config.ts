@@ -146,6 +146,28 @@ export const siteConfig = {
       },
     ],
   },
+  errorPage: {
+    code: "404",
+    label: "Error",
+    title: "Sorry, we couldn't find this page.",
+    button: "Back to Home",
+  },
+  internalServerErrorPage: {
+    code: "500",
+    label: "Server Error",
+    title: "Oops! Something went wrong on our end.",
+    button: "Back to Home",
+  },
+  adminTeamSection: {
+    title: "Đội Ngũ Phát Triển",
+    description: "Các thành viên FCinema.",
+    cards: [
+      { id: 1, img: "/admins/cuong.jpg" },
+      { id: 2, img: "/admins/hoang.jpg" },
+      { id: 3, img: "/admins/phat.jpg" },
+      { id: 4, img: "/admins/tan.jpg" },
+    ],
+  },
 };
 
 export type SiteConfig = typeof siteConfig;

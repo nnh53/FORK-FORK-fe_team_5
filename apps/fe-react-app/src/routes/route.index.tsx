@@ -6,7 +6,6 @@ import { SectionCards } from "@/components/Shadcn/section-cards";
 import Loading from "@/components/shared/Loading";
 import PageTransition from "@/components/shared/PageTransition";
 import Test from "@/components/shared/Test";
-import LogVIAReg from "@/feature/auth/LogVIAReg";
 import RoleRoute from "@/feature/auth/RoleRoute";
 import Unauthorized from "@/feature/auth/unauth/Unauthor";
 import BookingPage from "@/feature/booking/BookingPage";
@@ -44,8 +43,7 @@ import UserLayout from "@/layouts/user/UserLayout";
 import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import Login from "@/pages/authentication/Login";
 import Register from "@/pages/authentication/Register";
-import InternalServerError from "@/pages/error/InternalServerError";
-import NotFoundError from "@/pages/error/NotFoundError";
+
 import HomePage from "@/pages/home/HomePage";
 import About from "@/pages/static/attachment/About";
 import PrivacyPolicy from "@/pages/static/rule/PrivacyPolicy";
@@ -54,6 +52,8 @@ import MovieDetailPage from "@/pages/store/MovieDetailPage";
 import MovieSelection from "@/pages/store/MovieSelection";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import { NotFoundError } from "@/pages/error/NotFoundError";
+import { InternalServerError } from "@/pages/error/InternalServerError";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -168,7 +168,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.LOADING} element={<Loading />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
     <Route path={ROUTES.ERROR} element={<NotFoundError />} />
-    <Route path={ROUTES.LOG_VIA_REG} element={<LogVIAReg />} />
     <Route path={ROUTES.INTERNAL_SERVER_ERROR} element={<InternalServerError />} />
     <Route path={ROUTES.TEST} element={<Test />} />
     <Route path="*" element={<NotFoundError />} />

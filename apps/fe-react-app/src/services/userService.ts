@@ -36,8 +36,6 @@ export const useGetUserById = (userId: string) => {
   if (userId === "") {
     console.log("userid bị méo tồn tại");
     console.log(`userId: =${userId}=`);
-  } else {
-    console.log("wtf");
   }
 
   return $api.useQuery("get", "/users/{userId}", {
