@@ -18,19 +18,13 @@ import {
   useUsers,
 } from "@/services/userService";
 import type { CustomAPIResponse } from "@/type-from-be";
-import { type UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import StaffForm from "./StaffForm";
 import StaffTable from "./StaffTable";
 
-// Type guard để kiểm tra StaffUser hợp lệ
-const isValidStaff = (staff: StaffUser | undefined | null): staff is StaffUser => {
-  return !!staff && typeof staff.id === "number" && !!staff.fullName;
-};
-
-// Hàm định dạng thời gian
+// Thêm hàm để định dạng thời gian
 const formatDateTime = (dateString?: string) => {
   if (!dateString) return "Chưa cập nhật";
   try {
@@ -55,26 +49,24 @@ const formatGender = (gender?: string) => {
   }
 };
 
-// Hàm tìm kiếm toàn cục
+// Tìm kiếm theo tất cả các trường có liên quan
 const filterByGlobalSearch = (staff: StaffUser, searchValue: string): boolean => {
-  if (!searchValue || !isValidStaff(staff)) return false;
+  if (!searchValue) return true;
 
-  const lowerSearchValue = searchValue.toLowerCase().trim();
+  const lowerSearchValue = searchValue.toLowerCase();
   return (
-    staff.id.toString().includes(lowerSearchValue) ||
-    (staff.fullName?.toLowerCase() ?? "").includes(lowerSearchValue) ||
-    (staff.email?.toLowerCase() ?? "").includes(lowerSearchValue) ||
-    (staff.phone?.toLowerCase() ?? "").includes(lowerSearchValue) ||
-    (staff.address?.toLowerCase() ?? "").includes(lowerSearchValue) ||
-    formatDateTime(staff.dateOfBirth).toLowerCase().includes(lowerSearchValue) ||
-    formatGender(staff.gender).toLowerCase().includes(lowerSearchValue)
+    staff.id.toString().includes(searchValue.trim()) ||
+    (staff.fullName?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (staff.email?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (staff.phone?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (staff.address?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (formatDateTime(staff.dateOfBirth)?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
+    (formatGender(staff.gender)?.toLowerCase() ?? "").includes(lowerSearchValue.trim())
   );
 };
 
-// Hàm lọc theo khoảng ngày
 const filterByDateRange = (staff: StaffUser, range: { from: Date | undefined; to: Date | undefined }): boolean => {
   if (!range.from && !range.to) return true;
-  if (!isValidStaff(staff)) return false;
 
   const staffBirthDate = staff.dateOfBirth ? new Date(staff.dateOfBirth) : null;
   if (!staffBirthDate) return false;
@@ -82,68 +74,19 @@ const filterByDateRange = (staff: StaffUser, range: { from: Date | undefined; to
   return !(range.from && staffBirthDate < range.from) && !(range.to && staffBirthDate > range.to);
 };
 
-// Hàm lọc theo trạng thái
 const filterByStatus = (staff: StaffUser, status: string): boolean => {
-  if (!isValidStaff(staff)) return false;
   return staff.status.toLowerCase() === status.toLowerCase();
 };
 
-// Hàm lọc theo giới tính
 const filterByGender = (staff: StaffUser, gender: string): boolean => {
-  if (!isValidStaff(staff)) return false;
   if (gender === "NOT_SET") {
-    return !staff.gender;
+    return !staff.gender; // Trả về true nếu staff.gender là null hoặc undefined
   }
   return staff.gender === (gender as USER_GENDER);
 };
 
-// Custom hook để xử lý mutation
-const useStaffMutationHandler = <TData, TError extends CustomAPIResponse, TVariables>(
-  mutation: UseMutationResult<TData, TError, TVariables>,
-  successMessage: string,
-  errorMessage: string,
-  onSuccess?: () => void,
-) => {
-  const queryClient = useQueryClient();
-  const usersQuery = useUsers();
-
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      toast.success(successMessage, { id: successMessage });
-      usersQuery.refetch();
-      onSuccess?.();
-      setTimeout(() => mutation.reset(), 100);
-    } else if (mutation.isError) {
-      toast.error(mutation.error?.message || errorMessage, { id: `${successMessage}-error` });
-    }
-  }, [mutation, queryClient, usersQuery, successMessage, errorMessage, onSuccess]);
-};
-
-// Hàm lọc chính
-const applyFilters = (staffs: StaffUser[], criteria: FilterCriteria[], searchTerm: string): StaffUser[] => {
-  let result = staffs;
-
-  if (searchTerm) {
-    result = result.filter((staff) => filterByGlobalSearch(staff, searchTerm));
-  }
-
-  return result.filter((staff) =>
-    criteria.every((criterion) => {
-      switch (criterion.field) {
-        case "birth_date_range":
-          return filterByDateRange(staff, criterion.value as { from: Date; to: Date });
-        case "status":
-          return filterByStatus(staff, criterion.value as string);
-        case "gender":
-          return filterByGender(staff, criterion.value as string);
-        default:
-          return true;
-      }
-    }),
-  );
-};
-
 const StaffManagement = () => {
+  const [staffs, setStaffs] = useState<StaffUser[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffUser | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
@@ -152,46 +95,16 @@ const StaffManagement = () => {
   const [staffToDelete, setStaffToDelete] = useState<StaffUser | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
+  // Sử dụng refs để theo dõi xem đã hiển thị toast chưa
+  const registerToastShownRef = useRef(false);
+  const updateToastShownRef = useRef(false);
+  const deleteToastShownRef = useRef(false);
+
   // React Query hooks
   const usersQuery = useUsers();
   const registerMutation = useRegister();
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
-
-  // Sử dụng custom hook để xử lý mutation
-  useStaffMutationHandler(registerMutation, "Đã thêm nhân viên mới thành công", "Lỗi khi thêm nhân viên", () => {
-    setIsModalOpen(false);
-    setSelectedStaff(undefined);
-  });
-
-  useStaffMutationHandler(updateUserMutation, "Đã cập nhật nhân viên thành công", "Lỗi khi cập nhật nhân viên", () => {
-    setIsModalOpen(false);
-    setSelectedStaff(undefined);
-  });
-
-  useStaffMutationHandler(deleteUserMutation, "Đã xóa nhân viên thành công", "Lỗi khi xóa nhân viên", () => {
-    setDeleteDialogOpen(false);
-    setStaffToDelete(null);
-  });
-
-  // Chuyển đổi dữ liệu từ API sang StaffUser
-  const staffs = useMemo(() => {
-    if (!usersQuery.data?.result) return [];
-    const result = Array.isArray(usersQuery.data.result) ? usersQuery.data.result : [usersQuery.data.result];
-    return result.map(transformUserResponse).filter((user) => user.role === ROLES.STAFF) as StaffUser[];
-  }, [usersQuery.data]);
-
-  // Lọc staff theo các tiêu chí
-  const filteredStaffs = useMemo(() => {
-    return applyFilters(staffs, filterCriteria, searchTerm);
-  }, [staffs, searchTerm, filterCriteria]);
-
-  // Reset pagination khi filter thay đổi
-  useEffect(() => {
-    if (tableRef.current) {
-      tableRef.current.resetPagination();
-    }
-  }, [filterCriteria]);
 
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [
@@ -202,7 +115,198 @@ const StaffManagement = () => {
     { value: "address", label: "Địa chỉ" },
   ];
 
-  // Filter configuration
+  // Chuyển đổi dữ liệu từ API sang dạng StaffUser
+  useEffect(() => {
+    if (usersQuery.data?.result) {
+      // Transform API response to StaffUser[] by filtering for STAFF role
+      let transformedUsers: StaffUser[] = [];
+
+      if (Array.isArray(usersQuery.data.result)) {
+        transformedUsers = usersQuery.data.result.map(transformUserResponse).filter((user) => user.role === ROLES.STAFF) as StaffUser[];
+      } else if (usersQuery.data.result) {
+        const user = transformUserResponse(usersQuery.data.result);
+        if (user.role === ROLES.STAFF) {
+          transformedUsers = [user as StaffUser];
+        }
+      }
+
+      setStaffs(transformedUsers);
+    }
+  }, [usersQuery.data]);
+
+  //kiểm tra trang thai cua query
+  useEffect(() => {
+    console.log("Staff data:", usersQuery.data);
+    console.log("Staff status:", usersQuery.status);
+    console.log("Staff error:", usersQuery.error);
+  }, [usersQuery.data, usersQuery.status, usersQuery.error]);
+
+  useEffect(() => {
+    console.log("Create staff status:", registerMutation.status);
+    console.log("Create staff error:", registerMutation.error);
+  }, [registerMutation.status, registerMutation.error]);
+
+  useEffect(() => {
+    console.log("Update staff status:", updateUserMutation.status);
+    console.log("Update staff error:", updateUserMutation.error);
+  }, [updateUserMutation.status, updateUserMutation.error]);
+
+  useEffect(() => {
+    console.log("Delete staff status:", deleteUserMutation.status);
+    console.log("Delete staff error:", deleteUserMutation.error);
+  }, [deleteUserMutation.status, deleteUserMutation.error]);
+
+  // Xử lý trạng thái của register mutation
+  useEffect(() => {
+    if (registerMutation.isSuccess) {
+      if (!registerToastShownRef.current) {
+        toast.success("Đã thêm nhân viên mới thành công");
+        registerToastShownRef.current = true;
+      }
+      usersQuery.refetch(); // Refetch users to get the latest data
+      setIsModalOpen(false);
+      setSelectedStaff(undefined);
+      setTimeout(() => {
+        registerMutation.reset();
+        registerToastShownRef.current = false;
+      }, 100);
+    } else if (registerMutation.isError) {
+      toast.error((registerMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi thêm nhân viên");
+    }
+  }, [registerMutation.isSuccess, registerMutation.isError, registerMutation.error, usersQuery]);
+
+  // Xử lý trạng thái của update mutation
+  useEffect(() => {
+    if (updateUserMutation.isSuccess) {
+      if (!updateToastShownRef.current) {
+        toast.success("Đã cập nhật nhân viên thành công");
+        updateToastShownRef.current = true;
+      }
+      usersQuery.refetch(); // Refetch users to get the latest data
+      setIsModalOpen(false);
+      setSelectedStaff(undefined);
+      setTimeout(() => {
+        updateUserMutation.reset();
+        updateToastShownRef.current = false;
+      }, 100);
+    } else if (updateUserMutation.isError) {
+      toast.error((updateUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi cập nhật nhân viên");
+    }
+  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error, usersQuery, updateUserMutation]);
+
+  // Xử lý trạng thái của delete mutation
+  useEffect(() => {
+    if (deleteUserMutation.isSuccess) {
+      if (!deleteToastShownRef.current) {
+        toast.success("Đã xóa nhân viên thành công");
+        deleteToastShownRef.current = true;
+      }
+      usersQuery.refetch(); // Refetch users to get the latest data
+      setDeleteDialogOpen(false);
+      setStaffToDelete(null);
+      setTimeout(() => {
+        deleteUserMutation.reset();
+        deleteToastShownRef.current = false;
+      }, 100);
+    } else if (deleteUserMutation.isError) {
+      toast.error((deleteUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi xóa nhân viên");
+    }
+  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error, usersQuery, deleteUserMutation]);
+
+  // Reset pagination khi filter thay đổi
+  useEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.resetPagination();
+    }
+  }, [filterCriteria]);
+
+  // Lọc staff theo các tiêu chí
+  const filteredStaffs = useMemo(() => {
+    // Apply global search
+    let filtered = staffs.filter((staff) => filterByGlobalSearch(staff, searchTerm));
+
+    // Apply all filter criteria
+    if (filterCriteria.length > 0) {
+      filtered = filtered.filter((staff) => {
+        return filterCriteria.every((criteria) => {
+          switch (criteria.field) {
+            case "birth_date_range":
+              return filterByDateRange(staff, criteria.value as { from: Date; to: Date });
+            case "status":
+              return filterByStatus(staff, criteria.value as string);
+            case "gender":
+              return filterByGender(staff, criteria.value as string);
+            default:
+              return true;
+          }
+        });
+      });
+    }
+
+    return filtered;
+  }, [staffs, searchTerm, filterCriteria]);
+
+  // Mở form thêm mới
+  const handleAdd = () => {
+    setSelectedStaff(undefined);
+    setIsModalOpen(true);
+  };
+
+  // Mở form chỉnh sửa
+  const handleEdit = (staff: StaffUser) => {
+    setSelectedStaff(staff);
+    setIsModalOpen(true);
+  };
+
+  // CRUD Operations
+  const handleCreateStaff = (staffData: StaffRequest) => {
+    // Ensure phone is not undefined for the transform function
+    const transformedData = transformRegisterRequest({
+      ...staffData,
+      role: ROLES.STAFF,
+      phone: staffData.phone ?? "",
+    });
+
+    registerMutation.mutate({
+      body: transformedData,
+    });
+  };
+
+  const handleUpdateStaff = (staffData: StaffRequest) => {
+    if (!selectedStaff) return;
+
+    const transformedData = transformUserUpdateRequest({
+      ...staffData,
+      id: selectedStaff.id,
+      role: ROLES.STAFF,
+    });
+
+    updateUserMutation.mutate({
+      params: { path: { userId: selectedStaff.id } },
+      body: transformedData,
+    });
+  };
+
+  // Hiển thị Dialog xác nhận xóa
+  const confirmDelete = (staff: StaffUser) => {
+    setStaffToDelete(staff);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteStaff = () => {
+    if (!staffToDelete) return;
+
+    deleteUserMutation.mutate({
+      params: { path: { userId: staffToDelete.id } },
+    });
+  };
+
+  // Hiển thị loading khi đang tải dữ liệu
+  if (usersQuery.isLoading) {
+    return <LoadingSpinner name="nhân viên" />;
+  }
+
+  // Filter configuration - sử dụng FilterGroup giống như Member
   const filterGroups: FilterGroup[] = [
     {
       name: "dates",
@@ -245,128 +349,70 @@ const StaffManagement = () => {
     },
   ];
 
-  // Mở form thêm mới
-  const handleAdd = () => {
-    setSelectedStaff(undefined);
-    setIsModalOpen(true);
-  };
-
-  // Mở form chỉnh sửa
-  const handleEdit = (staff: StaffUser) => {
-    if (isValidStaff(staff)) {
-      setSelectedStaff(staff);
-      setIsModalOpen(true);
-    }
-  };
-
-  // Hủy thao tác
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    setSelectedStaff(undefined);
-  };
-
-  // Xử lý submit form
-  const handleSubmit = (staffData: StaffRequest) => {
-    if (selectedStaff) {
-      if (!isValidStaff(selectedStaff)) return;
-      const transformedData = transformUserUpdateRequest({
-        ...staffData,
-        id: selectedStaff.id,
-        role: ROLES.STAFF,
-      });
-      updateUserMutation.mutate({
-        params: { path: { userId: selectedStaff.id } },
-        body: transformedData,
-      });
-    } else {
-      const transformedData = transformRegisterRequest({
-        ...staffData,
-        role: ROLES.STAFF,
-        phone: staffData.phone ?? "",
-      });
-      registerMutation.mutate({
-        body: transformedData,
-      });
-    }
-  };
-
-  // Hiển thị dialog xác nhận xóa
-  const confirmDelete = (staff: StaffUser) => {
-    if (isValidStaff(staff)) {
-      setStaffToDelete(staff);
-      setDeleteDialogOpen(true);
-    } else {
-      toast.error("Không tìm thấy nhân viên để xóa", { id: "delete-staff-error" });
-    }
-  };
-
-  // Xử lý xóa
-  const handleDeleteStaff = () => {
-    if (!isValidStaff(staffToDelete)) {
-      toast.error("Không tìm thấy nhân viên để xóa", { id: "delete-staff-error" });
-      return;
-    }
-    deleteUserMutation.mutate({
-      params: { path: { userId: staffToDelete.id } },
-    });
-  };
-
-  if (usersQuery.isLoading) {
-    return <LoadingSpinner name="nhân viên" />;
-  }
-
   return (
     <div className="container mx-auto p-4">
       <Card>
         <CardHeader className="space-y-4">
+          {/* Title and Add button */}
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <CardTitle className="text-2xl font-bold">Quản lý nhân viên</CardTitle>
-              <p className="text-muted-foreground mt-1">Quản lý danh sách nhân viên của bạn</p>
-            </div>
-            <Button onClick={handleAdd} disabled={registerMutation.isPending}>
+            <CardTitle className="text-2xl font-bold">Quản lý nhân viên</CardTitle>
+            <Button onClick={handleAdd} className="shrink-0">
               <Plus className="mr-2 h-4 w-4" />
-              {registerMutation.isPending ? "Đang thêm..." : "Thêm nhân viên"}
+              Thêm nhân viên
             </Button>
           </div>
 
+          {/* Search and Filter row */}
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+            {/* SearchBar */}{" "}
             <SearchBar
               searchOptions={searchOptions}
               onSearchChange={setSearchTerm}
               placeholder="Tìm kiếm theo ID, tên, email, số điện thoại hoặc địa chỉ..."
-              className="w-full flex-1 sm:w-auto"
+              className="w-full sm:w-1/2"
               resetPagination={() => tableRef.current?.resetPagination()}
             />
+            {/* Filter - Right */}
             <div className="shrink-0">
-              <Filter filterOptions={filterGroups} onFilterChange={setFilterCriteria} groupMode={true} />
+              <Filter
+                filterOptions={filterGroups}
+                onFilterChange={(criteria) => {
+                  setFilterCriteria(criteria);
+                  // Reset pagination khi filter thay đổi
+                  if (tableRef.current) {
+                    tableRef.current.resetPagination();
+                  }
+                }}
+                groupMode={true}
+              />
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <StaffTable ref={tableRef} staffs={filteredStaffs} onEdit={handleEdit} onDelete={confirmDelete} />
+          {usersQuery.isLoading ? (
+            <LoadingSpinner name="nhân viên..." />
+          ) : (
+            <StaffTable ref={tableRef} staffs={filteredStaffs} onEdit={handleEdit} onDelete={confirmDelete} />
+          )}
         </CardContent>
       </Card>
 
+      {/* Add/Edit Staff modal */}
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => {
-          if (!open) handleCancel();
+          if (!open) setIsModalOpen(false);
         }}
       >
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{selectedStaff ? "Sửa nhân viên" : "Thêm nhân viên mới"}</DialogTitle>
           </DialogHeader>
-          <StaffForm
-            staff={selectedStaff}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isLoading={registerMutation.isPending || updateUserMutation.isPending}
-          />
+          <StaffForm staff={selectedStaff} onSubmit={selectedStaff ? handleUpdateStaff : handleCreateStaff} onCancel={() => setIsModalOpen(false)} />
         </DialogContent>
       </Dialog>
 
+      {/* Delete confirmation dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -379,8 +425,8 @@ const StaffManagement = () => {
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Hủy
             </Button>
-            <Button variant="destructive" onClick={handleDeleteStaff} disabled={deleteUserMutation.isPending || !isValidStaff(staffToDelete)}>
-              {deleteUserMutation.isPending ? "Đang xóa..." : "Xóa"}
+            <Button variant="destructive" onClick={handleDeleteStaff}>
+              Xóa
             </Button>
           </DialogFooter>
         </DialogContent>
