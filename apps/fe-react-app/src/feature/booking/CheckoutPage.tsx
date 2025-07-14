@@ -333,16 +333,43 @@ const CheckoutPage: React.FC = () => {
         body: apiRequest,
       });
 
-      // Save booking data to localStorage
-      localStorage.setItem("bookingSuccessData", JSON.stringify(bookingResponse.result));
+      // Save comprehensive booking data to localStorage for later use
+      const bookingDataForStorage = {
+        // Booking response from API
+        bookingResult: bookingResponse.result,
+        // Additional context data
+        movieInfo: movie,
+        selectionInfo: selection,
+        cinemaName: cinemaName,
+        selectedSeats: selectedSeats,
+        selectedCombos: selectedCombos,
+        selectedSnacks: selectedSnacks,
+        selectedPromotion: selectedPromotion,
+        paymentMethod: paymentMethod,
+        costs: {
+          ticketCost,
+          comboCost,
+          snackCost,
+          subtotal,
+          pointsDiscount,
+          voucherDiscount,
+          promotionDiscount,
+          finalTotalCost,
+        },
+        // Timestamp for reference
+        savedAt: new Date().toISOString(),
+      };
 
-      // Navigate with bookingId as URL parameter
-      navigate(`/booking-success?bookingId=${bookingResponse.result?.id}`);
+      localStorage.setItem("bookingSuccessData", JSON.stringify(bookingDataForStorage));
+      console.log("Saved booking data to localStorage:", bookingDataForStorage);
 
-      if (paymentMethod === "ONLINE" && bookingResponse.result?.payOsLink) {
+      // Only allow online payment - redirect to payment gateway
+      if (bookingResponse.result?.payOsLink) {
+        toast.info("Đang chuyển hướng đến trang thanh toán...");
+        console.log("Redirecting to payment with booking ID:", bookingResponse.result?.id);
         window.location.href = bookingResponse.result.payOsLink;
       } else {
-        throw new Error("Đặt vé thất bại. Vui lòng thử lại!");
+        throw new Error("Không thể tạo liên kết thanh toán. Vui lòng thử lại!");
       }
     } catch (error) {
       console.error("Error creating booking:", error);

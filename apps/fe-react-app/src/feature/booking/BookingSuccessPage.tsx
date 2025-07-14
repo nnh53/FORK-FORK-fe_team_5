@@ -1,45 +1,176 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { transformBookingResponse, useBooking } from "@/services/bookingService";
+import { useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
 import { queryMovie } from "@/services/movieService.ts";
 import { CheckCircle } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 const BookingSuccessPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  // Get booking ID from localStorage only
+  const getBookingIdFromStorage = () => {
+    const savedBookingData = localStorage.getItem("bookingSuccessData");
+    console.log("Checking localStorage for booking data:", savedBookingData);
+    if (savedBookingData) {
+      try {
+        const parsedData = JSON.parse(savedBookingData);
+        console.log("Parsed localStorage data:", parsedData);
 
-  // Get booking ID from URL params
-  const bookingId = searchParams.get("bookingId");
+        // Handle both old format (direct booking result) and new format (comprehensive data)
+        if (parsedData.bookingResult) {
+          // New comprehensive format
+          return parsedData.bookingResult.id ? String(parsedData.bookingResult.id) : null;
+        } else if (parsedData.id) {
+          // Old format (direct booking result)
+          return String(parsedData.id);
+        }
+        return null;
+      } catch (error) {
+        console.error("Error parsing saved booking data for ID:", error);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  // Get comprehensive booking data from localStorage
+  const getBookingDataFromStorage = () => {
+    const savedBookingData = localStorage.getItem("bookingSuccessData");
+    if (savedBookingData) {
+      try {
+        const parsedData = JSON.parse(savedBookingData);
+        console.log("Full localStorage booking data:", parsedData);
+        return parsedData;
+      } catch (error) {
+        console.error("Error parsing saved booking data:", error);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  // Use booking ID from localStorage only
+  const storageBookingId = getBookingIdFromStorage();
+  const savedBookingData = getBookingDataFromStorage();
+
+  // Use storage booking ID as the primary source
+  const bookingId = storageBookingId;
   const bookingIdNumber = bookingId ? parseInt(bookingId) : null;
+
+  // Assume payment success if we have booking ID from localStorage
+  const paymentSuccess = !!bookingId;
+
+  console.log("BookingSuccessPage - localStorage booking ID:", storageBookingId);
+  console.log("BookingSuccessPage - Final booking ID:", { bookingId, bookingIdNumber });
+  console.log("BookingSuccessPage - Payment success:", paymentSuccess);
+
+  // Use React Query hook to fetch fresh booking data using "get", "/bookings/{id}"
+  const { data: bookingData, isLoading, error } = useBooking(Number(storageBookingId) || 0);
 
   useEffect(() => {
     // Show success message when component mounts (booking is successful)
-    toast.success("Đặt vé thành công!");
-  }, []); // Empty dependency array means this runs once when component mounts
-
-  // Use React Query hook to fetch booking data
-  const { data: bookingData, isLoading, error } = useBooking(bookingIdNumber || 0);
-
-  // Transform API response to internal format
-  const booking = useMemo(() => {
-    if (!bookingData?.result) {
-      // Try to get booking data from localStorage first
-      const savedBookingData = localStorage.getItem("bookingSuccessData");
-      if (savedBookingData) {
-        try {
-          const parsedData = JSON.parse(savedBookingData);
-          return transformBookingResponse(parsedData);
-        } catch (error) {
-          console.error("Error parsing saved booking data:", error);
-          return null;
-        }
-      }
-      return null;
+    if (paymentSuccess) {
+      toast.success("Đặt vé và thanh toán thành công!");
+    } else {
+      toast.success("Đặt vé thành công!");
     }
-    return transformBookingResponse(bookingData.result);
-  }, [bookingData]);
+  }, [paymentSuccess]); // Depend on paymentSuccess to show appropriate message
+
+  // Clean up localStorage when we get fresh data from API
+  useEffect(() => {
+    if (bookingData?.result) {
+      // Remove localStorage backup since we have fresh data
+      // localStorage.removeItem("bookingSuccessData");
+      console.log("Fresh API data received, removed localStorage backup");
+    }
+  }, [bookingData?.result]);
+
+  // Transform API response to internal format - use ONLY fresh API data, fallback to localStorage
+  const booking = useMemo(() => {
+    if (bookingData?.result) {
+      console.log("Using fresh API data for booking:", bookingData.result);
+
+      // Transform the API response to match the expected internal format
+      const apiData = bookingData.result;
+      return {
+        id: apiData.id,
+        user: {
+          full_name: apiData.user?.fullName,
+          phone: apiData.user?.phone,
+          email: apiData.user?.email,
+        },
+        booking_date_time: apiData.bookingDate,
+        booking_status: apiData.status,
+        total_price: apiData.totalPrice,
+        payment_method: apiData.paymentMethod,
+        payment_status: apiData.paymentStatus,
+        loyalty_point_used: apiData.loyaltyPointsUsed,
+        promotion: apiData.promotion,
+        showtime: {
+          id: apiData.showTime?.id,
+          movie_id: apiData.showTime?.movieId,
+          show_date_time: apiData.showTime?.showDateTime,
+          room_id: apiData.showTime?.roomId,
+          cinema_room: {
+            room_number: apiData.showTime?.roomName || `Room ${apiData.showTime?.roomId}`,
+          },
+        },
+        booking_seats:
+          apiData.seats?.map((seat: { name?: string; seatName?: string }) => ({
+            seat: { name: seat.name || seat.seatName },
+          })) || [],
+        booking_combos: apiData.bookingCombos || [],
+        booking_snacks: apiData.bookingSnacks || [],
+      };
+    }
+
+    // Fallback to localStorage data while API is loading
+    if (savedBookingData && (isLoading || !bookingData)) {
+      console.log("Using localStorage data as fallback while API loads:", savedBookingData);
+
+      // Handle both old format and new comprehensive format
+      const bookingResult = savedBookingData.bookingResult || savedBookingData;
+      const movieInfo = savedBookingData.movieInfo;
+      const selectionInfo = savedBookingData.selectionInfo;
+      const selectedSeats = savedBookingData.selectedSeats;
+
+      return {
+        id: bookingResult.id,
+        user: {
+          full_name: bookingResult.user?.fullName || "N/A",
+          phone: bookingResult.user?.phone || "N/A",
+          email: bookingResult.user?.email || "N/A",
+        },
+        booking_date_time: bookingResult.bookingDate || new Date().toISOString(),
+        booking_status: bookingResult.status || "CONFIRMED",
+        total_price: bookingResult.totalPrice || savedBookingData.costs?.finalTotalCost || 0,
+        payment_method: bookingResult.paymentMethod || savedBookingData.paymentMethod || "ONLINE",
+        payment_status: bookingResult.paymentStatus || "PENDING",
+        loyalty_point_used: bookingResult.loyaltyPointsUsed || 0,
+        promotion: bookingResult.promotion || savedBookingData.selectedPromotion,
+        showtime: {
+          id: bookingResult.showTime?.id || selectionInfo?.showtimeId,
+          movie_id: movieInfo?.id,
+          show_date_time: bookingResult.showTime?.showDateTime || selectionInfo?.showDateTime,
+          room_id: bookingResult.showTime?.roomId,
+          cinema_room: {
+            room_number: bookingResult.showTime?.roomName || `Room ${bookingResult.showTime?.roomId}` || "N/A",
+          },
+        },
+        booking_seats:
+          selectedSeats?.map((seat: { name?: string; id?: string }) => ({
+            seat: { name: seat.name || seat.id || "N/A" },
+          })) || [],
+        booking_combos: bookingResult.bookingCombos || [],
+        booking_snacks: bookingResult.bookingSnacks || [],
+        // Add flag to indicate this is from localStorage
+        _isFromLocalStorage: true,
+      };
+    }
+
+    return null;
+  }, [bookingData, savedBookingData, isLoading]);
 
   // Fetch additional data based on booking showtime
   const movieId = booking?.showtime?.movie_id || 0;
@@ -48,64 +179,130 @@ const BookingSuccessPage: React.FC = () => {
   const { data: movieData } = queryMovie(movieId);
   const { data: cinemaRoomData } = useCinemaRoom(roomId);
 
-  // Transform movie and cinema room data
+  // Transform movie and cinema room data with localStorage fallback
   const movieInfo = useMemo(() => {
-    if (!movieData?.result) return null;
-    return {
-      name: movieData.result.name || "N/A",
-      duration: movieData.result.duration || 0,
-    };
-  }, [movieData]);
-
-  const cinemaRoomInfo = useMemo(() => {
-    if (!cinemaRoomData?.result) {
-      // Fallback to room number from showtime if available
+    // Use API data first
+    if (movieData?.result) {
       return {
-        room_number: booking?.showtime?.cinema_room?.room_number || `${roomId}` || "N/A",
+        name: movieData.result.name || "N/A",
+        duration: movieData.result.duration || 0,
       };
     }
-    return {
-      room_number: cinemaRoomData.result.name || `${roomId}` || "N/A",
-    };
-  }, [cinemaRoomData, booking?.showtime, roomId]);
 
-  // Show loading state
-  if (isLoading && !booking) {
+    // Fallback to localStorage movie data
+    if (savedBookingData?.movieInfo) {
+      return {
+        name: savedBookingData.movieInfo.title || savedBookingData.movieInfo.name || "N/A",
+        duration: savedBookingData.movieInfo.duration || 0,
+      };
+    }
+
+    return null;
+  }, [movieData, savedBookingData]);
+
+  const cinemaRoomInfo = useMemo(() => {
+    // Use API data first
+    if (cinemaRoomData?.result) {
+      return {
+        room_number: cinemaRoomData.result.name || `${roomId}` || "N/A",
+      };
+    }
+
+    // Fallback to showtime room info
+    if (booking?.showtime?.cinema_room?.room_number) {
+      return {
+        room_number: booking.showtime.cinema_room.room_number,
+      };
+    }
+
+    // Fallback to localStorage cinema name
+    if (savedBookingData?.cinemaName) {
+      return {
+        room_number: savedBookingData.cinemaName,
+      };
+    }
+
+    return {
+      room_number: `${roomId}` || "N/A",
+    };
+  }, [cinemaRoomData, booking?.showtime, roomId, savedBookingData]);
+
+  // Show loading state - only show if we have a valid booking ID and are still loading
+  if (isLoading && bookingIdNumber && !booking) {
     return (
       <div>
         <div className="mx-auto max-w-2xl p-8 text-center">
-          <div className="text-lg">Đang tải thông tin booking...</div>
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-red-600"></div>
+          <div className="mt-4 text-lg">Đang tải thông tin booking từ server...</div>
+          <p className="mt-2 text-sm text-gray-600">Booking ID: {bookingIdNumber}</p>
         </div>
       </div>
     );
   }
 
-  // Show error state
-  if (error && !booking) {
+  // Show error state - only if we have an error and no booking data
+  if (error && !booking && bookingIdNumber) {
     return (
       <div>
         <div className="mx-auto max-w-2xl p-8 text-center">
-          <div className="text-lg text-red-500">Không thể tải thông tin booking</div>
+          <div className="text-lg text-red-500">Không thể tải thông tin booking từ server</div>
+          <p className="mt-2 text-sm text-gray-600">Booking ID: {bookingIdNumber}</p>
           <Link to="/">
             <Button className="mt-4">Về trang chủ</Button>
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Show no booking ID state
+  if (!bookingIdNumber) {
+    return (
+      <div>
+        <div className="mx-auto max-w-2xl p-8 text-center">
+          <div className="text-lg text-red-500">Không tìm thấy mã booking</div>
+          <div className="mt-4 space-y-2 text-sm text-gray-600">
+            <p>localStorage booking ID: {storageBookingId || "Không có"}</p>
+            <p>Vui lòng thực hiện đặt vé lại</p>
+          </div>
+          <div className="mt-4 space-y-2">
+            <Link to="/checkout">
+              <Button className="w-full sm:w-auto">Đặt vé mới</Button>
+            </Link>
+            <Link to="/">
+              <Button variant="outline" className="w-full sm:w-auto">
+                Về trang chủ
+              </Button>
+            </Link>
+          </div>
+          <div className="mt-4 gap-1 rounded-lg bg-gray-100 p-4">
+            <p className="mb-2 text-xs text-gray-500">Debug: Booking ID từ localStorage</p>
+            <p className="mb-2 text-xs text-gray-500">Kiểm tra localStorage để lấy booking ID</p>
+            <p className="text-xs text-gray-500">Đảm bảo CheckoutPage đã lưu dữ liệu đúng cách</p>
+          </div>
         </div>
       </div>
     );
   }
 
   // Show no booking found state
-  if (!booking) {
+  if (!booking && !isLoading) {
     return (
       <div>
         <div className="mx-auto max-w-2xl p-8 text-center">
-          <div className="text-lg text-red-500">Không tìm thấy thông tin đặt vé.</div>
+          <div className="text-lg text-red-500">Không tìm thấy thông tin đặt vé</div>
+          <p className="mt-2 text-sm text-gray-600">Booking ID: {bookingIdNumber}</p>
           <Link to="/">
             <Button className="mt-4">Về trang chủ</Button>
           </Link>
         </div>
       </div>
     );
+  }
+
+  // At this point, booking is guaranteed to be non-null
+  if (!booking) {
+    return null; // This should never happen due to the checks above
   }
 
   return (
@@ -240,8 +437,8 @@ const BookingSuccessPage: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-500">Khuyến mãi áp dụng</p>
                     <p className="font-semibold text-green-600">{booking.promotion.title || "Khuyến mãi"}</p>
-                    {booking.promotion.discount_value && booking.promotion.discount_value > 0 && (
-                      <p className="text-sm text-gray-600">Giảm {booking.promotion.discount_value.toLocaleString("vi-VN")} VNĐ</p>
+                    {booking.promotion.discountValue && booking.promotion.discountValue > 0 && (
+                      <p className="text-sm text-gray-600">Giảm {booking.promotion.discountValue.toLocaleString("vi-VN")} VNĐ</p>
                     )}
                   </div>
                 )}
@@ -262,21 +459,9 @@ const BookingSuccessPage: React.FC = () => {
                 Về trang chủ
               </Button>
             </Link>
-            <Link to="/my-bookings">
+            <Link to="/account">
               <Button className="w-full sm:w-auto">Xem lịch sử đặt vé</Button>
             </Link>
-          </div>
-
-          {/* QR Code placeholder */}
-          <div className="mt-8 rounded-lg bg-gray-50 p-6 text-center">
-            <p className="mb-2 text-sm text-gray-500">Vui lòng lưu mã đặt vé để checkin tại rạp</p>
-            <div className="inline-block rounded-lg border bg-white p-4">
-              <div className="flex h-32 w-32 items-center justify-center bg-gray-200 text-gray-500">
-                QR Code
-                <br />
-                {booking.id}
-              </div>
-            </div>
           </div>
         </div>
       </div>
