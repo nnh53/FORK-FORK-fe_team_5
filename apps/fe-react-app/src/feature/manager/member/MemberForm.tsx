@@ -14,6 +14,7 @@ interface MemberFormProps {
   member?: User;
   onSubmit: (values: UserRequest) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 interface MemberFormData extends UserRequest {

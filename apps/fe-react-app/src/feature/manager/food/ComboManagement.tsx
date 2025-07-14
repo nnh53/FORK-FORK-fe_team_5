@@ -31,7 +31,8 @@ import {
   useUpdateCombo,
   useUpdateComboSnack,
 } from "@/services/comboService";
-import { useQueryClient } from "@tanstack/react-query";
+import type { CustomAPIResponse } from "@/type-from-be";
+import { useQueryClient, type UseMutationResult } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -39,20 +40,43 @@ import ComboDetail from "./ComboDetail";
 import ComboForm from "./ComboForm";
 import ComboTable from "./ComboTable";
 
+// Hàm filter toàn cục với kiểm tra null/undefined
 const filterByGlobalSearch = (combo: Combo, searchTerm: string): boolean => {
-  if (!searchTerm) return true;
-  if (!combo) return false;
+  if (!searchTerm || !combo) return false;
 
   const lowerSearchTerm = searchTerm.toLowerCase().trim();
   return (
-    combo.id?.toString().includes(searchTerm) ||
-    combo.name?.toLowerCase().includes(lowerSearchTerm) ||
-    combo.description?.toLowerCase().includes(lowerSearchTerm)
+    (combo.id?.toString().includes(searchTerm) ?? false) ||
+    (combo.name?.toLowerCase().includes(lowerSearchTerm) ?? false) ||
+    (combo.description?.toLowerCase().includes(lowerSearchTerm) ?? false)
   );
 };
 
+// Hàm filter theo trạng thái
 const filterByStatus = (combo: Combo, status: string): boolean => {
   return combo.status === status;
+};
+
+// Custom hook để xử lý mutation
+const useComboMutationHandler = <TData, TError extends CustomAPIResponse, TVariables>(
+  mutation: UseMutationResult<TData, TError, TVariables>,
+  successMessage: string,
+  errorMessage: string,
+  onSuccess: () => void,
+) => {
+  const queryClient = useQueryClient();
+  const combosQuery = useCombos();
+
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      toast.success(successMessage, { id: successMessage });
+      combosQuery.refetch();
+      onSuccess();
+      setTimeout(() => mutation.reset(), 100);
+    } else if (mutation.isError) {
+      toast.error(mutation.error?.message || errorMessage, { id: `${successMessage}-error` });
+    }
+  }, [mutation, successMessage, errorMessage, onSuccess, queryClient, combosQuery]);
 };
 
 const ComboManagement: React.FC = () => {
@@ -69,10 +93,6 @@ const ComboManagement: React.FC = () => {
 
   const queryClient = useQueryClient();
   const tableRef = useRef<{ resetPagination: () => void }>(null);
-  // Sử dụng refs để theo dõi xem đã hiển thị toast chưa
-  const createToastShownRef = useRef(false);
-  const updateToastShownRef = useRef(false);
-  const deleteToastShownRef = useRef(false);
 
   // React Query hooks
   const combosQuery = useCombos();
@@ -84,157 +104,33 @@ const ComboManagement: React.FC = () => {
   const deleteComboSnackByComboAndSnackMutation = useDeleteComboSnackByComboAndSnack();
   const comboSnacksQuery = useComboSnacksByComboId(selectedComboIdForDetails ?? 0);
 
-  // Kiểm tra trạng thái của queries và mutations
-  useEffect(() => {
-    console.log("Combos data:", combosQuery.data);
-    console.log("Combos status:", combosQuery.status);
-    console.log("Combos error:", combosQuery.error);
-  }, [combosQuery.data, combosQuery.status, combosQuery.error]);
+  // Sử dụng custom hook để xử lý mutation
+  useComboMutationHandler(createComboMutation, "Tạo combo mới thành công", "Lỗi khi tạo combo", () => {
+    setIsModalOpen(false);
+    setSelectedCombo(undefined);
+  });
 
-  useEffect(() => {
-    console.log("Create combo status:", createComboMutation.status);
-    console.log("Create combo error:", createComboMutation.error);
-  }, [createComboMutation.status, createComboMutation.error]);
+  useComboMutationHandler(updateComboMutation, "Cập nhật combo thành công", "Lỗi khi cập nhật combo", () => {
+    setIsModalOpen(false);
+    setSelectedCombo(undefined);
+  });
 
-  useEffect(() => {
-    console.log("Update combo status:", updateComboMutation.status);
-    console.log("Update combo error:", updateComboMutation.error);
-  }, [updateComboMutation.status, updateComboMutation.error]);
+  useComboMutationHandler(deleteComboMutation, "Xóa combo thành công", "Lỗi khi xóa combo", () => {
+    setDeleteDialogOpen(false);
+    setComboToDelete(null);
+  });
 
-  useEffect(() => {
-    console.log("Delete combo status:", deleteComboMutation.status);
-    console.log("Delete combo error:", deleteComboMutation.error);
-  }, [deleteComboMutation.status, deleteComboMutation.error]);
+  useComboMutationHandler(addSnacksToComboMutation, "Đã thêm thực phẩm vào combo", "Lỗi khi thêm thực phẩm vào combo", () =>
+    queryClient.invalidateQueries({ queryKey: ["get", "/combo-snacks/combo/{comboId}"] }),
+  );
 
-  // Xử lý kết quả của createComboMutation
-  useEffect(() => {
-    if (createComboMutation.isSuccess) {
-      if (!createToastShownRef.current) {
-        toast.success("Tạo combo mới thành công");
-        createToastShownRef.current = true;
-      }
-      combosQuery.refetch();
-      setIsModalOpen(false);
-      setSelectedCombo(undefined);
-      setTimeout(() => {
-        createComboMutation.reset();
-        createToastShownRef.current = false;
-      }, 100);
-    }
-  }, [createComboMutation.isSuccess, combosQuery, createComboMutation]);
+  useComboMutationHandler(updateComboSnackMutation, "Đã cập nhật thực phẩm trong combo", "Lỗi khi cập nhật thực phẩm trong combo", () =>
+    queryClient.invalidateQueries({ queryKey: ["get", "/combo-snacks/combo/{comboId}"] }),
+  );
 
-  // Xử lý lỗi khi tạo combo
-  useEffect(() => {
-    if (createComboMutation.isError) {
-      toast.error(String(createComboMutation.error) || "Lỗi khi tạo combo");
-      setTimeout(() => createComboMutation.reset(), 100);
-    }
-  }, [createComboMutation.isError, createComboMutation.error, createComboMutation]);
-
-  // Xử lý kết quả của updateComboMutation
-  useEffect(() => {
-    if (updateComboMutation.isSuccess) {
-      if (!updateToastShownRef.current) {
-        toast.success("Cập nhật combo thành công");
-        updateToastShownRef.current = true;
-      }
-      combosQuery.refetch();
-      setIsModalOpen(false);
-      setSelectedCombo(undefined);
-      setTimeout(() => {
-        updateComboMutation.reset();
-        updateToastShownRef.current = false;
-      }, 100);
-    }
-  }, [updateComboMutation.isSuccess, combosQuery, updateComboMutation]);
-
-  // Xử lý lỗi khi cập nhật combo
-  useEffect(() => {
-    if (updateComboMutation.isError) {
-      toast.error(String(updateComboMutation.error) || "Lỗi khi cập nhật combo");
-      setTimeout(() => updateComboMutation.reset(), 100);
-    }
-  }, [updateComboMutation.isError, updateComboMutation.error, updateComboMutation]);
-
-  // Xử lý kết quả của deleteComboMutation
-  useEffect(() => {
-    if (deleteComboMutation.isSuccess) {
-      if (!deleteToastShownRef.current) {
-        toast.success("Xóa combo thành công");
-        deleteToastShownRef.current = true;
-      }
-      combosQuery.refetch();
-      setDeleteDialogOpen(false);
-      setComboToDelete(null);
-      setTimeout(() => {
-        deleteComboMutation.reset();
-        deleteToastShownRef.current = false;
-      }, 100);
-    }
-  }, [deleteComboMutation.isSuccess, combosQuery, deleteComboMutation]);
-
-  // Xử lý lỗi khi xóa combo
-  useEffect(() => {
-    if (deleteComboMutation.isError) {
-      toast.error(String(deleteComboMutation.error) || "Lỗi khi xóa combo");
-      setTimeout(() => deleteComboMutation.reset(), 100);
-    }
-  }, [deleteComboMutation.isError, deleteComboMutation.error, deleteComboMutation]);
-
-  // Xử lý kết quả của addSnacksToComboMutation
-  useEffect(() => {
-    if (addSnacksToComboMutation.isSuccess) {
-      toast.success("Đã thêm thực phẩm vào combo");
-      queryClient.invalidateQueries({ queryKey: ["get", "/combo-snacks/combo/{comboId}"] });
-      combosQuery.refetch();
-      setTimeout(() => addSnacksToComboMutation.reset(), 100);
-    }
-  }, [addSnacksToComboMutation.isSuccess, queryClient, combosQuery, addSnacksToComboMutation]);
-
-  // Xử lý lỗi khi thêm snack vào combo
-  useEffect(() => {
-    if (addSnacksToComboMutation.isError) {
-      toast.error(String(addSnacksToComboMutation.error) || "Lỗi khi thêm thực phẩm vào combo");
-      setDetailsCombo((prev) => (prev ? { ...prev, snacks: prev.snacks.filter((s) => s.id > 0) } : prev));
-      setTimeout(() => addSnacksToComboMutation.reset(), 100);
-    }
-  }, [addSnacksToComboMutation.isError, addSnacksToComboMutation.error, addSnacksToComboMutation]);
-
-  // Xử lý kết quả của updateComboSnackMutation
-  useEffect(() => {
-    if (updateComboSnackMutation.isSuccess) {
-      toast.success("Đã cập nhật thực phẩm trong combo");
-      queryClient.invalidateQueries({ queryKey: ["get", "/combo-snacks/combo/{comboId}"] });
-      combosQuery.refetch();
-      setTimeout(() => updateComboSnackMutation.reset(), 100);
-    }
-  }, [updateComboSnackMutation.isSuccess, queryClient, combosQuery, updateComboSnackMutation]);
-
-  // Xử lý lỗi khi cập nhật snack trong combo
-  useEffect(() => {
-    if (updateComboSnackMutation.isError) {
-      toast.error(String(updateComboSnackMutation.error) || "Lỗi khi cập nhật thực phẩm trong combo");
-      setTimeout(() => updateComboSnackMutation.reset(), 100);
-    }
-  }, [updateComboSnackMutation.isError, updateComboSnackMutation.error, updateComboSnackMutation]);
-
-  // Xử lý kết quả của deleteComboSnackByComboAndSnackMutation
-  useEffect(() => {
-    if (deleteComboSnackByComboAndSnackMutation.isSuccess) {
-      toast.success("Đã xóa thực phẩm khỏi combo");
-      queryClient.invalidateQueries({ queryKey: ["get", "/combo-snacks/combo/{comboId}"] });
-      combosQuery.refetch();
-      setTimeout(() => deleteComboSnackByComboAndSnackMutation.reset(), 100);
-    }
-  }, [deleteComboSnackByComboAndSnackMutation.isSuccess, queryClient, combosQuery, deleteComboSnackByComboAndSnackMutation]);
-
-  // Xử lý lỗi khi xóa snack khỏi combo
-  useEffect(() => {
-    if (deleteComboSnackByComboAndSnackMutation.isError) {
-      toast.error(String(deleteComboSnackByComboAndSnackMutation.error) || "Lỗi khi xóa thực phẩm khỏi combo");
-      setTimeout(() => deleteComboSnackByComboAndSnackMutation.reset(), 100);
-    }
-  }, [deleteComboSnackByComboAndSnackMutation.isError, deleteComboSnackByComboAndSnackMutation.error, deleteComboSnackByComboAndSnackMutation]);
+  useComboMutationHandler(deleteComboSnackByComboAndSnackMutation, "Đã xóa thực phẩm khỏi combo", "Lỗi khi xóa thực phẩm khỏi combo", () =>
+    queryClient.invalidateQueries({ queryKey: ["get", "/combo-snacks/combo/{comboId}"] }),
+  );
 
   // Xử lý dữ liệu combos từ API
   useEffect(() => {
@@ -278,7 +174,6 @@ const ComboManagement: React.FC = () => {
     const combo = combos.find((c) => c.id === selectedComboIdForDetails);
     if (!combo) return;
 
-    // Kiểm tra xem combo có thay đổi không để tránh cập nhật vô hạn
     if (
       JSON.stringify(combo.id) === JSON.stringify(detailsCombo.id) &&
       JSON.stringify(combo.name) === JSON.stringify(detailsCombo.name) &&
@@ -354,10 +249,7 @@ const ComboManagement: React.FC = () => {
 
   const handleViewDetails = useCallback(
     (combo: Combo) => {
-      if (selectedComboIdForDetails === combo.id && detailsOpen) {
-        // Nếu đã mở modal chi tiết cho combo này, không làm gì cả
-        return;
-      }
+      if (selectedComboIdForDetails === combo.id && detailsOpen) return;
 
       const comboWithValidSnacks = {
         ...combo,
@@ -368,7 +260,6 @@ const ComboManagement: React.FC = () => {
           })) || [],
       };
 
-      // Thiết lập state theo thứ tự đúng để tránh render vô hạn
       setDetailsCombo(comboWithValidSnacks);
       setSelectedComboIdForDetails(combo.id);
       setDetailsOpen(true);
@@ -408,9 +299,7 @@ const ComboManagement: React.FC = () => {
         return;
       }
 
-      // Cập nhật UI trước khi API thành công
       setDetailsCombo((prev) => (prev ? { ...prev, snacks: prev.snacks.filter((s) => s.id !== comboSnackId) } : null));
-
       deleteComboSnackByComboAndSnackMutation.mutate({
         params: { path: { comboId: detailsCombo.id, snackId: comboSnackToDelete.snack.id } },
       });
@@ -422,7 +311,6 @@ const ComboManagement: React.FC = () => {
     (comboSnack: ComboSnack) => {
       if (!detailsCombo) return;
 
-      // Cập nhật UI trước khi API thành công
       setDetailsCombo((prev) =>
         prev
           ? {
@@ -445,7 +333,6 @@ const ComboManagement: React.FC = () => {
     (newComboSnack: Partial<ComboSnack>) => {
       if (!detailsCombo || !newComboSnack.snack?.id) return;
 
-      // Tạo một tạm thời combo snack với ID tạm
       const tempId = -Date.now();
       const tempComboSnack: ComboSnack = {
         id: tempId,
@@ -456,9 +343,7 @@ const ComboManagement: React.FC = () => {
         discountPercentage: newComboSnack.discountPercentage ?? 0,
       };
 
-      // Cập nhật UI trước khi API thành công
       setDetailsCombo((prev) => (prev ? { ...prev, snacks: [...prev.snacks, tempComboSnack] } : prev));
-
       addSnacksToComboMutation.mutate({
         params: { path: { comboId: detailsCombo.id } },
         body: [{ snackId: newComboSnack.snack.id, quantity: newComboSnack.quantity ?? 1 }],
@@ -469,9 +354,7 @@ const ComboManagement: React.FC = () => {
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {
-    if (tableRef.current) {
-      tableRef.current.resetPagination();
-    }
+    tableRef.current?.resetPagination();
   }, [filterCriteria]);
 
   return (
@@ -532,9 +415,7 @@ const ComboManagement: React.FC = () => {
           combo={detailsCombo}
           open={detailsOpen}
           onClose={() => {
-            // Đảm bảo thứ tự reset state đúng để tránh vòng lặp vô hạn
             setDetailsOpen(false);
-            // Đợi một chút trước khi reset state khác để tránh các vấn đề render
             setTimeout(() => {
               setSelectedComboIdForDetails(null);
               setDetailsCombo(null);

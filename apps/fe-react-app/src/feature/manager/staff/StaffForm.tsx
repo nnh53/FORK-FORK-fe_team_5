@@ -14,6 +14,7 @@ interface StaffFormProps {
   staff?: StaffUser;
   onSubmit: (values: StaffRequest) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 // Extended form data for staff

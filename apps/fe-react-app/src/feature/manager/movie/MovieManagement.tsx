@@ -25,14 +25,40 @@ import {
   transformMovieResponse,
   transformMovieToRequest,
 } from "@/services/movieService";
-import type { MovieResponse } from "@/type-from-be";
+import type { CustomAPIResponse, MovieResponse } from "@/type-from-be";
+import type { UseMutationResult } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { MovieDataTable } from "./MovieDataTable";
 import MovieDetail from "./MovieDetail";
 import { MovieGenreManagement } from "./MovieGenreManagement";
 import { MovieViewDialog } from "./MovieViewDialog";
+
+const useMovieMutationHandler = <TData, TError extends CustomAPIResponse, TVariables>(
+  mutation: UseMutationResult<TData, TError, TVariables>,
+  successMessage: string,
+  errorMessage: string,
+  onSuccess?: () => void,
+) => {
+  const queryClient = useQueryClient();
+  const moviesQuery = queryMovies();
+
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      toast.success(successMessage, { id: successMessage });
+      moviesQuery.refetch();
+      onSuccess?.();
+      // Reset mutation state after a short delay
+      setTimeout(() => mutation.reset(), 100);
+    } else if (mutation.isError) {
+      toast.error(mutation.error?.message || errorMessage, {
+        id: `${successMessage}-error`,
+      });
+    }
+  }, [mutation, queryClient, moviesQuery, successMessage, errorMessage, onSuccess]);
+};
 
 const searchOptions = [
   { value: "name", label: "Tên phim" },
@@ -84,10 +110,33 @@ const MovieManagement = () => {
   const updateMovieMutation = queryUpdateMovie();
   const deleteMovieMutation = queryDeleteMovie();
 
+  // Sử dụng custom hooks để xử lý mutations
+  useMovieMutationHandler(createMovieMutation, "Movie created successfully", "Failed to create movie", () => {
+    setIsModalOpen(false);
+    setSelectedMovie(undefined);
+  });
+
+  useMovieMutationHandler(updateMovieMutation, "Movie updated successfully", "Failed to update movie", () => {
+    setIsModalOpen(false);
+    setSelectedMovie(undefined);
+  });
+
+  useMovieMutationHandler(deleteMovieMutation, "Đã xóa phim thành công", "Không thể xóa phim", () => {
+    setIsDeleteDialogOpen(false);
+    setMovieToDelete(null);
+  });
+
   // Transform API response to Movie interface
   const movies: Movie[] = useMemo(() => {
     return moviesQuery.data?.result ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse)) : [];
   }, [moviesQuery.data?.result]);
+
+  // Reset pagination khi filter thay đổi
+  useEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.resetPagination();
+    }
+  }, [filterCriteria, searchTerm]);
 
   // Helper function to match filter criteria
   const matchesCriteria = (movie: Movie, criteria: FilterCriteria): boolean => {
@@ -133,6 +182,17 @@ const MovieManagement = () => {
     return <LoadingSpinner name="phim" />;
   }
 
+  // Show error state
+  if (moviesQuery.isError) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8">
+        <h2 className="mb-4 text-xl font-semibold text-red-600">Đã xảy ra lỗi khi tải dữ liệu phim</h2>
+        <p className="mb-4 text-gray-600">{(moviesQuery.error as Error)?.message || "Không thể kết nối đến máy chủ"}</p>
+        <Button onClick={() => moviesQuery.refetch()}>Thử lại</Button>
+      </div>
+    );
+  }
+
   const handleCreate = () => {
     setSelectedMovie(undefined);
     setIsModalOpen(true);
@@ -158,23 +218,12 @@ const MovieManagement = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (!movieToDelete?.id) return;
 
-    try {
-      await deleteMovieMutation.mutateAsync({
-        params: { path: { id: movieToDelete.id } },
-      });
-
-      toast.success("Đã xóa phim thành công");
-      moviesQuery.refetch();
-    } catch (error) {
-      console.error("Error deleting movie:", error);
-      toast.error("Không thể xóa phim");
-    } finally {
-      setIsDeleteDialogOpen(false);
-      setMovieToDelete(null);
-    }
+    deleteMovieMutation.mutate({
+      params: { path: { id: movieToDelete.id } },
+    });
   };
 
   const handleCancel = () => {
@@ -217,7 +266,7 @@ const MovieManagement = () => {
     };
   };
 
-  const handleSubmit = async (values: MovieFormData) => {
+  const handleSubmit = (values: MovieFormData) => {
     // Validate the form data
     const validation = validateMovieData(values);
     if (!validation.isValid) {
@@ -229,6 +278,7 @@ const MovieManagement = () => {
             ))}
           </ul>
         ),
+        id: "movie-validation-error",
       });
       return;
     }
@@ -253,44 +303,16 @@ const MovieManagement = () => {
       });
 
       if (selectedMovie?.id) {
-        updateMovieMutation.mutate(
-          {
-            params: { path: { id: selectedMovie.id } },
-            body: movieRequestData,
-          },
-          {
-            onSuccess: () => {
-              toast.success("Movie updated successfully");
-              setIsModalOpen(false);
-              setSelectedMovie(undefined);
-            },
-            onError: (error) => {
-              toast.error("Failed to update movie");
-              console.error("Movie update error:", error);
-            },
-          },
-        );
+        updateMovieMutation.mutate({
+          params: { path: { id: selectedMovie.id } },
+          body: movieRequestData,
+        });
       } else {
-        createMovieMutation.mutate(
-          {
-            body: movieRequestData,
-          },
-          {
-            onSuccess: () => {
-              toast.success("Movie created successfully");
-              setIsModalOpen(false);
-              setSelectedMovie(undefined);
-            },
-            onError: (error) => {
-              toast.error("Failed to create movie");
-              console.error("Movie create error:", error);
-            },
-          },
-        );
+        createMovieMutation.mutate({
+          body: movieRequestData,
+        });
       }
     } catch (error) {
-      const errorMessage = selectedMovie ? "Failed to update movie" : "Failed to create movie";
-      toast.error(errorMessage);
       console.error("Movie operation error:", error);
     }
   };
@@ -313,23 +335,12 @@ const MovieManagement = () => {
               {/* SearchBar */}
               <SearchBar
                 searchOptions={searchOptions}
-                onSearchChange={(value) => {
-                  setSearchTerm(value);
-                  if (tableRef.current) tableRef.current.resetPagination();
-                }}
+                onSearchChange={setSearchTerm}
                 placeholder="Tìm kiến theo id, tên phim, hãng phim, diễn viên, đạo diễn, hoặc mô tả..."
                 className="flex-1"
-                resetPagination={() => tableRef.current?.resetPagination()}
               />
               {/* Filter */}
-              <Filter
-                filterOptions={filterOptions}
-                onFilterChange={(criteria) => {
-                  setFilterCriteria(criteria);
-                  if (tableRef.current) tableRef.current.resetPagination();
-                }}
-                className="flex-1"
-              />
+              <Filter filterOptions={filterOptions} onFilterChange={setFilterCriteria} className="flex-1" />
             </div>
             <MovieDataTable
               data={filteredMovies}
@@ -389,8 +400,8 @@ const MovieManagement = () => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>Hủy</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
-                Xóa
+              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700" disabled={deleteMovieMutation.isPending}>
+                {deleteMovieMutation.isPending ? "Đang xóa..." : "Xóa"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

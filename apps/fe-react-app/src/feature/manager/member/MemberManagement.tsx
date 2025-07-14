@@ -17,6 +17,7 @@ import {
   useUsers,
 } from "@/services/userService";
 import type { CustomAPIResponse } from "@/type-from-be";
+import { type UseMutationResult } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -24,17 +25,7 @@ import MemberDetail from "./MemberDetail";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
 
-// Thêm hàm để định dạng thời gian
-const formatDateTime = (dateString?: string) => {
-  if (!dateString) return "Chưa cập nhật";
-  try {
-    return formatUserDate(dateString);
-  } catch {
-    return "Không hợp lệ";
-  }
-};
-
-// Hàm hiển thị giới tính
+// Hàm định dạng giới tính
 const formatGender = (gender?: string) => {
   if (!gender) return "Chưa cập nhật";
   switch (gender) {
@@ -49,63 +40,80 @@ const formatGender = (gender?: string) => {
   }
 };
 
-// Sửa lại hàm filterByGlobalSearch để xử lý undefined/null và bổ sung tìm theo giới tính, ngày sinh
-const filterByGlobalSearch = (member: User, searchValue: string): boolean => {
-  if (!searchValue) return true;
-  if (!member) return false;
+// Type guard để kiểm tra User hợp lệ
+const isValidUser = (user: User | undefined | null): user is User => {
+  return !!user && typeof user.id === "number" && !!user.fullName;
+};
 
-  const lowerSearchValue = searchValue.toLowerCase();
-  return (
-    (member.id?.toString() ?? "").includes(searchValue.trim()) ||
-    (member.fullName?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
-    (member.email?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
-    (member.phone?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
-    (member.address?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
-    (formatDateTime(member.dateOfBirth)?.toLowerCase() ?? "").includes(lowerSearchValue.trim()) ||
-    (formatGender(member.gender)?.toLowerCase() ?? "").includes(lowerSearchValue.trim())
+// Hàm lọc tổng quát
+const applyFilters = (members: User[], criteria: FilterCriteria[], searchTerm: string): User[] => {
+  let result = members;
+
+  // Lọc theo tìm kiếm toàn cục
+  if (searchTerm) {
+    result = result.filter(
+      (member) =>
+        isValidUser(member) &&
+        (member.id.toString().includes(searchTerm.trim()) ||
+          (member.fullName?.toLowerCase() ?? "").includes(searchTerm.toLowerCase().trim()) ||
+          (member.email?.toLowerCase() ?? "").includes(searchTerm.toLowerCase().trim()) ||
+          (member.phone?.toLowerCase() ?? "").includes(searchTerm.toLowerCase().trim()) ||
+          (member.address?.toLowerCase() ?? "").includes(searchTerm.toLowerCase().trim()) ||
+          (member.dateOfBirth ? formatUserDate(member.dateOfBirth).toLowerCase() : "").includes(searchTerm.toLowerCase().trim()) ||
+          (formatGender(member.gender)?.toLowerCase() ?? "").includes(searchTerm.toLowerCase().trim())),
+    );
+  }
+
+  // Áp dụng các tiêu chí lọc
+  return result.filter(
+    (member) =>
+      isValidUser(member) &&
+      criteria.every((criterion) => {
+        switch (criterion.field) {
+          case "birth_date_range": {
+            const range = criterion.value as { from: Date | undefined; to: Date | undefined };
+            if (!range.from && !range.to) return true;
+            const dateValue = member.dateOfBirth ? new Date(member.dateOfBirth) : null;
+            return dateValue ? !(range.from && dateValue < range.from) && !(range.to && dateValue > range.to) : false;
+          }
+          case "status":
+            return member.status.toLowerCase() === (criterion.value as string).toLowerCase();
+          case "gender":
+            return criterion.value === "NOT_SET" ? !member.gender : member.gender === (criterion.value as USER_GENDER);
+          default:
+            return true;
+        }
+      }),
   );
 };
 
-// Sửa lại các hàm filter khác
-const filterByDateRange = (member: User, field: string, range: { from: Date | undefined; to: Date | undefined }): boolean => {
-  if (!range.from && !range.to) return true;
-  if (!member) return false;
+// Custom hook xử lý mutation
+const useMutationHandler = <TData, TError extends CustomAPIResponse, TVariables>(
+  mutation: UseMutationResult<TData, TError, TVariables>,
+  successMessage: string,
+  errorMessage: string,
+  onSuccess?: () => void,
+) => {
+  const { refetch } = useUsers();
 
-  let dateValue = null;
-  if (field === "birth_date_range") {
-    dateValue = member.dateOfBirth ? new Date(member.dateOfBirth) : null;
-  } else {
-    return true;
-  }
-
-  if (!dateValue) return false;
-
-  return !(range.from && dateValue < range.from) && !(range.to && dateValue > range.to);
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      toast.success(successMessage);
+      refetch();
+      onSuccess?.();
+      setTimeout(() => mutation.reset(), 100);
+    } else if (mutation.isError) {
+      toast.error(mutation.error?.message || errorMessage);
+    }
+  }, [mutation, refetch, successMessage, errorMessage, onSuccess]);
 };
 
-const filterByStatus = (member: User, status: string): boolean => {
-  return member.status.toLowerCase() === status.toLowerCase();
-};
-
-const filterByGender = (member: User, gender: string): boolean => {
-  if (gender === "NOT_SET") {
-    return !member.gender; // Trả về true nếu member.gender là null hoặc undefined
-  }
-  return member.gender === (gender as USER_GENDER);
-};
-
-// Cập nhật định nghĩa nhóm filter
+// Nhóm filter
 const filterGroups: FilterGroup[] = [
   {
     name: "dates",
     label: "Ngày tháng",
-    options: [
-      {
-        label: "Ngày sinh",
-        value: "birth_date_range",
-        type: "dateRange" as const,
-      },
-    ],
+    options: [{ label: "Ngày sinh", value: "birth_date_range", type: "dateRange" as const }],
   },
   {
     name: "status",
@@ -137,8 +145,7 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-const MemberManagement = () => {
-  const [members, setMembers] = useState<User[]>([]);
+const MemberManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<User | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
@@ -149,16 +156,25 @@ const MemberManagement = () => {
   const [memberToView, setMemberToView] = useState<User | null>(null);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
-  // Sử dụng refs để theo dõi xem đã hiển thị toast chưa
-  const registerToastShownRef = useRef(false);
-  const updateToastShownRef = useRef(false);
-  const deleteToastShownRef = useRef(false);
-
   // React Query hooks
   const usersQuery = useUsers();
   const registerMutation = useRegister();
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
+
+  // Sử dụng custom hook để xử lý mutation
+  useMutationHandler(registerMutation, "Thêm thành viên thành công", "Lỗi khi thêm thành viên", () => {
+    setIsModalOpen(false);
+    setSelectedMember(undefined);
+  });
+  useMutationHandler(updateUserMutation, "Cập nhật thành viên thành công", "Lỗi khi cập nhật thành viên", () => {
+    setIsModalOpen(false);
+    setSelectedMember(undefined);
+  });
+  useMutationHandler(deleteUserMutation, "Xóa thành viên thành công", "Lỗi khi xóa thành viên", () => {
+    setDeleteDialogOpen(false);
+    setMemberToDelete(null);
+  });
 
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [
@@ -169,150 +185,34 @@ const MemberManagement = () => {
     { value: "address", label: "Địa chỉ" },
   ];
 
-  // Xử lý dữ liệu từ API
-  useEffect(() => {
-    if (usersQuery.data?.result) {
-      // Transform API response to User[] and filter for MEMBER role
-      let transformedUsers: User[] = [];
+  // Lọc dữ liệu trực tiếp từ usersQuery.data
+  const filteredMembers = useMemo(() => {
+    let members: User[] = [];
 
+    if (usersQuery.data?.result) {
       if (Array.isArray(usersQuery.data.result)) {
-        transformedUsers = usersQuery.data.result.map(transformUserResponse).filter((user) => user.role === ROLES.MEMBER);
-      } else if (usersQuery.data.result) {
+        members = usersQuery.data.result.map(transformUserResponse).filter((user) => user.role === ROLES.MEMBER);
+      } else {
         const user = transformUserResponse(usersQuery.data.result);
         if (user.role === ROLES.MEMBER) {
-          transformedUsers = [user];
+          members = [user];
         }
       }
-
-      setMembers(transformedUsers);
     }
-  }, [usersQuery.data]);
 
-  //kiểm tra trang thai cua query
-  useEffect(() => {
-    console.log("Member data:", usersQuery.data);
-    console.log("Member status:", usersQuery.status);
-    console.log("Member error:", usersQuery.error);
-  }, [usersQuery.data, usersQuery.status, usersQuery.error]);
-
-  useEffect(() => {
-    console.log("Create member status:", registerMutation.status);
-    console.log("Create member error:", registerMutation.error);
-  }, [registerMutation.status, registerMutation.error]);
-
-  useEffect(() => {
-    console.log("Update member status:", updateUserMutation.status);
-    console.log("Update member error:", updateUserMutation.error);
-  }, [updateUserMutation.status, updateUserMutation.error]);
-
-  useEffect(() => {
-    console.log("Delete member status:", deleteUserMutation.status);
-    console.log("Delete member error:", deleteUserMutation.error);
-  }, [deleteUserMutation.status, deleteUserMutation.error]);
-
-  // Xử lý trạng thái của register mutation
-  useEffect(() => {
-    if (registerMutation.isSuccess) {
-      if (!registerToastShownRef.current) {
-        toast.success("Thêm thành viên thành công");
-        registerToastShownRef.current = true;
-      }
-      usersQuery.refetch(); // Refetch users to get the latest data
-      setIsModalOpen(false);
-      setSelectedMember(undefined);
-      setTimeout(() => {
-        registerMutation.reset();
-        registerToastShownRef.current = false;
-      }, 100);
-    } else if (registerMutation.isError) {
-      toast.error((registerMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi thêm thành viên");
-    }
-  }, [registerMutation.isSuccess, registerMutation.isError, registerMutation.error, usersQuery, registerMutation]);
-
-  // Xử lý trạng thái của update mutation
-  useEffect(() => {
-    if (updateUserMutation.isSuccess) {
-      if (!updateToastShownRef.current) {
-        toast.success("Cập nhật thành viên thành công");
-        updateToastShownRef.current = true;
-      }
-      usersQuery.refetch(); // Refetch users to get the latest data
-      setIsModalOpen(false);
-      setSelectedMember(undefined);
-      setTimeout(() => {
-        updateUserMutation.reset();
-        updateToastShownRef.current = false;
-      }, 100);
-    } else if (updateUserMutation.isError) {
-      toast.error((updateUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi cập nhật thành viên");
-    }
-  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error, usersQuery, updateUserMutation]);
-
-  // Xử lý trạng thái của delete mutation
-  useEffect(() => {
-    if (deleteUserMutation.isSuccess) {
-      if (!deleteToastShownRef.current) {
-        toast.success("Xóa thành viên thành công");
-        deleteToastShownRef.current = true;
-      }
-      usersQuery.refetch(); // Refetch users to get the latest data
-      setDeleteDialogOpen(false);
-      setMemberToDelete(null);
-      setTimeout(() => {
-        deleteUserMutation.reset();
-        deleteToastShownRef.current = false;
-      }, 100);
-    } else if (deleteUserMutation.isError) {
-      toast.error((deleteUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi xóa thành viên");
-    }
-  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error, usersQuery, deleteUserMutation]);
+    return applyFilters(members, filterCriteria, searchTerm);
+  }, [usersQuery.data, searchTerm, filterCriteria]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {
-    if (tableRef.current) {
-      tableRef.current.resetPagination();
-    }
+    tableRef.current?.resetPagination();
   }, [filterCriteria]);
 
-  // Lọc members theo các tiêu chí
-  const filteredMembers = useMemo(() => {
-    if (!members) return [];
-
-    let result = members;
-
-    // Tìm kiếm đã giới hạn trong hàm filterByGlobalSearch
-    if (searchTerm) {
-      result = result.filter((member) => filterByGlobalSearch(member, searchTerm));
-    }
-
-    // Áp dụng filter criteria
-    if (filterCriteria.length > 0) {
-      result = result.filter((member) => {
-        return filterCriteria.every((criteria) => {
-          switch (criteria.field) {
-            case "birth_date_range": {
-              const range = criteria.value as { from: Date | undefined; to: Date | undefined };
-              return filterByDateRange(member, criteria.field, range);
-            }
-            case "status": {
-              return filterByStatus(member, criteria.value as string);
-            }
-            case "gender": {
-              return filterByGender(member, criteria.value as string);
-            }
-            default:
-              return true;
-          }
-        });
-      });
-    }
-
-    return result;
-  }, [members, searchTerm, filterCriteria]);
-
   const handleViewDetail = (member: User) => {
-    setMemberToView(member);
-    setDetailOpen(true);
+    if (isValidUser(member)) {
+      setMemberToView(member);
+      setDetailOpen(true);
+    }
   };
 
   const handleCreate = () => {
@@ -321,8 +221,10 @@ const MemberManagement = () => {
   };
 
   const handleEdit = (member: User) => {
-    setSelectedMember(member);
-    setIsModalOpen(true);
+    if (isValidUser(member)) {
+      setSelectedMember(member);
+      setIsModalOpen(true);
+    }
   };
 
   const handleCancel = () => {
@@ -332,44 +234,27 @@ const MemberManagement = () => {
 
   const handleSubmit = (values: UserRequest) => {
     if (selectedMember) {
-      // Update existing member
-      const updateData: UserUpdate = transformUserUpdateRequest({
-        ...values,
-        role: ROLES.MEMBER,
-      });
-
-      updateUserMutation.mutate({
-        params: { path: { userId: selectedMember.id } },
-        body: updateData,
-      });
+      const updateData: UserUpdate = transformUserUpdateRequest({ ...values, role: ROLES.MEMBER });
+      updateUserMutation.mutate({ params: { path: { userId: selectedMember.id } }, body: updateData });
     } else {
-      // Create new member
-      const registerData: UserRequest = transformRegisterRequest({
-        ...values,
-        role: ROLES.MEMBER,
-        phone: values.phone ?? "",
-      });
-
-      registerMutation.mutate({
-        body: registerData,
-      });
+      const registerData: UserRequest = transformRegisterRequest({ ...values, role: ROLES.MEMBER, phone: values.phone ?? "" });
+      registerMutation.mutate({ body: registerData });
     }
   };
 
   const handleDeleteClick = (member: User) => {
-    setMemberToDelete(member);
-    setDeleteDialogOpen(true);
+    if (isValidUser(member)) {
+      setMemberToDelete(member);
+      setDeleteDialogOpen(true);
+    }
   };
 
   const handleDeleteConfirm = () => {
     if (memberToDelete) {
-      deleteUserMutation.mutate({
-        params: { path: { userId: memberToDelete.id } },
-      });
+      deleteUserMutation.mutate({ params: { path: { userId: memberToDelete.id } } });
     }
   };
 
-  // Hiển thị loading khi đang tải dữ liệu
   if (usersQuery.isLoading) {
     return <LoadingSpinner name="thành viên" />;
   }
@@ -379,18 +264,15 @@ const MemberManagement = () => {
       <div className="container mx-auto p-4">
         <Card className="w-full">
           <CardHeader className="space-y-4">
-            {/* Title and Add button */}
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <CardTitle className="text-2xl font-bold">Danh sách thành viên</CardTitle>
-              <Button onClick={handleCreate} className="shrink-0">
+              <Button onClick={handleCreate} disabled={registerMutation.isPending}>
                 <Plus className="mr-2 h-4 w-4" />
-                Thêm thành viên
+                {registerMutation.isPending ? "Đang thêm..." : "Thêm thành viên"}
               </Button>
             </div>
 
-            {/* Search and Filter row */}
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-              {/* SearchBar - Thêm resetPagination prop */}
               <SearchBar
                 searchOptions={searchOptions}
                 onSearchChange={setSearchTerm}
@@ -398,20 +280,8 @@ const MemberManagement = () => {
                 className="w-full sm:w-1/2"
                 resetPagination={() => tableRef.current?.resetPagination()}
               />
-
-              {/* Filter - Right */}
               <div className="shrink-0">
-                <Filter
-                  filterOptions={filterGroups}
-                  onFilterChange={(criteria) => {
-                    setFilterCriteria(criteria);
-                    // Reset pagination khi filter thay đổi
-                    if (tableRef.current) {
-                      tableRef.current.resetPagination();
-                    }
-                  }}
-                  groupMode={true}
-                />
+                <Filter filterOptions={filterGroups} onFilterChange={setFilterCriteria} groupMode={true} />
               </div>
             </div>
           </CardHeader>
@@ -422,22 +292,20 @@ const MemberManagement = () => {
         </Card>
       </div>
 
-      {/* Form Dialog */}
-      <Dialog
-        open={isModalOpen}
-        onOpenChange={(open) => {
-          if (!open) handleCancel();
-        }}
-      >
+      <Dialog open={isModalOpen} onOpenChange={(open) => !open && handleCancel()}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{selectedMember ? "Chỉnh sửa thành viên" : "Thêm thành viên mới"}</DialogTitle>
           </DialogHeader>
-          <MemberForm member={selectedMember} onSubmit={handleSubmit} onCancel={handleCancel} />
+          <MemberForm
+            member={selectedMember}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isLoading={registerMutation.isPending || updateUserMutation.isPending}
+          />
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -448,14 +316,13 @@ const MemberManagement = () => {
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Hủy
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Xóa
+            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleteUserMutation.isPending}>
+              {deleteUserMutation.isPending ? "Đang xóa..." : "Xóa"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Member Detail Dialog */}
       <MemberDetail member={memberToView} open={detailOpen} onClose={() => setDetailOpen(false)} />
     </>
   );

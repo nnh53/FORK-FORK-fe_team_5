@@ -28,72 +28,82 @@ import {
 import type { CustomAPIResponse } from "@/type-from-be";
 import { Icon } from "@iconify/react";
 import { type FormikHelpers } from "formik";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { PromotionDetail } from "./PromotionDetail";
 import { PromotionForm } from "./PromotionForm";
 import { PromotionTable } from "./PromotionTable";
 
-// Helper function to filter promotions by search term
+// Định nghĩa type cho FilterCriteria
+type FilterValue = string | { from: number | undefined; to: number | undefined } | { from: Date | undefined; to: Date | undefined };
+interface StrictFilterCriteria extends FilterCriteria {
+  field: string;
+  value: FilterValue;
+}
+
+// Type guard để kiểm tra Promotion hợp lệ
+const isValidPromotion = (promotion: Promotion | undefined | null): promotion is Promotion => {
+  return !!promotion && typeof promotion.id === "number" && !!promotion.title;
+};
+
+// Hàm lọc theo từ khóa tìm kiếm
 const filterBySearchTerm = (promotion: Promotion, searchTerm: string): boolean => {
-  if (!searchTerm) return true;
-  if (!promotion) return false;
+  if (!searchTerm || !isValidPromotion(promotion)) return true;
 
   const lowerSearchTerm = searchTerm.toLowerCase().trim();
   return (
-    (promotion.id?.toString() || "").includes(searchTerm) ||
-    (promotion.title?.toLowerCase() || "").includes(lowerSearchTerm) ||
+    promotion.id.toString().includes(searchTerm) ||
+    promotion.title.toLowerCase().includes(lowerSearchTerm) ||
     (promotion.description?.toLowerCase() || "").includes(lowerSearchTerm)
   );
 };
 
-// Helper function to filter promotions by date range
+// Hàm lọc theo loại select
+const filterBySelectType = (promotion: Promotion, field: string, value: string): boolean => {
+  if (value === "all") return true;
+  if (field === "status") return promotion.status === value;
+  if (field === "type") return promotion.type === value;
+  return true;
+};
+
+// Hàm lọc theo khoảng thời gian
 const filterByDateRange = (promotion: Promotion, field: string, range: { from: Date | undefined; to: Date | undefined }): boolean => {
   if (!range.from && !range.to) return true;
-  if (!promotion) return false;
 
-  let dateValue: Date;
-  if (field === "startTime") {
-    dateValue = new Date(promotion.startTime);
-  } else if (field === "endTime") {
-    dateValue = new Date(promotion.endTime);
-  } else {
-    return true;
-  }
-
+  const dateValue = new Date(field === "startTime" ? promotion.startTime : promotion.endTime);
   return (!range.from || dateValue >= range.from) && (!range.to || dateValue <= range.to);
 };
 
-// Helper function to filter promotions by status
-const filterByStatus = (promotion: Promotion, status: string): boolean => {
-  if (!promotion) return false;
-  if (status === "all") return true;
-  return promotion.status === status;
-};
-
-// Helper function to filter promotions by type
-const filterByType = (promotion: Promotion, type: string): boolean => {
-  if (!promotion) return false;
-  if (type === "all") return true;
-  return promotion.type === type;
-};
-
-// Helper function to filter promotions by min purchase range
-const filterByMinPurchase = (promotion: Promotion, range: { from: number | undefined; to: number | undefined }): boolean => {
+// Hàm lọc theo khoảng số
+const filterByNumberRange = (promotion: Promotion, field: string, range: { from: number | undefined; to: number | undefined }): boolean => {
   if (!range.from && !range.to) return true;
-  if (!promotion) return false;
 
-  const value = promotion.minPurchase;
-  return (!range.from || value >= range.from) && (!range.to || value <= range.to);
+  const numValue = field === "minPurchase" ? promotion.minPurchase : promotion.discountValue;
+  return (!range.from || numValue >= range.from) && (!range.to || numValue <= range.to);
 };
 
-// Helper function to filter promotions by discount value range
-const filterByDiscountValue = (promotion: Promotion, range: { from: number | undefined; to: number | undefined }): boolean => {
-  if (!range.from && !range.to) return true;
-  if (!promotion) return false;
+// Hàm applyFilters để xử lý tất cả các tiêu chí lọc và tìm kiếm
+const applyFilters = (promotions: Promotion[], criteria: StrictFilterCriteria[], searchTerm: string): Promotion[] => {
+  // Lọc theo tất cả các tiêu chí
+  return promotions.filter((promotion) => {
+    if (!isValidPromotion(promotion)) return false;
+    if (!filterBySearchTerm(promotion, searchTerm)) return false;
 
-  const value = promotion.discountValue;
-  return (!range.from || value >= range.from) && (!range.to || value <= range.to);
+    // Áp dụng các bộ lọc từ criteria
+    return criteria.every((criterion) => {
+      const { field, value, type } = criterion;
+
+      if (type === "select") {
+        return filterBySelectType(promotion, field, value as string);
+      } else if (type === "dateRange") {
+        return filterByDateRange(promotion, field, value as { from: Date | undefined; to: Date | undefined });
+      } else if (type === "numberRange") {
+        return filterByNumberRange(promotion, field, value as { from: number | undefined; to: number | undefined });
+      }
+
+      return true;
+    });
+  });
 };
 
 export const PromotionManagement: React.FC = () => {
@@ -104,7 +114,7 @@ export const PromotionManagement: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [promotionToDelete, setPromotionToDelete] = useState<Promotion | undefined>();
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
+  const [filterCriteria, setFilterCriteria] = useState<StrictFilterCriteria[]>([]);
   const tableRef = useRef<{ resetPagination: () => void }>(null);
 
   // Use the promotionService hooks
@@ -112,85 +122,51 @@ export const PromotionManagement: React.FC = () => {
   const createPromotion = useCreatePromotion();
   const updatePromotion = useUpdatePromotion();
   const deletePromotion = useDeletePromotion();
-  const promotions = promotionsData?.result ? transformPromotionsResponse(promotionsData.result) : [];
 
-  // Kiểm tra trạng thái và hiển thị lỗi nếu có
-  useEffect(() => {
-    console.log("Promotions data:", promotionsData);
-    console.log("Promotions status:", isLoading);
-  }, [promotionsData, isLoading]);
+  // Sử dụng useMemo để tránh tạo lại mảng promotions trong mỗi lần render
+  const promotions = useMemo(() => {
+    return promotionsData?.result ? transformPromotionsResponse(promotionsData.result) : [];
+  }, [promotionsData]);
 
-  useEffect(() => {
-    console.log("Create promotion status:", createPromotion.status);
-    console.log("Create promotion error:", createPromotion.error);
-  }, [createPromotion.status, createPromotion.error]);
-
-  useEffect(() => {
-    console.log("Update promotion status:", updatePromotion.status);
-    console.log("Update promotion error:", updatePromotion.error);
-  }, [updatePromotion.status, updatePromotion.error]);
-
-  useEffect(() => {
-    console.log("Delete promotion status:", deletePromotion.status);
-    console.log("Delete promotion error:", deletePromotion.error);
-  }, [deletePromotion.status, deletePromotion.error]);
-
-  // Xử lý kết quả của createPromotion mutation trong useEffect
+  // Xử lý mutation cho createPromotion
   useEffect(() => {
     if (createPromotion.isSuccess) {
       toast.success("Khuyến mãi đã được tạo thành công");
-      refetch(); // Refetch promotions to update the list
+      refetch();
       setDialogOpen(false);
       setSelectedPromotion(undefined);
-    }
-  }, [createPromotion.isSuccess, refetch]);
-
-  // Xử lý lỗi khi tạo khuyến mãi
-  useEffect(() => {
-    if (createPromotion.isError) {
+    } else if (createPromotion.isError) {
       toast.error((createPromotion.error as CustomAPIResponse)?.message ?? "Tạo khuyến mãi thất bại");
     }
-  }, [createPromotion.isError, createPromotion.error]);
+  }, [createPromotion.isSuccess, createPromotion.isError, createPromotion.error, refetch]);
 
-  // Xử lý kết quả của updatePromotion mutation trong useEffect
+  // Xử lý mutation cho updatePromotion
   useEffect(() => {
     if (updatePromotion.isSuccess) {
       toast.success("Khuyến mãi đã được cập nhật thành công");
-      refetch(); // Refetch promotions to update the list
+      refetch();
       setDialogOpen(false);
       setSelectedPromotion(undefined);
-    }
-  }, [updatePromotion.isSuccess, refetch]);
-
-  // Xử lý lỗi khi cập nhật khuyến mãi
-  useEffect(() => {
-    if (updatePromotion.isError) {
+    } else if (updatePromotion.isError) {
       toast.error((updatePromotion.error as CustomAPIResponse)?.message ?? "Cập nhật khuyến mãi thất bại");
     }
-  }, [updatePromotion.isError, updatePromotion.error]);
+  }, [updatePromotion.isSuccess, updatePromotion.isError, updatePromotion.error, refetch]);
 
-  // Xử lý kết quả của deletePromotion mutation trong useEffect
+  // Xử lý mutation cho deletePromotion
   useEffect(() => {
     if (deletePromotion.isSuccess) {
       toast.success("Khuyến mãi đã được xóa thành công");
-      refetch(); // Refetch promotions to update the list
+      refetch();
       setDeleteDialogOpen(false);
       setPromotionToDelete(undefined);
-    }
-  }, [deletePromotion.isSuccess, refetch]);
-
-  // Xử lý lỗi khi xóa khuyến mãi
-  useEffect(() => {
-    if (deletePromotion.isError) {
+    } else if (deletePromotion.isError) {
       toast.error((deletePromotion.error as CustomAPIResponse)?.message ?? "Xóa khuyến mãi thất bại");
     }
-  }, [deletePromotion.isError, deletePromotion.error]);
+  }, [deletePromotion.isSuccess, deletePromotion.isError, deletePromotion.error, refetch]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {
-    if (tableRef.current) {
-      tableRef.current.resetPagination();
-    }
+    tableRef.current?.resetPagination();
   }, [filterCriteria]);
 
   // Define filter options for the Filter component as groups
@@ -263,117 +239,28 @@ export const PromotionManagement: React.FC = () => {
     { value: "description", label: "Mô tả" },
   ];
 
-  // Function to handle filter changes
-  const handleFilterChange = (criteria: FilterCriteria[]) => {
-    setFilterCriteria(criteria);
-    // Reset pagination when filters change
-    if (tableRef.current) {
-      tableRef.current.resetPagination();
-    }
-  };
-
-  // Function to handle search changes
-  const handleSearchChange = (term: string) => {
-    setSearchTerm(term);
-    // Reset pagination when search changes
-    if (tableRef.current) {
-      tableRef.current.resetPagination();
-    }
-  };
-
-  // Apply filters and search to get filtered promotions
-  const getFilteredPromotions = (): Promotion[] => {
-    let filtered = [...promotions];
-
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter((promotion) => filterBySearchTerm(promotion, searchTerm));
-    }
-
-    // Apply all other filters
-    if (filterCriteria.length > 0) {
-      filtered = filtered.filter((promotion) => {
-        return filterCriteria.every((criteria) => {
-          const { field, value, type } = criteria;
-
-          if (type === "select") {
-            if (field === "status") {
-              return filterByStatus(promotion, value as string);
-            } else if (field === "type") {
-              return filterByType(promotion, value as string);
-            }
-          } else if (type === "dateRange") {
-            return filterByDateRange(promotion, field, value as { from: Date | undefined; to: Date | undefined });
-          } else if (type === "numberRange") {
-            if (field === "minPurchase") {
-              return filterByMinPurchase(promotion, value as { from: number | undefined; to: number | undefined });
-            } else if (field === "discountValue") {
-              return filterByDiscountValue(promotion, value as { from: number | undefined; to: number | undefined });
-            }
-          }
-          return true;
-        });
-      });
-    }
-
-    return filtered;
-  };
-
-  const filteredPromotions = getFilteredPromotions();
+  // Tính toán filteredPromotions bằng useMemo
+  const filteredPromotions = useMemo(() => {
+    return applyFilters(promotions, filterCriteria, searchTerm);
+  }, [promotions, filterCriteria, searchTerm]);
 
   const promotionColumn: TableColumns[] = [
-    {
-      header: "ID",
-      accessorKey: "id",
-      width: "w-[4%]",
-    },
-    {
-      header: "Tên",
-      accessorKey: "title",
-      width: "w-[12%]",
-    },
-    {
-      header: "Loại",
-      accessorKey: "type",
-      width: "w-[12%]",
-    },
-    {
-      header: "Giảm giá",
-      accessorKey: "discountValue",
-      width: "w-[10%]",
-    },
-    {
-      header: "Đơn tối thiểu",
-      accessorKey: "minPurchase",
-      width: "w-[10%]",
-    },
-    {
-      header: "Mô tả",
-      accessorKey: "description",
-      width: "w-[14%]",
-    },
-    {
-      header: "Trạng thái",
-      accessorKey: "status",
-      width: "w-[12%]",
-    },
-    {
-      header: "Bắt đầu",
-      accessorKey: "startTime",
-      width: "w-[10%]",
-    },
-    {
-      header: "Kết thúc",
-      accessorKey: "endTime",
-      width: "w-[10%]",
-    },
+    { header: "ID", accessorKey: "id", width: "w-[4%]" },
+    { header: "Tên", accessorKey: "title", width: "w-[12%]" },
+    { header: "Loại", accessorKey: "type", width: "w-[12%]" },
+    { header: "Giảm giá", accessorKey: "discountValue", width: "w-[10%]" },
+    { header: "Đơn tối thiểu", accessorKey: "minPurchase", width: "w-[10%]" },
+    { header: "Mô tả", accessorKey: "description", width: "w-[14%]" },
+    { header: "Trạng thái", accessorKey: "status", width: "w-[12%]" },
+    { header: "Bắt đầu", accessorKey: "startTime", width: "w-[10%]" },
+    { header: "Kết thúc", accessorKey: "endTime", width: "w-[10%]" },
   ];
 
   // Handle opening dialog with selected promotion for editing
   const handleOpenEditDialog = (id?: number) => {
     if (id !== undefined) {
-      const promotion: Promotion | undefined = promotions.find((pro) => pro.id === id);
-      if (promotion !== undefined) {
+      const promotion = promotions.find((pro) => pro.id === id);
+      if (isValidPromotion(promotion)) {
         setSelectedPromotion(promotion);
         setDialogOpen(true);
       }
@@ -386,18 +273,18 @@ export const PromotionManagement: React.FC = () => {
   // Handle opening detail view for a promotion
   const handleViewDetail = (id?: number) => {
     if (id !== undefined) {
-      const promotion: Promotion | undefined = promotions.find((pro) => pro.id === id);
-      if (promotion !== undefined) {
+      const promotion = promotions.find((pro) => pro.id === id);
+      if (isValidPromotion(promotion)) {
         setViewPromotion(promotion);
         setDetailOpen(true);
       }
     }
   };
 
-  // Separate handler for delete action
+  // Handle opening delete dialog
   const handleOpenDeleteDialog = (id: number) => {
-    const promotion: Promotion | undefined = promotions.find((pro) => pro.id === id);
-    if (promotion !== undefined) {
+    const promotion = promotions.find((pro) => pro.id === id);
+    if (isValidPromotion(promotion)) {
       setPromotionToDelete(promotion);
       setDeleteDialogOpen(true);
     }
@@ -405,28 +292,23 @@ export const PromotionManagement: React.FC = () => {
 
   // Handle delete confirmation
   const handleDeletePromotion = () => {
-    if (!promotionToDelete) return;
-
-    deletePromotion.mutate({
-      params: { path: { id: promotionToDelete.id } },
-    });
+    if (promotionToDelete) {
+      deletePromotion.mutate({
+        params: { path: { id: promotionToDelete.id } },
+      });
+    }
   };
 
   // Handle form submission
   const handleSubmitPromotion = (values: Omit<Promotion, "id">, helpers: FormikHelpers<Omit<Promotion, "id">>) => {
     if (selectedPromotion) {
-      // Update existing promotion
       updatePromotion.mutate({
         params: { path: { id: selectedPromotion.id } },
         body: values,
       });
     } else {
-      // Create new promotion
-      createPromotion.mutate({
-        body: values,
-      });
+      createPromotion.mutate({ body: values });
     }
-
     helpers.setSubmitting(false);
   };
 
@@ -445,46 +327,40 @@ export const PromotionManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-              {/* Search Bar */}
               <SearchBar
                 searchOptions={searchOptions}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearchTerm}
                 className="w-full sm:w-1/2"
                 placeholder="Tìm kiếm khuyến mãi theo id, tên, mô tả..."
                 resetPagination={() => tableRef.current?.resetPagination()}
               />
-
-              {/* Filter */}
               <div className="shrink-0">
-                <Filter filterOptions={filterGroups} onFilterChange={handleFilterChange} showActiveFilters={true} groupMode={true} />
+                <Filter
+                  filterOptions={filterGroups}
+                  onFilterChange={(criteria) => setFilterCriteria(criteria as StrictFilterCriteria[])}
+                  showActiveFilters={true}
+                  groupMode={true}
+                />
               </div>
             </div>
-            <div>
-              {isLoading ? (
-                <LoadingSpinner name="khuyến mãi" />
-              ) : (
-                <PromotionTable
-                  promotions={filteredPromotions}
-                  columns={promotionColumn}
-                  onView={handleViewDetail}
-                  onEdit={handleOpenEditDialog}
-                  onDelete={handleOpenDeleteDialog}
-                  ref={tableRef}
-                />
-              )}
-            </div>
+            {isLoading ? (
+              <LoadingSpinner name="khuyến mãi" />
+            ) : (
+              <PromotionTable
+                promotions={filteredPromotions}
+                columns={promotionColumn}
+                onView={handleViewDetail}
+                onEdit={handleOpenEditDialog}
+                onDelete={handleOpenDeleteDialog}
+                ref={tableRef}
+              />
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Dialog for adding/editing promotions */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent
-          className="max-h-[90vh] min-w-[50%] overflow-y-auto sm:max-w-3xl"
-          onCloseAutoFocus={() => {
-            setSelectedPromotion(undefined);
-          }}
-        >
+        <DialogContent className="max-h-[90vh] min-w-[50%] overflow-y-auto sm:max-w-3xl" onCloseAutoFocus={() => setSelectedPromotion(undefined)}>
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="flex items-center gap-2 text-xl font-bold">
               <Icon icon={selectedPromotion ? "tabler:edit" : "tabler:plus"} className="h-5 w-5" />
@@ -505,10 +381,8 @@ export const PromotionManagement: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog for viewing promotion details */}
       <PromotionDetail open={detailOpen} setOpen={setDetailOpen} promotion={viewPromotion} />
 
-      {/* Dialog for confirming deletion */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
