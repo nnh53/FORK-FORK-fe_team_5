@@ -54,7 +54,7 @@ const FAQ = forwardRef<HTMLElement, FAQProps>(({ className }, ref) => {
         {/* Left Side - Image */}
         <div className="faq-image">
           <img
-            src="../src/assets/faq.png"
+            src="https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/426b9b5a-914b-4373-b8b6-b8dd6fb82c2c-faq.webp"
             alt="Customer Support"
             style={{
               width: "100%",

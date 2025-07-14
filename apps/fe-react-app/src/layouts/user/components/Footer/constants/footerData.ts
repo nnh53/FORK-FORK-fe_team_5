@@ -8,10 +8,10 @@ export interface FooterLink {
 }
 
 export const quickLinks: FooterLink[] = [
-  { label: "Home", href: "#" },
-  { label: "Movies", href: "#" },
-  { label: "Theaters", href: "#" },
-  { label: "Offers", href: "#" },
+  { label: "Home", href: "#home" },
+  { label: "Movies", href: "#movies" },
+  { label: "Chairs", href: "#theaters" },
+  { label: "Offers", href: "#offers" },
 ];
 
 export const supportLinks: FooterLink[] = [

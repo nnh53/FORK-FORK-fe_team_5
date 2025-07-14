@@ -1,4 +1,5 @@
 import ctaImage from "@/assets/cta.png";
+import { ROUTES } from "@/routes/route.constants";
 
 export const BLUR_FADE_DELAY = 0.15;
 
@@ -125,22 +126,22 @@ export const siteConfig = {
     description: "Discover our premium seating options for the ultimate movie experience",
     chairs: [
       {
-        imageSrc: "/assets/chair/normal.png",
+        imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/75c58430-e8fe-4366-8047-8e3f63ab4048-normal.webp",
         alt: "Normal Chair",
         title: "Normal Chair",
       },
       {
-        imageSrc: "/assets/chair/vip.png",
+        imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/b44d4ed9-dae5-4a0d-80ce-1c14e777b9d1-vip.webp",
         alt: "VIP Chair",
         title: "VIP Chair",
       },
       {
-        imageSrc: "/assets/chair/premium.png",
+        imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/691f23ca-42f4-4fa8-a785-7a1f7127f90b-premium.webp",
         alt: "Premium Chair",
         title: "Premium Chair",
       },
       {
-        imageSrc: "/assets/chair/couple.png",
+        imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/86a5d757-c920-48bd-957e-ebd016c36cfb-couple.webp",
         alt: "Couple Chair",
         title: "Couple Chair",
       },
@@ -162,10 +163,25 @@ export const siteConfig = {
     title: "Đội Ngũ Phát Triển",
     description: "Các thành viên FCinema.",
     cards: [
-      { id: 1, img: "/admins/cuong.jpg" },
-      { id: 2, img: "/admins/hoang.jpg" },
-      { id: 3, img: "/admins/phat.jpg" },
-      { id: 4, img: "/admins/tan.jpg" },
+      { id: 1, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/a3a4e359-2ba6-47fb-aef4-c5b141789868-cuong.webp" },
+      { id: 2, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/714dbf1c-a580-4586-96c8-f22e894541d9-hoang.webp" },
+      { id: 3, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/0658ccab-ff6b-4eab-8eac-0890c4f93c3a-phat.webp" },
+      { id: 4, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/bc051d33-b955-4e44-a19a-350b65c48d9b-tan.webp" },
+      { id: 5, img: "" },
+    ],
+  },
+  footer: {
+    quickLinks: [
+      { label: "Home", href: "#home" },
+      { label: "Movies", href: "#movies" },
+      { label: "Chairs", href: "#chairs" },
+      { label: "Offers", href: "#offers" },
+    ],
+    supportLinks: [
+      { label: "FAQs", href: "#faq" },
+      { label: "Terms of Service", to: ROUTES.TERM_OF_SERVICE },
+      { label: "Privacy Policy", to: ROUTES.PRIVACY_POLICY },
+      { label: "Contact Us", href: "#" },
     ],
   },
 };
