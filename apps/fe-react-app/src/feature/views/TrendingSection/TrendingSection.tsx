@@ -154,10 +154,10 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
                       width: "700px",
                       height: "450px",
                       overflow: "hidden",
-                      // cursor: "pointer",
-                      pointerEvents: "none", // Disable interactions with card
+                      cursor: "pointer",
+                      // pointerEvents: "none", // Disable interactions with card
                     }}
-                    // onClick={() => movie.id && navigate(ROUTES.MOVIE_DETAIL.replace(":movieId", movie.id.toString()))}
+                    onClick={() => movie.id && navigate(ROUTES.MOVIE_DETAIL.replace(":movieId", movie.id.toString()))}
                   >
                     {(() => {
                       // Media content rendering - now takes the entire card

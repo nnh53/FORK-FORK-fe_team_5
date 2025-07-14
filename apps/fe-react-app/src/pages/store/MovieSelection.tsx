@@ -1,14 +1,13 @@
 import type { MovieCardProps } from "@/components/movie/MovieCard.tsx";
 import MovieList from "@/components/movie/MovieList";
-import SplitText from "@/components/Reactbits/reactbit-text-animations/SplitText/SplitText.tsx";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import MovieSearch from "@/components/shared/MovieSearch.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import type { Movie } from "@/interfaces/movies.interface.ts";
-import { queryMovies, transformMovieResponse } from "@/services/movieService.ts";
+import { queryMovies, queryMoviesByStatus, transformMovieResponse } from "@/services/movieService.ts";
 import { transformShowtimesResponse } from "@/services/showtimeService.ts";
 import type { MovieResponse } from "@/type-from-be";
 import { convertShowtimesToSchedulePerDay } from "@/utils/showtime.utils.ts";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import createFetchClient from "openapi-fetch";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -70,10 +69,34 @@ function MovieSelection() {
     };
   }, []);
 
-  // Use React Query hook to fetch movies
-  const { data: moviesData, isLoading, error } = queryMovies();
+  // Use React Query hooks to fetch movies by status
+  const { data: nowShowingData, isLoading: nowShowingLoading, error: nowShowingError } = queryMoviesByStatus("ACTIVE");
+  const { data: upcomingData, isLoading: upcomingLoading, error: upcomingError } = queryMoviesByStatus("UPCOMING");
 
-  // Transform API data using useMemo instead of useState + useEffect
+  // Transform NOW SHOWING movies
+  const nowShowingMovies = useMemo(() => {
+    if (!nowShowingData?.result) return [];
+
+    return nowShowingData.result.map((movieResponse: MovieResponse) => {
+      const movie = transformMovieResponse(movieResponse);
+      return convertMovieToMovieCard(movie);
+    });
+  }, [nowShowingData, convertMovieToMovieCard]);
+
+  // Transform UPCOMING movies
+  const upcomingMovies = useMemo(() => {
+    if (!upcomingData?.result) return [];
+
+    return upcomingData.result.map((movieResponse: MovieResponse) => {
+      const movie = transformMovieResponse(movieResponse);
+      return convertMovieToMovieCard(movie);
+    });
+  }, [upcomingData, convertMovieToMovieCard]);
+
+  // Keep the old query for search functionality
+  const { data: moviesData } = queryMovies();
+
+  // Transform all movies for search functionality
   const movies = useMemo(() => {
     if (!moviesData?.result) return [];
 
@@ -224,74 +247,82 @@ function MovieSelection() {
         </div>
         <MovieSearch onMovieSelect={handleMovieSearchSelect} placeholder="Nhập tên phim để tìm kiếm..." className="mx-auto max-w-md" />
       </div>
-      <SplitText
-        text="NOW SHOWING"
-        className="text-center text-2xl font-semibold"
-        delay={100}
-        duration={0.6}
-        ease="power3.out"
-        splitType="chars"
-        from={{ opacity: 0, y: 40 }}
-        to={{ opacity: 1, y: 0 }}
-        threshold={0.1}
-        rootMargin="-100px"
-        textAlign="center"
-        onLetterAnimationComplete={() => {
-          // Refresh ScrollTrigger to ensure Footer animations work
-          setTimeout(() => ScrollTrigger.refresh(), 50);
-        }}
-      />
-      {/* Loading state */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-lg text-white">Đang tải phim...</div>
-        </div>
-      )}
-      {/* Error state */}
-      {error && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-lg text-red-500">Có lỗi xảy ra khi tải danh sách phim</div>
-        </div>
-      )}
-      {/* Movies list */}
-      {!isLoading && !error && (
-        <MovieList
-          horizontal={true}
-          movies={movies}
-          cardsPerRow={4}
-          onPosterClick={handlePosterClick}
-          onTitleClick={handleTitleClick}
-          onMovieBuyTicketClick={handleBuyTicketClick}
-        />
-      )}
-      <SplitText
-        text="UPCOMING MOVIES"
-        className="text-center text-2xl font-semibold"
-        delay={100}
-        duration={0.6}
-        ease="power3.out"
-        splitType="chars"
-        from={{ opacity: 0, y: 40 }}
-        to={{ opacity: 1, y: 0 }}
-        threshold={0.1}
-        rootMargin="-100px"
-        textAlign="center"
-        onLetterAnimationComplete={() => {
-          // Refresh ScrollTrigger to ensure Footer animations work
-          setTimeout(() => ScrollTrigger.refresh(), 50);
-        }}
-      />
-      {/* Upcoming movies - for now, show same movies but could be filtered differently */}
-      {!isLoading && !error && (
-        <MovieList
-          horizontal={true}
-          movies={movies.slice(0, 6)} // Show first 6 movies as upcoming
-          cardsPerRow={4}
-          onPosterClick={handlePosterClick}
-          onTitleClick={handleTitleClick}
-          onMovieBuyTicketClick={handleBuyTicketClick}
-        />
-      )}{" "}
+      {/* Tabs Section */}
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <Tabs defaultValue="nowshowing" className="w-full">
+          <TabsList className="mx-auto mb-8 grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="nowshowing" className="text-sm font-medium">
+              NOW SHOWING
+            </TabsTrigger>
+            <TabsTrigger value="upcoming" className="text-sm font-medium">
+              UPCOMING
+            </TabsTrigger>
+            <TabsTrigger value="all" className="text-sm font-medium">
+              ALL MOVIES
+            </TabsTrigger>
+          </TabsList>
+
+          {/* NOW SHOWING Tab Content */}
+          <TabsContent value="nowshowing" className="mt-8">
+            {nowShowingLoading && (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-lg text-white">Đang tải phim đang chiếu...</div>
+              </div>
+            )}
+            {nowShowingError && (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-lg text-red-500">Có lỗi xảy ra khi tải danh sách phim đang chiếu</div>
+              </div>
+            )}
+            {!nowShowingLoading && !nowShowingError && (
+              <MovieList
+                horizontal={true}
+                movies={nowShowingMovies}
+                cardsPerRow={4}
+                onPosterClick={handlePosterClick}
+                onTitleClick={handleTitleClick}
+                onMovieBuyTicketClick={handleBuyTicketClick}
+              />
+            )}
+          </TabsContent>
+
+          {/* UPCOMING Tab Content */}
+          <TabsContent value="upcoming" className="mt-8">
+            {upcomingLoading && (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-lg text-white">Đang tải phim sắp chiếu...</div>
+              </div>
+            )}
+            {upcomingError && (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-lg text-red-500">Có lỗi xảy ra khi tải danh sách phim sắp chiếu</div>
+              </div>
+            )}
+            {!upcomingLoading && !upcomingError && (
+              <MovieList
+                horizontal={true}
+                movies={upcomingMovies}
+                cardsPerRow={4}
+                onPosterClick={handlePosterClick}
+                onTitleClick={handleTitleClick}
+                onMovieBuyTicketClick={handleBuyTicketClick}
+              />
+            )}
+          </TabsContent>
+
+          {/* ALL MOVIES Tab Content */}
+          <TabsContent value="all" className="mt-8">
+            <MovieList
+              horizontal={true}
+              movies={movies}
+              cardsPerRow={4}
+              onPosterClick={handlePosterClick}
+              onTitleClick={handleTitleClick}
+              onMovieBuyTicketClick={handleBuyTicketClick}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>{" "}
       {selectedMovie && (
         <ShowtimesModal
           isOpen={isShowtimesModalOpen}

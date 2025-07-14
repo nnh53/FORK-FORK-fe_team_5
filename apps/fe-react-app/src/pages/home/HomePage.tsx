@@ -10,6 +10,7 @@ import { useHomePageAnimations } from "@/hooks/useHomePageAnimations";
 import { CTASection } from "@/components/magicui/sections/cta-section";
 import { FeatureSection } from "@/components/magicui/sections/feature-section";
 import { useRef } from "react";
+import MovieSelection from "../store/MovieSelection";
 import "./styles/HomePage.css";
 
 const HomePage = () => {
@@ -32,6 +33,7 @@ const HomePage = () => {
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="home-page">
           <CarouselSection ref={carouselRef} />
+          <MovieSelection />
           <TrendingSection ref={cardSwapRef} />
           <ParallaxSection ref={parallaxRef} />
           <CinemaExperience ref={experienceRef} />
