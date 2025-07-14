@@ -108,7 +108,9 @@ export const PromotionTable = forwardRef<{ resetPagination: () => void }, Promot
 
     // Get current page data
     const currentPageData = useMemo(() => {
-      return formattedData().slice(pagination.startIndex, pagination.endIndex + 1);
+      return formattedData()
+        .slice(pagination.startIndex, pagination.endIndex + 1)
+        .reverse();
     }, [formattedData, pagination.startIndex, pagination.endIndex]);
 
     // Modify columns to include sort buttons
