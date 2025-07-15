@@ -180,12 +180,7 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       });
   }, [snacks, selectedComboSnack, comboSnacks, snackSearchTerm, selectedCategory]);
 
-  const snackSizes = [
-    { id: 1, name: "Nhỏ" },
-    { id: 2, name: "Vừa" },
-    { id: 3, name: "Lớn" },
-    { id: 4, name: "Rất lớn" },
-  ];
+  // Đã loại bỏ biến snackSizes không còn sử dụng
 
   return (
     <div className="space-y-4">
@@ -332,54 +327,8 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                     )}
                   />
                 </div>
-                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="snackSizeId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Kích cỡ (nếu có)</FormLabel>
-                        <FormControl>
-                          <select
-                            className="border-input flex h-9 w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1"
-                            value={field.value?.toString() || "0"}
-                            onChange={(e) => field.onChange(e.target.value === "0" ? null : parseInt(e.target.value))}
-                          >
-                            <option value="0">Không chọn kích cỡ</option>
-                            {snackSizes.map((size) => (
-                              <option key={size.id} value={size.id.toString()}>
-                                {size.name}
-                              </option>
-                            ))}
-                          </select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="discountPercentage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Giảm giá (%)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={0}
-                            max={100}
-                            placeholder="0"
-                            {...field}
-                            value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="flex justify-end gap-2 pt-2">
+                {/* Các trường kích cỡ và giảm giá đã được ẩn theo yêu cầu */}
+                <div className="flex justify-end gap-2 pt-4">
                   <Button type="button" variant="outline" onClick={handleCancelAddEdit}>
                     <X className="mr-1 h-4 w-4" />
                     Hủy

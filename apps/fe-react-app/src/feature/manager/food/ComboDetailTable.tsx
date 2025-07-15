@@ -69,8 +69,6 @@ const ComboDetailTable: React.FC<ComboDetailTableProps> = ({ comboSnacks, onAddN
                   <TableRow>
                     <TableHead>Tên thực phẩm</TableHead>
                     <TableHead>Số lượng</TableHead>
-                    <TableHead>Kích cỡ</TableHead>
-                    <TableHead>Giảm giá</TableHead>
                     <TableHead className="text-right">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -83,12 +81,6 @@ const ComboDetailTable: React.FC<ComboDetailTableProps> = ({ comboSnacks, onAddN
                           ...comboSnack.snack,
                         }
                       : createDefaultSnack();
-
-                    let sizeDisplay = "Mặc định";
-
-                    if (comboSnack.snackSizeId && snack?.size) {
-                      sizeDisplay = snack.size;
-                    }
 
                     return (
                       <TableRow key={comboSnack.id}>
@@ -147,8 +139,6 @@ const ComboDetailTable: React.FC<ComboDetailTableProps> = ({ comboSnacks, onAddN
                           </div>
                         </TableCell>
                         <TableCell>{comboSnack.quantity}</TableCell>
-                        <TableCell>{sizeDisplay}</TableCell>
-                        <TableCell>{comboSnack.discountPercentage ?? 0}%</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
                             <Button variant="outline" size="sm" onClick={() => onEditSnack(comboSnack)}>
