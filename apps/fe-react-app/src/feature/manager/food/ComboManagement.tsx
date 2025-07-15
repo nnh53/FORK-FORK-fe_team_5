@@ -42,8 +42,8 @@ import ComboTable from "./ComboTable";
 
 // Hàm filter toàn cục với kiểm tra null/undefined
 const filterByGlobalSearch = (combo: Combo, searchTerm: string): boolean => {
-  if (!searchTerm || !combo) return false;
-
+  if (!searchTerm) return true;
+  if (!combo) return false;
   const lowerSearchTerm = searchTerm.toLowerCase().trim();
   return (
     (combo.id?.toString().includes(searchTerm) ?? false) ||

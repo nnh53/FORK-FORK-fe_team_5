@@ -144,7 +144,7 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Trạng thái</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Chọn trạng thái" />
