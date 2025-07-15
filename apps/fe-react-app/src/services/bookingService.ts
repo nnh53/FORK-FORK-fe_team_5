@@ -91,14 +91,19 @@ export const useUpdateBooking = () => {
   return $api.useMutation("put", "/bookings/{id}");
 };
 
-// /**
-//  * Hook for deleting a booking
-//  */
-// export const useDeleteBooking = (id: number) => {
-//   return $api.useMutation("delete", "/bookings/{id}", {
-//     params: { path: { id } },
-//   });
-// };
+/**
+ * Hook for confirming booking payment
+ */
+export const useConfirmBookingPayment = () => {
+  return $api.useMutation("post", "/bookings/{id}/confirm-payment");
+};
+
+/**
+ * Hook for canceling a booking
+ */
+export const useCancelBooking = () => {
+  return $api.useMutation("post", "/bookings/{id}/cancel");
+};
 
 /**
  * Hook for getting seats by showtime (for seat selection)
