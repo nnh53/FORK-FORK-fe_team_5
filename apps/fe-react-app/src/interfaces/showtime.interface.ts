@@ -1,11 +1,11 @@
 export interface Showtime {
   id: number;
   movieId: number;
-  roomId: number | undefined; // Changed from null to undefined to match backend API
-  roomName?: string; // Từ backend
-  showDateTime: string; // Thay đổi từ show_date_time
-  endDateTime: string; // Thay đổi từ show_end_time
-  status: string; // Backend trả về string, không phải enum
+  roomId: number;
+  roomName?: string;
+  showDateTime: string;
+  endDateTime: string;
+  status: string;
 }
 
-export type ShowtimeFormData = Omit<Showtime, "id" | "roomName">;
+export type ShowtimeFormData = Omit<Showtime, "id">;

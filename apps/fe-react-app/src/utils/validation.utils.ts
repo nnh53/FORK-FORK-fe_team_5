@@ -20,6 +20,18 @@ export const registerFormSchema = z.object({
   phone: z.string().regex(/^\d{9,11}$/, "Số điện thoại không hợp lệ"),
 });
 
+// Updated showtime form validation schema with Date object for showDate
+export const showtimeFormSchema = z.object({
+  movieId: z.string().min(1, "Vui lòng chọn phim"),
+  roomId: z.string().min(1, "Vui lòng chọn phòng chiếu"),
+  showDate: z.date({
+    required_error: "Vui lòng chọn ngày chiếu",
+  }),
+  startTime: z.string().min(1, "Vui lòng chọn giờ bắt đầu"),
+  endTime: z.string().min(1, "Vui lòng chọn giờ kết thúc"),
+  manualEndTime: z.boolean(),
+});
+
 export const forgotPasswordValidationSchema = Yup.object().shape({
   password: Yup.string().min(6, "Mật khẩu phải có ít nhất 8 ký tự").required("Mật khẩu là bắt buộc"),
   confirmPassword: Yup.string()

@@ -7,6 +7,7 @@ import {
   USER_STATUS_COLORS,
   USER_STATUS_LABELS,
 } from "@/constants/status";
+import * as Color from "color-bits";
 
 /**
  * Get badge variant for movie status
@@ -87,23 +88,44 @@ export const formatDateRange = (fromDate?: string, toDate?: string) => {
 };
 
 /**
- * Format currency value for display
- */
-export const formatCurrency = (value?: number): string => {
-  if (!value) return "0 ₫";
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(value);
-};
-
-/**
  * Get showtime status display color
  */
 export const getShowtimeStatusColor = (status?: string) => {
   if (!status || !(status in SHOWTIME_STATUS_COLORS)) {
-    return "bg-gray-100 text-gray-800";
+    return "bg-red-100 text-red-800";
   }
   return SHOWTIME_STATUS_COLORS[status as keyof typeof SHOWTIME_STATUS_COLORS];
+};
+
+
+// Helper function to add opacity to an RGB color string
+export const colorWithOpacity = (color: string, opacity: number): string => {
+  if (!color.startsWith("rgb")) return color;
+  return Color.formatRGBA(Color.alpha(Color.parse(color), opacity));
+};
+
+// Helper function to convert any CSS color to rgba
+export const getRGBA = (
+  cssColor: React.CSSProperties["color"],
+  fallback: string = "rgba(180, 180, 180)",
+): string => {
+  if (typeof window === "undefined") return fallback;
+  if (!cssColor) return fallback;
+
+  try {
+    // Handle CSS variables
+    if (typeof cssColor === "string" && cssColor.startsWith("var(")) {
+      const element = document.createElement("div");
+      element.style.color = cssColor;
+      document.body.appendChild(element);
+      const computedColor = window.getComputedStyle(element).color;
+      document.body.removeChild(element);
+      return Color.formatRGBA(Color.parse(computedColor));
+    }
+
+    return Color.formatRGBA(Color.parse(cssColor));
+  } catch (e) {
+    console.error("Color parsing failed:", e);
+    return fallback;
+  }
 };

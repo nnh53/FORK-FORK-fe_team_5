@@ -52,7 +52,7 @@ export const transformShowtimeResponse = (showtimeResponse: ShowtimeResponse): S
   return {
     id: showtimeResponse.id ?? 0,
     movieId: showtimeResponse.movieId ?? 0,
-    roomId: showtimeResponse.roomId, // Keep as undefined if not provided
+    roomId: showtimeResponse.roomId ?? 0,
     roomName: showtimeResponse.roomName,
     showDateTime: showtimeResponse.showDateTime ?? "",
     endDateTime: showtimeResponse.endDateTime ?? "",
@@ -82,18 +82,4 @@ export const prepareCreateShowtimeData = (data: ShowtimeFormData) => {
 
 export const prepareUpdateShowtimeData = (data: Showtime) => {
   return transformShowtimeToRequest(data);
-};
-
-export const showtimeService = {
-  getShowtimesByMovieId: async (movieId: string) => {
-    throw new Error("Use queryShowtimesByMovie hook instead of showtimeService.getShowtimesByMovieId");
-  },
-
-  getAllShowtimes: async () => {
-    throw new Error("Use queryShowtimes hook instead of showtimeService.getAllShowtimes");
-  },
-
-  getShowtimeById: async (id: string) => {
-    throw new Error("Use queryShowtime hook instead of showtimeService.getShowtimeById");
-  },
 };

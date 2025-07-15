@@ -2,9 +2,11 @@
 
 import { Alert, AlertDescription } from "@/components/Shadcn/ui/alert";
 import { Button } from "@/components/Shadcn/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Calendar } from "@/components/Shadcn/ui/calendar";
+import { Card, CardContent } from "@/components/Shadcn/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
-import { Label } from "@/components/Shadcn/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
@@ -13,10 +15,14 @@ import type { Showtime, ShowtimeFormData } from "@/interfaces/showtime.interface
 import { transformCinemaRoomsResponse, useCinemaRooms } from "@/services/cinemaRoomService";
 import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { prepareCreateShowtimeData, prepareUpdateShowtimeData, queryCreateShowtime, queryUpdateShowtime } from "@/services/showtimeService";
-import { AlertTriangle, Calendar, Clock, Film, Home } from "lucide-react";
-import type React from "react";
-import { useEffect, useState } from "react";
+import { cn } from "@/utils/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { AlertTriangle, CalendarIcon, Clock, Home } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import * as z from "zod";
 
 interface ShowtimeFormProps {
   readonly initialData?: Showtime;
@@ -24,14 +30,33 @@ interface ShowtimeFormProps {
   readonly onCancel?: () => void;
 }
 
-interface FormData {
-  movieId: string;
-  roomId: string;
-  startDate: string;
-  startTime: string;
-  endTime: string;
-  manualEndTime: boolean;
-}
+// Updated form schema for new date handling
+const showtimeFormSchemaLocal = z.object({
+  movieId: z.string().min(1, "Vui lòng chọn phim"),
+  roomId: z.string().min(1, "Vui lòng chọn phòng chiếu"),
+  showDate: z.date({
+    required_error: "Vui lòng chọn ngày chiếu",
+  }),
+  startTime: z.string().min(1, "Vui lòng chọn giờ bắt đầu"),
+  endTime: z.string().min(1, "Vui lòng chọn giờ kết thúc"),
+  manualEndTime: z.boolean(),
+});
+
+type FormData = z.infer<typeof showtimeFormSchemaLocal>;
+
+// Helper function to combine date and time into ISO string
+const createISODateTime = (date: Date, time: string): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${time}:00.000Z`;
+};
+
+// Helper function to format time for input[type="time"]
+const formatTimeForInput = (date: Date): string => {
+  return date.toTimeString().slice(0, 5); // Returns HH:mm format
+};
 
 export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -47,32 +72,33 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
 
   const dataLoading = moviesLoading || roomsLoading;
 
-  const [formData, setFormData] = useState<FormData>({
-    movieId: initialData?.movieId.toString() || "",
-    roomId: initialData?.roomId?.toString() || "",
-    startDate: initialData ? new Date(initialData.showDateTime).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
-    startTime: initialData ? new Date(initialData.showDateTime).toTimeString().slice(0, 5) : "10:00",
-    endTime: initialData ? new Date(initialData.endDateTime).toTimeString().slice(0, 5) : "",
-    manualEndTime: Boolean(initialData),
+  const form = useForm<FormData>({
+    resolver: zodResolver(showtimeFormSchemaLocal),
+    defaultValues: {
+      movieId: initialData?.movieId.toString() || "",
+      roomId: initialData?.roomId?.toString() || "",
+      showDate: initialData ? new Date(initialData.showDateTime) : new Date(),
+      startTime: initialData ? formatTimeForInput(new Date(initialData.showDateTime)) : "10:00",
+      endTime: initialData ? formatTimeForInput(new Date(initialData.endDateTime)) : "",
+      manualEndTime: Boolean(initialData),
+    },
   });
 
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const watchedValues = form.watch();
+  const { movieId, showDate, startTime, manualEndTime, roomId } = watchedValues;
+
+  // Memoize selected movie to prevent unnecessary recalculations
+  const selectedMovie = useMemo(() => {
+    return movies.find((m) => m.id?.toString() === movieId) || null;
+  }, [movies, movieId]);
 
   // Transform API data to our interfaces
   useEffect(() => {
     if (moviesData?.result) {
       const transformedMovies = transformMoviesResponse(moviesData.result);
       setMovies(transformedMovies);
-
-      // If we have initialData, find the selected movie
-      if (initialData?.movieId) {
-        const movie = transformedMovies.find((m) => m.id === initialData.movieId);
-        if (movie) {
-          setSelectedMovie(movie);
-        }
-      }
     }
-  }, [moviesData, initialData]);
+  }, [moviesData]);
 
   useEffect(() => {
     if (roomsData?.result) {
@@ -80,81 +106,90 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
     }
   }, [roomsData]);
 
-  // Calculate end time when movie or start time changes
-  useEffect(() => {
-    if (selectedMovie?.duration && !formData.manualEndTime) {
-      const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
-      const endDateTime = new Date(startDateTime.getTime() + selectedMovie.duration * 60 * 1000); // duration in minutes
-      setFormData((prev) => ({
-        ...prev,
-        endTime: endDateTime.toTimeString().slice(0, 5),
-      }));
-    }
-  }, [selectedMovie, formData.startDate, formData.startTime, formData.manualEndTime]);
+  // Optimized: Calculate end time when movie or start time changes
+  const calculateEndTime = useCallback(() => {
+    if (selectedMovie?.duration && !manualEndTime && startTime) {
+      // Parse time string to minutes
+      const [hours, minutes] = startTime.split(":").map(Number);
+      const startMinutes = hours * 60 + minutes;
 
-  // Room availability check - Skip for now until API endpoint is available
+      // Add movie duration
+      const endMinutes = startMinutes + selectedMovie.duration;
+
+      // Convert back to HH:mm format
+      const endHours = Math.floor(endMinutes / 60) % 24; // Handle day overflow
+      const endMins = endMinutes % 60;
+      const calculatedEndTime = `${String(endHours).padStart(2, "0")}:${String(endMins).padStart(2, "0")}`;
+
+      // Only update if the value is different to prevent infinite re-renders
+      if (form.getValues("endTime") !== calculatedEndTime) {
+        form.setValue("endTime", calculatedEndTime, { shouldValidate: true });
+      }
+    }
+  }, [selectedMovie, manualEndTime, startTime, form]);
+
   useEffect(() => {
-    // Room availability check would be implemented here
-    // when the backend provides the endpoint
+    calculateEndTime();
+  }, [calculateEndTime]);
+
+  // Optimized: Reset conflict error when relevant fields change
+  useEffect(() => {
     setConflictError("");
-  }, [formData.roomId, formData.startDate, formData.startTime, formData.endTime, initialData?.id]);
+  }, [roomId, showDate, startTime, watchedValues.endTime, initialData?.id]);
 
-  const handleMovieChange = (movieId: string) => {
-    const movie = movies.find((m) => m.id?.toString() === movieId);
-    setSelectedMovie(movie || null);
-    setFormData((prev) => ({
-      ...prev,
-      movieId,
-      // Reset end time when movie changes
-      manualEndTime: false,
-    }));
-  };
+  const handleMovieChange = useCallback(
+    (movieId: string) => {
+      form.setValue("movieId", movieId, { shouldValidate: true });
+      // Reset manual end time when movie changes to allow auto-calculation
+      if (form.getValues("manualEndTime")) {
+        form.setValue("manualEndTime", false, { shouldValidate: true });
+      }
+      // Reset conflict error when movie changes
+      setConflictError("");
+    },
+    [form],
+  );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleFieldChange = useCallback(
+    (field: keyof FormData, value: string | boolean | Date) => {
+      form.setValue(field, value, { shouldValidate: true });
+      // Reset conflict error when any relevant field changes
+      setConflictError("");
+    },
+    [form],
+  );
 
-    if (type === "checkbox") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: checked,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async (data: FormData) => {
     if (conflictError) {
       toast.error("Vui lòng giải quyết xung đột lịch chiếu trước khi lưu");
-      return;
-    }
-
-    if (!formData.movieId || !formData.roomId || !formData.startDate || !formData.startTime || !formData.endTime) {
-      toast.error("Vui lòng điền đầy đủ thông tin");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
-      const endDateTime = new Date(`${formData.startDate}T${formData.endTime}`);
+      // Create ISO DateTime strings using the helper function
+      const showDateTime = createISODateTime(data.showDate, data.startTime);
+      const endDateTime = createISODateTime(data.showDate, data.endTime);
 
-      // Handle case where end time is on the next day
-      if (endDateTime < startDateTime) {
-        endDateTime.setDate(endDateTime.getDate() + 1);
+      // Parse to check if end time is next day
+      const startTimeMinutes = parseInt(data.startTime.split(":")[0]) * 60 + parseInt(data.startTime.split(":")[1]);
+      const endTimeMinutes = parseInt(data.endTime.split(":")[0]) * 60 + parseInt(data.endTime.split(":")[1]);
+
+      let finalEndDateTime = endDateTime;
+
+      // If end time is earlier than start time, it means next day
+      if (endTimeMinutes < startTimeMinutes) {
+        const nextDay = new Date(data.showDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        finalEndDateTime = createISODateTime(nextDay, data.endTime);
       }
 
       const showtimeData: ShowtimeFormData = {
-        movieId: parseInt(formData.movieId),
-        roomId: parseInt(formData.roomId),
-        showDateTime: startDateTime.toISOString(),
-        endDateTime: endDateTime.toISOString(),
+        movieId: parseInt(data.movieId),
+        roomId: parseInt(data.roomId),
+        showDateTime,
+        endDateTime: finalEndDateTime,
         status: "SCHEDULE", // Default status
       };
 
@@ -195,135 +230,192 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
 
   return (
     <Card className="mx-auto max-w-4xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Film className="h-5 w-5" />
-          {initialData ? "Chỉnh sửa lịch chiếu" : "Tạo lịch chiếu mới"}
-        </CardTitle>
-      </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="movieId">
-                Chọn phim <span className="text-red-500">*</span>
-              </Label>
-              <Select value={formData.movieId} onValueChange={handleMovieChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn phim" />
-                </SelectTrigger>
-                <SelectContent>
-                  {movies.map((movie) => (
-                    <SelectItem key={movie.id} value={movie.id?.toString() || ""}>
-                      {movie.name} ({movie.duration} phút)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedMovie && <p className="text-muted-foreground text-sm">Thời lượng: {selectedMovie.duration} phút</p>}
-            </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="movieId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Chọn phim <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select value={field.value} onValueChange={handleMovieChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn phim" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {movies.map((movie) => (
+                          <SelectItem key={movie.id} value={movie.id?.toString() || ""}>
+                            {movie.name} ({movie.duration} phút)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedMovie && <p className="text-muted-foreground text-sm">Thời lượng: {selectedMovie.duration} phút</p>}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-2">
-              <Label htmlFor="roomId">
-                Chọn phòng chiếu <span className="text-red-500">*</span>
-              </Label>
-              <Select value={formData.roomId} onValueChange={(value) => setFormData((prev) => ({ ...prev, roomId: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn phòng chiếu" />
-                </SelectTrigger>
-                <SelectContent>
-                  {rooms.map((room) => (
-                    <SelectItem key={room.id} value={room.id.toString()}>
-                      <div className="flex items-center">
-                        <Home className="mr-2 h-4 w-4" />
-                        {room.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="startDate">
-                Ngày chiếu <span className="text-red-500">*</span>
-              </Label>
-              <div className="relative">
-                <Calendar className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
-                <Input id="startDate" name="startDate" type="date" value={formData.startDate} onChange={handleChange} className="pl-10" required />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="startTime">
-                Giờ bắt đầu <span className="text-red-500">*</span>
-              </Label>
-              <div className="relative">
-                <Clock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
-                <Input id="startTime" name="startTime" type="time" value={formData.startTime} onChange={handleChange} className="pl-10" required />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="endTime">
-                Giờ kết thúc <span className="text-red-500">*</span>
-              </Label>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="manualEndTime"
-                  name="manualEndTime"
-                  checked={formData.manualEndTime}
-                  onChange={handleChange}
-                  className="rounded border-gray-300"
-                />
-                <Label htmlFor="manualEndTime" className="text-sm font-normal">
-                  Tùy chỉnh thời gian kết thúc
-                </Label>
-              </div>
-            </div>
-            <div className="relative">
-              <Clock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
-              <Input
-                id="endTime"
-                name="endTime"
-                type="time"
-                value={formData.endTime}
-                onChange={handleChange}
-                disabled={!formData.manualEndTime}
-                className="pl-10"
-                required
+              <FormField
+                control={form.control}
+                name="roomId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Chọn phòng chiếu <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select value={field.value} onValueChange={(value) => handleFieldChange("roomId", value)}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn phòng chiếu" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {rooms.map((room) => (
+                          <SelectItem key={room.id} value={room.id.toString()}>
+                            <div className="flex items-center">
+                              <Home className="mr-2 h-4 w-4" />
+                              {room.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            {selectedMovie?.duration && !formData.manualEndTime && (
-              <p className="text-muted-foreground text-sm">
-                Thời gian kết thúc được tính tự động dựa trên thời lượng phim ({selectedMovie.duration} phút)
-              </p>
+
+            {/* Date Picker using Calendar like Register.tsx */}
+            <FormField
+              control={form.control}
+              name="showDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>
+                    Ngày chiếu <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                          {field.value ? format(field.value, "dd/MM/yyyy") : <span>Chọn ngày chiếu</span>}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(date) => handleFieldChange("showDate", date || new Date())}
+                        disabled={(date) => date < new Date() || date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        captionLayout="dropdown"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Time Pickers using Input type="time" */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="startTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Giờ bắt đầu <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Clock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
+                        <Input
+                          type="time"
+                          className="bg-background appearance-none pl-10 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                          {...field}
+                          onChange={(e) => handleFieldChange("startTime", e.target.value)}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="endTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>
+                        Giờ kết thúc <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="manualEndTime"
+                          checked={form.watch("manualEndTime")}
+                          onChange={(e) => handleFieldChange("manualEndTime", e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                        <label htmlFor="manualEndTime" className="text-sm font-normal">
+                          Tùy chỉnh thời gian kết thúc
+                        </label>
+                      </div>
+                    </div>
+                    <FormControl>
+                      <div className="relative">
+                        <Clock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
+                        <Input
+                          type="time"
+                          className="bg-background appearance-none pl-10 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                          {...field}
+                          disabled={!form.watch("manualEndTime")}
+                          onChange={(e) => handleFieldChange("endTime", e.target.value)}
+                        />
+                      </div>
+                    </FormControl>
+                    {selectedMovie?.duration && !form.watch("manualEndTime") && (
+                      <p className="text-muted-foreground text-sm">
+                        Thời gian kết thúc được tính tự động dựa trên thời lượng phim ({selectedMovie.duration} phút)
+                      </p>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {conflictError && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{conflictError}</AlertDescription>
+              </Alert>
             )}
-          </div>
 
-          {conflictError && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{conflictError}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="flex gap-4">
-            <Button type="submit" disabled={isLoading || !!conflictError} className="flex-1">
-              {getButtonText()}
-            </Button>
-            {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
-                Hủy
+            <div className="flex gap-4">
+              <Button type="submit" disabled={isLoading || !!conflictError} className="flex-1">
+                {getButtonText()}
               </Button>
-            )}
-          </div>
-        </form>
+              {onCancel && (
+                <Button type="button" variant="outline" onClick={onCancel}>
+                  Hủy
+                </Button>
+              )}
+            </div>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

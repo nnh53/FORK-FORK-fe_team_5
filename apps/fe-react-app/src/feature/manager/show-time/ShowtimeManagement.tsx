@@ -25,7 +25,7 @@ const filterOptions = [
     selectOptions: [
       { value: SHOWTIME_STATUS.SCHEDULE, label: "Đã lập lịch" },
       { value: SHOWTIME_STATUS.ONSCREEN, label: "Đang chiếu" },
-      { value: SHOWTIME_STATUS.COMPLETE, label: "Hoàn thành" },
+      { value: SHOWTIME_STATUS.COMPLETED, label: "Hoàn thành" },
     ],
     placeholder: "Chọn trạng thái",
   },

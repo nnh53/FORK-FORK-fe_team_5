@@ -66,13 +66,3 @@ export const formatDateForDisplay = (dateString: string): string => {
 
   return `${weekday}, ${day}/${month}`;
 };
-
-/**
- * Format price for display (e.g., 120000 -> "120.000 ₫")
- */
-export const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(price);
-};

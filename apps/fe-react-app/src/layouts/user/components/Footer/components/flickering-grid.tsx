@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable */
-import { cn, colorWithOpacity, getRGBA } from "@/utils/utils";
+import { colorWithOpacity, getRGBA } from "@/utils/color.utils";
+import { cn } from "@/utils/utils";
 import React, {
   useCallback,
   useEffect,
