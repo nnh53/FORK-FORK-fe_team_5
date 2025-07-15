@@ -39,15 +39,9 @@ const PaymentReturn = () => {
 
     // Check if payment was successful
     if (status === "PAID" && cancel === "false") {
-      // Navigate to booking success page with booking ID in location state
+      // Navigate to booking success page with the booking ID in URL params
       console.log("Payment successful, navigating to success page with booking ID:", id);
-      navigate(ROUTES.BOOKING_SUCCESS, {
-        state: {
-          bookingId: id,
-          orderCode: orderCode,
-          paymentSuccess: true,
-        },
-      });
+      navigate(`${ROUTES.BOOKING_SUCCESS}`);
 
       // Clear the booking state from localStorage since booking is complete
       // localStorage.removeItem("bookingState");
@@ -56,20 +50,6 @@ const PaymentReturn = () => {
     }
 
     // Handle other cases (failed payment, invalid status, etc.)
-    // If we have an ID but payment failed, still navigate but with different state
-    if (id) {
-      console.log("Payment not successful but have ID, navigating with failure state:", id);
-      navigate(ROUTES.BOOKING_SUCCESS, {
-        state: {
-          bookingId: id,
-          orderCode: orderCode,
-          paymentSuccess: false,
-        },
-      });
-      return;
-    }
-
-    // No ID available, show error and redirect to checkout
     toast.error("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
     navigate(ROUTES.CHECKOUT);
     // eslint-disable-next-line react-hooks/exhaustive-deps

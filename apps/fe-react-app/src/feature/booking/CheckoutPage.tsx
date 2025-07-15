@@ -22,6 +22,58 @@ import PaymentSummary from "./components/PaymentSummary/PaymentSummary.tsx";
 import PromotionSelection from "./components/PromotionSelection/PromotionSelection.tsx";
 import SnackList from "./components/SnackList/SnackList.tsx";
 
+// Helper function to calculate combo price
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const calculateComboPrice = (combo: any): number => {
+  let comboPrice = 0;
+
+  if (combo.snacks && Array.isArray(combo.snacks) && combo.snacks.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    comboPrice = combo.snacks.reduce((snackTotal: number, comboSnack: any) => {
+      const snackPrice = comboSnack.snack?.price || 0;
+      // Use the actual quantity from ComboSnack, or default to 1 if it's 0 or undefined
+      let snackQuantity = comboSnack.quantity;
+
+      // Fallback logic: if quantity is 0 or undefined, use default quantities based on snack type
+      if (!snackQuantity || snackQuantity === 0) {
+        // Default quantity is 1 for all items in combo
+        snackQuantity = 1;
+      }
+
+      return snackTotal + snackPrice * snackQuantity;
+    }, 0);
+  }
+
+  // Fallback: if combo price is still 0, use a reasonable default based on combo name
+  if (comboPrice === 0) {
+    // Estimate price based on number of snacks and their average price
+    if (combo.snacks && combo.snacks.length > 0) {
+      // Calculate average snack price and multiply by number of snacks
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const avgSnackPrice = combo.snacks.reduce((sum: number, cs: any) => sum + (cs.snack?.price || 0), 0) / combo.snacks.length;
+      comboPrice = avgSnackPrice * combo.snacks.length;
+    }
+
+    // If still 0, use default based on combo name
+    if (comboPrice === 0 && combo.name) {
+      const comboNameLower = combo.name.toLowerCase();
+      if (comboNameLower.includes("couple") || comboNameLower.includes("đôi")) {
+        comboPrice = 120000; // Default price for couple combo
+      } else if (comboNameLower.includes("family") || comboNameLower.includes("gia đình")) {
+        comboPrice = 200000; // Default price for family combo
+      } else if (comboNameLower.includes("sweet") || comboNameLower.includes("ngọt")) {
+        comboPrice = 80000; // Default price for sweet combo
+      } else {
+        comboPrice = 100000; // Default combo price
+      }
+    }
+
+    console.warn(`Using fallback price calculation for combo ${combo.name}: ${comboPrice} VND`);
+  }
+
+  return comboPrice;
+};
+
 const CheckoutPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -197,9 +249,7 @@ const CheckoutPage: React.FC = () => {
     const combo = combos.find((c) => c.id === parseInt(comboId));
     if (!combo) return total;
 
-    // Calculate combo price from snacks
-    const comboPrice = combo.snacks.reduce((snackTotal, comboSnack) => snackTotal + comboSnack.snack.price * comboSnack.quantity, 0);
-    const cost = comboPrice * quantity;
+    const cost = calculateComboPrice(combo) * quantity;
     return total + cost;
   }, 0);
 

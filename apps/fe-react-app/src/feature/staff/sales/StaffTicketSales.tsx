@@ -1,18 +1,21 @@
 import { Button } from "@/components/Shadcn/ui/button";
+import CashPaymentDialog from "@/components/shared/CashPaymentDialog.tsx";
 import { useAuth } from "@/hooks/useAuth";
 import type { PaymentMethod } from "@/interfaces/booking.interface";
 import type { Combo } from "@/interfaces/combo.interface";
 import type { Member } from "@/interfaces/member.interface";
 import type { Movie } from "@/interfaces/movies.interface";
 import type { Promotion } from "@/interfaces/promotion.interface";
-import { transformSeatsToSeatMap, useCreateBooking, useSeatsByShowtimeId } from "@/services/bookingService";
+import { ROUTES } from "@/routes/route.constants.ts";
+import { transformSeatsToSeatMap, useConfirmBookingPayment, useCreateBooking, useSeatsByShowtimeId } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
 import { queryMovies, transformMovieResponse } from "@/services/movieService";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
 import { queryShowtimesByMovie } from "@/services/showtimeService";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
-import type { BookingRequest, MovieResponse, ShowtimeResponse } from "@/type-from-be";
+import type { BookingRequest, BookingResponse, MovieResponse, ShowtimeResponse } from "@/type-from-be";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { memberService } from "../../../services/memberService";
 import {
@@ -56,12 +59,20 @@ const convertApiShowtimeToUI = (apiShowtime: ShowtimeResponse): UIShowtime => {
 const StaffTicketSales: React.FC = () => {
   // Get current staff information from auth context
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Cash payment dialog state
+  const [showCashPaymentDialog, setShowCashPaymentDialog] = useState(false);
+  const [pendingBookingData, setPendingBookingData] = useState<BookingRequest | null>(null);
 
   // Use React Query to fetch movies
   const moviesQuery = queryMovies();
 
   // React Query hook for creating bookings
   const createBookingMutation = useCreateBooking();
+
+  // React Query hook for confirming payment
+  const confirmPaymentMutation = useConfirmBookingPayment();
 
   // React Query hook for showtimes (will be enabled when selectedMovie changes)
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
@@ -307,96 +318,8 @@ const StaffTicketSales: React.FC = () => {
 
     return Math.max(0, subtotal - pointsDiscount - promotionDiscount);
   }, [selectedSeatIds, seatMap, selectedCombos, selectedSnacks, snacks, usePoints, selectedPromotion]);
-  const handleCreateBooking = useCallback(async () => {
-    if (!selectedMovie || !selectedShowtime || selectedSeatIds.length === 0) {
-      toast.error("Vui lòng chọn đầy đủ thông tin");
-      return;
-    }
 
-    if (!customerInfo.name || !customerInfo.phone) {
-      toast.error("Vui lòng nhập thông tin khách hàng");
-      return;
-    }
-
-    if (!user?.id) {
-      toast.error("Không thể xác định thông tin nhân viên. Vui lòng đăng nhập lại.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const totalPrice = calculateTotal();
-      const bookingData: BookingRequest = {
-        userId: memberInfo?.id || `guest_${Date.now()}`,
-        showtimeId: parseInt(selectedShowtime.id) || 1,
-        promotionId: selectedPromotion?.id,
-        seatIds: selectedSeatIds,
-        totalPrice,
-        paymentMethod: paymentMethod,
-        staffId: user?.id || "STAFF_UNKNOWN", // Use current staff ID from auth context
-        estimatedPrice: totalPrice,
-        loyaltyPointsUsed: usePoints > 0 ? usePoints : undefined,
-        bookingCombos: selectedCombos
-          .filter(({ quantity }) => quantity > 0)
-          .map(({ combo, quantity }) => ({
-            comboId: combo.id,
-            quantity,
-          })),
-        bookingSnacks: Object.entries(selectedSnacks)
-          .filter(([, quantity]) => quantity > 0)
-          .map(([snackId, quantity]) => ({
-            snackId: parseInt(snackId.replace("SN", "")),
-            quantity,
-          })),
-      };
-
-      // Use the booking service to create the booking
-      const response = await createBookingMutation.mutateAsync({ body: bookingData });
-
-      if (response.result) {
-        const booking = response.result;
-
-        // If member used points, update their points
-        if (memberInfo && usePoints > 0) {
-          try {
-            await memberService.updateMemberPoints(memberInfo.id, usePoints, "redeem", `Sử dụng điểm cho booking ${booking.id}`);
-          } catch (error) {
-            console.error("Error updating member points:", error);
-            // Don't fail the booking if points update fails
-            toast.warning("Booking thành công nhưng không thể cập nhật điểm");
-          }
-        }
-
-        const successMessage = `Đặt vé thành công! Mã booking: ${booking.id}`;
-        const staffInfo = user?.fullName ? ` - Nhân viên: ${user.fullName}` : "";
-        toast.success(successMessage + staffInfo);
-        resetForm();
-      } else {
-        throw new Error("Booking failed: No result returned");
-      }
-    } catch (error) {
-      console.error("Error creating booking:", error);
-      toast.error("Đặt vé thất bại. Vui lòng thử lại!");
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    selectedMovie,
-    selectedShowtime,
-    selectedSeatIds,
-    customerInfo,
-    memberInfo,
-    usePoints,
-    paymentMethod,
-    selectedCombos,
-    selectedSnacks,
-    selectedPromotion,
-    createBookingMutation,
-    calculateTotal,
-    user?.id, // Added dependency for staff ID
-    user?.fullName, // Added dependency for staff name
-  ]);
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setSelectedMovie(null);
     setSelectedShowtime(null);
     setSelectedSeatIds([]);
@@ -408,7 +331,298 @@ const StaffTicketSales: React.FC = () => {
     setMemberInfo(null);
     setUsePoints(0);
     setStep("movie");
-  };
+  }, []);
+
+  // Helper function to validate booking requirements
+  const validateBookingRequirements = useCallback(() => {
+    if (!selectedMovie || !selectedShowtime || selectedSeatIds.length === 0) {
+      toast.error("Vui lòng chọn đầy đủ thông tin");
+      return false;
+    }
+
+    if (!customerInfo.name || !customerInfo.phone) {
+      toast.error("Vui lòng nhập thông tin khách hàng");
+      return false;
+    }
+
+    if (!user?.id) {
+      toast.error("Không thể xác định thông tin nhân viên. Vui lòng đăng nhập lại.");
+      return false;
+    }
+
+    return true;
+  }, [selectedMovie, selectedShowtime, selectedSeatIds, customerInfo, user?.id]);
+
+  // Helper function to create booking data
+  const createBookingData = useCallback(() => {
+    const totalPrice = calculateTotal();
+    return {
+      userId: memberInfo?.id || `guest_${Date.now()}`,
+      showtimeId: parseInt(selectedShowtime?.id || "0") || 1,
+      promotionId: selectedPromotion?.id,
+      seatIds: selectedSeatIds,
+      totalPrice,
+      paymentMethod: paymentMethod,
+      staffId: user?.id || "STAFF_UNKNOWN",
+      estimatedPrice: totalPrice,
+      loyaltyPointsUsed: usePoints > 0 ? usePoints : undefined,
+      bookingCombos: selectedCombos
+        .filter(({ quantity }) => quantity > 0)
+        .map(({ combo, quantity }) => ({
+          comboId: combo.id,
+          quantity,
+        })),
+      bookingSnacks: Object.entries(selectedSnacks)
+        .filter(([, quantity]) => quantity > 0)
+        .map(([snackId, quantity]) => ({
+          snackId: parseInt(snackId.replace("SN", "")),
+          quantity,
+        })),
+    };
+  }, [
+    calculateTotal,
+    memberInfo?.id,
+    selectedShowtime?.id,
+    selectedPromotion?.id,
+    selectedSeatIds,
+    paymentMethod,
+    user?.id,
+    usePoints,
+    selectedCombos,
+    selectedSnacks,
+  ]);
+
+  // Helper function to handle online payment
+  const handleOnlinePayment = useCallback(
+    async (bookingData: BookingRequest) => {
+      const response = await createBookingMutation.mutateAsync({ body: bookingData });
+
+      if (response.result) {
+        const booking = response.result;
+
+        // If member used points, update their points
+        if (memberInfo && usePoints > 0) {
+          try {
+            await memberService.updateMemberPoints(memberInfo.id, usePoints, "redeem", `Sử dụng điểm cho booking ${booking.id}`);
+          } catch (error) {
+            console.error("Error updating member points:", error);
+            toast.warning("Booking thành công nhưng không thể cập nhật điểm");
+          }
+        }
+
+        // Save booking data to localStorage
+        const bookingDataForStorage = {
+          bookingResult: booking,
+          movieInfo: selectedMovie,
+          selectionInfo: selectedShowtime,
+          cinemaName: `Phòng ${selectedShowtime?.cinemaRoomId}`,
+          paymentMethod: paymentMethod,
+          savedAt: new Date().toISOString(),
+        };
+
+        localStorage.setItem("bookingSuccessData", JSON.stringify(bookingDataForStorage));
+
+        const successMessage = `Đặt vé thành công! Mã booking: ${booking.id}`;
+        const staffInfo = user?.fullName ? ` - Nhân viên: ${user.fullName}` : "";
+        toast.success(successMessage + staffInfo);
+
+        // For online payment, redirect to PayOS
+        if (booking.payOsLink) {
+          window.location.href = booking.payOsLink;
+        } else {
+          navigate(ROUTES.BOOKING_SUCCESS);
+        }
+
+        resetForm();
+      } else {
+        throw new Error("Booking failed: No result returned");
+      }
+    },
+    [createBookingMutation, memberInfo, usePoints, selectedMovie, selectedShowtime, paymentMethod, user?.fullName, navigate, resetForm],
+  );
+
+  const handleCreateBooking = useCallback(async () => {
+    // Validate booking requirements before proceeding
+    const isValid = validateBookingRequirements();
+    if (!isValid) return;
+
+    // Create booking data object
+    const bookingData = createBookingData();
+
+    // Handle different payment methods
+    if (paymentMethod === "CASH") {
+      // For cash payment, show dialog for staff to confirm payment
+      setPendingBookingData(bookingData);
+      setShowCashPaymentDialog(true);
+    } else {
+      // For online payment, proceed with booking creation directly
+      try {
+        await handleOnlinePayment(bookingData);
+      } catch (error) {
+        console.error("Error processing online booking:", error);
+        toast.error("Đặt vé thất bại. Vui lòng thử lại!");
+      }
+    }
+  }, [validateBookingRequirements, createBookingData, paymentMethod, handleOnlinePayment]);
+
+  // Helper function to create booking storage data
+  const createBookingStorageData = useCallback(
+    (booking: BookingResponse, receivedAmount: number, changeAmount: number) => {
+      return {
+        bookingResult: booking,
+        movieInfo: selectedMovie,
+        selectionInfo: selectedShowtime,
+        cinemaName: `Phòng ${selectedShowtime?.cinemaRoomId}`,
+        selectedSeats: selectedSeatIds.map((id) => {
+          const seat = seatMap?.gridData.find((s) => s.id === id);
+          return seat ? { id: id.toString(), name: `${seat.row}${seat.column}` } : { id: id.toString(), name: id.toString() };
+        }),
+        selectedCombos: selectedCombos.reduce(
+          (acc, { combo, quantity }) => {
+            acc[combo.id] = quantity;
+            return acc;
+          },
+          {} as Record<number, number>,
+        ),
+        selectedSnacks: selectedSnacks,
+        selectedPromotion: selectedPromotion,
+        paymentMethod: "CASH",
+        costs: {
+          ticketCost: calculateSeatPrice(),
+          comboCost: selectedCombos.reduce((sum, { combo, quantity }) => {
+            const comboPrice =
+              combo.snacks?.reduce((total, comboSnack) => {
+                const snackPrice = comboSnack.snack?.price || 0;
+                const snackQuantity = comboSnack.quantity || 1;
+                return total + snackPrice * snackQuantity;
+              }, 0) || 0;
+            return sum + comboPrice * quantity;
+          }, 0),
+          snackCost: Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
+            const snack = snacks.find((s) => s.id === parseInt(snackId));
+            return sum + (snack ? snack.price * quantity : 0);
+          }, 0),
+          subtotal: calculateTotal() + usePoints * 1000 + (selectedPromotion ? calculateDiscount(selectedPromotion, calculateTotal()) : 0),
+          pointsDiscount: usePoints * 1000,
+          voucherDiscount: 0,
+          promotionDiscount: selectedPromotion ? calculateDiscount(selectedPromotion, calculateTotal()) : 0,
+          finalTotalCost: calculateTotal(),
+        },
+        cashPaymentInfo: {
+          receivedAmount,
+          changeAmount,
+          totalAmount: calculateTotal(),
+          confirmedAt: new Date().toISOString(),
+        },
+        savedAt: new Date().toISOString(),
+      };
+    },
+    [
+      selectedMovie,
+      selectedShowtime,
+      selectedSeatIds,
+      seatMap?.gridData,
+      selectedCombos,
+      selectedSnacks,
+      selectedPromotion,
+      calculateSeatPrice,
+      calculateTotal,
+      snacks,
+      usePoints,
+    ],
+  );
+
+  // Helper function to handle member points update
+  const updateMemberPoints = useCallback(
+    async (bookingId: number) => {
+      if (memberInfo && usePoints > 0) {
+        try {
+          await memberService.updateMemberPoints(memberInfo.id, usePoints, "redeem", `Sử dụng điểm cho booking ${bookingId}`);
+        } catch (error) {
+          console.error("Error updating member points:", error);
+          toast.warning("Booking thành công nhưng không thể cập nhật điểm");
+        }
+      }
+    },
+    [memberInfo, usePoints],
+  );
+
+  // Helper function to handle cash payment success
+  const handleCashPaymentSuccess = useCallback(
+    (booking: BookingResponse, receivedAmount: number, changeAmount: number) => {
+      const bookingDataForStorage = createBookingStorageData(booking, receivedAmount, changeAmount);
+      localStorage.setItem("bookingSuccessData", JSON.stringify(bookingDataForStorage));
+
+      const successMessage = `Thanh toán tiền mặt thành công! Mã booking: ${booking.id}`;
+      const staffInfo = user?.fullName ? ` - Nhân viên: ${user.fullName}` : "";
+      toast.success(successMessage + staffInfo);
+
+      // Navigate to payment return page to show QR code
+      navigate(ROUTES.PAYMENT_RETURN, {
+        state: {
+          paymentMethod: "OFFLINE",
+          bookingData: bookingDataForStorage,
+          isStaffBooking: true,
+        },
+      });
+
+      resetForm();
+    },
+    [createBookingStorageData, user?.fullName, navigate, resetForm],
+  );
+
+  // Handle cash payment confirmation
+  const handleCashPaymentConfirm = useCallback(
+    async (receivedAmount: number, changeAmount: number) => {
+      if (pendingBookingData) {
+        console.log("Cash payment confirmed:", { receivedAmount, changeAmount, totalAmount: calculateTotal() });
+
+        try {
+          setLoading(true);
+
+          // Step 1: Create booking first with PENDING payment status
+          const response = await createBookingMutation.mutateAsync({ body: pendingBookingData });
+
+          if (response.result) {
+            const booking = response.result;
+
+            // Ensure booking ID exists
+            if (!booking.id) {
+              throw new Error("Booking ID not found in response");
+            }
+
+            // Step 2: Confirm the payment using the confirm payment API
+            await confirmPaymentMutation.mutateAsync({
+              params: { path: { id: booking.id } },
+            });
+
+            // Step 3: Update member points if applicable
+            await updateMemberPoints(booking.id);
+
+            // Step 4: Handle success flow
+            handleCashPaymentSuccess(booking, receivedAmount, changeAmount);
+          } else {
+            throw new Error("Booking creation failed: No result returned");
+          }
+        } catch (error) {
+          console.error("Error processing cash payment:", error);
+          toast.error("Thanh toán tiền mặt thất bại. Vui lòng thử lại!");
+        } finally {
+          setLoading(false);
+          setShowCashPaymentDialog(false);
+          setPendingBookingData(null);
+        }
+      }
+    },
+    [pendingBookingData, calculateTotal, createBookingMutation, confirmPaymentMutation, updateMemberPoints, handleCashPaymentSuccess],
+  );
+
+  // Handle cash payment cancellation
+  const handleCashPaymentCancel = useCallback(() => {
+    setShowCashPaymentDialog(false);
+    setPendingBookingData(null);
+    setLoading(false);
+  }, []);
 
   // Handler functions for component communication
   const handleMovieSelect = (movie: Movie) => {
@@ -577,6 +791,15 @@ const StaffTicketSales: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Cash Payment Dialog */}
+      <CashPaymentDialog
+        isOpen={showCashPaymentDialog}
+        onClose={() => setShowCashPaymentDialog(false)}
+        onConfirm={handleCashPaymentConfirm}
+        onCancel={handleCashPaymentCancel}
+        totalAmount={calculateTotal()}
+      />
     </div>
   );
 };
