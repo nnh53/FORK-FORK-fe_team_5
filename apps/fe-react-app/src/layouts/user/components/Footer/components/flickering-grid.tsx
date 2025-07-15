@@ -2,13 +2,7 @@
 /* eslint-disable */
 import { colorWithOpacity, getRGBA } from "@/utils/color.utils";
 import { cn } from "@/utils/utils";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface FlickeringGridProps extends React.HTMLAttributes<HTMLDivElement> {
   squareSize?: number;
@@ -50,15 +44,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
   }, [color]);
 
   const drawGrid = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      width: number,
-      height: number,
-      cols: number,
-      rows: number,
-      squares: Float32Array,
-      dpr: number,
-    ) => {
+    (ctx: CanvasRenderingContext2D, width: number, height: number, cols: number, rows: number, squares: Float32Array, dpr: number) => {
       ctx.clearRect(0, 0, width, height);
 
       // Create a separate canvas for the text mask
@@ -88,20 +74,11 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
           const squareWidth = squareSize * dpr;
           const squareHeight = squareSize * dpr;
 
-          const maskData = maskCtx.getImageData(
-            x,
-            y,
-            squareWidth,
-            squareHeight,
-          ).data;
-          const hasText = maskData.some(
-            (value, index) => index % 4 === 0 && value > 0,
-          );
+          const maskData = maskCtx.getImageData(x, y, squareWidth, squareHeight).data;
+          const hasText = maskData.some((value, index) => index % 4 === 0 && value > 0);
 
           const opacity = squares[i * rows + j];
-          const finalOpacity = hasText
-            ? Math.min(1, opacity * 3 + 0.4)
-            : opacity;
+          const finalOpacity = hasText ? Math.min(1, opacity * 3 + 0.4) : opacity;
 
           ctx.fillStyle = colorWithOpacity(memoizedColor, finalOpacity);
           ctx.fillRect(x, y, squareWidth, squareHeight);
@@ -170,15 +147,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       lastTime = time;
 
       updateSquares(gridParams.squares, deltaTime);
-      drawGrid(
-        ctx,
-        canvas.width,
-        canvas.height,
-        gridParams.cols,
-        gridParams.rows,
-        gridParams.squares,
-        gridParams.dpr,
-      );
+      drawGrid(ctx, canvas.width, canvas.height, gridParams.cols, gridParams.rows, gridParams.squares, gridParams.dpr);
       animationFrameId = requestAnimationFrame(animate);
     };
 
@@ -209,11 +178,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
   }, [setupCanvas, updateSquares, drawGrid, width, height, isInView]);
 
   return (
-    <div
-      ref={containerRef}
-      className={cn(`h-full w-full ${className}`)}
-      {...props}
-    >
+    <div ref={containerRef} className={cn(`h-full w-full ${className}`)} {...props}>
       <canvas
         ref={canvasRef}
         className="pointer-events-none"

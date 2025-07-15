@@ -1,6 +1,6 @@
 import {
   Building,
-  Calendar,
+  CalendarClock,
   Clapperboard,
   Cookie,
   Film,
@@ -16,6 +16,8 @@ import {
   UserCheck,
   Users,
   Utensils,
+  ClockPlus,
+  FileClock,
 } from "lucide-react";
 
 export const sidebarData = {
@@ -36,18 +38,18 @@ export const sidebarData = {
       icon: Film,
       items: [
         {
-          title: "Management",
+          title: "List",
           url: "/admin/movie",
           icon: Clapperboard,
         },
         {
           title: "Carousels",
-          url: "/admin/carousels",
+          url: "#",
           icon: GalleryHorizontalEnd,
         },
         {
           title: "Trending",
-          url: "/admin/trending",
+          url: "#",
           icon: Star,
         },
         {
@@ -64,8 +66,21 @@ export const sidebarData = {
     },
     {
       title: "Showtimes",
-      url: "/admin/showtime",
-      icon: Calendar,
+      url: "#",
+      icon: CalendarClock,
+      items: [
+        {
+          title: "List",
+          url: "/admin/showtime",
+          icon: ClockPlus,
+        },
+
+        {
+          title: "Showtime in mov",
+          url: "#",
+          icon: FileClock,
+        },
+      ],
     },
     {
       title: "Bookings",

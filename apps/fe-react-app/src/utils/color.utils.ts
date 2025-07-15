@@ -97,7 +97,6 @@ export const getShowtimeStatusColor = (status?: string) => {
   return SHOWTIME_STATUS_COLORS[status as keyof typeof SHOWTIME_STATUS_COLORS];
 };
 
-
 // Helper function to add opacity to an RGB color string
 export const colorWithOpacity = (color: string, opacity: number): string => {
   if (!color.startsWith("rgb")) return color;
@@ -105,10 +104,7 @@ export const colorWithOpacity = (color: string, opacity: number): string => {
 };
 
 // Helper function to convert any CSS color to rgba
-export const getRGBA = (
-  cssColor: React.CSSProperties["color"],
-  fallback: string = "rgba(180, 180, 180)",
-): string => {
+export const getRGBA = (cssColor: React.CSSProperties["color"], fallback: string = "rgba(180, 180, 180)"): string => {
   if (typeof window === "undefined") return fallback;
   if (!cssColor) return fallback;
 

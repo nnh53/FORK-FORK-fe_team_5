@@ -16,6 +16,7 @@ import { transformCinemaRoomsResponse, useCinemaRooms } from "@/services/cinemaR
 import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { prepareCreateShowtimeData, prepareUpdateShowtimeData, queryCreateShowtime, queryUpdateShowtime } from "@/services/showtimeService";
 import { cn } from "@/utils/utils";
+import { showtimeFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { AlertTriangle, CalendarIcon, Clock, Home } from "lucide-react";
@@ -30,19 +31,7 @@ interface ShowtimeFormProps {
   readonly onCancel?: () => void;
 }
 
-// Updated form schema for new date handling
-const showtimeFormSchemaLocal = z.object({
-  movieId: z.string().min(1, "Vui lòng chọn phim"),
-  roomId: z.string().min(1, "Vui lòng chọn phòng chiếu"),
-  showDate: z.date({
-    required_error: "Vui lòng chọn ngày chiếu",
-  }),
-  startTime: z.string().min(1, "Vui lòng chọn giờ bắt đầu"),
-  endTime: z.string().min(1, "Vui lòng chọn giờ kết thúc"),
-  manualEndTime: z.boolean(),
-});
-
-type FormData = z.infer<typeof showtimeFormSchemaLocal>;
+type FormData = z.infer<typeof showtimeFormSchema>;
 
 // Helper function to combine date and time into ISO string
 const createISODateTime = (date: Date, time: string): string => {
@@ -73,12 +62,12 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
   const dataLoading = moviesLoading || roomsLoading;
 
   const form = useForm<FormData>({
-    resolver: zodResolver(showtimeFormSchemaLocal),
+    resolver: zodResolver(showtimeFormSchema),
     defaultValues: {
       movieId: initialData?.movieId.toString() || "",
       roomId: initialData?.roomId?.toString() || "",
       showDate: initialData ? new Date(initialData.showDateTime) : new Date(),
-      startTime: initialData ? formatTimeForInput(new Date(initialData.showDateTime)) : "10:00",
+      startTime: initialData ? formatTimeForInput(new Date(initialData.showDateTime)) : "0",
       endTime: initialData ? formatTimeForInput(new Date(initialData.endDateTime)) : "",
       manualEndTime: Boolean(initialData),
     },
@@ -256,7 +245,6 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                         ))}
                       </SelectContent>
                     </Select>
-                    {selectedMovie && <p className="text-muted-foreground text-sm">Thời lượng: {selectedMovie.duration} phút</p>}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -305,7 +293,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
-                        <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                        <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
                           {field.value ? format(field.value, "dd/MM/yyyy") : <span>Chọn ngày chiếu</span>}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -369,9 +357,6 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                           onChange={(e) => handleFieldChange("manualEndTime", e.target.checked)}
                           className="rounded border-gray-300"
                         />
-                        <label htmlFor="manualEndTime" className="text-sm font-normal">
-                          Tùy chỉnh thời gian kết thúc
-                        </label>
                       </div>
                     </div>
                     <FormControl>
@@ -386,11 +371,6 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                         />
                       </div>
                     </FormControl>
-                    {selectedMovie?.duration && !form.watch("manualEndTime") && (
-                      <p className="text-muted-foreground text-sm">
-                        Thời gian kết thúc được tính tự động dựa trên thời lượng phim ({selectedMovie.duration} phút)
-                      </p>
-                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -405,7 +385,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
             )}
 
             <div className="flex gap-4">
-              <Button type="submit" disabled={isLoading || !!conflictError} className="flex-1">
+              <Button type="submit" disabled={isLoading || !!conflictError}>
                 {getButtonText()}
               </Button>
               {onCancel && (
