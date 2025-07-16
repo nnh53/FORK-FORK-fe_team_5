@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Filter, type FilterCriteria, type FilterGroup } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
+import { useMutationHandler } from "@/hooks/useMutationHandler";
 import { ROLES } from "@/interfaces/roles.interface";
 import type { User, USER_GENDER, UserRequest, UserUpdate } from "@/interfaces/users.interface";
 import {
@@ -16,11 +17,8 @@ import {
   useUpdateUser,
   useUsers,
 } from "@/services/userService";
-import type { CustomAPIResponse } from "@/type-from-be";
-import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
+import { useMemo, useRef, useState } from "react";
 import MemberDetail from "./MemberDetail";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
@@ -143,50 +141,7 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-// Custom Hook xử lý mutation
-const useMutationHandler = (
-  mutation: {
-    isSuccess: boolean;
-    isError: boolean;
-    error: unknown;
-    reset: () => void;
-  },
-  successMessage: string,
-  errorMessage: string,
-  onSuccess: () => void,
-  toastId: string,
-) => {
-  const queryClient = useQueryClient();
-  const toastShownRef = useRef(false);
-
-  useEffect(() => {
-    if (mutation.isSuccess && !toastShownRef.current) {
-      toast.success(successMessage, { id: toastId });
-      toastShownRef.current = true;
-      queryClient.invalidateQueries(); // Invalidate tất cả queries
-      onSuccess();
-      setTimeout(() => {
-        mutation.reset();
-        toastShownRef.current = false;
-      }, 100);
-    }
-
-    if (mutation.isError && !toastShownRef.current) {
-      toast.error((mutation.error as CustomAPIResponse)?.message || errorMessage, { id: toastId });
-      toastShownRef.current = true;
-      setTimeout(() => {
-        toastShownRef.current = false;
-      }, 100);
-    }
-
-    return () => {
-      toastShownRef.current = false;
-    };
-  }, [mutation.isSuccess, mutation.isError, mutation.error, queryClient, successMessage, errorMessage, onSuccess, mutation, toastId]);
-};
-
 const MemberManagement = () => {
-  const [members, setMembers] = useState<User[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<User | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
@@ -203,6 +158,11 @@ const MemberManagement = () => {
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
 
+  // Function reset pagination khi cần thiết
+  const resetTablePagination = () => {
+    tableRef.current?.resetPagination();
+  };
+
   // Sử dụng custom hook cho mutation
   useMutationHandler(
     registerMutation,
@@ -211,8 +171,11 @@ const MemberManagement = () => {
     () => {
       setIsModalOpen(false);
       setSelectedMember(undefined);
+      resetTablePagination();
     },
-    "register-toast",
+    usersQuery.refetch,
+    undefined,
+    "register-member",
   );
 
   useMutationHandler(
@@ -223,7 +186,9 @@ const MemberManagement = () => {
       setIsModalOpen(false);
       setSelectedMember(undefined);
     },
-    "update-toast",
+    usersQuery.refetch,
+    undefined,
+    "update-member",
   );
 
   useMutationHandler(
@@ -233,8 +198,11 @@ const MemberManagement = () => {
     () => {
       setDeleteDialogOpen(false);
       setMemberToDelete(null);
+      resetTablePagination();
     },
-    "delete-toast",
+    usersQuery.refetch,
+    undefined,
+    "delete-member",
   );
 
   // Định nghĩa các trường tìm kiếm
@@ -246,14 +214,15 @@ const MemberManagement = () => {
     { value: "address", label: "Địa chỉ" },
   ];
 
-  // Xử lý dữ liệu từ API
-  useEffect(() => {
+  // Xử lý dữ liệu từ API và chuyển đổi thành members
+  const members = useMemo(() => {
     if (usersQuery.data?.result) {
       const transformedUsers = Array.isArray(usersQuery.data.result)
         ? usersQuery.data.result.map(transformUserResponse)
         : [transformUserResponse(usersQuery.data.result)];
-      setMembers(transformedUsers.filter((user) => user.role === ROLES.MEMBER));
+      return transformedUsers.filter((user) => user.role === ROLES.MEMBER);
     }
+    return [];
   }, [usersQuery.data]);
 
   // Lọc members theo các tiêu chí
@@ -324,10 +293,17 @@ const MemberManagement = () => {
                 onSearchChange={setSearchTerm}
                 placeholder="Tìm kiếm theo ID, tên, email, số điện thoại hoặc địa chỉ..."
                 className="w-full sm:w-1/2"
-                resetPagination={() => tableRef.current?.resetPagination()}
+                resetPagination={resetTablePagination}
               />
               <div className="shrink-0">
-                <Filter filterOptions={filterGroups} onFilterChange={setFilterCriteria} groupMode={true} />
+                <Filter
+                  filterOptions={filterGroups}
+                  onFilterChange={(criteria) => {
+                    setFilterCriteria(criteria);
+                    resetTablePagination();
+                  }}
+                  groupMode={true}
+                />
               </div>
             </div>
           </CardHeader>

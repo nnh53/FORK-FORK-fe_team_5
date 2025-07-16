@@ -15,6 +15,7 @@ import { type TableColumns } from "@/components/shared/CustomTable";
 import { Filter, type FilterCriteria, type FilterGroup } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
+import { useMutationHandler } from "@/hooks/useMutationHandler";
 import type { Promotion } from "@/interfaces/promotion.interface";
 import {
   promotionStatusOptions,
@@ -25,11 +26,9 @@ import {
   usePromotions,
   useUpdatePromotion,
 } from "@/services/promotionService";
-import type { CustomAPIResponse } from "@/type-from-be";
 import { Icon } from "@iconify/react";
 import { type FormikHelpers } from "formik";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 import { PromotionDetail } from "./PromotionDetail";
 import { PromotionForm } from "./PromotionForm";
 import { PromotionTable } from "./PromotionTable";
@@ -128,41 +127,50 @@ export const PromotionManagement: React.FC = () => {
     return promotionsData?.result ? transformPromotionsResponse(promotionsData.result) : [];
   }, [promotionsData]);
 
-  // Xử lý mutation cho createPromotion
-  useEffect(() => {
-    if (createPromotion.isSuccess) {
-      toast.success("Khuyến mãi đã được tạo thành công");
-      refetch();
+  // Sử dụng hook chung useMutationHandler để xử lý các mutation
+  useMutationHandler(
+    createPromotion,
+    "Khuyến mãi đã được tạo thành công",
+    "Tạo khuyến mãi thất bại",
+    () => {
       setDialogOpen(false);
       setSelectedPromotion(undefined);
-    } else if (createPromotion.isError) {
-      toast.error((createPromotion.error as CustomAPIResponse)?.message ?? "Tạo khuyến mãi thất bại");
-    }
-  }, [createPromotion.isSuccess, createPromotion.isError, createPromotion.error, refetch]);
+    },
+    refetch,
+    undefined,
+    "create-promotion",
+  );
 
-  // Xử lý mutation cho updatePromotion
-  useEffect(() => {
-    if (updatePromotion.isSuccess) {
-      toast.success("Khuyến mãi đã được cập nhật thành công");
-      refetch();
+  useMutationHandler(
+    updatePromotion,
+    "Khuyến mãi đã được cập nhật thành công",
+    "Cập nhật khuyến mãi thất bại",
+    () => {
       setDialogOpen(false);
       setSelectedPromotion(undefined);
-    } else if (updatePromotion.isError) {
-      toast.error((updatePromotion.error as CustomAPIResponse)?.message ?? "Cập nhật khuyến mãi thất bại");
-    }
-  }, [updatePromotion.isSuccess, updatePromotion.isError, updatePromotion.error, refetch]);
+    },
+    refetch,
+    undefined,
+    "update-promotion",
+  );
 
-  // Xử lý mutation cho deletePromotion
-  useEffect(() => {
-    if (deletePromotion.isSuccess) {
-      toast.success("Khuyến mãi đã được xóa thành công");
-      refetch();
+  useMutationHandler(
+    deletePromotion,
+    "Khuyến mãi đã được xóa thành công",
+    "Xóa khuyến mãi thất bại",
+    () => {
       setDeleteDialogOpen(false);
       setPromotionToDelete(undefined);
-    } else if (deletePromotion.isError) {
-      toast.error((deletePromotion.error as CustomAPIResponse)?.message ?? "Xóa khuyến mãi thất bại");
-    }
-  }, [deletePromotion.isSuccess, deletePromotion.isError, deletePromotion.error, refetch]);
+    },
+    refetch,
+    undefined,
+    "delete-promotion",
+  );
+
+  // Reset pagination khi filter thay đổi
+  useEffect(() => {
+    tableRef.current?.resetPagination();
+  }, [filterCriteria]);
 
   // Reset pagination khi filter thay đổi
   useEffect(() => {

@@ -15,6 +15,7 @@ import type { FilterCriteria } from "@/components/shared/Filter";
 import { Filter } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar } from "@/components/shared/SearchBar";
+import { useMutationHandler } from "@/hooks/useMutationHandler";
 import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
 import { MovieStatus } from "@/interfaces/movies.interface";
 import { queryMovieCategories, transformMovieCategoriesResponse } from "@/services/movieCategoryService";
@@ -26,10 +27,9 @@ import {
   transformMovieResponse,
   transformMovieToRequest,
 } from "@/services/movieService";
-import type { CustomAPIResponse, MovieResponse } from "@/type-from-be";
-import { type UseMutationResult, useQueryClient } from "@tanstack/react-query";
+import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { MovieDataTable } from "./MovieDataTable";
 import MovieDetail from "./MovieDetail";
@@ -105,30 +105,6 @@ const applyFilters = (movies: Movie[], criteria: FilterCriteria[], searchTerm: s
   );
 };
 
-// Custom hook for mutation handling
-const useMovieMutationHandler = <TData, TError extends CustomAPIResponse, TVariables>(
-  mutation: UseMutationResult<TData, TError, TVariables>,
-  successMessage: string,
-  errorMessage: string,
-  refetch: () => void,
-  onSuccess?: () => void,
-) => {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      toast.success(successMessage, { id: successMessage });
-      refetch();
-      onSuccess?.();
-      setTimeout(() => mutation.reset(), 100);
-    } else if (mutation.isError) {
-      toast.error(mutation.error?.message || errorMessage, {
-        id: `${successMessage}-error`,
-      });
-    }
-  }, [mutation, queryClient, successMessage, errorMessage, onSuccess, refetch]);
-};
-
 const MovieManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | undefined>();
@@ -185,20 +161,38 @@ const MovieManagement = () => {
   }, [movies, searchTerm, filterCriteria]);
 
   // Mutation handlers
-  useMovieMutationHandler(createMovieMutation, "Thêm phim thành công", "Lỗi khi thêm phim", moviesQuery.refetch, () => {
-    setIsModalOpen(false);
-    setSelectedMovie(undefined);
-  });
+  useMutationHandler(
+    createMovieMutation,
+    "Thêm phim thành công",
+    "Lỗi khi thêm phim",
+    () => {
+      setIsModalOpen(false);
+      setSelectedMovie(undefined);
+    },
+    moviesQuery.refetch,
+  );
 
-  useMovieMutationHandler(updateMovieMutation, "Cập nhật phim thành công", "Lỗi khi cập nhật phim", moviesQuery.refetch, () => {
-    setIsModalOpen(false);
-    setSelectedMovie(undefined);
-  });
+  useMutationHandler(
+    updateMovieMutation,
+    "Cập nhật phim thành công",
+    "Lỗi khi cập nhật phim",
+    () => {
+      setIsModalOpen(false);
+      setSelectedMovie(undefined);
+    },
+    moviesQuery.refetch,
+  );
 
-  useMovieMutationHandler(deleteMovieMutation, "Xóa phim thành công", "Lỗi khi xóa phim", moviesQuery.refetch, () => {
-    setIsDeleteDialogOpen(false);
-    setMovieToDelete(null);
-  });
+  useMutationHandler(
+    deleteMovieMutation,
+    "Xóa phim thành công",
+    "Lỗi khi xóa phim",
+    () => {
+      setIsDeleteDialogOpen(false);
+      setMovieToDelete(null);
+    },
+    moviesQuery.refetch,
+  );
 
   // Show loading state
   if (moviesQuery.isLoading) {
@@ -278,6 +272,7 @@ const MovieManagement = () => {
     const validation = validateMovieData(values);
     if (!validation.isValid) {
       toast.error("Please fix the following errors:", {
+        id: "movie-validation-errors",
         description: (
           <ul className="list-disc pl-4">
             {validation.errors.map((error) => (

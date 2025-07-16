@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Filter, type FilterCriteria } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
+import { useMutationHandler } from "@/hooks/useMutationHandler";
 import type { Snack } from "@/interfaces/snacks.interface";
 import {
   snackCategoryOptions,
@@ -15,8 +16,6 @@ import {
   useSnacks,
   useUpdateSnack,
 } from "@/services/snackService";
-import type { CustomAPIResponse } from "@/type-from-be";
-import { type UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -106,30 +105,6 @@ const applyFilters = (snacks: Snack[], criteria: StrictFilterCriteria[], searchT
   );
 };
 
-// Custom hook để xử lý mutation
-const useSnackMutationHandler = <TData, TError extends CustomAPIResponse, TVariables>(
-  mutation: UseMutationResult<TData, TError, TVariables>,
-  successMessage: string,
-  errorMessage: string,
-  onSuccess?: () => void,
-) => {
-  const queryClient = useQueryClient();
-  const snacksQuery = useSnacks();
-
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      toast.success(successMessage, { id: successMessage });
-      snacksQuery.refetch();
-      onSuccess?.();
-      setTimeout(() => mutation.reset(), 100);
-    } else if (mutation.isError) {
-      toast.error(mutation.error?.message || errorMessage, {
-        id: `${successMessage}-error`,
-      });
-    }
-  }, [mutation, queryClient, snacksQuery, successMessage, errorMessage, onSuccess]);
-};
-
 const SnackManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSnack, setSelectedSnack] = useState<Snack | undefined>();
@@ -146,20 +121,38 @@ const SnackManagement: React.FC = () => {
   const deleteSnackMutation = useDeleteSnack();
 
   // Sử dụng custom hook để xử lý mutation
-  useSnackMutationHandler(createSnackMutation, "Thêm thực phẩm thành công", "Lỗi khi thêm thực phẩm", () => {
-    setIsModalOpen(false);
-    setSelectedSnack(undefined);
-  });
+  useMutationHandler(
+    createSnackMutation,
+    "Thêm thực phẩm thành công",
+    "Lỗi khi thêm thực phẩm",
+    () => {
+      setIsModalOpen(false);
+      setSelectedSnack(undefined);
+    },
+    snacksQuery.refetch,
+  );
 
-  useSnackMutationHandler(updateSnackMutation, "Cập nhật thực phẩm thành công", "Lỗi khi cập nhật thực phẩm", () => {
-    setIsModalOpen(false);
-    setSelectedSnack(undefined);
-  });
+  useMutationHandler(
+    updateSnackMutation,
+    "Cập nhật thực phẩm thành công",
+    "Lỗi khi cập nhật thực phẩm",
+    () => {
+      setIsModalOpen(false);
+      setSelectedSnack(undefined);
+    },
+    snacksQuery.refetch,
+  );
 
-  useSnackMutationHandler(deleteSnackMutation, "Xóa thực phẩm thành công", "Lỗi khi xóa thực phẩm", () => {
-    setDeleteDialogOpen(false);
-    setSnackToDelete(null);
-  });
+  useMutationHandler(
+    deleteSnackMutation,
+    "Xóa thực phẩm thành công",
+    "Lỗi khi xóa thực phẩm",
+    () => {
+      setDeleteDialogOpen(false);
+      setSnackToDelete(null);
+    },
+    snacksQuery.refetch,
+  );
 
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [

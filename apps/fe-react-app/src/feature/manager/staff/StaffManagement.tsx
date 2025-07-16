@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Filter, type FilterCriteria, type FilterGroup } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
+import { useMutationHandler } from "@/hooks/useMutationHandler";
 import { ROLES } from "@/interfaces/roles.interface";
 import type { StaffRequest, StaffUser } from "@/interfaces/staff.interface";
 import {
@@ -16,10 +17,8 @@ import {
   useUpdateUser,
   useUsers,
 } from "@/services/userService";
-import type { CustomAPIResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 import StaffForm from "./StaffForm";
 import StaffTable from "./StaffTable";
 
@@ -100,70 +99,45 @@ const StaffManagement: React.FC = () => {
   // Lọc staffs theo tiêu chí và tìm kiếm
   const filteredStaffs = useMemo(() => applyFilters(staffs, filterCriteria, searchTerm), [staffs, searchTerm, filterCriteria]);
 
-  // Xử lý mutation với toast và theo dõi trạng thái để tránh hiển thị nhiều lần
-  const registerSuccessRef = useRef(false);
-  const registerErrorRef = useRef(false);
-  const updateSuccessRef = useRef(false);
-  const updateErrorRef = useRef(false);
-  const deleteSuccessRef = useRef(false);
-  const deleteErrorRef = useRef(false);
-
-  // Xử lý toast thêm nhân viên
-  useEffect(() => {
-    if (registerMutation.isSuccess && !registerSuccessRef.current) {
-      toast.success("Đã thêm nhân viên mới thành công");
-      usersQuery.refetch();
+  // Sử dụng hook chung useMutationHandler để xử lý các mutation
+  useMutationHandler(
+    registerMutation,
+    "Đã thêm nhân viên mới thành công",
+    "Lỗi khi thêm nhân viên",
+    () => {
       setIsModalOpen(false);
       setSelectedStaff(undefined);
-      setTimeout(() => registerMutation.reset(), 100);
-      registerSuccessRef.current = true;
-    } else if (registerMutation.isError && !registerErrorRef.current) {
-      toast.error((registerMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi thêm nhân viên");
-      registerErrorRef.current = true;
-    }
+    },
+    usersQuery.refetch,
+    undefined,
+    "register-staff",
+  );
 
-    // Reset refs when mutation status changes
-    if (!registerMutation.isSuccess) registerSuccessRef.current = false;
-    if (!registerMutation.isError) registerErrorRef.current = false;
-  }, [registerMutation.isSuccess, registerMutation.isError, registerMutation.error, registerMutation, usersQuery]);
-
-  // Xử lý toast cập nhật nhân viên
-  useEffect(() => {
-    if (updateUserMutation.isSuccess && !updateSuccessRef.current) {
-      toast.success("Đã cập nhật nhân viên thành công");
-      usersQuery.refetch();
+  useMutationHandler(
+    updateUserMutation,
+    "Đã cập nhật nhân viên thành công",
+    "Lỗi khi cập nhật nhân viên",
+    () => {
       setIsModalOpen(false);
       setSelectedStaff(undefined);
-      setTimeout(() => updateUserMutation.reset(), 100);
-      updateSuccessRef.current = true;
-    } else if (updateUserMutation.isError && !updateErrorRef.current) {
-      toast.error((updateUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi cập nhật nhân viên");
-      updateErrorRef.current = true;
-    }
+    },
+    usersQuery.refetch,
+    undefined,
+    "update-staff",
+  );
 
-    // Reset refs when mutation status changes
-    if (!updateUserMutation.isSuccess) updateSuccessRef.current = false;
-    if (!updateUserMutation.isError) updateErrorRef.current = false;
-  }, [updateUserMutation.isSuccess, updateUserMutation.isError, updateUserMutation.error, updateUserMutation, usersQuery]);
-
-  // Xử lý toast xóa nhân viên
-  useEffect(() => {
-    if (deleteUserMutation.isSuccess && !deleteSuccessRef.current) {
-      toast.success("Đã xóa nhân viên thành công");
-      usersQuery.refetch();
+  useMutationHandler(
+    deleteUserMutation,
+    "Đã xóa nhân viên thành công",
+    "Lỗi khi xóa nhân viên",
+    () => {
       setDeleteDialogOpen(false);
       setStaffToDelete(null);
-      setTimeout(() => deleteUserMutation.reset(), 100);
-      deleteSuccessRef.current = true;
-    } else if (deleteUserMutation.isError && !deleteErrorRef.current) {
-      toast.error((deleteUserMutation.error as CustomAPIResponse)?.message ?? "Lỗi khi xóa nhân viên");
-      deleteErrorRef.current = true;
-    }
-
-    // Reset refs when mutation status changes
-    if (!deleteUserMutation.isSuccess) deleteSuccessRef.current = false;
-    if (!deleteUserMutation.isError) deleteErrorRef.current = false;
-  }, [deleteUserMutation.isSuccess, deleteUserMutation.isError, deleteUserMutation.error, deleteUserMutation, usersQuery]);
+    },
+    usersQuery.refetch,
+    undefined,
+    "delete-staff",
+  );
 
   // Reset pagination khi filter hoặc search thay đổi
   useEffect(() => {
