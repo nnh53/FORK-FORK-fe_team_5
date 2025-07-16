@@ -1,4 +1,9 @@
-//để dành khi nào có user rồi áp sau
-import type { components } from "@/schema-from-be";
+export interface AuthLoginData {
+  token: string;
+  freshToken?: string;
+  roles: ROLE_TYPE[];
+  fullName: string;
+  id: string;
+}
 
-export type AuthLoginData = components["schemas"]["AuthenticationResponse"];
+import type { ROLE_TYPE } from "./roles.interface";

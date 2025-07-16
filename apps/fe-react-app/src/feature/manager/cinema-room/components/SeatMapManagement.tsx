@@ -117,7 +117,7 @@ const SeatMapManagement: React.FC = () => {
       const seats = getSeatMapFromRoom(room);
       const seatMapData: SeatMap = {
         gridData: seats || [], // Ensure gridData is always an array
-        roomId: room.id,
+        roomId: room.id ?? 0,
       };
       setSeatMap(seatMapData);
       setOriginalSeatMap(JSON.parse(JSON.stringify(seatMapData)));

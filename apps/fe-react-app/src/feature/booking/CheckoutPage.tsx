@@ -257,7 +257,7 @@ const CheckoutPage: React.FC = () => {
     const snack = snacks.find((s) => s.id === parseInt(snackId));
     if (!snack) return total;
 
-    const cost = snack.price * quantity;
+    const cost = (snack.price ?? 0) * quantity;
     return total + cost;
   }, 0);
 

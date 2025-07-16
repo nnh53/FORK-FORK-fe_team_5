@@ -12,10 +12,11 @@ const SnackList: React.FC<SnackListProps> = ({ snacks, selectedSnacks, onQuantit
   // Group snacks by category
   const snacksByCategory = snacks.reduce(
     (acc, snack) => {
-      if (!acc[snack.category]) {
-        acc[snack.category] = [];
+      const categoryKey = snack.category ?? "UNKNOWN";
+      if (!acc[categoryKey]) {
+        acc[categoryKey] = [];
       }
-      acc[snack.category].push(snack);
+      acc[categoryKey].push(snack);
       return acc;
     },
     {} as Record<string, Snack[]>,
@@ -52,9 +53,9 @@ const SnackList: React.FC<SnackListProps> = ({ snacks, selectedSnacks, onQuantit
           <div key={category} className="mb-6 space-y-4">
             <h4 className="text-md border-b pb-2 font-medium text-gray-700">{getCategoryDisplayName(category)}</h4>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {categorySnacks.map((snack) => (
-                <SnackItem key={snack.id} snack={snack} quantity={selectedSnacks[snack.id] || 0} onQuantityChange={onQuantityChange} />
-              ))}
+                {categorySnacks.map((snack) => (
+                  <SnackItem key={snack.id} snack={snack} quantity={selectedSnacks[snack.id ?? 0] || 0} onQuantityChange={onQuantityChange} />
+                ))}
             </div>
           </div>
         ))}

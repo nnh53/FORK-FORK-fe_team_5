@@ -31,7 +31,7 @@ const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles }) => {
   if (!isLoggedIn || !token) {
     return <Navigate to="/auth/login" replace />;
   }
-  const roles = user?.roles || parseRoles(storedRoles);
+  const roles: ROLE_TYPE[] = user?.roles ?? parseRoles(storedRoles);
 
   console.log("Current user roles:", roles);
   console.log("Allowed roles:", allowedRoles);

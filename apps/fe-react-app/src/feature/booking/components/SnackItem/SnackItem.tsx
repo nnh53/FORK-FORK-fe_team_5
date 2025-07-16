@@ -11,13 +11,13 @@ interface SnackItemProps {
 const SnackItem: React.FC<SnackItemProps> = ({ snack, quantity, onQuantityChange }) => {
   const handleIncrease = () => {
     if (snack.status === "AVAILABLE") {
-      onQuantityChange(snack.id, quantity + 1);
+      onQuantityChange(snack.id ?? 0, quantity + 1);
     }
   };
 
   const handleDecrease = () => {
     if (quantity > 0) {
-      onQuantityChange(snack.id, quantity - 1);
+      onQuantityChange(snack.id ?? 0, quantity - 1);
     }
   };
 
@@ -59,7 +59,7 @@ const SnackItem: React.FC<SnackItemProps> = ({ snack, quantity, onQuantityChange
             {snack.flavor && <span className="rounded bg-gray-100 px-2 py-1 text-xs">{snack.flavor}</span>}
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-lg font-bold text-red-600">{snack.price.toLocaleString("vi-VN")}đ</p>
+            <p className="text-lg font-bold text-red-600">{(snack.price ?? 0).toLocaleString("vi-VN")}đ</p>
 
             <div className="flex items-center gap-2">
               <button

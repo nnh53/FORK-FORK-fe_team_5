@@ -77,18 +77,18 @@ const CinemaRoomManagement: React.FC = () => {
   const handleEditRoom = (room: CinemaRoom) => {
     setSelectedRoom(room);
     setFormData({
-      name: room.name,
-      type: room.type,
-      fee: room.fee || 50000,
-      width: room.width,
-      length: room.length || 10,
+      name: room.name ?? "",
+      type: room.type ?? "",
+      fee: room.fee ?? 50000,
+      width: room.width ?? 0,
+      length: room.length ?? 10,
     });
     setShowEditDialog(true);
   };
 
   const handleChangeStatus = (room: CinemaRoom) => {
     setSelectedRoom(room);
-    setNewStatus(room.status);
+    setNewStatus((room.status as RoomStatus) ?? "ACTIVE");
     setShowStatusDialog(true);
   };
 
@@ -121,7 +121,7 @@ const CinemaRoomManagement: React.FC = () => {
         });
 
         await updateRoomMutation.mutateAsync({
-          params: { path: { roomId: selectedRoom.id } },
+          params: { path: { roomId: selectedRoom.id ?? 0 } },
           body: updateData,
         });
         setShowEditDialog(false);
@@ -160,7 +160,7 @@ const CinemaRoomManagement: React.FC = () => {
       });
 
       await updateRoomMutation.mutateAsync({
-        params: { path: { roomId: selectedRoom.id } },
+        params: { path: { roomId: selectedRoom.id ?? 0 } },
         body: updateData,
       });
       setShowStatusDialog(false);
@@ -176,7 +176,7 @@ const CinemaRoomManagement: React.FC = () => {
 
     try {
       await deleteRoomMutation.mutateAsync({
-        params: { path: { roomId: selectedRoom.id } },
+        params: { path: { roomId: selectedRoom.id ?? 0 } },
       });
       setShowDeleteDialog(false);
       refetch();
