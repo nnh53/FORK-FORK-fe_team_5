@@ -76,6 +76,7 @@ export const transformMovieResponse = (movieResponse: MovieResponse): Movie => {
     description: movieResponse.description,
     status: movieResponse.status,
     poster: movieResponse.poster,
+    banner: movieResponse.banner,
     // Trả về mảng rỗng thay vì null cho showtimes (backend structure mismatch)
     showtimes: [],
   };
@@ -101,6 +102,7 @@ export const transformMovieToRequest = (movie: Movie) => {
     description: movie.description ?? "",
     status: movie.status ?? "ACTIVE", // Use string status
     poster: movie.poster ?? "",
+    banner: movie.banner ?? "",
   };
 };
 

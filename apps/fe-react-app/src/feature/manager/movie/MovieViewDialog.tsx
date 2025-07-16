@@ -69,12 +69,18 @@ export function MovieViewDialog({ movie, isOpen, onClose }: MovieViewDialogProps
             </div>
           </div>
           <div className="space-y-4">
-            {movie.poster && (
-              <div>
-                <h3 className="mb-2 font-semibold">Poster</h3>
-                <img src={movie.poster} alt={movie.name} className="h-auto max-w-full rounded" />
-              </div>
-            )}
+          {movie.poster && (
+            <div>
+              <h3 className="mb-2 font-semibold">Poster</h3>
+              <img src={movie.poster} alt={movie.name} className="h-auto max-w-full rounded" />
+            </div>
+          )}
+          {movie.banner && (
+            <div>
+              <h3 className="mb-2 font-semibold">Banner</h3>
+              <img src={movie.banner} alt={movie.name} className="h-auto max-w-full rounded" />
+            </div>
+          )}
             <div>
               <h3 className="mb-2 font-semibold">Description</h3>
               <p className="text-gray-700">{movie.description ?? "No description available"}</p>

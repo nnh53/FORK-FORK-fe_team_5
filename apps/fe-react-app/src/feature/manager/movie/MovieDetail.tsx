@@ -37,6 +37,8 @@ const formSchema = z.object({
   status: z.string().optional(),
   poster: z.string().optional(),
   posterFile: z.any().optional(),
+  banner: z.string().optional(),
+  bannerFile: z.any().optional(),
 });
 
 const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
@@ -65,6 +67,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
       description: "",
       status: MovieStatus.ACTIVE,
       poster: "",
+      banner: "",
     },
   });
 
@@ -84,10 +87,12 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
         description: movie.description ?? "",
         status: movie.status ?? MovieStatus.ACTIVE,
         poster: movie.poster ?? "",
+        banner: movie.banner ?? "",
       });
     } else {
       // For new movie creation, set default poster text
       form.setValue("poster", "");
+      form.setValue("banner", "");
     }
   }, [movie, form]);
 
@@ -105,15 +110,28 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
     form.setValue("posterFile", null); // Reset posterFile if URL is used
   };
 
+  const handleBannerChange = (imageIdOrUrl: string) => {
+    form.setValue("banner", imageIdOrUrl);
+    form.setValue("bannerFile", null);
+  };
+
   const handleImageClear = () => {
     form.setValue("poster", "");
     form.setValue("posterFile", null);
+  };
+
+  const handleBannerClear = () => {
+    form.setValue("banner", "");
+    form.setValue("bannerFile", null);
   };
 
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
     // If no poster is provided or it's empty, set default text
     if (!values.poster || values.poster.trim() === "") {
       values.poster = "";
+    }
+    if (!values.banner || values.banner.trim() === "") {
+      values.banner = "";
     }
     onSubmit(values as MovieFormData);
   };
@@ -348,7 +366,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
           )}
         />
 
-        {/* Row 7: Movie Poster và Trailer */}
+        {/* Row 7: Movie Poster và Banner */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <FormLabel>Movie Poster</FormLabel>
@@ -363,20 +381,34 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
             />
           </div>
 
-          <FormField
-            control={form.control}
-            name="trailer"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Trailer URL</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter trailer URL (YouTube, etc.)" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="space-y-2">
+            <FormLabel>Movie Banner</FormLabel>
+            <ImageUpload
+              currentImage={form.watch("banner") || ""}
+              onImageChange={handleBannerChange}
+              onImageClear={handleBannerClear}
+              previewSize="md"
+              preserveAspectRatio={true}
+              maxPreviewHeight={200}
+              layout="horizontal"
+            />
+          </div>
         </div>
+
+        {/* Row 8: Trailer URL */}
+        <FormField
+          control={form.control}
+          name="trailer"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Trailer URL</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter trailer URL (YouTube, etc.)" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-end space-x-2 pt-4">
           <Button variant="outline" onClick={onCancel}>
