@@ -16,7 +16,8 @@ import { Filter } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { SearchBar } from "@/components/shared/SearchBar";
 import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
-import { MovieGenre, MovieStatus } from "@/interfaces/movies.interface";
+import { MovieStatus } from "@/interfaces/movies.interface";
+import { queryMovieCategories, transformMovieCategoriesResponse } from "@/services/movieCategoryService";
 import {
   queryCreateMovie,
   queryDeleteMovie,
@@ -42,29 +43,18 @@ const searchOptions = [
   { value: "studio", label: "Hãng phim" },
 ];
 
-const filterOptions = [
-  {
-    label: "Trạng thái",
-    value: "status",
-    type: "select" as const,
-    selectOptions: [
-      { value: MovieStatus.ACTIVE, label: "Active" },
-      { value: MovieStatus.UPCOMING, label: "Upcoming" },
-      { value: MovieStatus.INACTIVE, label: "Canceled" },
-    ],
-    placeholder: "Chọn trạng thái",
-  },
-  {
-    label: "Thể loại",
-    value: "category",
-    type: "select" as const,
-    selectOptions: Object.values(MovieGenre).map((genre) => ({
-      value: genre,
-      label: genre.charAt(0) + genre.slice(1).toLowerCase(),
-    })),
-    placeholder: "Chọn thể loại",
-  },
-];
+// Status filter options
+const statusFilterOptions = {
+  label: "Trạng thái",
+  value: "status",
+  type: "select" as const,
+  selectOptions: [
+    { value: MovieStatus.ACTIVE, label: "Active" },
+    { value: MovieStatus.UPCOMING, label: "Upcoming" },
+    { value: MovieStatus.INACTIVE, label: "Canceled" },
+  ],
+  placeholder: "Chọn trạng thái",
+};
 
 // Type guard for Movie
 const isValidMovie = (movie: Movie | undefined | null): movie is Movie => {
@@ -88,8 +78,10 @@ const filterByStatus = (movie: Movie, status: string): boolean => {
   return movie.status === status;
 };
 
-const filterByCategory = (movie: Movie, category: string): boolean => {
-  return movie.categories?.some((cat) => cat.name === category) ?? false;
+const filterByCategory = (movie: Movie, categoryId: string): boolean => {
+  const categoryIdNumber = parseInt(categoryId, 10);
+  // Kiểm tra nếu movie có category với id trùng với categoryId
+  return movie.categories?.some((cat) => cat.id === categoryIdNumber) ?? false;
 };
 
 const applyFilters = (movies: Movie[], criteria: FilterCriteria[], searchTerm: string): Movie[] => {
@@ -152,6 +144,7 @@ const MovieManagement = () => {
 
   // React Query hooks
   const moviesQuery = queryMovies();
+  const categoriesQuery = queryMovieCategories();
   const createMovieMutation = queryCreateMovie();
   const updateMovieMutation = queryUpdateMovie();
   const deleteMovieMutation = queryDeleteMovie();
@@ -160,6 +153,31 @@ const MovieManagement = () => {
   const movies: Movie[] = useMemo(() => {
     return moviesQuery.data?.result ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse)) : [];
   }, [moviesQuery.data?.result]);
+
+  // Transform API response to MovieCategory interface
+  const categories = useMemo(() => {
+    if (!categoriesQuery.data?.result) return [];
+    return transformMovieCategoriesResponse(categoriesQuery.data.result);
+  }, [categoriesQuery.data?.result]);
+
+  // Động tạo filterOptions dựa trên danh sách thể loại từ API
+  const filterOptions = useMemo(() => {
+    const categoryOptions = categories.map((cat) => ({
+      value: cat.id?.toString() || "",
+      label: cat.name || "Unknown",
+    }));
+
+    return [
+      statusFilterOptions,
+      {
+        label: "Thể loại",
+        value: "category",
+        type: "select" as const,
+        selectOptions: categoryOptions,
+        placeholder: "Chọn thể loại",
+      },
+    ];
+  }, [categories]);
 
   // Filtered movies
   const filteredMovies = useMemo(() => {
@@ -213,7 +231,7 @@ const MovieManagement = () => {
   };
 
   const handleDeleteConfirm = () => {
-    if (movieToDelete && movieToDelete.id !== undefined) {
+    if (movieToDelete?.id !== undefined) {
       deleteMovieMutation.mutate({
         params: { path: { id: movieToDelete.id } },
       });

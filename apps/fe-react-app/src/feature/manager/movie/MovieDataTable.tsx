@@ -51,22 +51,22 @@ const MovieTableActions = ({
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <Button variant="ghost" className="w-full justify-start" onClick={() => onView(movie)}>
+      <DropdownMenuContent className="grid grid-cols-1">
+        <Button variant="ghost" className="w-auto justify-start" onClick={() => onView(movie)}>
           <Eye className="mr-2 h-4 w-4" />
           View
         </Button>
-        <Button variant="ghost" className="w-full justify-start" onClick={() => onEdit(movie)}>
+        <Button variant="ghost" className="w-auto justify-start" onClick={() => onEdit(movie)}>
           <Edit className="mr-2 h-4 w-4" />
           Edit
         </Button>
         {onManageGenres && (
-          <Button variant="ghost" className="w-full justify-start" onClick={() => onManageGenres(movie)}>
+          <Button variant="ghost" className="w-auto justify-start" onClick={() => onManageGenres(movie)}>
             <Tags className="mr-2 h-4 w-4" />
             Manage Genres
           </Button>
         )}
-        <Button variant="ghost" className="w-full justify-start text-red-600" onClick={() => onDelete(movie)}>
+        <Button variant="ghost" className="w-auto justify-start text-red-600" onClick={() => onDelete(movie)}>
           <Trash className="mr-2 h-4 w-4" />
           Delete
         </Button>
