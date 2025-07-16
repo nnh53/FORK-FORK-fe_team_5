@@ -1,6 +1,6 @@
 import type { components } from "./schema-from-be";
 
-export type CustomAPIResponse = components["schemas"]["CustomAPIResponse"];
+export type CustomAPIResponse = components["schemas"]["ApiResponseVoid"];
 export type UserResponse = components["schemas"]["UserResponse"];
 export type UserUpdate = components["schemas"]["UserUpdate"];
 export type AuthenticationResponse = components["schemas"]["AuthenticationResponse"];
@@ -10,7 +10,7 @@ export type CinemaRoomUpdateRequest = components["schemas"]["CinemaRoomUpdateReq
 export type SeatResponse = components["schemas"]["SeatResponse"];
 export type SeatRequest = components["schemas"]["SeatRequest"];
 export type SeatTypeResponse = components["schemas"]["SeatTypeResponse"];
-export type PageResponse = components["schemas"]["PageResponse"];
+export type PageResponseShowtimeResponse = components["schemas"]["PageResponseShowtimeResponse"];
 export type PromotionResponse = components["schemas"]["PromotionResponse"];
 export type ShowtimeResponse = components["schemas"]["ShowtimeResponse"];
 export type MovieResponse = components["schemas"]["MovieResponse"];
