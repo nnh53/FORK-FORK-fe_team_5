@@ -5,9 +5,16 @@ import type { SchedulePerDay } from "../feature/booking/components/ShowtimesModa
  * Convert Showtime[] to SchedulePerDay[] format used by UI components
  */
 export const convertShowtimesToSchedulePerDay = (showtimes: Showtime[]): SchedulePerDay[] => {
-  // Group showtimes by date
+  const now = new Date();
+
+  // Group future showtimes by date
   const groupedByDate = showtimes.reduce(
     (acc, showtime) => {
+      const showDateTime = new Date(`${showtime.date}T${showtime.startTime}`);
+      if (showDateTime < now) {
+        return acc;
+      }
+
       const date = showtime.date;
       if (!acc[date]) {
         acc[date] = [];
@@ -18,14 +25,16 @@ export const convertShowtimesToSchedulePerDay = (showtimes: Showtime[]): Schedul
     {} as Record<string, Showtime[]>,
   );
 
-  // Convert to SchedulePerDay format
-  return Object.entries(groupedByDate).map(([date, showtimes]) => {
-    const sortedShowtimes = [...showtimes].sort((a, b) => a.startTime.localeCompare(b.startTime));
-    return {
-      date,
-      showtimes: sortedShowtimes,
-    };
-  });
+  // Convert to SchedulePerDay format with sorted dates and times
+  return Object.entries(groupedByDate)
+    .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+    .map(([date, showtimes]) => {
+      const sortedShowtimes = [...showtimes].sort((a, b) => a.startTime.localeCompare(b.startTime));
+      return {
+        date,
+        showtimes: sortedShowtimes,
+      };
+    });
 };
 
 /**

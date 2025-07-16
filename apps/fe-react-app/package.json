@@ -8,7 +8,7 @@
     "dev": "vite",
     "generate-schema": "pnpm exec openapi-typescript https://fcinema-spring-ujhbb.ondigitalocean.app/movie_theater/v3/api-docs -o ./schema-from-be.d.ts",
     "lint": "eslint .",
-    "preview": "tsc -b && vite build && vite preview"
+    "preview": "pnpm exec nx run @fcinema-workspace/fe-react-app:build && vite preview"
   },
   "overrides": {
     "react-is": "^19.0.0-rc-69d4b800-20241021"
