@@ -19,7 +19,6 @@ function SpotlightHeader({ onSaveChanges, hasUnsavedChanges }: Readonly<Spotligh
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-3xl font-bold">Spotlight Movies Management</h1>
-
       </div>
       <div className="flex gap-2">
         <Button variant="outline" size="sm" onClick={handleNavigateToSpotlight}>

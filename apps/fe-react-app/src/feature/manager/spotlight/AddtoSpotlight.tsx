@@ -12,13 +12,7 @@ interface AddMoviesSectionProps {
   isMovieInSpotlight: (movieId: number) => boolean;
 }
 
-function AddMoviesSection({
-  filteredMovies,
-  searchTerm,
-  setSearchTerm,
-  onAdd,
-  isMovieInSpotlight,
-}: Readonly<AddMoviesSectionProps>) {
+function AddMoviesSection({ filteredMovies, searchTerm, setSearchTerm, onAdd, isMovieInSpotlight }: Readonly<AddMoviesSectionProps>) {
   return (
     <Card>
       <CardHeader className="pb-2">

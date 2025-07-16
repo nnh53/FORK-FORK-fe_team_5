@@ -13,7 +13,6 @@ function SpotLightCardForAdd({
   onAdd: (movie: Movie) => void;
   isInSpotlight: boolean;
 }>) {
-
   return (
     <Card className="overflow-hidden">
       <div className="relative h-48 overflow-hidden">
