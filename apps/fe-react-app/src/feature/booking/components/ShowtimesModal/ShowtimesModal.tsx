@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog.tsx";
 import type { UIShowtime } from "@/interfaces/staff-sales.interface";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import React, { useEffect, useMemo, useState } from "react";
 import ShowDateSelector from "../ShowDateSelector/ShowDateSelector.tsx";
 import ShowtimesGroup from "../ShowtimesGroup/ShowtimesGroup";
@@ -55,36 +56,70 @@ const ShowtimesModal: React.FC<ShowtimesModalProps> = ({
       });
     }
   };
+  // Sử dụng hook useMediaQuery để xác định kích thước màn hình
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isTablet = useMediaQuery("(min-width: 641px) and (max-width: 1023px)");
+
+  // Xác định các lớp CSS và nội dung dựa trên kích thước màn hình
+  let dialogContentClass = "max-h-[90vh] w-[95vw] overflow-y-auto";
+  if (isMobile) {
+    dialogContentClass += " max-w-[95vw] p-2";
+  } else if (isTablet) {
+    dialogContentClass += " max-w-2xl p-3";
+  } else {
+    dialogContentClass += " max-w-4xl";
+  }
+
+  const titleSizeClass = isMobile ? "text-base" : "text-lg";
+
+  // Xử lý tiêu đề phim nếu quá dài trên màn hình nhỏ
+  let displayMovieTitle = movieTitle;
+  if (isMobile && movieTitle.length > 15) {
+    displayMovieTitle = `${movieTitle.substring(0, 15)}...`;
+  }
+
+  // Xác định padding cho nội dung
+  let contentPaddingClass = "";
+  if (isMobile) {
+    contentPaddingClass = "p-2";
+  } else if (isTablet) {
+    contentPaddingClass = "p-4";
+  } else {
+    contentPaddingClass = "p-4 sm:p-6";
+  }
+
+  const headingClass = `mb-4 sm:mb-6 text-center ${isMobile ? "text-xl" : "text-3xl"} font-bold text-gray-800`;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="min-w-3xl max-h-[90vh] w-full max-w-4xl overflow-y-auto">
+      <DialogContent className={dialogContentClass}>
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold uppercase text-gray-700">LỊCH CHIẾU - {movieTitle}</DialogTitle>
+          <DialogTitle className={`${titleSizeClass} font-semibold uppercase text-gray-700`}>LỊCH CHIẾU - {displayMovieTitle}</DialogTitle>
         </DialogHeader>
 
-        <div className="p-4 sm:p-6">
-          <h1 className="mb-6 text-center text-3xl font-bold text-gray-800">{cinemaName}</h1>
+        <div className={contentPaddingClass}>
+          <h1 className={headingClass}>{cinemaName}</h1>
 
           {/* Loading state */}
           {loading && (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-lg text-gray-600">Đang tải lịch chiếu...</div>
+            <div className="flex items-center justify-center py-6 sm:py-12">
+              <div className={`${isMobile ? "text-base" : "text-lg"} text-gray-600`}>Đang tải lịch chiếu...</div>
             </div>
           )}
 
           {/* Error state */}
           {error && !loading && (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-lg text-red-500">{error}</div>
+            <div className="flex items-center justify-center py-6 sm:py-12">
+              <div className={`${isMobile ? "text-base" : "text-lg"} text-red-500`}>{error}</div>
             </div>
           )}
 
           {/* Content */}
           {!loading && !error && (
-            <>
+            <div className={isMobile ? "space-y-4" : "space-y-6"}>
               <ShowDateSelector dates={availableDates} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
               <ShowtimesGroup scheduleForDay={scheduleForSelectedDay} onSelectShowtime={handleShowtimeSelection} />
-            </>
+            </div>
           )}
         </div>
       </DialogContent>
