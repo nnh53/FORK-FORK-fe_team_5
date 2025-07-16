@@ -6,7 +6,10 @@ import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
+  PaginationFirst,
   PaginationItem,
+  PaginationJump,
+  PaginationLast,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
@@ -284,41 +287,77 @@ export const MovieDataTable = forwardRef<{ resetPagination: () => void }, MovieD
 
           {/* Pagination */}
           {sortedData.length > 0 && (
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => pagination.prevPage()}
-                    className={`cursor-pointer ${pagination.currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
-                  />
-                </PaginationItem>
+            <div className="flex items-center gap-4">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationFirst
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        pagination.setPage(1);
+                      }}
+                      className={pagination.currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        pagination.prevPage();
+                      }}
+                      className={pagination.currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
 
-                {pagination.visiblePages.map((page) => {
-                  if (page === "ellipsis") {
+                  {pagination.visiblePages.map((page) => {
+                    if (page === "ellipsis") {
+                      return (
+                        <PaginationItem key={`ellipsis-${pagination.currentPage}-${pagination.totalPages}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+
                     return (
-                      <PaginationItem key={`ellipsis-${pagination.currentPage}-${pagination.totalPages}`}>
-                        <PaginationEllipsis />
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => pagination.setPage(page)}
+                          isActive={page === pagination.currentPage}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
                       </PaginationItem>
                     );
-                  }
+                  })}
 
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationLink onClick={() => pagination.setPage(page)} isActive={page === pagination.currentPage} className="cursor-pointer">
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                })}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        pagination.nextPage();
+                      }}
+                      className={pagination.currentPage === pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLast
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        pagination.setPage(pagination.totalPages);
+                      }}
+                      className={pagination.currentPage === pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
 
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => pagination.nextPage()}
-                    className={`cursor-pointer ${pagination.currentPage === pagination.totalPages ? "pointer-events-none opacity-50" : ""}`}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+              <PaginationJump currentPage={pagination.currentPage} totalPages={pagination.totalPages} onJump={(page) => pagination.setPage(page)} />
+            </div>
           )}
         </div>
       </div>

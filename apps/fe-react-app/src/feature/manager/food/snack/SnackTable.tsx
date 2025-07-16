@@ -5,7 +5,10 @@ import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
+  PaginationFirst,
   PaginationItem,
+  PaginationJump,
+  PaginationLast,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
@@ -150,33 +153,57 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
 
           {/* Pagination Controls */}
           {pagination.totalPages > 1 && (
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      pagination.prevPage();
-                    }}
-                    className={!pagination.hasPrevPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
+            <div className="flex items-center gap-4">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationFirst
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        pagination.setPage(1);
+                      }}
+                      className={!pagination.hasPrevPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        pagination.prevPage();
+                      }}
+                      className={!pagination.hasPrevPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
 
-                {renderPaginationItems()}
+                  {renderPaginationItems()}
 
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      pagination.nextPage();
-                    }}
-                    className={!pagination.hasNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        pagination.nextPage();
+                      }}
+                      className={!pagination.hasNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLast
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        pagination.setPage(pagination.totalPages);
+                      }}
+                      className={!pagination.hasNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+
+              <PaginationJump currentPage={pagination.currentPage} totalPages={pagination.totalPages} onJump={(page) => pagination.setPage(page)} />
+            </div>
           )}
         </div>
       )}
