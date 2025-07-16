@@ -11,7 +11,7 @@ const ComboItem: React.FC<ComboItemProps> = ({ combo, quantity, onQuantityChange
   // Calculate total price from snacks
   const totalPrice = combo.snacks.reduce((total, comboSnack) => {
     const price = comboSnack.snack.price ?? 0;
-    const qty = comboSnack.quantity ?? 1;
+    const qty = comboSnack.quantity && comboSnack.quantity > 0 ? comboSnack.quantity : 1;
     return total + price * qty;
   }, 0);
 

@@ -139,7 +139,9 @@ export const transformComboResponse = (comboResponse: ComboResponse): Combo => {
     transformedSnacks = comboResponse.snacks.map((snackData) => {
       return {
         id: Number(snackData.id ?? 0),
-        quantity: 0, // Will be updated with correct quantity from combo-snacks API
+        // Quantity information isn't provided by the `combos` endpoint.
+        // Default to 1 so price calculations don't result in 0.
+        quantity: 1,
         snackSizeId: undefined,
         discountPercentage: undefined,
         combo: {
