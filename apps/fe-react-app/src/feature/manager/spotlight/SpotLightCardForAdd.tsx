@@ -13,14 +13,11 @@ function SpotLightCardForAdd({
   onAdd: (movie: Movie) => void;
   isInSpotlight: boolean;
 }>) {
-  const primaryCategory = movie.categories && movie.categories.length > 0 ? movie.categories[0].name : "Unknown";
-  const releaseYear = movie.fromDate ? new Date(movie.fromDate).getFullYear() : "N/A";
 
   return (
     <Card className="overflow-hidden">
       <div className="relative h-48 overflow-hidden">
         <img src={movie.poster || ""} alt={movie.name} className="h-full w-full object-cover transition-transform hover:scale-105" />
-        <Badge className="absolute right-2 top-2">{primaryCategory}</Badge>
         {movie.trailer && (
           <div className="absolute left-2 top-2">
             <Badge variant="default" className="bg-green-600">
@@ -39,9 +36,6 @@ function SpotLightCardForAdd({
       </div>
       <CardHeader className="p-3">
         <CardTitle className="line-clamp-1 text-base">{movie.name}</CardTitle>
-        <div className="text-muted-foreground line-clamp-1 text-xs">
-          {releaseYear} • {movie.duration} phút • {primaryCategory}
-        </div>
       </CardHeader>
       <CardFooter className="p-2">
         <Button

@@ -30,7 +30,7 @@ export function useSpotlightManagement() {
     try {
       const spotlightData = getSpotlightMovies();
       setSpotlightMovies(spotlightData);
-      setHasUnsavedChanges(false); // Reset unsaved changes on load
+      setHasUnsavedChanges(false);
     } catch (error) {
       console.error("Error loading spotlight data:", error);
       setError("Failed to load spotlight data");
@@ -158,19 +158,6 @@ export function useSpotlightManagement() {
     }
   }, [spotlightMovies]);
 
-  // Reset to initial state
-  const handleResetSpotlight = useCallback(() => {
-    if (confirm("Are you sure you want to reset spotlight to default movies?")) {
-      if (availableMovies.length > 0) {
-        initializeSpotlight(availableMovies);
-        loadSpotlightData();
-        setHasUnsavedChanges(false);
-      } else {
-        alert("Cannot reset: No available movies to initialize from.");
-      }
-    }
-  }, [availableMovies, loadSpotlightData]);
-
   return {
     spotlightMovies,
     availableMovies,
@@ -186,7 +173,6 @@ export function useSpotlightManagement() {
     handleAddToSpotlight,
     handleRemoveFromSpotlight,
     handleSaveChanges,
-    handleResetSpotlight,
     isMovieInSpotlight, // Expose for MovieCard
   };
 }

@@ -24,6 +24,11 @@ export interface CardSwapProps {
   onCardClick?: (idx: number) => void;
   skewAmount?: number;
   easing?: "linear" | "elastic";
+  /**
+   * Callback fired whenever the front card changes. Provides the index (based on original children order)
+   * of the card that is now at the front. Useful for syncing external UI like indicators or additional content.
+   */
+  onActiveIndexChange?: (idx: number) => void;
   children: ReactNode;
 }
 
@@ -72,6 +77,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
   delay = 5000,
   pauseOnHover = false,
   onCardClick,
+  onActiveIndexChange,
   skewAmount = 6,
   easing = "elastic",
   children,
@@ -107,6 +113,11 @@ const CardSwap: React.FC<CardSwapProps> = ({
   useEffect(() => {
     const total = refs.length;
     refs.forEach((r, i) => placeNow(r.current!, makeSlot(i, cardDistance, verticalDistance, total), skewAmount));
+
+    // Notify initial active index (the first card by default)
+    if (typeof onActiveIndexChange === "function" && order.current.length) {
+      onActiveIndexChange(order.current[0]);
+    }
 
     const swap = () => {
       if (order.current.length < 2) return;
@@ -162,6 +173,12 @@ const CardSwap: React.FC<CardSwapProps> = ({
 
       tl.call(() => {
         order.current = [...rest, front];
+
+        // Inform consumer that active index has changed
+        if (typeof onActiveIndexChange === "function") {
+          const newActive = rest.length ? rest[0] : front;
+          onActiveIndexChange(newActive);
+        }
       });
     };
 
@@ -187,7 +204,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
       };
     }
     return () => clearInterval(intervalRef.current!);
-  }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing]);
+  }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing, onActiveIndexChange]);
 
   const rendered = childArr.map((child, i) =>
     isValidElement<CardProps>(child)

@@ -6,7 +6,6 @@ import SpotlightErrorBoundary from "./SpotlightErrorBoundary";
 import SpotlightHeader from "./SpotlightHeader";
 import SpotlightList from "./SpotlightList";
 
-
 export function SpotlightManagement() {
   const {
     spotlightMovies,
@@ -22,7 +21,6 @@ export function SpotlightManagement() {
     handleAddToSpotlight,
     handleRemoveFromSpotlight,
     handleSaveChanges,
-    handleResetSpotlight,
     isMovieInSpotlight,
   } = useSpotlightManagement();
 
@@ -45,7 +43,7 @@ export function SpotlightManagement() {
   return (
     <SpotlightErrorBoundary>
       <div className="container mx-auto space-y-6 p-6">
-        <SpotlightHeader onReset={handleResetSpotlight} onSaveChanges={handleSaveChanges} hasUnsavedChanges={hasUnsavedChanges} />
+        <SpotlightHeader onSaveChanges={handleSaveChanges} hasUnsavedChanges={hasUnsavedChanges} />
 
         {isLoading ? (
           <div className="flex items-center justify-center p-12">
@@ -65,7 +63,6 @@ export function SpotlightManagement() {
             <TabsContent value="add" className="border-none p-0 pt-4">
               <AddMoviesSection
                 filteredMovies={filteredMovies}
-                spotlightMovieCount={spotlightMovies.length}
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 onAdd={handleAddToSpotlight}

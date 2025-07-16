@@ -1,4 +1,3 @@
-import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { TableCell, TableRow } from "@/components/Shadcn/ui/table";
 import type { SpotlightMovie } from "@/services/spotlightService";
@@ -21,8 +20,6 @@ function SortableSpotlightItem({
     transition,
   };
 
-  const primaryCategory = movie.categories && movie.categories.length > 0 ? movie.categories[0].name : "Unknown";
-
   return (
     <TableRow ref={setNodeRef} style={style} className="hover:bg-muted/50">
       <TableCell className="w-10">
@@ -44,15 +41,13 @@ function SortableSpotlightItem({
           <div>
             <p className="font-medium">{movie.name}</p>
             <p className="text-muted-foreground text-xs">
-              {new Date(movie.fromDate || "").getFullYear()} • {movie.duration} phút
+              {new Date(movie.fromDate || "").getFullYear()}
               {movie.trailer && " • Có trailer"}
             </p>
           </div>
         </div>
       </TableCell>
-      <TableCell>
-        <Badge variant="secondary">{primaryCategory}</Badge>
-      </TableCell>
+
       <TableCell className="text-right">
         <Button variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => movie.id && onRemove(movie.id)}>
           <X className="h-4 w-4" />

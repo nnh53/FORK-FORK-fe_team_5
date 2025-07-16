@@ -24,9 +24,6 @@ function SpotlightList({ spotlightMovies, onRemove, onDragEnd }: Readonly<Spotli
     <Card>
       <CardHeader className="pb-2">
         <CardTitle>Current Spotlight Movies</CardTitle>
-        <p className="text-muted-foreground text-sm">
-          Drag and drop to reorder. Movies with trailers are preferred for spotlight display. Maximum 4 movies allowed.
-        </p>
       </CardHeader>
       <CardContent>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
@@ -36,7 +33,6 @@ function SpotlightList({ spotlightMovies, onRemove, onDragEnd }: Readonly<Spotli
                 <TableHead className="w-10"></TableHead>
                 <TableHead className="w-10">Rank</TableHead>
                 <TableHead>Movie</TableHead>
-                <TableHead>Genre</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
