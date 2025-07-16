@@ -121,23 +121,35 @@ function MovieSelection() {
 
       if (response.data?.result) {
         const transformedShowtimes = transformShowtimesResponse(response.data.result);
-        // Convert to old format for utility functions
-        const oldFormatShowtimes = transformedShowtimes.map((newShowtime) => {
-          const showDate = new Date(newShowtime.showDateTime);
-          const endDate = new Date(newShowtime.endDateTime);
 
-          return {
-            id: newShowtime.id.toString(),
-            movieId: newShowtime.movieId,
-            cinemaRoomId: newShowtime.roomId?.toString() ?? "1",
-            date: showDate.toISOString().split("T")[0],
-            startTime: showDate.toTimeString().split(" ")[0].slice(0, 5),
-            endTime: endDate.toTimeString().split(" ")[0].slice(0, 5),
-            format: "2D",
-            availableSeats: 50,
-            price: 100000,
-          };
-        });
+        const futureShowtimes = transformedShowtimes
+          .filter((s) => new Date(s.showDateTime) > new Date())
+          .sort((a, b) => new Date(a.showDateTime).getTime() - new Date(b.showDateTime).getTime());
+
+        const oldFormatShowtimes = await Promise.all(
+          futureShowtimes.map(async (newShowtime) => {
+            const showDate = new Date(newShowtime.showDateTime);
+            const endDate = new Date(newShowtime.endDateTime);
+
+            const seatsResponse = await fetchClient.GET("/showtimes/seats/{showtimeId}", {
+              params: { path: { showtimeId: newShowtime.id } },
+            });
+            const seats = seatsResponse.data?.result ?? [];
+            const availableSeats = seats.filter((seat) => seat.status === "AVAILABLE").length;
+
+            return {
+              id: newShowtime.id.toString(),
+              movieId: newShowtime.movieId,
+              cinemaRoomId: newShowtime.roomId?.toString() ?? "1",
+              date: showDate.toISOString().split("T")[0],
+              startTime: showDate.toTimeString().split(" ")[0].slice(0, 5),
+              endTime: endDate.toTimeString().split(" ")[0].slice(0, 5),
+              format: "2D",
+              availableSeats,
+              price: 100000,
+            };
+          })
+        );
 
         const scheduleData = convertShowtimesToSchedulePerDay(oldFormatShowtimes);
         setShowtimes(scheduleData);

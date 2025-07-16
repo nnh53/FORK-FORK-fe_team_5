@@ -5,27 +5,33 @@ import type { SchedulePerDay } from "../feature/booking/components/ShowtimesModa
  * Convert Showtime[] to SchedulePerDay[] format used by UI components
  */
 export const convertShowtimesToSchedulePerDay = (showtimes: Showtime[]): SchedulePerDay[] => {
-  // Group showtimes by date
-  const groupedByDate = showtimes.reduce(
-    (acc, showtime) => {
-      const date = showtime.date;
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(showtime);
-      return acc;
-    },
-    {} as Record<string, Showtime[]>,
-  );
+  const now = new Date();
 
-  // Convert to SchedulePerDay format
-  return Object.entries(groupedByDate).map(([date, showtimes]) => {
-    const sortedShowtimes = [...showtimes].sort((a, b) => a.startTime.localeCompare(b.startTime));
-    return {
-      date,
-      showtimes: sortedShowtimes,
-    };
-  });
+  // Group future showtimes by date
+  const groupedByDate = showtimes.reduce((acc, showtime) => {
+    const showDateTime = new Date(`${showtime.date}T${showtime.startTime}`);
+    if (showDateTime < now) {
+      return acc;
+    }
+
+    const date = showtime.date;
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(showtime);
+    return acc;
+  }, {} as Record<string, Showtime[]>);
+
+  // Convert to SchedulePerDay format with sorted dates and times
+  return Object.entries(groupedByDate)
+    .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+    .map(([date, showtimes]) => {
+      const sortedShowtimes = [...showtimes].sort((a, b) => a.startTime.localeCompare(b.startTime));
+      return {
+        date,
+        showtimes: sortedShowtimes,
+      };
+    });
 };
 
 /**
