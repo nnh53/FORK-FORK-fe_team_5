@@ -1,6 +1,6 @@
 import type { components } from "@/schema-from-be";
 
-export type Promotion = components["schemas"]["PromotionResponse"];
+export type Promotion = Required<components["schemas"]["PromotionResponse"]>;
 
 export interface PromotionRequest {
   id: number;

@@ -92,7 +92,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                     <span>
                       {snack.name} x{quantity}:
                     </span>
-                    <span>{(snack.price * quantity).toLocaleString("vi-VN")} VNĐ</span>
+                    <span>{((snack.price ?? 0) * quantity).toLocaleString("vi-VN")} VNĐ</span>
                   </div>
                 ) : null;
               })}

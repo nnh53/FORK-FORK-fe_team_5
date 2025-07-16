@@ -5,10 +5,12 @@ export type SeatTypeEnum = "COUPLE" | "PATH" | "REGULAR" | "VIP" | "BLOCK";
 export type SeatBookingStatus = "AVAILABLE" | "MAINTENANCE" | "BOOKED" | "RESERVED";
 
 // API Response seat entity
-export type Seat = components["schemas"]["SeatResponse"] & {
-  selected?: boolean;
-  discarded?: boolean;
-};
+export type Seat =
+  Omit<Required<components["schemas"]["SeatResponse"]>, "linkSeatId"> & {
+    linkSeatId?: number | null;
+    selected?: boolean;
+    discarded?: boolean;
+  };
 
 export type SeatType = components["schemas"]["SeatTypeResponse"];
 

@@ -54,7 +54,7 @@ export const transformShowtimeResponse = (showtimeResponse: ShowtimeResponse): S
     id: showtimeResponse.id ?? 0,
     movieId: showtimeResponse.movieId ?? 0,
     roomId: showtimeResponse.roomId ?? 0,
-    roomName: showtimeResponse.roomName,
+    roomName: showtimeResponse.roomName ?? "",
     showDateTime: showtimeResponse.showDateTime ?? "",
     endDateTime: showtimeResponse.endDateTime ?? "",
     status: showtimeResponse.status ?? "SCHEDULE",
