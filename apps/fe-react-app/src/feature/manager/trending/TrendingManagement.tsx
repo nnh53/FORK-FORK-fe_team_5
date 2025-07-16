@@ -5,19 +5,22 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import type { Movie } from "@/interfaces/movies.interface";
-import { ROUTES } from "@/routes/route.constants";
-import { queryMovies, transformMoviesResponse } from "@/services/movieService";
+import { queryMoviesForTrending, transformMoviesResponse } from "@/services/movieService";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FileDown, FileUp, Grip, PlusCircle, Save, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 // Define TrendingMovie interface to include ranking
 interface TrendingMovie extends Movie {
   rank?: number;
+}
+
+// Error boundary component for better error handling
+function TrendingErrorBoundary({ children }: { children: React.ReactNode }) {
+  return <div className="error-boundary">{children}</div>;
 }
 
 // SortableItem component for drag and drop
@@ -97,35 +100,36 @@ export function TrendingManagement() {
   const [availableMovies, setAvailableMovies] = useState<Movie[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("list");
-  const navigate = useNavigate();
 
-  // Get all movies using React Query
-  const moviesQuery = queryMovies();
+  // Use dedicated hook for trending management
+  const moviesQuery = queryMoviesForTrending();
 
   // Initialize movies from API when data is ready
   useEffect(() => {
-    if (moviesQuery.data?.result) {
-      // Transform API response to Movie interface
-      const transformedMovies = transformMoviesResponse(moviesQuery.data.result);
+    try {
+      if (moviesQuery.data?.result) {
+        // Transform API response to Movie interface
+        const transformedMovies = transformMoviesResponse(moviesQuery.data.result);
 
-      // Initialize trending movies with first 5 movies with rank added
-      const initialTrendingMovies = transformedMovies.slice(0, 5).map((movie, index) => ({
-        ...movie,
-        rank: index + 1,
-      }));
+        // Initialize trending movies with first 5 movies with rank added
+        const initialTrendingMovies = transformedMovies.slice(0, 5).map((movie, index) => ({
+          ...movie,
+          rank: index + 1,
+        }));
 
-      // Other movies available to add
-      const remainingMovies = transformedMovies.slice(5);
+        // Other movies available to add
+        const remainingMovies = transformedMovies.slice(5);
 
-      setTrendingMovies(initialTrendingMovies as TrendingMovie[]);
-      setAvailableMovies(remainingMovies);
+        setTrendingMovies(initialTrendingMovies as TrendingMovie[]);
+        setAvailableMovies(remainingMovies);
+      }
+    } catch (error) {
+      console.error("Error processing movies data:", error);
+      // Set empty state in case of error
+      setTrendingMovies([]);
+      setAvailableMovies([]);
     }
   }, [moviesQuery.data]);
-
-  // Function to navigate to public trending page
-  const handleNavigateToTrending = () => {
-    navigate(ROUTES.TRENDING_SECTION);
-  };
 
   // Setup sensors for drag and drop
   const sensors = useSensors(
@@ -201,97 +205,112 @@ export function TrendingManagement() {
     alert("Export functionality would be implemented here");
   };
 
-  return (
-    <div className="container mx-auto space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Trending Movies Management</h1>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleImport}>
-            <FileUp className="mr-2 h-4 w-4" />
-            Import
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <FileDown className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button variant="default" size="sm" onClick={handleSaveChanges}>
-            <Save className="mr-2 h-4 w-4" />
-            Save Changes
-          </Button>
+  // Error state
+  if (moviesQuery.error) {
+    return (
+      <div className="container mx-auto space-y-6 p-6">
+        <div className="flex items-center justify-center p-12">
+          <div className="text-center">
+            <h2 className="mb-2 text-xl font-semibold text-red-600">Error Loading Movies</h2>
+            <p className="text-gray-600">Failed to load movies data. Please try again later.</p>
+            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </div>
         </div>
       </div>
+    );
+  }
 
-      {moviesQuery.isLoading ? (
-        <div className="flex items-center justify-center p-12">
-          <p className="text-lg">Loading movies data...</p>
+  return (
+    <TrendingErrorBoundary>
+      <div className="container mx-auto space-y-6 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Trending Movies Management</h1>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleImport}>
+              <FileUp className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <FileDown className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+            <Button variant="default" size="sm" onClick={handleSaveChanges}>
+              <Save className="mr-2 h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
         </div>
-      ) : (
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="list">Trending List</TabsTrigger>
-            <TabsTrigger value="add">Add Movies</TabsTrigger>
-            <TabsTrigger value="view" onClick={handleNavigateToTrending}>
-              View Public Page
-            </TabsTrigger>
-          </TabsList>
 
-          <TabsContent value="list" className="border-none p-0 pt-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>Current Trending Movies</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-10"></TableHead>
-                        <TableHead className="w-10">Rank</TableHead>
-                        <TableHead>Movie</TableHead>
-                        <TableHead>Genre</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <SortableContext
-                        items={trendingMovies.map((m, index) => m.id?.toString() || `item-${index}`)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        {trendingMovies.map((movie) => (
-                          <SortableItem key={movie.id} movie={movie} />
-                        ))}
-                      </SortableContext>
-                    </TableBody>
-                  </Table>
-                </DndContext>
-              </CardContent>
-            </Card>
-          </TabsContent>
+        {moviesQuery.isLoading ? (
+          <div className="flex items-center justify-center p-12">
+            <p className="text-lg">Loading movies data...</p>
+          </div>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full max-w-md grid-cols-3">
+              <TabsTrigger value="list">Trending List</TabsTrigger>
+              <TabsTrigger value="add">Add Movies</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="add" className="border-none p-0 pt-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>Add Movies to Trending</CardTitle>
-                <div className="relative mt-2">
-                  <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
-                  <Input placeholder="Search movies..." className="pl-8" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                {" "}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                  {filteredMovies.map((movie) => (
-                    <MovieCard key={movie.id?.toString()} movie={movie} onAdd={addToTrending} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      )}
-    </div>
+            <TabsContent value="list" className="border-none p-0 pt-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle>Current Trending Movies</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-10"></TableHead>
+                          <TableHead className="w-10">Rank</TableHead>
+                          <TableHead>Movie</TableHead>
+                          <TableHead>Genre</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <SortableContext
+                          items={trendingMovies.map((m, index) => m.id?.toString() || `item-${index}`)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          {trendingMovies.map((movie) => (
+                            <SortableItem key={movie.id} movie={movie} />
+                          ))}
+                        </SortableContext>
+                      </TableBody>
+                    </Table>
+                  </DndContext>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="add" className="border-none p-0 pt-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle>Add Movies to Trending</CardTitle>
+                  <div className="relative mt-2">
+                    <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
+                    <Input placeholder="Search movies..." className="pl-8" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    {filteredMovies.map((movie) => (
+                      <MovieCard key={movie.id?.toString()} movie={movie} onAdd={addToTrending} />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        )}
+      </div>
+    </TrendingErrorBoundary>
   );
 }
 

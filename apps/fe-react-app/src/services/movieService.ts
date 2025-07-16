@@ -7,6 +7,20 @@ export const queryMovies = () => {
   return $api.useQuery("get", "/movies", {});
 };
 
+// Separate hook for trending management with unique key
+export const queryMoviesForTrending = () => {
+  return $api.useQuery("get", "/movies", {
+    queryKey: ["movies-trending-management"], // Unique query key
+  });
+};
+
+// Separate hook for carousel with unique key
+export const queryMoviesForCarousel = () => {
+  return $api.useQuery("get", "/movies", {
+    queryKey: ["movies-carousel"], // Unique query key
+  });
+};
+
 export const queryMovie = (id: number) => {
   return $api.useQuery("get", "/movies/{id}", {
     params: { path: { id } },

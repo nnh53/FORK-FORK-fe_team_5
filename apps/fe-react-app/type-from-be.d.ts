@@ -29,3 +29,11 @@ export type BookingSnackRequest = components["schemas"]["BookingSnackRequest"];
 export type BookingComboResponse = components["schemas"]["BookingComboResponse"];
 export type BookingSnackResponse = components["schemas"]["BookingSnackResponse"];
 export type PickingSeatResponse = components["schemas"]["PickingSeatResponse"];
+
+// Receipt related types
+export type Receipt = components["schemas"]["Receipt"];
+export type ReceiptItem = components["schemas"]["ReceiptItem"];
+export type ReceiptFilterRequest = components["schemas"]["ReceiptFilterRequest"];
+export type MovieTrendingResponse = components["schemas"]["MovieTrendingResponse"];
+export type ApiResponseListReceipt = components["schemas"]["ApiResponseListReceipt"];
+export type ApiResponseListMovieTrendingResponse = components["schemas"]["ApiResponseListMovieTrendingResponse"];

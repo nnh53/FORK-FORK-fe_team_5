@@ -4,7 +4,7 @@ import {
   Clapperboard,
   Cookie,
   Film,
-  GalleryHorizontalEnd,
+  Monitor,
   LayoutDashboard,
   Package,
   Settings,
@@ -43,13 +43,13 @@ export const sidebarData = {
           icon: Clapperboard,
         },
         {
-          title: "Carousels",
-          url: "#",
-          icon: GalleryHorizontalEnd,
+          title: "Spotlight",
+          url: "/admin/spotlight",
+          icon: Monitor,
         },
         {
           title: "Trending",
-          url: "#",
+          url: "/admin/trending",
           icon: Star,
         },
         {

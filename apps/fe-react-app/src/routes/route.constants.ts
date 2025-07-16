@@ -18,6 +18,7 @@ export const ROUTES = {
   HERO_SECTION: "/welcome",
   NOW_SHOWING: "/now-showing",
   TRENDING_SECTION: "/trending",
+  SPOTLIGHT_SECTION: "/spotlight",
   FLOWING_MENU_SECTION: "/flowing-menu",
   MOVIE_GALLERY: "/movie-gallery",
   SCROLL_FLOAT: "/scroll-float",
@@ -65,7 +66,8 @@ export const ROUTES = {
     HELP: "/admin/help",
     SEARCH: "/admin/search",
     TRENDING: "/admin/trending",
-  }, // Staff Routes
+    SPOTLIGHT: "/admin/spotlight",
+  },
   STAFF: {
     ROOT: "/staff",
     DASHBOARD: "/staff/dashboard",
@@ -119,6 +121,8 @@ export const AUTH_ROUTES = [ROUTES.AUTH.LOGIN, ROUTES.AUTH.REGISTER, ROUTES.AUTH
 export const ADMIN_ROUTES = [
   ROUTES.ADMIN.DASHBOARD,
   ROUTES.ADMIN.MOVIE,
+  ROUTES.ADMIN.TRENDING,
+  ROUTES.ADMIN.GENRES,
   ROUTES.ADMIN.CINEMA_ROOM,
   ROUTES.ADMIN.SHOWTIME,
   ROUTES.ADMIN.SEAT,

@@ -20,7 +20,7 @@ export const siteConfig = {
     links: [
       { id: 1, name: "Home", href: "#home" },
       { id: 2, name: "Movies", href: "#movies" },
-      { id: 3, name: "Trending", href: "#trending" },
+      { id: 3, name: "Spotlight", href: "#spotlight" },
       { id: 4, name: "Features", href: "#features" },
       { id: 5, name: "Chairs", href: "#chairs" },
       { id: 6, name: "FAQ", href: "#faq" },

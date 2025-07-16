@@ -1,6 +1,6 @@
 import Aurora from "@/components/Reactbits/reactbit-backgrounds/Aurora/Aurora";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/Shadcn/ui/carousel";
-import { queryMovies, transformMoviesResponse } from "@/services/movieService";
+import { queryMoviesForCarousel, transformMoviesResponse } from "@/services/movieService";
 import { Image } from "@unpic/react";
 import Autoplay from "embla-carousel-autoplay";
 import { forwardRef, useMemo } from "react";
@@ -14,7 +14,7 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
   const navigate = useNavigate();
 
   // Use React Query to fetch movies with unique query key for carousel
-  const { data: moviesData, isLoading, error } = queryMovies();
+  const { data: moviesData, isLoading, error } = queryMoviesForCarousel();
 
   // Transform and get latest 5 movies
   const latestMovies = useMemo(() => {

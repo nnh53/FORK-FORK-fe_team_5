@@ -262,6 +262,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["getReceipts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/promotions": {
         parameters: {
             query?: never;
@@ -704,14 +720,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/receipt": {
+    "/receipt/topMovie": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["getReceipts"];
+        get: operations["getTrendingMovie"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1070,6 +1086,7 @@ export interface components {
             description?: string;
             status?: string;
             poster?: string;
+            banner?: string;
         };
         ApiResponseMovieResponse: {
             /** Format: int32 */
@@ -1102,6 +1119,7 @@ export interface components {
             status?: string;
             poster?: string;
             showtimes?: components["schemas"]["ShowtimeResponse"][];
+            banner?: string;
         };
         MovieCategoryRequest: {
             name?: string;
@@ -1253,6 +1271,148 @@ export interface components {
             /** Format: date-time */
             endDateTime?: string;
         };
+        ReceiptFilterRequest: {
+            userId?: string;
+            /** Format: date */
+            fromDate?: string;
+            /** Format: date */
+            toDate?: string;
+            bookingId?: string;
+            movieName?: string;
+            /** @enum {string} */
+            paymentMethod?: "CASH" | "ONLINE";
+            refunded?: boolean;
+            /** Format: float */
+            minAmount?: number;
+            /** Format: float */
+            maxAmount?: number;
+        };
+        ApiResponseListReceipt: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["Receipt"][];
+        };
+        Booking: {
+            /** Format: int32 */
+            id?: number;
+            /** Format: date-time */
+            bookingDate?: string;
+            /** Format: int32 */
+            loyaltyPointsUsed?: number;
+            /** Format: float */
+            estimatedPrice?: number;
+            /** Format: float */
+            totalPrice?: number;
+            /** @enum {string} */
+            paymentMethod?: "CASH" | "ONLINE";
+            /** @enum {string} */
+            paymentStatus?: "PENDING" | "SUCCESS" | "FAILED";
+            staffId?: string;
+            /** @enum {string} */
+            status?: "PENDING" | "SUCCESS" | "CANCELLED";
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            payOsCode?: string;
+            payOsLink?: string;
+            feUrl?: string;
+        };
+        Receipt: {
+            /** Format: int32 */
+            id?: number;
+            user?: components["schemas"]["User"];
+            /** Format: int32 */
+            bookingId?: number;
+            /** Format: int32 */
+            movieId?: number;
+            movieName?: string;
+            /** Format: date-time */
+            showtime?: string;
+            promotionName?: string;
+            roomName?: string;
+            items?: components["schemas"]["ReceiptItem"][];
+            /** Format: float */
+            totalAmount?: number;
+            /** @enum {string} */
+            paymentMethod?: "CASH" | "ONLINE";
+            refunded?: boolean;
+            paymentReference?: string;
+            /** Format: date-time */
+            issuedAt?: string;
+            /** Format: int32 */
+            addedPoints?: number;
+            /** Format: int32 */
+            usedPoints?: number;
+            /** Format: int32 */
+            refundedPoints?: number;
+            /** Format: int32 */
+            ticketCount?: number;
+        };
+        ReceiptItem: {
+            /** Format: int32 */
+            id?: number;
+            receipt?: components["schemas"]["Receipt"];
+            name?: string;
+            /** Format: float */
+            unitPrice?: number;
+            /** Format: float */
+            totalPrice?: number;
+            /** Format: int32 */
+            quantity?: number;
+            /** @enum {string} */
+            type?: "COMBO" | "SNACK" | "TICKET";
+        };
+        /** @description User entity */
+        User: {
+            /**
+             * @description User ID
+             * @example uuid-1234
+             */
+            id?: string;
+            /**
+             * @description Full name
+             * @example John Doe
+             */
+            fullName?: string;
+            /**
+             * Format: date
+             * @description Date of birth
+             * @example 1990-01-01
+             */
+            dateOfBirth?: string;
+            /**
+             * @description Email address
+             * @example john@example.com
+             */
+            email?: string;
+            /**
+             * @description Password (hashed)
+             * @example hashedpassword
+             */
+            password?: string;
+            /** @enum {string} */
+            status?: "ACTIVE" | "INACTIVE" | "BANNED";
+            phone?: string;
+            address?: string;
+            /**
+             * @description Role name
+             * @example CUSTOMER
+             * @enum {string}
+             */
+            role?: "ADMIN" | "MANAGER" | "MEMBER" | "STAFF";
+            avatar?: string;
+            /** Format: int32 */
+            loyaltyPoint?: number;
+            bookings?: components["schemas"]["Booking"][];
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** @enum {string} */
+            gender?: "MALE" | "FEMALE" | "OTHER";
+        };
         PromotionRequest: {
             image?: string;
             title: string;
@@ -1297,6 +1457,7 @@ export interface components {
             description: string;
             status: string;
             poster: string;
+            banner?: string;
         };
         ApiResponseString: {
             /** Format: int32 */
@@ -1499,143 +1660,20 @@ export interface components {
             message?: string;
             result?: components["schemas"]["SeatTypeResponse"][];
         };
-        ReceiptFilterRequest: {
-            userId?: string;
-            /** Format: date */
-            fromDate?: string;
-            /** Format: date */
-            toDate?: string;
-            bookingId?: string;
-            movieName?: string;
-            /** @enum {string} */
-            paymentMethod?: "CASH" | "ONLINE";
-            refunded?: boolean;
-            /** Format: float */
-            minAmount?: number;
-            /** Format: float */
-            maxAmount?: number;
-        };
-        ApiResponseListReceipt: {
+        ApiResponseListMovieTrendingResponse: {
             /** Format: int32 */
             code?: number;
             message?: string;
-            result?: components["schemas"]["Receipt"][];
+            result?: components["schemas"]["MovieTrendingResponse"][];
         };
-        Booking: {
+        MovieTrendingResponse: {
             /** Format: int32 */
-            id?: number;
-            /** Format: date-time */
-            bookingDate?: string;
-            /** Format: int32 */
-            loyaltyPointsUsed?: number;
-            /** Format: float */
-            estimatedPrice?: number;
-            /** Format: float */
-            totalPrice?: number;
-            /** @enum {string} */
-            paymentMethod?: "CASH" | "ONLINE";
-            /** @enum {string} */
-            paymentStatus?: "PENDING" | "SUCCESS" | "FAILED";
-            staffId?: string;
-            /** @enum {string} */
-            status?: "PENDING" | "SUCCESS" | "CANCELLED";
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            payOsCode?: string;
-            payOsLink?: string;
-            feUrl?: string;
-        };
-        Receipt: {
-            /** Format: int32 */
-            id?: number;
-            user?: components["schemas"]["User"];
-            /** Format: int32 */
-            bookingId?: number;
+            movieId?: number;
             movieName?: string;
-            /** Format: date-time */
-            showtime?: string;
-            promotionName?: string;
-            roomName?: string;
-            items?: components["schemas"]["ReceiptItem"][];
-            /** Format: float */
-            totalAmount?: number;
-            /** @enum {string} */
-            paymentMethod?: "CASH" | "ONLINE";
-            refunded?: boolean;
-            paymentReference?: string;
-            /** Format: date-time */
-            issuedAt?: string;
-            /** Format: int32 */
-            addedPoints?: number;
-            /** Format: int32 */
-            usedPoints?: number;
-            /** Format: int32 */
-            refundedPoints?: number;
-        };
-        ReceiptItem: {
-            /** Format: int32 */
-            id?: number;
-            receipt?: components["schemas"]["Receipt"];
-            name?: string;
-            /** Format: float */
-            unitPrice?: number;
-            /** Format: float */
-            totalPrice?: number;
-            /** Format: int32 */
-            quantity?: number;
-            /** @enum {string} */
-            type?: "COMBO" | "SNACK" | "TICKET";
-        };
-        /** @description User entity */
-        User: {
-            /**
-             * @description User ID
-             * @example uuid-1234
-             */
-            id?: string;
-            /**
-             * @description Full name
-             * @example John Doe
-             */
-            fullName?: string;
-            /**
-             * Format: date
-             * @description Date of birth
-             * @example 1990-01-01
-             */
-            dateOfBirth?: string;
-            /**
-             * @description Email address
-             * @example john@example.com
-             */
-            email?: string;
-            /**
-             * @description Password (hashed)
-             * @example hashedpassword
-             */
-            password?: string;
-            /** @enum {string} */
-            status?: "ACTIVE" | "INACTIVE" | "BANNED";
-            phone?: string;
-            address?: string;
-            /**
-             * @description Role name
-             * @example CUSTOMER
-             * @enum {string}
-             */
-            role?: "ADMIN" | "MANAGER" | "MEMBER" | "STAFF";
-            avatar?: string;
-            /** Format: int32 */
-            loyaltyPoint?: number;
-            bookings?: components["schemas"]["Booking"][];
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            /** @enum {string} */
-            gender?: "MALE" | "FEMALE" | "OTHER";
+            /** Format: int64 */
+            ticketCount?: number;
+            /** Format: double */
+            totalRevenue?: number;
         };
         ApiResponseListPromotionResponse: {
             /** Format: int32 */
@@ -2638,6 +2676,30 @@ export interface operations {
             };
         };
     };
+    getReceipts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ReceiptFilterRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListReceipt"];
+                };
+            };
+        };
+    };
     getAllPromotions: {
         parameters: {
             query?: never;
@@ -3463,18 +3525,17 @@ export interface operations {
             };
         };
     };
-    getReceipts: {
+    getTrendingMovie: {
         parameters: {
-            query?: never;
+            query: {
+                fromDate: string;
+                toDate: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["ReceiptFilterRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -3482,7 +3543,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApiResponseListReceipt"];
+                    "application/json": components["schemas"]["ApiResponseListMovieTrendingResponse"];
                 };
             };
         };

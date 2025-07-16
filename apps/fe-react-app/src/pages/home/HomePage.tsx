@@ -3,7 +3,7 @@ import AdminTeamSection from "@/feature/views/AdminTeamSection";
 import CarouselSection from "@/feature/views/CarouselSection/CarouselSection";
 import CinemaExperience from "@/feature/views/CinemaExperience";
 import { FAQ } from "@/feature/views/FAQ";
-import TrendingSection from "@/feature/views/TrendingSection/TrendingSection";
+import SpotlightSection from "@/feature/views/SpotlightSection";
 import { useHomePageAnimations } from "@/hooks/useHomePageAnimations";
 
 import { CTASection } from "@/components/magicui/sections/cta-section";
@@ -11,6 +11,7 @@ import { FeatureSection } from "@/components/magicui/sections/feature-section";
 import { useRef } from "react";
 import MovieSelection from "../store/MovieSelection";
 import "./styles/HomePage.css";
+
 
 const HomePage = () => {
   const cardSwapRef = useRef<HTMLElement | null>(null);
@@ -33,8 +34,8 @@ const HomePage = () => {
           <section id="movies">
             <MovieSelection />
           </section>
-          <section id="trending">
-            <TrendingSection ref={cardSwapRef} />
+          <section id="spotlight">
+            <SpotlightSection ref={cardSwapRef} />
           </section>
           <FeatureSection />
           <section id="chairs">

@@ -1,52 +1,52 @@
 import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardSwap/CardSwap";
-import { AuthContext } from "@/contexts/AuthContext";
 import { ROUTES } from "@/routes/route.constants";
-import { queryMovies, transformMoviesResponse } from "@/services/movieService";
+import { getSpotlightMovies, type SpotlightMovie } from "@/services/spotlightService";
 import { getYouTubeEmbedUrl, getYouTubeVideoId } from "@/utils/movie.utils";
-import { forwardRef, useContext, useMemo } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface TrendingSectionProps {
+interface SpotlightSectionProps {
   className?: string;
 }
 
-const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ className }, ref) => {
+const SpotlightSection = forwardRef<HTMLElement, SpotlightSectionProps>(({ className }, ref) => {
   const navigate = useNavigate();
-  const authContext = useContext(AuthContext);
-  const isAdmin = authContext?.user?.roles?.includes("ADMIN");
+  const [spotlightMovies, setSpotlightMovies] = useState<SpotlightMovie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: moviesData, isLoading } = queryMovies();
+  // Load spotlight movies from localStorage
+  useEffect(() => {
+    const loadSpotlightMovies = () => {
+      try {
+        const movies = getSpotlightMovies();
+        setSpotlightMovies(movies);
+      } catch (error) {
+        console.error("Error loading spotlight movies:", error);
+        setSpotlightMovies([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Transform and get first 4 movies for trending
-  const trendingMovies = useMemo(() => {
-    if (!moviesData?.result) return [];
+    // Initial load
+    loadSpotlightMovies();
 
-    const transformedMovies = transformMoviesResponse(moviesData.result);
-    // Take the first 4 movies for the trending section
-    return transformedMovies.slice(0, 4);
-  }, [moviesData]);
+    // Listen for spotlight updates from SpotlightManagement
+    const handleSpotlightUpdate = (event: CustomEvent) => {
+      setSpotlightMovies(event.detail || []);
+    };
 
-  const handleAdminNavigation = () => {
-    navigate(ROUTES.ADMIN.TRENDING);
-  };
+    window.addEventListener("spotlightUpdated", handleSpotlightUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener("spotlightUpdated", handleSpotlightUpdate as EventListener);
+    };
+  }, []);
 
   return (
-    <section className={`card-swap-section ${className ?? ""}`} ref={ref} id="trending-movies">
-      <div className="section-title">
-        <div className="flex items-center justify-between">
-          {isAdmin && (
-            <button
-              onClick={handleAdminNavigation}
-              className="rounded-md bg-gray-800 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-700"
-            >
-              Back to Admin
-            </button>
-          )}
-        </div>
-      </div>
-
+    <section className={`card-swap-section ${className ?? ""}`} ref={ref} id="spotlight-movies">
       <div
-        className="trending-content"
+        className="spotlight-content"
         style={{
           display: "flex",
           alignItems: "center",
@@ -59,7 +59,7 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
       >
         {/* Left Side - Text Content */}
         <div
-          className="trending-text"
+          className="spotlight-text"
           style={{
             flex: "1",
             display: "flex",
@@ -80,7 +80,7 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
               lineHeight: "1.2",
             }}
           >
-            Trending Movies
+            Spotlight Movies
           </h3>
           <p
             style={{
@@ -90,7 +90,7 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
               marginBottom: "2rem",
             }}
           >
-            Explosive emotions, exclusively on the grand screen
+            Discover the most popular movies of the moment
           </p>
           <button
             style={{
@@ -106,11 +106,11 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
               transition: "all 0.3s ease",
             }}
             onClick={() => {
-              // If we have trending movies, navigate to the first one's detail page
-              if (trendingMovies.length > 0 && trendingMovies[0].id) {
-                navigate(ROUTES.MOVIE_DETAIL.replace(":movieId", trendingMovies[0].id.toString()));
+              // If we have spotlight movies, navigate to the first one's detail page
+              if (spotlightMovies.length > 0 && spotlightMovies[0].id) {
+                navigate(ROUTES.MOVIE_DETAIL.replace(":movieId", spotlightMovies[0].id.toString()));
               } else {
-                // Fallback to movies selection if no trending movies available
+                // Fallback to movies selection if no spotlight movies available
                 navigate(ROUTES.MOVIES_SELECTION);
               }
             }}
@@ -135,11 +135,11 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
           <div style={{ height: "600px", position: "relative", transform: "translateY(-50px)" }}>
             {isLoading ? (
               <div className="flex h-full items-center justify-center">
-                <p className="text-lg">Loading trending movies...</p>
+                <p className="text-lg">Loading spotlight movies...</p>
               </div>
             ) : (
               <CardSwap cardDistance={80} verticalDistance={90} delay={5000} pauseOnHover={false} skewAmount={0}>
-                {trendingMovies.map((movie) => (
+                {spotlightMovies.map((movie: SpotlightMovie) => (
                   <Card
                     key={movie.id}
                     style={{
@@ -203,7 +203,7 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
                     })()}
                   </Card>
                 ))}
-                {trendingMovies.length === 0 && (
+                {spotlightMovies.length === 0 && (
                   <Card
                     style={{
                       padding: "1rem",
@@ -220,7 +220,8 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
                       pointerEvents: "none",
                     }}
                   >
-                    <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem", color: "#946b38" }}>No trending movies found</h3>
+                    <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem", color: "#946b38" }}>No spotlight movies available</h3>
+                    <p style={{ fontSize: "1rem", color: "#666" }}>Admin can add movies to spotlight from the management panel</p>
                   </Card>
                 )}
               </CardSwap>
@@ -232,6 +233,6 @@ const TrendingSection = forwardRef<HTMLElement, TrendingSectionProps>(({ classNa
   );
 });
 
-TrendingSection.displayName = "TrendingSection";
+SpotlightSection.displayName = "SpotlightSection";
 
-export default TrendingSection;
+export default SpotlightSection;
