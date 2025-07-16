@@ -16,7 +16,8 @@ import {
   useUpdateUser,
   useUsers,
 } from "@/services/userService";
-import type { CustomAPIResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type CustomAPIResponse = components["schemas"]["ApiResponseVoid"];
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";

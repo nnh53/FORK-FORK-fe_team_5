@@ -12,15 +12,7 @@ export interface Snack {
 
 export type SnackForm = Omit<Snack, "id">;
 
-// API Snack interface (from OpenAPI schema)
-export interface ApiSnack {
-  id: number;
-  category: string;
-  name: string;
-  size: string;
-  flavor: string;
-  price: number;
-  description: string;
-  img: string;
-  status: string;
-}
+import type { components } from "@/schema-from-be";
+
+// API Snack interface from backend schema
+export type ApiSnack = components["schemas"]["SnackResponse"];

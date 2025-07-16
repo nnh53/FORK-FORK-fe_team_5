@@ -161,17 +161,8 @@ export type UserLoginResponse = {
 };
 
 // API User interface (from OpenAPI schema)
-export interface ApiUser {
-  id: string;
-  email: string;
-  fullName: string;
-  phone: string;
-  address?: string;
-  avatar?: string;
-  role: string;
-  status: string;
-  dateOfBirth?: string;
-  gender?: "MALE" | "FEMALE" | "OTHER";
-}
+import type { components } from "@/schema-from-be";
+
+export type ApiUser = components["schemas"]["UserResponse"];
 
 // Legacy alias for backward compatibility

@@ -15,7 +15,8 @@ import {
   useSnacks,
   useUpdateSnack,
 } from "@/services/snackService";
-import type { CustomAPIResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type CustomAPIResponse = components["schemas"]["ApiResponseVoid"];
 import { type UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";

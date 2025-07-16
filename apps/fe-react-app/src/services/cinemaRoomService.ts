@@ -1,6 +1,12 @@
 import type { CinemaRoom, CinemaRoomWithSeatMap } from "@/interfaces/cinemarooms.interface";
 import type { Seat, SeatMap, SeatType } from "@/interfaces/seat.interface";
-import type { CinemaRoomRequest, CinemaRoomResponse, CinemaRoomUpdateRequest, SeatRequest, SeatResponse, SeatTypeResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type CinemaRoomResponse = components["schemas"]["CinemaRoomResponse"];
+type CinemaRoomRequest = components["schemas"]["CinemaRoomRequest"];
+type CinemaRoomUpdateRequest = components["schemas"]["CinemaRoomUpdateRequest"];
+type SeatRequest = components["schemas"]["SeatRequest"];
+type SeatResponse = components["schemas"]["SeatResponse"];
+type SeatTypeResponse = components["schemas"]["SeatTypeResponse"];
 import { $api } from "@/utils/api";
 
 // Type aliases for status enums

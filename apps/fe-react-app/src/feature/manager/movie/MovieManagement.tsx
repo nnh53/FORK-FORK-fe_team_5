@@ -25,7 +25,8 @@ import {
   transformMovieResponse,
   transformMovieToRequest,
 } from "@/services/movieService";
-import type { MovieResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type MovieResponse = components["schemas"]["MovieResponse"];
 import { Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";

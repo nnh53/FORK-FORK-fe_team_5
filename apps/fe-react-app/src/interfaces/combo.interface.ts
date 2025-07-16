@@ -1,4 +1,5 @@
 import { type Snack } from "@/interfaces/snacks.interface";
+import type { components } from "@/schema-from-be";
 
 export interface Combo {
   id: number;
@@ -20,12 +21,5 @@ export interface ComboSnack {
 
 export type ComboForm = Omit<Combo, "id">;
 
-// API Combo interface (from OpenAPI schema)
-export interface ApiCombo {
-  id: number;
-  name: string;
-  description: string;
-  status: string;
-  img: string;
-  snacks?: import("./snacks.interface").ApiSnack[];
-}
+// API Combo interface from backend schema
+export type ApiCombo = components["schemas"]["ComboResponse"];

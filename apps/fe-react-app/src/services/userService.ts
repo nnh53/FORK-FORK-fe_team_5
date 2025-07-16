@@ -1,6 +1,7 @@
 import { ROLES, type ROLE_TYPE } from "@/interfaces/roles.interface";
 import type { LoginDTO, User, UserLoginResponse, UserRequest, UserUpdate } from "@/interfaces/users.interface";
-import type { UserResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type UserResponse = components["schemas"]["UserResponse"];
 import { $api } from "@/utils/api";
 import { useQueryClient } from "@tanstack/react-query";
 

@@ -1,15 +1,6 @@
-export interface Promotion {
-  id: number;
-  image: string;
-  title: string;
-  type: string;
-  minPurchase: number;
-  discountValue: number;
-  startTime: string;
-  endTime: string;
-  description: string;
-  status: string;
-}
+import type { components } from "@/schema-from-be";
+
+export type Promotion = components["schemas"]["PromotionResponse"];
 
 export interface PromotionRequest {
   id: number;
@@ -24,16 +15,5 @@ export interface PromotionRequest {
   status: string;
 }
 
-// API Promotion interface (from OpenAPI schema)
-export interface ApiPromotion {
-  id: number;
-  image: string;
-  title: string;
-  type: string;
-  minPurchase: number;
-  discountValue: number;
-  startTime: string;
-  endTime: string;
-  description: string;
-  status: string;
-}
+// API Promotion interface from backend schema
+export type ApiPromotion = components["schemas"]["PromotionResponse"];

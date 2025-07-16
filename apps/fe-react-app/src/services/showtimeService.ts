@@ -1,5 +1,6 @@
 import { type Showtime, type ShowtimeFormData } from "@/interfaces/showtime.interface";
-import type { ShowtimeResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type ShowtimeResponse = components["schemas"]["ShowtimeResponse"];
 import { $api } from "@/utils/api";
 
 // React Query hooks using $api - dựa trên API documentation thực tế

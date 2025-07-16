@@ -1,5 +1,6 @@
 import { type MovieCategory } from "@/interfaces/movie-category.interface";
-import type { MovieCategoryResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type MovieCategoryResponse = components["schemas"]["MovieCategoryResponse"];
 import { $api } from "@/utils/api";
 
 // React Query hooks using $api

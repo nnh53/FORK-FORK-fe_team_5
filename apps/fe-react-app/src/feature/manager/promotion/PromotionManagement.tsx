@@ -25,7 +25,8 @@ import {
   usePromotions,
   useUpdatePromotion,
 } from "@/services/promotionService";
-import type { CustomAPIResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type CustomAPIResponse = components["schemas"]["ApiResponseVoid"];
 import { Icon } from "@iconify/react";
 import { type FormikHelpers } from "formik";
 import React, { useEffect, useRef, useState } from "react";

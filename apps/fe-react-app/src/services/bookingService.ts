@@ -1,6 +1,8 @@
 import type { Booking } from "@/interfaces/booking.interface";
 import type { SeatMap } from "@/interfaces/seat.interface";
-import type { BookingRequest, BookingResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type BookingRequest = components["schemas"]["BookingRequest"];
+type BookingResponse = components["schemas"]["BookingResponse"];
 import { $api } from "@/utils/api";
 
 // ==================== BOOKING API HOOKS ====================

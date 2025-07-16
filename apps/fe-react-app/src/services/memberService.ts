@@ -1,5 +1,6 @@
 import type { Member, MemberCreateRequest, PointTransaction } from "@/interfaces/member.interface";
-import type { UserResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type UserResponse = components["schemas"]["UserResponse"];
 import { $api } from "@/utils/api";
 import axios from "axios";
 

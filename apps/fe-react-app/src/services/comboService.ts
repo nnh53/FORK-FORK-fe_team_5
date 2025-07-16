@@ -1,6 +1,8 @@
 import type { Combo, ComboForm, ComboSnack } from "@/interfaces/combo.interface";
 import type { Snack } from "@/interfaces/snacks.interface";
-import type { ComboResponse, ComboSnackResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type ComboResponse = components["schemas"]["ComboResponse"];
+type ComboSnackResponse = components["schemas"]["ComboSnackResponse"];
 import { $api } from "@/utils/api";
 
 // Type aliases for union types

@@ -1,5 +1,6 @@
 import type { Promotion } from "@/interfaces/promotion.interface";
-import type { PromotionResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type PromotionResponse = components["schemas"]["PromotionResponse"];
 import { $api } from "@/utils/api";
 
 // Type aliases for union types
