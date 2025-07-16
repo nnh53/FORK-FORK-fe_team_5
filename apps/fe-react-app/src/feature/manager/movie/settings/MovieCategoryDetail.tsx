@@ -48,7 +48,7 @@ export function MovieCategoryDetail({ isOpen, onClose, onSubmit, category, title
     onSubmit({
       ...values,
       id: category?.id,
-    });
+    } as MovieCategoryFormData);
   };
 
   return (

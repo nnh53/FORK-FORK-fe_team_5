@@ -64,7 +64,7 @@ const formatDateTime = (dateString?: string) => {
 const MemberDetail = ({ member, open, onClose }: MemberDetailProps) => {
   const statusDisplay = useMemo(() => {
     if (!member) return { label: "", className: "" };
-    return getUserStatusDisplay(member.status);
+    return getUserStatusDisplay(member.status ?? "ACTIVE");
   }, [member]);
 
   if (!member) {

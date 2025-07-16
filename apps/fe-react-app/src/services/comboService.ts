@@ -6,7 +6,7 @@ type ComboSnackResponse = components["schemas"]["ComboSnackResponse"];
 import { $api } from "@/utils/api";
 
 // Type aliases for union types
-type ComboStatus = "AVAILABLE" | "UNAVAILABLE";
+export type ComboStatus = "AVAILABLE" | "UNAVAILABLE";
 
 // ==================== COMBO API HOOKS ====================
 
@@ -434,12 +434,12 @@ export const fetchAndUpdateComboSnacksQuantity = async (combo: Combo): Promise<C
       const comboSnacks = transformComboSnacksResponse(comboSnacksData);
 
       const snackQuantityMap = new Map<number, number>();
-      comboSnacks.forEach((cs) => {
-        const id = cs.snack?.id;
-        if (typeof id === "number") {
-          snackQuantityMap.set(id, cs.quantity);
-        }
-      });
+        comboSnacks.forEach((cs) => {
+          const id = cs.snack?.id;
+          if (typeof id === "number") {
+            snackQuantityMap.set(id, cs.quantity ?? 1);
+          }
+        });
 
       const updatedSnacks = combo.snacks.map((comboSnack) => {
         const snackId = comboSnack.snack?.id;

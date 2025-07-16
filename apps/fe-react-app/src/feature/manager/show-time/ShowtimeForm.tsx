@@ -184,7 +184,11 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
 
       if (initialData) {
         // Update showtime
-        const updateData = { ...showtimeData, id: initialData.id };
+        const updateData = {
+          ...showtimeData,
+          id: initialData.id,
+          roomName: initialData.roomName,
+        };
         await updateShowtimeMutation.mutateAsync({
           params: { path: { id: initialData.id } },
           body: prepareUpdateShowtimeData(updateData),
@@ -265,8 +269,8 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {rooms.map((room) => (
-                          <SelectItem key={room.id} value={room.id.toString()}>
+                          {rooms.map((room) => (
+                            <SelectItem key={room.id} value={(room.id ?? "").toString()}>
                             <div className="flex items-center">
                               <Home className="mr-2 h-4 w-4" />
                               {room.name}

@@ -44,7 +44,7 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
           img: combo.img,
           name: combo.name,
           description: combo.description,
-          status: combo.status,
+          status: combo.status as "AVAILABLE" | "UNAVAILABLE" | undefined,
         });
       }, 0);
     } else {

@@ -81,12 +81,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
           <p className="text-sm text-muted-foreground mb-3">{room.id}</p>
 
           <div className="flex gap-2">
-            <Badge variant={getRoomTypeVariant(room.type)} className="text-xs">
-              <Icon icon={getRoomTypeIcon(room.type)} className="mr-1 h-3 w-3" />
+            <Badge variant={getRoomTypeVariant(room.type ?? "")} className="text-xs">
+              <Icon icon={getRoomTypeIcon(room.type ?? "")} className="mr-1 h-3 w-3" />
               {room.type}
             </Badge>
-            <Badge variant={getRoomStatusVariant(room.status)} className="text-xs">
-              <Icon icon={getRoomStatusIcon(room.status)} className="mr-1 h-3 w-3" />
+            <Badge variant={getRoomStatusVariant(room.status ?? "")} className="text-xs">
+              <Icon icon={getRoomStatusIcon(room.status ?? "")} className="mr-1 h-3 w-3" />
               {room.status}
             </Badge>
           </div>
@@ -119,7 +119,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onC
         <Button
           onClick={(e) => {
             e.stopPropagation();
-            onRoomSelect(room.id.toString());
+              onRoomSelect(room.id?.toString() || "");
           }}
           className="flex-1"
           size="sm"
@@ -196,12 +196,13 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
   onDeleteRoom,
 }) => {
   // Filter rooms
-  const filteredRooms = rooms.filter((room) => {
-    const matchesSearch =
-      room.name.toLowerCase().includes(searchQuery.toLowerCase()) || room.id.toString().toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSort = sortBy === "all" || room.type === sortBy;
-    return matchesSearch && matchesSort;
-  });
+    const filteredRooms = rooms.filter((room) => {
+      const matchesSearch =
+        (room.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+        (room.id?.toString().toLowerCase() || "").includes(searchQuery.toLowerCase());
+      const matchesSort = sortBy === "all" || room.type === sortBy;
+      return matchesSearch && matchesSort;
+    });
 
   return (
     <Card className="shadow-lg">

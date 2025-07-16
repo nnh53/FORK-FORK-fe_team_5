@@ -37,8 +37,8 @@ const applyFilters = (staffs: StaffUser[], criteria: StrictFilterCriteria[], sea
   if (searchTerm) {
     const lowerSearchTerm = searchTerm.toLowerCase().trim();
     result = result.filter(
-      (staff) =>
-        staff.id.toString().includes(lowerSearchTerm) ||
+        (staff) =>
+          (staff.id?.toString() ?? "").includes(lowerSearchTerm) ||
         (staff.fullName?.toLowerCase() ?? "").includes(lowerSearchTerm) ||
         (staff.email?.toLowerCase() ?? "").includes(lowerSearchTerm) ||
         (staff.phone?.toLowerCase() ?? "").includes(lowerSearchTerm) ||
@@ -58,8 +58,11 @@ const applyFilters = (staffs: StaffUser[], criteria: StrictFilterCriteria[], sea
           const birthDate = staff.dateOfBirth ? new Date(staff.dateOfBirth) : null;
           return birthDate ? !(range.from && birthDate < range.from) && !(range.to && birthDate > range.to) : false;
         }
-        case "status":
-          return staff.status.toLowerCase() === (criterion.value as string).toLowerCase();
+          case "status":
+            return (
+              (staff.status?.toLowerCase() ?? "") ===
+              (criterion.value as string).toLowerCase()
+            );
         case "gender":
           return criterion.value === "NOT_SET" ? !staff.gender : staff.gender === criterion.value;
         default:
@@ -202,10 +205,10 @@ const StaffManagement: React.FC = () => {
 
   const handleSubmit = (staffData: StaffRequest) => {
     if (selectedStaff) {
-      updateUserMutation.mutate({
-        params: { path: { userId: selectedStaff.id } },
-        body: transformUserUpdateRequest({ ...staffData, id: selectedStaff.id, role: ROLES.STAFF }),
-      });
+        updateUserMutation.mutate({
+          params: { path: { userId: selectedStaff.id ?? "" } },
+          body: transformUserUpdateRequest({ ...staffData, id: selectedStaff.id, role: ROLES.STAFF }),
+        });
     } else {
       registerMutation.mutate({
         body: transformRegisterRequest({ ...staffData, role: ROLES.STAFF, phone: staffData.phone ?? "" }),
@@ -220,9 +223,9 @@ const StaffManagement: React.FC = () => {
 
   const handleDeleteStaff = () => {
     if (staffToDelete) {
-      deleteUserMutation.mutate({
-        params: { path: { userId: staffToDelete.id } },
-      });
+        deleteUserMutation.mutate({
+          params: { path: { userId: staffToDelete.id ?? "" } },
+        });
     }
   };
 

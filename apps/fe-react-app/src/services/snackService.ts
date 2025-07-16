@@ -4,9 +4,9 @@ type SnackResponse = components["schemas"]["SnackResponse"];
 import { $api } from "@/utils/api";
 
 // Type aliases for union types
-type SnackCategory = "DRINK" | "FOOD";
-type SnackSize = "SMALL" | "MEDIUM" | "LARGE";
-type SnackStatus = "AVAILABLE" | "UNAVAILABLE";
+export type SnackCategory = "DRINK" | "FOOD";
+export type SnackSize = "SMALL" | "MEDIUM" | "LARGE";
+export type SnackStatus = "AVAILABLE" | "UNAVAILABLE";
 
 // React Query hooks for snack operations
 export const useSnacks = () => {

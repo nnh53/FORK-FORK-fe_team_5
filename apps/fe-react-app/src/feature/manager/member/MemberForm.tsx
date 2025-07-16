@@ -4,7 +4,7 @@ import { DialogFooter } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { ROLES } from "@/interfaces/roles.interface";
-import type { USER_STATUS, User, UserRequest } from "@/interfaces/users.interface";
+import type { USER_STATUS, User, UserRequest, UserUpdate } from "@/interfaces/users.interface";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -100,7 +100,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
     }
 
     // For existing member, only send changed fields
-    const changedFields: Partial<UserRequest> = {
+    const changedFields: Partial<UserUpdate & { password?: string }> = {
       role: ROLES.MEMBER, // Always include role
     };
 

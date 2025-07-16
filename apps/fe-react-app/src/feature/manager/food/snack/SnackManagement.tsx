@@ -40,8 +40,8 @@ const filterByGlobalSearch = (snack: Snack, searchTerm: string): boolean => {
 
   const lowerSearchTerm = searchTerm.toLowerCase().trim();
   return (
-    snack.id.toString().includes(searchTerm) ||
-    snack.name.toLowerCase().includes(lowerSearchTerm) ||
+    snack.id?.toString().includes(searchTerm) ||
+    snack.name?.toLowerCase().includes(lowerSearchTerm) ||
     (snack.flavor?.toLowerCase() || "").includes(lowerSearchTerm) ||
     (snack.description?.toLowerCase() || "").includes(lowerSearchTerm)
   );
@@ -239,10 +239,10 @@ const SnackManagement: React.FC = () => {
         id: selectedSnack.id, // Đảm bảo id luôn tồn tại và có kiểu number
       };
 
-      updateSnackMutation.mutate({
-        params: { path: { id: selectedSnack.id } },
-        body: transformSnackToRequest(updatedSnack),
-      });
+        updateSnackMutation.mutate({
+          params: { path: { id: selectedSnack.id ?? 0 } },
+          body: transformSnackToRequest(updatedSnack),
+        });
     } else {
       // Đối với trường hợp tạo mới, không cần id (sử dụng SnackForm)
       createSnackMutation.mutate({
@@ -265,9 +265,9 @@ const SnackManagement: React.FC = () => {
 
   const handleDeleteConfirm = () => {
     if (snackToDelete) {
-      deleteSnackMutation.mutate({
-        params: { path: { id: snackToDelete.id } },
-      });
+        deleteSnackMutation.mutate({
+          params: { path: { id: snackToDelete.id ?? 0 } },
+        });
     }
   };
 

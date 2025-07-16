@@ -141,10 +141,10 @@ const QuickActionButtons: React.FC<{
           break;
       }
 
-      await updateBookingMutation.mutateAsync({
-        params: { path: { id: booking.id } },
-        body: updateData,
-      });
+        await updateBookingMutation.mutateAsync({
+          params: { path: { id: booking.id ?? 0 } },
+          body: updateData,
+        });
 
       onUpdate();
       toast.success("Cập nhật thành công!");
@@ -231,10 +231,10 @@ const BookingDetailModal: React.FC<{ booking: ApiBooking; onUpdate: () => void }
 
   const handleUpdate = async () => {
     try {
-      await updateBookingMutation.mutateAsync({
-        params: { path: { id: booking.id } },
-        body: editForm,
-      });
+        await updateBookingMutation.mutateAsync({
+          params: { path: { id: booking.id ?? 0 } },
+          body: editForm,
+        });
 
       onUpdate();
       toast.success("Cập nhật booking thành công!");
@@ -352,7 +352,7 @@ const BookingDetailModal: React.FC<{ booking: ApiBooking; onUpdate: () => void }
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-500">Điểm tích lũy sử dụng</Label>
-                <p className="text-sm">{booking.loyaltyPoints || 0} điểm</p>
+                  <p className="text-sm">{booking.loyaltyPointsUsed || 0} điểm</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-500">Nhân viên xử lý</Label>
@@ -484,10 +484,10 @@ const QuickStatusChange: React.FC<{
     try {
       const updateData = type === "booking" ? { status: newStatus as BookingStatus } : { paymentStatus: newStatus as PaymentStatus };
 
-      await updateBookingMutation.mutateAsync({
-        params: { path: { id: booking.id } },
-        body: updateData,
-      });
+        await updateBookingMutation.mutateAsync({
+          params: { path: { id: booking.id ?? 0 } },
+          body: updateData,
+        });
 
       onUpdate();
       toast.success(`Cập nhật ${type === "booking" ? "trạng thái booking" : "trạng thái thanh toán"} thành công!`);

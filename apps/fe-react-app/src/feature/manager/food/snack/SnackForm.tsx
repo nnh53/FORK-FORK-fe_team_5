@@ -56,12 +56,12 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
         form.reset({
           img: snack.img,
           name: snack.name,
-          category: snack.category,
-          size: snack.size,
+          category: snack.category as "DRINK" | "FOOD",
+          size: snack.size as "SMALL" | "MEDIUM" | "LARGE",
           flavor: snack.flavor,
           description: snack.description,
           price: snack.price,
-          status: snack.status,
+          status: snack.status as "AVAILABLE" | "UNAVAILABLE",
         });
       }, 0);
     } else {

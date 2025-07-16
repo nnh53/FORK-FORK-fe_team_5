@@ -81,6 +81,6 @@ export const prepareCreateShowtimeData = (data: ShowtimeFormData) => {
   return transformShowtimeToRequest(data);
 };
 
-export const prepareUpdateShowtimeData = (data: Showtime) => {
+export const prepareUpdateShowtimeData = (data: ShowtimeFormData | Showtime) => {
   return transformShowtimeToRequest(data);
 };

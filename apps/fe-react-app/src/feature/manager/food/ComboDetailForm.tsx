@@ -134,20 +134,20 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
 
   const onSubmit = (values: z.infer<typeof comboSnackFormSchema>) => {
     if (selectedComboSnack && onUpdateSnack) {
-      const updatedComboSnack: ComboSnack = {
-        ...selectedComboSnack,
-        quantity: values.quantity,
-        snackSizeId: values.snackSizeId,
-        discountPercentage: values.discountPercentage,
-      };
+        const updatedComboSnack: ComboSnack = {
+          ...selectedComboSnack,
+          quantity: values.quantity,
+          snackSizeId: values.snackSizeId ?? undefined,
+          discountPercentage: values.discountPercentage ?? undefined,
+        };
       onUpdateSnack(updatedComboSnack);
     } else if (onAddSnack) {
       const selectedSnack = snacks.find((s) => s.id === values.snackId);
       if (selectedSnack) {
-        const newComboSnack: Partial<ComboSnack> = {
-          quantity: values.quantity,
-          snackSizeId: values.snackSizeId,
-          discountPercentage: values.discountPercentage,
+          const newComboSnack: Partial<ComboSnack> = {
+            quantity: values.quantity,
+            snackSizeId: values.snackSizeId ?? undefined,
+            discountPercentage: values.discountPercentage ?? undefined,
           snack: selectedSnack,
           combo,
         };
