@@ -4,6 +4,8 @@
 .env.*
 *.env.*
 
+*.tsbuildinfo.*
+
 .cursor/mcp.json
 
 # compiled output

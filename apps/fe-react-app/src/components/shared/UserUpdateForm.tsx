@@ -3,7 +3,8 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
 import { getUploadedImageId } from "@/hooks/useImageUpload";
 import { useUpdateUserWithAvatar } from "@/hooks/userProfile";
-import type { UserUpdate } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type UserUpdate = components["schemas"]["UserUpdate"];
 import React, { useState } from "react";
 
 interface UserUpdateFormProps {

@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "files": ["./compare-schema.ts"],
-  "include": ["./src/interfaces/**/*.ts"],
-  "compilerOptions": {
-    "noEmit": true
-  }
-}

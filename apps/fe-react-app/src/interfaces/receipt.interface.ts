@@ -55,15 +55,10 @@ export interface MovieTrendingResponse {
   totalRevenue?: number;
 }
 
-// API Response wrappers
-export interface ApiResponseListReceipt {
-  code?: number;
-  message?: string;
-  result?: Receipt[];
-}
+import type { components } from "@/schema-from-be";
 
-export interface ApiResponseListMovieTrendingResponse {
-  code?: number;
-  message?: string;
-  result?: MovieTrendingResponse[];
-}
+// API Response wrappers from backend schema
+export type ApiResponseListReceipt = components["schemas"]["ApiResponseListReceipt"];
+
+export type ApiResponseListMovieTrendingResponse =
+  components["schemas"]["ApiResponseListMovieTrendingResponse"];

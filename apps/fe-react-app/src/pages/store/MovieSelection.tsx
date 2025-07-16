@@ -6,7 +6,8 @@ import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal
 import type { Movie } from "@/interfaces/movies.interface.ts";
 import { queryMovies, queryMoviesByStatus, transformMovieResponse } from "@/services/movieService.ts";
 import { transformShowtimesResponse } from "@/services/showtimeService.ts";
-import type { MovieResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type MovieResponse = components["schemas"]["MovieResponse"];
 import { convertShowtimesToSchedulePerDay } from "@/utils/showtime.utils.ts";
 import createFetchClient from "openapi-fetch";
 import { useCallback, useMemo, useState } from "react";

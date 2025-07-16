@@ -1,5 +1,6 @@
 import type { Snack, SnackForm } from "@/interfaces/snacks.interface";
-import type { SnackResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type SnackResponse = components["schemas"]["SnackResponse"];
 import { $api } from "@/utils/api";
 
 // Type aliases for union types

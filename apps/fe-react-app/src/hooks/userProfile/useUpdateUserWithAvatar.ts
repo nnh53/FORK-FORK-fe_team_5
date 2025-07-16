@@ -1,6 +1,7 @@
 import { clearUploadedImageId, getUploadedImageId } from "@/hooks/useImageUpload";
 import { useUpdateUser } from "@/services/userService";
-import type { UserUpdate } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type UserUpdate = components["schemas"]["UserUpdate"];
 import { useCallback } from "react";
 
 /**
