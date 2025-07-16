@@ -158,8 +158,8 @@ export const isPromotionActive = (promotion: Promotion): boolean => {
   if (promotion.status !== "ACTIVE") return false;
 
   const now = new Date();
-  const startTime = new Date(promotion.startTime);
-  const endTime = new Date(promotion.endTime);
+  const startTime = new Date(promotion.startTime ?? "");
+  const endTime = new Date(promotion.endTime ?? "");
 
   return now >= startTime && now <= endTime;
 };
@@ -182,17 +182,17 @@ export const formatPromotionDate = (dateString: string): string => {
  */
 export const calculateDiscount = (promotion: Promotion, purchaseAmount: number): number => {
   // Return 0 if the promotion is not active or purchase amount is below minimum
-  if (!isPromotionActive(promotion) || purchaseAmount < promotion.minPurchase) {
+  if (!isPromotionActive(promotion) || purchaseAmount < (promotion.minPurchase ?? 0)) {
     return 0;
   }
 
   if (promotion.type === "PERCENTAGE") {
     // Cap the percentage at 100%
-    const percentage = Math.min(promotion.discountValue, 100);
+    const percentage = Math.min(promotion.discountValue ?? 0, 100);
     return (purchaseAmount * percentage) / 100;
   } else if (promotion.type === "AMOUNT") {
     // Fixed amount can't be more than the purchase amount
-    return Math.min(promotion.discountValue, purchaseAmount);
+    return Math.min(promotion.discountValue ?? 0, purchaseAmount);
   }
 
   // For FREE_ITEM or unknown types, no calculation needed
