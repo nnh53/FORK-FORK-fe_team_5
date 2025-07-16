@@ -17,7 +17,6 @@
     "@types/express": "^5.0.2",
     "@types/multer": "^1.4.13",
     "@types/node": "^22.15.23",
-    "deno-bin": "^2.2.7",
     "nodemon": "^3.1.10",
     "typescript": "^5.8.3"
   }

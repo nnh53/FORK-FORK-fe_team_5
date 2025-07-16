@@ -248,74 +248,19 @@ export interface Receipt {
 }
 
 // API Booking interfaces (from OpenAPI schema)
-import type { ApiCombo } from "./combo.interface";
-import type { ApiShowtime } from "./movies.interface";
-import type { ApiPromotion } from "./promotion.interface";
-import type { Seat } from "./seat.interface";
-import type { ApiSnack } from "./snacks.interface";
-import type { ApiUser } from "./users.interface";
+import type { components } from "@/schema-from-be";
 
 // Booking Combo Response from API
-export interface ApiBookingCombo {
-  combo?: ApiCombo;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
+export type ApiBookingCombo = components["schemas"]["BookingComboResponse"];
 
 // Booking Snack Response from API
-export interface ApiBookingSnack {
-  snack?: ApiSnack;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
+export type ApiBookingSnack = components["schemas"]["BookingSnackResponse"];
 
 // Main API Booking interface matching the real API
-export interface ApiBooking {
-  id: number;
-  user?: ApiUser;
-  bookingDate?: string; // ISO date-time string
-  showTime?: ApiShowtime;
-  promotion?: ApiPromotion;
-  seats?: Seat[];
-  loyaltyPoints?: number;
-  totalPrice?: number;
-  paymentMethod?: PaymentMethod;
-  paymentStatus?: PaymentStatus;
-  staffId?: string;
-  status?: BookingStatus;
-  payOsCode?: string;
-  bookingSnacks?: ApiBookingSnack[];
-  bookingCombos?: ApiBookingCombo[];
-}
+export type ApiBooking = components["schemas"]["BookingResponse"];
 
 // Booking Request for creating bookings
-export interface ApiBookingRequest {
-  userId: string;
-  showtimeId: number;
-  promotionId?: number;
-  seatIds: number[];
-  totalPrice?: number;
-  paymentMethod: PaymentMethod;
-  staffId?: string;
-  estimatedPrice: number;
-  loyaltyPointsUsed?: number;
-  bookingCombos?: Array<{
-    comboId: number;
-    quantity: number;
-  }>;
-  bookingSnacks?: Array<{
-    snackId: number;
-    quantity: number;
-  }>;
-}
+export type ApiBookingRequest = components["schemas"]["BookingRequest"];
 
 // Booking Update Request
-export interface ApiBookingUpdate {
-  status?: BookingStatus;
-  paymentStatus?: PaymentStatus;
-  payOsCode?: string;
-  loyaltyPointsUsed?: number;
-  staffId?: string;
-}
+export type ApiBookingUpdate = components["schemas"]["BookingUpdate"];

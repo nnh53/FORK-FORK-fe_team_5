@@ -109,7 +109,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     <span>
                       {snack.name} x{quantity}
                     </span>
-                    <span>{(snack.price * quantity).toLocaleString("vi-VN")} VNĐ</span>
+                    <span>{((snack.price ?? 0) * quantity).toLocaleString("vi-VN")} VNĐ</span>
                   </div>
                 ) : null;
               })}
@@ -152,7 +152,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     }, 0) +
                     Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
                       const snack = snacks.find((s) => s.id === parseInt(snackId));
-                      return sum + (snack ? snack.price * quantity : 0);
+                      return sum + (snack?.price ?? 0) * quantity;
                     }, 0),
                 ),
               )}

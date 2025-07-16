@@ -1,7 +1,13 @@
 import type { CinemaRoom, CinemaRoomWithSeatMap } from "@/interfaces/cinemarooms.interface";
 import type { Seat, SeatMap, SeatType } from "@/interfaces/seat.interface";
-import type { CinemaRoomRequest, CinemaRoomResponse, CinemaRoomUpdateRequest, SeatRequest, SeatResponse, SeatTypeResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
+type CinemaRoomResponse = components["schemas"]["CinemaRoomResponse"];
+type CinemaRoomRequest = components["schemas"]["CinemaRoomRequest"];
+type CinemaRoomUpdateRequest = components["schemas"]["CinemaRoomUpdateRequest"];
+type SeatRequest = components["schemas"]["SeatRequest"];
+type SeatResponse = components["schemas"]["SeatResponse"];
+type SeatTypeResponse = components["schemas"]["SeatTypeResponse"];
 
 // Type aliases for status enums
 type CinemaRoomStatus = "ACTIVE" | "MAINTENANCE" | "CLOSED";
@@ -67,6 +73,7 @@ export const transformSeatResponse = (seatResponse: SeatResponse): Seat => {
           seatCount: 1,
         },
     discarded: seatResponse.discarded ?? false,
+    linkSeatId: seatResponse.linkSeatId ?? null,
   };
 };
 
@@ -80,7 +87,7 @@ export const transformCinemaRoomResponse = (roomResponse: CinemaRoomResponse): C
     status: roomResponse.status as CinemaRoomStatus,
     width: roomResponse.width ?? 0,
     length: roomResponse.length ?? 0,
-    seats: roomResponse.seats ? roomResponse.seats.map(transformSeatResponse) : [],
+    seats: roomResponse.seats ? (roomResponse.seats.map(transformSeatResponse) as Seat[]) : [],
   };
 };
 
@@ -136,7 +143,7 @@ export const updateSeatStatus = (seat: Seat, newStatus: SeatStatus): SeatRequest
 export const convertToRoomWithSeatMap = (room: CinemaRoom): CinemaRoomWithSeatMap => {
   const seatMap: SeatMap = {
     gridData: room.seats,
-    roomId: room.id,
+    roomId: room.id ?? 0,
   };
 
   return {

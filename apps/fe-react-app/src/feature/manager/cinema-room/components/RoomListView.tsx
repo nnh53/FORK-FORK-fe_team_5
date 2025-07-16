@@ -73,53 +73,53 @@ interface RoomCardProps {
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ room, onRoomSelect, onEditRoom, onChangeStatus, onDeleteRoom }) => (
-  <Card className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1 overflow-hidden group">
+  <Card className="group overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
     <CardContent className="p-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex-1">
-          <h3 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">{room.name}</h3>
-          <p className="text-sm text-muted-foreground mb-3">{room.id}</p>
+          <h3 className="group-hover:text-primary mb-1 text-xl font-bold transition-colors">{room.name}</h3>
+          <p className="text-muted-foreground mb-3 text-sm">{room.id}</p>
 
           <div className="flex gap-2">
-            <Badge variant={getRoomTypeVariant(room.type)} className="text-xs">
-              <Icon icon={getRoomTypeIcon(room.type)} className="mr-1 h-3 w-3" />
+            <Badge variant={getRoomTypeVariant(room.type ?? "")} className="text-xs">
+              <Icon icon={getRoomTypeIcon(room.type ?? "")} className="mr-1 h-3 w-3" />
               {room.type}
             </Badge>
-            <Badge variant={getRoomStatusVariant(room.status)} className="text-xs">
-              <Icon icon={getRoomStatusIcon(room.status)} className="mr-1 h-3 w-3" />
+            <Badge variant={getRoomStatusVariant(room.status ?? "")} className="text-xs">
+              <Icon icon={getRoomStatusIcon(room.status ?? "")} className="mr-1 h-3 w-3" />
               {room.status}
             </Badge>
           </div>
         </div>
       </div>
 
-      <div className="space-y-3 mb-6">
+      <div className="mb-6 space-y-3">
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center text-muted-foreground">
+          <div className="text-muted-foreground flex items-center">
             <Icon icon="mdi:account-group" className="mr-2 h-4 w-4" />
             Capacity
           </div>
           <span className="font-semibold">{room.capacity} seats</span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center text-muted-foreground">
+          <div className="text-muted-foreground flex items-center">
             <Icon icon="mdi:view-grid" className="mr-2 h-4 w-4" />
             Seat Map
           </div>
           <div className="flex items-center">
-            <div className={`w-2 h-2 rounded-full mr-2 ${room.seats && room.seats.length > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
-            <span className={`font-medium text-sm ${room.seats && room.seats.length > 0 ? "text-green-600" : "text-red-600"}`}>
+            <div className={`mr-2 h-2 w-2 rounded-full ${room.seats && room.seats.length > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
+            <span className={`text-sm font-medium ${room.seats && room.seats.length > 0 ? "text-green-600" : "text-red-600"}`}>
               {room.seats && room.seats.length > 0 ? "Configured" : "Not configured"}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="flex gap-2 pt-4 border-t">
+      <div className="flex gap-2 border-t pt-4">
         <Button
           onClick={(e) => {
             e.stopPropagation();
-            onRoomSelect(room.id.toString());
+            onRoomSelect(room.id?.toString() || "");
           }}
           className="flex-1"
           size="sm"
@@ -198,7 +198,8 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
   // Filter rooms
   const filteredRooms = rooms.filter((room) => {
     const matchesSearch =
-      room.name.toLowerCase().includes(searchQuery.toLowerCase()) || room.id.toString().toLowerCase().includes(searchQuery.toLowerCase());
+      (room.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (room.id?.toString().toLowerCase() || "").includes(searchQuery.toLowerCase());
     const matchesSort = sortBy === "all" || room.type === sortBy;
     return matchesSearch && matchesSort;
   });
@@ -206,21 +207,21 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <div>
             <CardTitle className="text-xl">Cinema Rooms</CardTitle>
             <CardDescription>Manage your cinema rooms and seat layouts efficiently</CardDescription>
           </div>
 
           {/* Search and Filter Controls */}
-          <div className="flex flex-col sm:flex-row gap-3 lg:w-auto w-full">
+          <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
             <div className="relative">
-              <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Icon icon="mdi:magnify" className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform" />
               <Input
                 placeholder="Search by name or ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full sm:w-64"
+                className="w-full pl-10 sm:w-64"
               />
             </div>
 
@@ -243,12 +244,12 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
 
       <CardContent className="p-6">
         {filteredRooms.length === 0 ? (
-          <div className="text-center py-16 px-4">
-            <div className="bg-muted rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-              <Icon icon="mdi:magnify-close" className="h-12 w-12 text-muted-foreground" />
+          <div className="px-4 py-16 text-center">
+            <div className="bg-muted mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full">
+              <Icon icon="mdi:magnify-close" className="text-muted-foreground h-12 w-12" />
             </div>
-            <h3 className="text-xl font-semibold mb-3">No Rooms Found</h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            <h3 className="mb-3 text-xl font-semibold">No Rooms Found</h3>
+            <p className="text-muted-foreground mx-auto mb-6 max-w-md">
               No rooms match your current search criteria. Try adjusting your search terms or create a new room.
             </p>
             <Button onClick={onAddRoom}>
@@ -257,7 +258,7 @@ export const RoomListView: React.FC<RoomListViewProps> = ({
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {filteredRooms.map((room) => (
               <RoomCard
                 key={room.id}

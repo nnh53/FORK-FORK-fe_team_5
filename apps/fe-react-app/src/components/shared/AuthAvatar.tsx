@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/Shadcn/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
+import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import { ROUTES } from "@/routes/route.constants";
 import { useGetUserById } from "@/services/userService";
 import { getCookie } from "@/utils/cookie.utils";
@@ -23,12 +24,12 @@ const AuthAvatar = () => {
   const hasRoles = userRoles && userRoles !== "null" && userRoles !== "";
   const isAuthenticated = isLoggedIn || hasRoles;
 
-  const roles = user?.roles || [];
+  const roles: ROLE_TYPE[] = [...(user?.roles ?? [])];
   if (userRoles && typeof userRoles === "string") {
     try {
       const parsedRoles = JSON.parse(userRoles);
       if (Array.isArray(parsedRoles)) {
-        roles.push(...parsedRoles);
+        roles.push(...(parsedRoles as ROLE_TYPE[]));
       }
     } catch {
       console.error("Failed to parse user roles from cookie:", userRoles);

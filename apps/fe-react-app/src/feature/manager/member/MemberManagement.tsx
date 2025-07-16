@@ -100,7 +100,7 @@ const filterByDateRange = (member: User, field: string, range: { from: Date | un
 };
 
 const filterByStatus = (member: User, status: string): boolean => {
-  return member.status.toLowerCase() === status.toLowerCase();
+  return (member.status?.toLowerCase() ?? "") === status.toLowerCase();
 };
 
 const filterByGender = (member: User, gender: string): boolean => {
@@ -254,7 +254,10 @@ const MemberManagement = () => {
   const handleSubmit = (values: UserRequest) => {
     if (selectedMember) {
       const updateData: UserUpdate = transformUserUpdateRequest({ ...values, role: ROLES.MEMBER });
-      updateUserMutation.mutate({ params: { path: { userId: selectedMember.id } }, body: updateData });
+      updateUserMutation.mutate({
+        params: { path: { userId: selectedMember.id ?? "" } },
+        body: updateData,
+      });
     } else {
       const registerData: UserRequest = transformRegisterRequest({ ...values, role: ROLES.MEMBER, phone: values.phone ?? "" });
       registerMutation.mutate({ body: registerData });
@@ -268,7 +271,9 @@ const MemberManagement = () => {
 
   const handleDeleteConfirm = () => {
     if (memberToDelete) {
-      deleteUserMutation.mutate({ params: { path: { userId: memberToDelete.id } } });
+      deleteUserMutation.mutate({
+        params: { path: { userId: memberToDelete.id ?? "" } },
+      });
     }
   };
 

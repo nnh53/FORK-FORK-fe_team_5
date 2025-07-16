@@ -5,13 +5,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { useAuth } from "@/hooks/useAuth";
+import type { components } from "@/schema-from-be";
 import { queryBookingsByUserId, transformBookingResponse } from "@/services/bookingService";
 import { useCinemaRooms } from "@/services/cinemaRoomService";
 import { queryMovies } from "@/services/movieService";
-import type { BookingResponse, CinemaRoomResponse, MovieResponse } from "@/type-from-be";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
 import { Clock, Film, Loader2, MapPin, MoreHorizontal, Star, Users } from "lucide-react";
 import { useMemo, useState } from "react";
+type BookingResponse = components["schemas"]["BookingResponse"];
+type CinemaRoomResponse = components["schemas"]["CinemaRoomResponse"];
+type MovieResponse = components["schemas"]["MovieResponse"];
 
 // Movie detail dialog component
 interface MovieDetailDialogProps {
@@ -31,17 +34,17 @@ interface MovieDetailDialogProps {
 const MovieDetailDialog = ({ movie }: MovieDetailDialogProps) => {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      confirmed: { label: 'Đã xác nhận', variant: 'default' as const },
-      paid: { label: 'Đã thanh toán', variant: 'secondary' as const },
-      cancelled: { label: 'Đã hủy', variant: 'destructive' as const },
-      refunded: { label: 'Đã hoàn tiền', variant: 'outline' as const },
+      confirmed: { label: "Đã xác nhận", variant: "default" as const },
+      paid: { label: "Đã thanh toán", variant: "secondary" as const },
+      cancelled: { label: "Đã hủy", variant: "destructive" as const },
+      refunded: { label: "Đã hoàn tiền", variant: "outline" as const },
     };
-    
+
     const config = statusConfig[status as keyof typeof statusConfig] || {
       label: status,
-      variant: 'default' as const
+      variant: "default" as const,
     };
-    
+
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
@@ -62,21 +65,21 @@ const MovieDetailDialog = ({ movie }: MovieDetailDialogProps) => {
             <img src={movie.poster} alt={movie.movieName} className="h-20 w-16 rounded object-cover" />
             <div>
               <h3 className="font-medium">{movie.movieName}</h3>
-              <p className="text-sm text-muted-foreground">Mã: {movie.receiptId}</p>
+              <p className="text-muted-foreground text-sm">Mã: {movie.receiptId}</p>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <MapPin className="text-muted-foreground h-4 w-4" />
               <span className="text-sm">{movie.room}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Clock className="text-muted-foreground h-4 w-4" />
               <span className="text-sm">{movie.movieSlot}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Users className="text-muted-foreground h-4 w-4" />
               <span className="text-sm">Ghế: {movie.seats.filter(Boolean).join(", ")}</span>
             </div>
             <div className="flex items-center gap-2">
@@ -84,7 +87,7 @@ const MovieDetailDialog = ({ movie }: MovieDetailDialogProps) => {
               <span className="text-sm">Điểm: {movie.points}</span>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Trạng thái:</span>
             {getStatusBadge(movie.status)}
@@ -302,13 +305,13 @@ export const MyMovieHistory: React.FC = () => {
               ) : (
                 movieHistory.map((movie) => (
                   <TableRow key={movie.id}>
-                    <TableCell className="font-medium hidden md:table-cell">{movie.receiptId}</TableCell>
+                    <TableCell className="hidden font-medium md:table-cell">{movie.receiptId}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <img src={movie.poster} alt={movie.movieName} className="h-16 w-12 rounded object-cover" />
                         <div className="space-y-1">
                           <p className="font-medium">{movie.movieName}</p>
-                          <div className="md:hidden space-y-1 text-sm text-muted-foreground">
+                          <div className="text-muted-foreground space-y-1 text-sm md:hidden">
                             <p>#{movie.receiptId}</p>
                             <p>{movie.room}</p>
                             <p>{movie.movieSlot}</p>

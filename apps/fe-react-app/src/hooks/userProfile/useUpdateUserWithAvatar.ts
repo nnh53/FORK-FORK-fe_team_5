@@ -1,7 +1,8 @@
 import { clearUploadedImageId, getUploadedImageId } from "@/hooks/useImageUpload";
+import type { components } from "@/schema-from-be";
 import { useUpdateUser } from "@/services/userService";
-import type { UserUpdate } from "@/type-from-be";
 import { useCallback } from "react";
+type UserUpdate = components["schemas"]["UserUpdate"];
 
 /**
  * Custom hook for updating user data including avatar

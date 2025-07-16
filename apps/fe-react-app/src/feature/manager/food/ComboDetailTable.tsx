@@ -145,7 +145,7 @@ const ComboDetailTable: React.FC<ComboDetailTableProps> = ({ comboSnacks, onAddN
                               <Edit className="h-3.5 w-3.5" />
                             </Button>
                             {onDeleteSnack && (
-                              <Button variant="destructive" size="sm" onClick={() => handleDeleteSnack(comboSnack.id)}>
+                              <Button variant="destructive" size="sm" onClick={() => handleDeleteSnack(comboSnack.id ?? 0)}>
                                 <MinusCircle className="h-3.5 w-3.5" />
                               </Button>
                             )}

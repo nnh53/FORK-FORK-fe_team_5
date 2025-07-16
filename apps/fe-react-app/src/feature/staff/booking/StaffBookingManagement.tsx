@@ -142,7 +142,7 @@ const QuickActionButtons: React.FC<{
       }
 
       await updateBookingMutation.mutateAsync({
-        params: { path: { id: booking.id } },
+        params: { path: { id: booking.id ?? 0 } },
         body: updateData,
       });
 
@@ -232,7 +232,7 @@ const BookingDetailModal: React.FC<{ booking: ApiBooking; onUpdate: () => void }
   const handleUpdate = async () => {
     try {
       await updateBookingMutation.mutateAsync({
-        params: { path: { id: booking.id } },
+        params: { path: { id: booking.id ?? 0 } },
         body: editForm,
       });
 
@@ -352,7 +352,7 @@ const BookingDetailModal: React.FC<{ booking: ApiBooking; onUpdate: () => void }
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-500">Điểm tích lũy sử dụng</Label>
-                <p className="text-sm">{booking.loyaltyPoints || 0} điểm</p>
+                <p className="text-sm">{booking.loyaltyPointsUsed || 0} điểm</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-500">Nhân viên xử lý</Label>
@@ -485,7 +485,7 @@ const QuickStatusChange: React.FC<{
       const updateData = type === "booking" ? { status: newStatus as BookingStatus } : { paymentStatus: newStatus as PaymentStatus };
 
       await updateBookingMutation.mutateAsync({
-        params: { path: { id: booking.id } },
+        params: { path: { id: booking.id ?? 0 } },
         body: updateData,
       });
 

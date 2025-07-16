@@ -7,8 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
+import type { components } from "@/schema-from-be";
 import { transformLoginRequest, transformUserLoginResponse, useLogin } from "@/services/userService";
-import type { CustomAPIResponse } from "@/type-from-be";
 import { loginFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useState } from "react";
@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import * as z from "zod";
+type CustomAPIResponse = components["schemas"]["ApiResponseVoid"];
 
 type LoginFormSchemaType = z.infer<typeof loginFormSchema>;
 
@@ -78,13 +79,13 @@ const Login: React.FC = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {error && (
-            <div className="p-3 text-sm text-red-700 bg-red-100 border border-red-400 rounded-md" role="alert">
+            <div className="rounded-md border border-red-400 bg-red-100 p-3 text-sm text-red-700" role="alert">
               {error}
             </div>
           )}
 
           {message && (
-            <div className="p-3 text-sm text-green-700 bg-green-100 border border-green-400 rounded-md" role="alert">
+            <div className="rounded-md border border-green-400 bg-green-100 p-3 text-sm text-green-700" role="alert">
               {message}
             </div>
           )}
@@ -117,7 +118,7 @@ const Login: React.FC = () => {
             )}
           />
 
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm text-red-600 hover:underline">
               Quên mật khẩu?
             </Link>
@@ -127,7 +128,7 @@ const Login: React.FC = () => {
             {loginQuery.isPending ? "Đang đăng nhập..." : "Đăng nhập"}
           </Button>
 
-          <div className="text-center mt-4">
+          <div className="mt-4 text-center">
             <span className="text-sm text-gray-600">Chưa có tài khoản? </span>
             <Link to={ROUTES.AUTH.REGISTER} className="text-red-600 hover:underline">
               Đăng ký ngay

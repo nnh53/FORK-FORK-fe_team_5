@@ -1,4 +1,9 @@
-//để dành khi nào có user rồi áp sau
-import type { UserLoginResponse } from "./users.interface";
+export interface AuthLoginData {
+  token: string;
+  freshToken?: string;
+  roles: ROLE_TYPE[];
+  fullName: string;
+  id: string;
+}
 
-export type AuthLoginData = Pick<UserLoginResponse, "token" | "roles" | "id" | "fullName">;
+import type { ROLE_TYPE } from "./roles.interface";

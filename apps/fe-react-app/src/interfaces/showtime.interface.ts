@@ -1,11 +1,7 @@
-export interface Showtime {
-  id: number;
-  movieId: number;
-  roomId: number;
-  roomName?: string;
-  showDateTime: string;
-  endDateTime: string;
-  status: string;
-}
+import type { components } from "@/schema-from-be";
 
-export type ShowtimeFormData = Omit<Showtime, "id">;
+export type Showtime = Required<components["schemas"]["ShowtimeResponse"]>;
+
+export type ShowtimeFormData = Required<components["schemas"]["ShowtimeRequest"]> & {
+  status?: string;
+};

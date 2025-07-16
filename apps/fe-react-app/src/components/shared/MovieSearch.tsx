@@ -3,10 +3,11 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Input } from "@/components/Shadcn/ui/input";
 import type { Movie } from "@/interfaces/movies.interface";
+import type { components } from "@/schema-from-be";
 import { queryMovieSearch, transformMovieResponse } from "@/services/movieService";
-import type { MovieResponse } from "@/type-from-be";
 import { Calendar, Clock, Search, X } from "lucide-react";
 import React, { useMemo, useState } from "react";
+type MovieResponse = components["schemas"]["MovieResponse"];
 
 interface MovieSearchProps {
   onMovieSelect?: (movie: Movie) => void;

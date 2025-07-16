@@ -1,7 +1,8 @@
 import type { Member, MemberCreateRequest, PointTransaction } from "@/interfaces/member.interface";
-import type { UserResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
 import axios from "axios";
+type UserResponse = components["schemas"]["UserResponse"];
 
 const API_BASE_URL = `${import.meta.env.VITE_API_URL}/movie_theater`;
 

@@ -4,9 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui
 import MovieSearch from "@/components/shared/MovieSearch.tsx";
 import TrailerModal from "@/feature/booking/components/TrailerModal/TrailerModal.tsx";
 import type { Movie } from "@/interfaces/movies.interface.ts";
+import type { components } from "@/schema-from-be";
 import { queryMovies, queryMoviesByStatus, transformMovieResponse } from "@/services/movieService.ts";
 import { transformShowtimesResponse } from "@/services/showtimeService.ts";
-import type { MovieResponse } from "@/type-from-be";
 import { convertShowtimesToSchedulePerDay } from "@/utils/showtime.utils.ts";
 import createFetchClient from "openapi-fetch";
 import { useCallback, useMemo, useState } from "react";
@@ -15,6 +15,7 @@ import type { paths } from "../../../schema-from-be";
 import type { SchedulePerDay } from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
 import ShowtimesModal from "../../feature/booking/components/ShowtimesModal/ShowtimesModal.tsx";
 import TicketConfirmModal from "../../feature/booking/components/TicketConfirmModal/TicketConfirmModal.tsx";
+type MovieResponse = components["schemas"]["MovieResponse"];
 
 interface FinalSelection {
   date: string;

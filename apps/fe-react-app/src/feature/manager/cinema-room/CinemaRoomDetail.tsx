@@ -122,8 +122,8 @@ export default function CinemaRoomDetail() {
   };
 
   // calculate width&length
-  const rows = room.length;
-  const columns = room.width;
+  const rows = room.length ?? 0;
+  const columns = room.width ?? 0;
 
   return (
     <div className="container mx-auto p-4">
@@ -139,7 +139,7 @@ export default function CinemaRoomDetail() {
             </CardTitle>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`rounded px-2 py-1 text-xs font-medium ${getStatusClassName(room.status)}`}>{room.status}</span>
+            <span className={`rounded px-2 py-1 text-xs font-medium ${getStatusClassName(room.status ?? "")}`}>{room.status}</span>
             <span className="text-sm">Capacity: {room.capacity}</span>
           </div>
         </CardHeader>

@@ -10,7 +10,9 @@ interface ComboItemProps {
 const ComboItem: React.FC<ComboItemProps> = ({ combo, quantity, onQuantityChange }) => {
   // Calculate total price from snacks
   const totalPrice = combo.snacks.reduce((total, comboSnack) => {
-    return total + comboSnack.snack.price * comboSnack.quantity;
+    const price = comboSnack.snack.price ?? 0;
+    const qty = comboSnack.quantity ?? 1;
+    return total + price * qty;
   }, 0);
 
   const isUnavailable = combo.status === "UNAVAILABLE";

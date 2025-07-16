@@ -1,3 +1,5 @@
+import type { components } from "@/schema-from-be";
+
 export enum MovieStatus {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
@@ -35,28 +37,9 @@ export interface Showtime {
   price: number;
 }
 
-export interface Movie {
-  id?: number;
-  name?: string;
-  ageRestrict?: number; // Required: Must be between 13-18 (backend constraint)
-  fromDate?: string;
-  toDate?: string;
-  actor?: string;
-  studio?: string;
-  director?: string;
-  duration?: number;
-  trailer?: string;
-  categories?: { id?: number; name?: string; description?: string }[]; // New categories field
-  categoryIds?: number[]; // For form submission
-  description?: string;
-  status?: string; // Changed from enum to string
-  poster?: string;
-  showtimes?: Showtime[]; // Mảng rỗng, không null
-}
+export type Movie = components["schemas"]["MovieResponse"] & { categoryIds?: number[] };
 
-export interface MovieFormData extends Movie {
-  posterFile?: File;
-}
+export type MovieFormData = components["schemas"]["MovieRequest"] & { posterFile?: File };
 
 export interface MovieHistory {
   receiptId: string;
@@ -82,37 +65,9 @@ export interface MovieSearchResponse {
   currentPage: number;
 }
 
-// API Movie interfaces (from OpenAPI schema)
-export interface ApiMovie {
-  id: number;
-  name: string;
-  ageRestrict: number;
-  fromDate: string;
-  toDate: string;
-  actor: string;
-  studio: string;
-  director: string;
-  duration: number;
-  trailer: string;
-  description: string;
-  status: string;
-  poster: string;
-  categories?: ApiMovieCategory[];
-  showtimes?: ApiShowtime[];
-}
+// API Movie interfaces from backend schema
+export type ApiMovie = components["schemas"]["MovieResponse"];
 
-export interface ApiMovieCategory {
-  id: number;
-  name: string;
-  description: string;
-}
+export type ApiMovieCategory = components["schemas"]["MovieCategoryResponse"];
 
-export interface ApiShowtime {
-  id: number;
-  movieId: number;
-  showDateTime: string;
-  roomId: number;
-  roomName: string;
-  endDateTime: string;
-  status: string;
-}
+export type ApiShowtime = components["schemas"]["ShowtimeResponse"];

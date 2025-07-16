@@ -1,7 +1,8 @@
-import type { CustomAPIResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
 import { type UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+type CustomAPIResponse = components["schemas"]["ApiResponseVoid"];
 
 /**
  * Hàm trích xuất thông báo lỗi từ đối tượng lỗi API
@@ -12,16 +13,9 @@ import { toast } from "sonner";
 const extractErrorMessage = <TError extends CustomAPIResponse>(error: TError | undefined, defaultMessage: string): string => {
   if (!error) return defaultMessage;
 
-  // Trường hợp 1: Có message trực tiếp
   if (error.message) {
     return error.message;
   }
-  // Trường hợp 2: Có mảng errors
-  else if (error.errors && Array.isArray(error.errors) && error.errors.length > 0) {
-    // Lấy thông báo lỗi từ result của phần tử đầu tiên trong mảng errors
-    return error.errors[0].result || defaultMessage;
-  }
-
   return defaultMessage;
 };
 

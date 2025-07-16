@@ -1,10 +1,12 @@
 import type { Combo, ComboForm, ComboSnack } from "@/interfaces/combo.interface";
 import type { Snack } from "@/interfaces/snacks.interface";
-import type { ComboResponse, ComboSnackResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
+type ComboResponse = components["schemas"]["ComboResponse"];
+type ComboSnackResponse = components["schemas"]["ComboSnackResponse"];
 
 // Type aliases for union types
-type ComboStatus = "AVAILABLE" | "UNAVAILABLE";
+export type ComboStatus = "AVAILABLE" | "UNAVAILABLE";
 
 // ==================== COMBO API HOOKS ====================
 
@@ -138,8 +140,8 @@ export const transformComboResponse = (comboResponse: ComboResponse): Combo => {
       return {
         id: Number(snackData.id ?? 0),
         quantity: 0, // Will be updated with correct quantity from combo-snacks API
-        snackSizeId: null,
-        discountPercentage: null,
+        snackSizeId: undefined,
+        discountPercentage: undefined,
         combo: {
           id: Number(comboResponse.id),
           name: String(comboResponse.name ?? ""),
@@ -245,8 +247,8 @@ export const transformComboSnackResponse = (comboSnackResponse: ComboSnackRespon
   return {
     id: Number(comboSnackResponse.id),
     quantity: Number(comboSnackResponse.quantity || 1),
-    snackSizeId: comboSnackResponse.snackSizeId ?? null,
-    discountPercentage: comboSnackResponse.discountPercentage ?? null,
+    snackSizeId: comboSnackResponse.snackSizeId,
+    discountPercentage: comboSnackResponse.discountPercentage,
     combo: comboData,
     snack: snackData,
   };
@@ -324,7 +326,7 @@ export const calculateComboPrice = (combo: Combo): number => {
 
   console.log(
     `Calculating price for combo ${combo.id} with ${combo.snacks.length} snacks:`,
-    combo.snacks.map((s) => ({
+    (combo.snacks as ComboSnack[]).map((s) => ({
       id: s.snack?.id,
       name: s.snack?.name,
       price: s.snack?.price,
@@ -355,7 +357,7 @@ export const calculateComboPriceWithQuantity = (comboSnacks: ComboSnack[]): numb
 
   console.log(
     `Calculating price with ${comboSnacks.length} snacks:`,
-    comboSnacks.map((s) => ({
+    (comboSnacks as ComboSnack[]).map((s) => ({
       id: s.snack?.id,
       name: s.snack?.name,
       price: s.snack?.price,
@@ -433,14 +435,15 @@ export const fetchAndUpdateComboSnacksQuantity = async (combo: Combo): Promise<C
 
       const snackQuantityMap = new Map<number, number>();
       comboSnacks.forEach((cs) => {
-        if (cs.snack?.id) {
-          snackQuantityMap.set(cs.snack.id, cs.quantity);
+        const id = cs.snack?.id;
+        if (typeof id === "number") {
+          snackQuantityMap.set(id, cs.quantity ?? 1);
         }
       });
 
       const updatedSnacks = combo.snacks.map((comboSnack) => {
         const snackId = comboSnack.snack?.id;
-        if (snackId && snackQuantityMap.has(snackId)) {
+        if (typeof snackId === "number" && snackQuantityMap.has(snackId)) {
           return {
             ...comboSnack,
             quantity: snackQuantityMap.get(snackId) ?? 1,

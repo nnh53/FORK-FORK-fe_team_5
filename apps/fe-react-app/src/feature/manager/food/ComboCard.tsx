@@ -2,7 +2,7 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Combo } from "@/interfaces/combo.interface";
-import { formatPrice, getComboStatusLabel, useComboPrice } from "@/services/comboService";
+import { formatPrice, getComboStatusLabel, useComboPrice, type ComboStatus } from "@/services/comboService";
 import { cn } from "@/utils/utils";
 import { Edit, Eye, Trash, Utensils } from "lucide-react";
 
@@ -15,7 +15,7 @@ interface ComboCardProps {
 }
 
 const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDetails, viewMode = "grid" }) => {
-  const { totalPrice, isLoading, error } = useComboPrice(combo.id);
+  const { totalPrice, isLoading, error } = useComboPrice(combo.id ?? 0);
 
   const getDisplayPrice = () => {
     if (isLoading) {
@@ -28,7 +28,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
   };
 
   const StatusBadge = () => {
-    const statusLabel = getComboStatusLabel(combo.status);
+    const statusLabel = getComboStatusLabel(combo.status as ComboStatus);
     const isAvailable = combo.status === "AVAILABLE";
 
     return (
@@ -56,7 +56,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
         <Button
           size="sm"
           variant="destructive"
-          onClick={() => onDelete(combo.id)}
+          onClick={() => onDelete(combo.id ?? 0)}
           className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:border-red-200 hover:bg-red-50 hover:text-red-600"}
         >
           <Trash className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />

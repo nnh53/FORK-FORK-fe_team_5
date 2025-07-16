@@ -17,8 +17,8 @@ const ComboList: React.FC<ComboListProps> = ({ combos, selectedCombos, onQuantit
           <ComboItem
             key={combo.id}
             combo={combo}
-            quantity={selectedCombos[combo.id] || 0}
-            onQuantityChange={(newQuantity) => onQuantityChange(combo.id, newQuantity)}
+            quantity={selectedCombos[combo.id ?? 0] || 0}
+            onQuantityChange={(newQuantity) => onQuantityChange(combo.id ?? 0, newQuantity)}
           />
         ))}
       </div>

@@ -53,7 +53,9 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
       const allRowSeats = seatMap.gridData.filter((s) => s.row === seatToSelect.row).sort((a, b) => parseInt(a.column) - parseInt(b.column));
 
       // Get only selectable seats for gap checking
-      const selectableRowSeats = allRowSeats.filter((s) => s.status === "AVAILABLE" && !s.discarded && !["PATH", "BLOCK"].includes(s.type.name));
+      const selectableRowSeats = allRowSeats.filter(
+        (s) => s.status === "AVAILABLE" && !s.discarded && !["PATH", "BLOCK"].includes(s.type.name ?? ""),
+      );
 
       // Build current state: which seats are already taken
       const occupiedByOthers = seatMap.gridData.filter((s) => s.selected === true).map((s) => s.id);

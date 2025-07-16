@@ -16,7 +16,7 @@ const ComboSelection: React.FC<ComboSelectionProps> = ({ combos, selectedCombos,
   };
 
   const handleQuantityChange = (combo: Combo, delta: number) => {
-    const currentQuantity = getComboQuantity(combo.id);
+    const currentQuantity = getComboQuantity(combo.id ?? 0);
     const newQuantity = Math.max(0, currentQuantity + delta);
     onComboSelect(combo, newQuantity);
   };
@@ -59,7 +59,7 @@ const ComboSelection: React.FC<ComboSelectionProps> = ({ combos, selectedCombos,
       <h3 className="mb-4 text-lg font-semibold">Combo Bắp Nước</h3>
       <div className="space-y-4">
         {combos.map((combo) => {
-          const quantity = getComboQuantity(combo.id);
+          const quantity = getComboQuantity(combo.id ?? 0);
           const price = calculateComboPrice(combo);
 
           return (

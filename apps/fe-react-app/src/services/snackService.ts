@@ -1,11 +1,12 @@
 import type { Snack, SnackForm } from "@/interfaces/snacks.interface";
-import type { SnackResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
+type SnackResponse = components["schemas"]["SnackResponse"];
 
 // Type aliases for union types
-type SnackCategory = "DRINK" | "FOOD";
-type SnackSize = "SMALL" | "MEDIUM" | "LARGE";
-type SnackStatus = "AVAILABLE" | "UNAVAILABLE";
+export type SnackCategory = "DRINK" | "FOOD";
+export type SnackSize = "SMALL" | "MEDIUM" | "LARGE";
+export type SnackStatus = "AVAILABLE" | "UNAVAILABLE";
 
 // React Query hooks for snack operations
 export const useSnacks = () => {

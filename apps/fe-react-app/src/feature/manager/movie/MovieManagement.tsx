@@ -18,6 +18,7 @@ import { SearchBar } from "@/components/shared/SearchBar";
 import { useMutationHandler } from "@/hooks/useMutationHandler";
 import type { Movie, MovieFormData } from "@/interfaces/movies.interface";
 import { MovieStatus } from "@/interfaces/movies.interface";
+import type { components } from "@/schema-from-be";
 import { queryMovieCategories, transformMovieCategoriesResponse } from "@/services/movieCategoryService";
 import {
   queryCreateMovie,
@@ -27,7 +28,6 @@ import {
   transformMovieResponse,
   transformMovieToRequest,
 } from "@/services/movieService";
-import type { MovieResponse } from "@/type-from-be";
 import { Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -35,6 +35,7 @@ import { MovieDataTable } from "./MovieDataTable";
 import MovieDetail from "./MovieDetail";
 import { MovieGenreManagement } from "./MovieGenreManagement";
 import { MovieViewDialog } from "./MovieViewDialog";
+type MovieResponse = components["schemas"]["MovieResponse"];
 
 const searchOptions = [
   { value: "name", label: "Tên phim" },

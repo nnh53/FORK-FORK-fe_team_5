@@ -1,6 +1,7 @@
 import { type Showtime, type ShowtimeFormData } from "@/interfaces/showtime.interface";
-import type { ShowtimeResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
+type ShowtimeResponse = components["schemas"]["ShowtimeResponse"];
 
 // React Query hooks using $api - dựa trên API documentation thực tế
 export const queryShowtimes = () => {
@@ -53,7 +54,7 @@ export const transformShowtimeResponse = (showtimeResponse: ShowtimeResponse): S
     id: showtimeResponse.id ?? 0,
     movieId: showtimeResponse.movieId ?? 0,
     roomId: showtimeResponse.roomId ?? 0,
-    roomName: showtimeResponse.roomName,
+    roomName: showtimeResponse.roomName ?? "",
     showDateTime: showtimeResponse.showDateTime ?? "",
     endDateTime: showtimeResponse.endDateTime ?? "",
     status: showtimeResponse.status ?? "SCHEDULE",
@@ -80,6 +81,6 @@ export const prepareCreateShowtimeData = (data: ShowtimeFormData) => {
   return transformShowtimeToRequest(data);
 };
 
-export const prepareUpdateShowtimeData = (data: Showtime) => {
+export const prepareUpdateShowtimeData = (data: ShowtimeFormData | Showtime) => {
   return transformShowtimeToRequest(data);
 };

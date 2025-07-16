@@ -137,8 +137,8 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       const updatedComboSnack: ComboSnack = {
         ...selectedComboSnack,
         quantity: values.quantity,
-        snackSizeId: values.snackSizeId,
-        discountPercentage: values.discountPercentage,
+        snackSizeId: values.snackSizeId ?? undefined,
+        discountPercentage: values.discountPercentage ?? undefined,
       };
       onUpdateSnack(updatedComboSnack);
     } else if (onAddSnack) {
@@ -146,8 +146,8 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       if (selectedSnack) {
         const newComboSnack: Partial<ComboSnack> = {
           quantity: values.quantity,
-          snackSizeId: values.snackSizeId,
-          discountPercentage: values.discountPercentage,
+          snackSizeId: values.snackSizeId ?? undefined,
+          discountPercentage: values.discountPercentage ?? undefined,
           snack: selectedSnack,
           combo,
         };

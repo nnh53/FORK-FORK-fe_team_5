@@ -1,6 +1,7 @@
 import { type Movie } from "@/interfaces/movies.interface";
-import type { MovieResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
+type MovieResponse = components["schemas"]["MovieResponse"];
 
 // React Query hooks using $api
 export const queryMovies = () => {

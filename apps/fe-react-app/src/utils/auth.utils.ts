@@ -1,5 +1,6 @@
-import type { AuthenticationResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
 import { eraseCookie, getCookie, setCookie } from "./cookie.utils";
+type AuthenticationResponse = components["schemas"]["AuthenticationResponse"];
 
 export const getUserCookieToken = (): string | null => {
   return getCookie("access_token");

@@ -40,8 +40,8 @@ const filterByGlobalSearch = (snack: Snack, searchTerm: string): boolean => {
 
   const lowerSearchTerm = searchTerm.toLowerCase().trim();
   return (
-    snack.id.toString().includes(searchTerm) ||
-    snack.name.toLowerCase().includes(lowerSearchTerm) ||
+    snack.id?.toString().includes(searchTerm) ||
+    snack.name?.toLowerCase().includes(lowerSearchTerm) ||
     (snack.flavor?.toLowerCase() || "").includes(lowerSearchTerm) ||
     (snack.description?.toLowerCase() || "").includes(lowerSearchTerm)
   );
@@ -240,7 +240,7 @@ const SnackManagement: React.FC = () => {
       };
 
       updateSnackMutation.mutate({
-        params: { path: { id: selectedSnack.id } },
+        params: { path: { id: selectedSnack.id ?? 0 } },
         body: transformSnackToRequest(updatedSnack),
       });
     } else {
@@ -266,7 +266,7 @@ const SnackManagement: React.FC = () => {
   const handleDeleteConfirm = () => {
     if (snackToDelete) {
       deleteSnackMutation.mutate({
-        params: { path: { id: snackToDelete.id } },
+        params: { path: { id: snackToDelete.id ?? 0 } },
       });
     }
   };

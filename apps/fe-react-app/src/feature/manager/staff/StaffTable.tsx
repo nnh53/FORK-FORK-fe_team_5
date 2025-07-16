@@ -118,7 +118,7 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
           <TableBody>
             {currentPageData.length > 0 ? (
               currentPageData.map((staff, index) => {
-                const statusDisplay = getUserStatusDisplay(staff.status);
+                const statusDisplay = getUserStatusDisplay(staff.status ?? "ACTIVE");
 
                 return (
                   <TableRow key={staff.id}>

@@ -5,14 +5,13 @@
 This is an **Nx monorepo** with **pnpm** package manager containing a cinema booking application:
 
 - **`apps/fe-react-app/`** - Main React frontend (Vite + TypeScript)
-- **`apps/mockapi-express-app/`** - Mock API server for development
 - **Real API** - Spring Boot backend at `https://fcinema-spring-ujhbb.ondigitalocean.app/movie_theater`
 
 ## Key Development Patterns
 
 ### API Strategy
 
-- Use **OpenAPI-generated types** from `schema-from-be.d.ts` (generated via `pnpm generate-schema`)
+- Use **OpenAPI-generated types** from `schema-from-be.d.ts` (generated via `pnpm --filter fe-react-app generate-schema`)
 - API client: `src/utils/api.ts` exports `$api` using `openapi-react-query`
 - Service layer: `src/services/` contains domain-specific API hooks (e.g., `movieService.ts`)
 
@@ -46,33 +45,24 @@ src/feature/[domain]/
 ### Development
 
 ```bash
-# Start both apps
-nx run-many -t dev
-
-# Start frontend only
-nx dev fe-react-app
-
-# Start mock API
-nx dev mockapi-express-app
+# Start frontend
+pnpm --filter fe-react-app dev
 
 # Generate OpenAPI types
-nx generate-schema fe-react-app
+pnpm --filter fe-react-app generate-schema
 ```
 
 ### Build & Test
 
 ```bash
-# Build all apps
-nx run-many -t build
-
-# Build specific app
-nx build fe-react-app
+# Build app
+pnpm --filter fe-react-app build
 
 # Type checking
-nx typecheck fe-react-app
+pnpm --filter fe-react-app typecheck
 
 # Linting
-nx lint fe-react-app
+pnpm --filter fe-react-app lint
 ```
 
 ## Critical Configuration Files
@@ -83,7 +73,7 @@ nx lint fe-react-app
 
 ## Development Workflow
 
-2. **Type Safety**: Run `nx generate-schema fe-react-app` after backend changes
+2. **Type Safety**: Run `pnpm --filter fe-react-app generate-schema` after backend changes
 3. **Feature Development**: Create new features in `src/feature/[domain]/` structure
 4. **Component Usage**: Import UI components from `@/components/Shadcn/ui/`
 5. **State Management**: Use React Query hooks from service layer
@@ -98,14 +88,12 @@ nx lint fe-react-app
 
 ## Integration Points
 
-- **Mock API**: Express server mimics real API structure for offline development
 - **Backend Integration**: OpenAPI-first approach with generated TypeScript types
 - **Authentication**: Cookie-based auth with role-based routing
 - **Build System**: Nx with TypeScript strict mode and ESLint
 
 ## Common Pitfalls
 
-- Always check `USE_REAL_API` flag when debugging API issues
 - Regenerate types after backend schema changes
 - Use `@/` imports instead of relative paths
 - Follow role-based routing patterns for protected pages

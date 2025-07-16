@@ -7,13 +7,13 @@ import type { Member } from "@/interfaces/member.interface";
 import type { Movie } from "@/interfaces/movies.interface";
 import type { Promotion } from "@/interfaces/promotion.interface";
 import { ROUTES } from "@/routes/route.constants.ts";
+import type { components } from "@/schema-from-be";
 import { transformSeatsToSeatMap, useConfirmBookingPayment, useCreateBooking, useSeatsByShowtimeId } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
 import { queryMovies, transformMovieResponse } from "@/services/movieService";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
 import { queryShowtimesByMovie } from "@/services/showtimeService";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
-import type { BookingRequest, BookingResponse, MovieResponse, ShowtimeResponse } from "@/type-from-be";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -29,6 +29,10 @@ import {
   StepProgress,
 } from "./components";
 import type { CustomerInfo as CustomerInfoType, StaffSalesStep, UIShowtime } from "./types";
+type BookingRequest = components["schemas"]["BookingRequest"];
+type BookingResponse = components["schemas"]["BookingResponse"];
+type MovieResponse = components["schemas"]["MovieResponse"];
+type ShowtimeResponse = components["schemas"]["ShowtimeResponse"];
 
 // Utility function to convert API Showtime to UI Showtime format
 const convertApiShowtimeToUI = (apiShowtime: ShowtimeResponse): UIShowtime => {
@@ -309,7 +313,7 @@ const StaffTicketSales: React.FC = () => {
     // Calculate snack cost from selected snacks
     const snackCost = Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
       const snack = snacks.find((s) => s.id === parseInt(snackId));
-      return sum + (snack ? snack.price * quantity : 0);
+      return sum + (snack ? (snack.price ?? 0) * quantity : 0);
     }, 0);
 
     const subtotal = ticketCost + comboCost + snackCost;
@@ -369,7 +373,7 @@ const StaffTicketSales: React.FC = () => {
       bookingCombos: selectedCombos
         .filter(({ quantity }) => quantity > 0)
         .map(({ combo, quantity }) => ({
-          comboId: combo.id,
+          comboId: combo.id ?? 0,
           quantity,
         })),
       bookingSnacks: Object.entries(selectedSnacks)
@@ -479,7 +483,9 @@ const StaffTicketSales: React.FC = () => {
         }),
         selectedCombos: selectedCombos.reduce(
           (acc, { combo, quantity }) => {
-            acc[combo.id] = quantity;
+            if (combo.id !== undefined) {
+              acc[combo.id] = quantity;
+            }
             return acc;
           },
           {} as Record<number, number>,
@@ -500,7 +506,7 @@ const StaffTicketSales: React.FC = () => {
           }, 0),
           snackCost: Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
             const snack = snacks.find((s) => s.id === parseInt(snackId));
-            return sum + (snack ? snack.price * quantity : 0);
+            return sum + (snack ? (snack.price ?? 0) * quantity : 0);
           }, 0),
           subtotal: calculateTotal() + usePoints * 1000 + (selectedPromotion ? calculateDiscount(selectedPromotion, calculateTotal()) : 0),
           pointsDiscount: usePoints * 1000,
@@ -726,7 +732,7 @@ const StaffTicketSales: React.FC = () => {
                 }, 0);
                 const snackCost = Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
                   const snack = snacks.find((s) => s.id === parseInt(snackId));
-                  return sum + (snack ? snack.price * quantity : 0);
+                  return sum + (snack ? (snack.price ?? 0) * quantity : 0);
                 }, 0);
                 return ticketCost + comboCost + snackCost;
               })()}
