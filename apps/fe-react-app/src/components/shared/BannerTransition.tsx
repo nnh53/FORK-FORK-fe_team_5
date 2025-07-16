@@ -31,7 +31,7 @@ const BannerTransition: React.FC<BannerTransitionProps> = ({ slides = DEFAULT_SL
   });
 
   return (
-    <div className="w-1/2 bg-red-700 text-white flex flex-col justify-center p-12 relative overflow-hidden">
+    <div className="relative flex h-full w-full flex-col justify-center overflow-hidden bg-red-700 p-6 text-white md:p-12">
       {transitions((style, i) => (
         <animated.div
           key={i}
@@ -45,6 +45,7 @@ const BannerTransition: React.FC<BannerTransitionProps> = ({ slides = DEFAULT_SL
             backgroundImage: `url(https://images.unsplash.com/${slides[i]}?w=1920&q=80&auto=format&fit=crop)`,
             backgroundSize: "cover",
             backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
           }}
         />
       ))}
