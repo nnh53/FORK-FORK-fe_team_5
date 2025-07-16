@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/Shadcn/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
+import type { ROLE_TYPE } from "@/interfaces/roles.interface";
 import { ROUTES } from "@/routes/route.constants";
 import { useGetUserById } from "@/services/userService";
 import { getCookie } from "@/utils/cookie.utils";
@@ -35,12 +36,17 @@ const AuthSection = ({ className = "header-actions", loginText = "Login", logout
   const isAuthenticated = isLoggedIn || hasRoles;
 
   // Parse user roles for dropdown menu items
-  const roles = user?.roles || [];
+  const roles: ROLE_TYPE[] = [];
+  if (Array.isArray(user?.roles)) {
+    roles.push(...user.roles);
+  } else if (typeof user?.roles === "string") {
+    roles.push(user.roles as ROLE_TYPE);
+  }
   if (userRoles && typeof userRoles === "string") {
     try {
       const parsedRoles = JSON.parse(userRoles);
       if (Array.isArray(parsedRoles)) {
-        roles.push(...parsedRoles);
+        roles.push(...(parsedRoles as ROLE_TYPE[]));
       }
     } catch {
       // Ignore parsing errors
