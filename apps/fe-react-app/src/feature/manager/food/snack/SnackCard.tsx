@@ -3,7 +3,14 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Shadcn/ui/tooltip";
 import type { Snack } from "@/interfaces/snacks.interface";
-import { getSnackCategoryLabel, getSnackSizeLabel, getSnackStatusLabel } from "@/services/snackService";
+import {
+  getSnackCategoryLabel,
+  getSnackSizeLabel,
+  getSnackStatusLabel,
+  type SnackCategory,
+  type SnackSize,
+  type SnackStatus,
+} from "@/services/snackService";
 import { cn } from "@/utils/utils";
 import { Icon } from "@iconify/react";
 import { Edit, Trash, Utensils } from "lucide-react";
@@ -26,7 +33,7 @@ const StatusBadge = ({ snack }: { snack: Snack | null | undefined }) => {
     );
   }
 
-  const statusLabel = getSnackStatusLabel(snack.status);
+  const statusLabel = getSnackStatusLabel(snack.status as SnackStatus);
   const isAvailable = snack.status === "AVAILABLE";
 
   return (
@@ -47,7 +54,7 @@ const CategoryBadge = ({ snack }: { snack: Snack | null | undefined }) => {
     );
   }
 
-  const categoryLabel = getSnackCategoryLabel(snack.category);
+  const categoryLabel = getSnackCategoryLabel(snack.category as SnackCategory);
   const isFood = snack.category === "FOOD";
 
   return (
@@ -73,7 +80,7 @@ const SizeBadge = ({ snack }: { snack: Snack | null | undefined }) => {
     );
   }
 
-  const sizeLabel = getSnackSizeLabel(snack.size);
+  const sizeLabel = getSnackSizeLabel(snack.size as SnackSize);
   let bgClass;
 
   switch (snack.size) {
@@ -119,7 +126,7 @@ const ActionButtons = ({ snack, onEdit, onDelete, isFullWidth = false }: ActionB
       <Button
         size="sm"
         variant="destructive"
-        onClick={() => onDelete(snack.id)}
+        onClick={() => onDelete(snack.id ?? 0)}
         className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:border-red-200 hover:bg-red-50 hover:text-red-600"}
       >
         <Trash className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />

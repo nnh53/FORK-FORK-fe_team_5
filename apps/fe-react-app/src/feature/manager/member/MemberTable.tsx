@@ -134,8 +134,8 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
           </TableHeader>
           <TableBody>
             {currentPageData.length > 0 ? (
-              currentPageData.map((member, index) => {
-                const statusDisplay = getUserStatusDisplay(member.status);
+                currentPageData.map((member, index) => {
+                  const statusDisplay = getUserStatusDisplay(member.status ?? "ACTIVE");
 
                 return (
                   <TableRow key={member.id}>

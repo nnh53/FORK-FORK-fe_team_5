@@ -73,6 +73,7 @@ export const transformSeatResponse = (seatResponse: SeatResponse): Seat => {
           seatCount: 1,
         },
     discarded: seatResponse.discarded ?? false,
+    linkSeatId: seatResponse.linkSeatId ?? null,
   };
 };
 
@@ -86,7 +87,9 @@ export const transformCinemaRoomResponse = (roomResponse: CinemaRoomResponse): C
     status: roomResponse.status as CinemaRoomStatus,
     width: roomResponse.width ?? 0,
     length: roomResponse.length ?? 0,
-    seats: roomResponse.seats ? roomResponse.seats.map(transformSeatResponse) : [],
+    seats: roomResponse.seats
+      ? (roomResponse.seats.map(transformSeatResponse) as Seat[])
+      : [],
   };
 };
 
@@ -142,7 +145,7 @@ export const updateSeatStatus = (seat: Seat, newStatus: SeatStatus): SeatRequest
 export const convertToRoomWithSeatMap = (room: CinemaRoom): CinemaRoomWithSeatMap => {
   const seatMap: SeatMap = {
     gridData: room.seats,
-    roomId: room.id,
+    roomId: room.id ?? 0,
   };
 
   return {

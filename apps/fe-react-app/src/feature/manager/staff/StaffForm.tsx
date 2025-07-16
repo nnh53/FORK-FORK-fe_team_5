@@ -3,7 +3,7 @@ import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { DialogFooter } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
-import type { StaffRequest, StaffUser } from "@/interfaces/staff.interface";
+import type { StaffRequest, StaffUpdate, StaffUser } from "@/interfaces/staff.interface";
 import type { USER_GENDER, USER_STATUS } from "@/interfaces/users.interface";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -102,7 +102,7 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
     }
 
     // For existing staff, only send changed fields
-    const changedFields: Partial<StaffRequest> = {
+    const changedFields: Partial<StaffUpdate & { password?: string }> = {
       role: "STAFF", // Always include role
     };
 

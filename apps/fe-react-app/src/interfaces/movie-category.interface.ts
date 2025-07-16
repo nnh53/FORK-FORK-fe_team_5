@@ -1,12 +1,8 @@
-export interface MovieCategory {
-  id?: number;
-  name?: string;
-  description?: string;
-}
+import type { components } from "@/schema-from-be";
 
-export interface MovieCategoryFormData extends MovieCategory {
-  isActive?: boolean;
-}
+export type MovieCategory = components["schemas"]["MovieCategoryResponse"];
+
+export type MovieCategoryFormData = components["schemas"]["MovieCategoryRequest"];
 
 export interface MovieCategorySearchParams {
   search?: string;

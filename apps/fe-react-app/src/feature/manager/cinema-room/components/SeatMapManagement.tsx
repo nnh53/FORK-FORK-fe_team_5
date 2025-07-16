@@ -65,18 +65,18 @@ const SeatMapManagement: React.FC = () => {
       // Create default seats for the room
       const defaultSeats: Seat[] = [];
       // Use room dimensions directly to avoid dependency loop
-      const width = room.width;
-      const height = room.length;
+        const width = room.width ?? 0;
+        const height = room.length ?? 0;
 
       for (let row = 0; row < height; row++) {
         for (let col = 0; col < width; col++) {
           const seatRow = String.fromCharCode(65 + row); // A, B, C, etc.
           const seatColumn = (col + 1).toString(); // 1, 2, 3, etc.
 
-          const seat: Seat = {
-            id: -(Date.now() + col * 1000 + row), // Generate temporary negative ID
-            name: `${seatRow}${seatColumn}`,
-            roomId: room.id,
+            const seat: Seat = {
+              id: -(Date.now() + col * 1000 + row), // Generate temporary negative ID
+              name: `${seatRow}${seatColumn}`,
+              roomId: room.id ?? 0,
             column: seatColumn,
             row: seatRow,
             status: "AVAILABLE",
@@ -93,10 +93,10 @@ const SeatMapManagement: React.FC = () => {
         }
       }
 
-      const newSeatMap: SeatMap = {
-        gridData: defaultSeats,
-        roomId: room.id,
-      };
+        const newSeatMap: SeatMap = {
+          gridData: defaultSeats,
+          roomId: room.id ?? 0,
+        };
 
       setSeatMap(newSeatMap);
       setOriginalSeatMap(JSON.parse(JSON.stringify(newSeatMap)));
@@ -128,11 +128,11 @@ const SeatMapManagement: React.FC = () => {
   useEffect(() => {
     if (room && !roomSettingsInitialized.current) {
       // Only initialize if roomSettings hasn't been set yet
-      setRoomSettings({
-        width: room.width,
-        height: room.length,
-        name: room.name,
-      });
+        setRoomSettings({
+          width: room.width ?? 0,
+          height: room.length ?? 0,
+          name: room.name ?? "",
+        });
       roomSettingsInitialized.current = true;
     }
   }, [room]);
@@ -145,7 +145,7 @@ const SeatMapManagement: React.FC = () => {
   // Reset seat map when room dimensions change (using ref to prevent infinite loop)
   useEffect(() => {
     if (room) {
-      const currentDimensions = { width: room.width, length: room.length };
+        const currentDimensions = { width: room.width ?? 0, length: room.length ?? 0 };
 
       // Check if this is the first time setting dimensions
       if (prevRoomDimensionsRef.current === null) {
@@ -160,10 +160,10 @@ const SeatMapManagement: React.FC = () => {
       if (dimensionsChanged && seatMap && seatMap.gridData.length > 0) {
         // Room dimensions have changed, recreate seat map
         const seats = getSeatMapFromRoom(room);
-        const newSeatMap: SeatMap = {
-          gridData: seats || [],
-          roomId: room.id,
-        };
+          const newSeatMap: SeatMap = {
+            gridData: seats || [],
+            roomId: room.id ?? 0,
+          };
         setSeatMap(newSeatMap);
         setOriginalSeatMap(JSON.parse(JSON.stringify(newSeatMap)));
         toast.info("Kích thước phòng đã thay đổi. Sơ đồ ghế đã được cập nhật.");
@@ -191,7 +191,7 @@ const SeatMapManagement: React.FC = () => {
             const seat: Seat = {
               id: -(Date.now() + col * 1000 + row), // Generate temporary negative ID
               name: `${seatRow}${seatColumn}`,
-              roomId: room.id,
+              roomId: room.id ?? 0,
               column: seatColumn,
               row: seatRow,
               status: "AVAILABLE",
@@ -210,7 +210,7 @@ const SeatMapManagement: React.FC = () => {
 
         const newSeatMap: SeatMap = {
           gridData: defaultSeats,
-          roomId: room.id,
+            roomId: room.id ?? 0,
         };
 
         setSeatMap(newSeatMap);
@@ -279,11 +279,11 @@ const SeatMapManagement: React.FC = () => {
 
   const handleResetRoomSettings = () => {
     if (room) {
-      setRoomSettings({
-        width: room.width,
-        height: room.length,
-        name: room.name,
-      });
+        setRoomSettings({
+          width: room.width ?? 0,
+          height: room.length ?? 0,
+          name: room.name ?? "",
+        });
       toast.info("Đã khôi phục cài đặt phòng về giá trị ban đầu");
     }
   };
@@ -298,10 +298,10 @@ const SeatMapManagement: React.FC = () => {
         length: roomSettings.height, // Map height to length
       });
 
-      await updateRoomMutation.mutateAsync({
-        params: { path: { roomId: room.id } },
-        body: updateData,
-      });
+        await updateRoomMutation.mutateAsync({
+          params: { path: { roomId: room.id ?? 0 } },
+          body: updateData,
+        });
 
       // Refetch room data to get updated info
       await refetchRoom();
@@ -327,7 +327,7 @@ const SeatMapManagement: React.FC = () => {
         if (freshSeats.length > 0) {
           const freshSeatMap: SeatMap = {
             gridData: freshSeats,
-            roomId: freshRoom.id,
+              roomId: freshRoom.id ?? 0,
           };
 
           setSeatMap(freshSeatMap);

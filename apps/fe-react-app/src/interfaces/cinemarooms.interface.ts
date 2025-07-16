@@ -2,7 +2,10 @@ import type { Seat, SeatMap } from "./seat.interface";
 import type { components } from "@/schema-from-be";
 
 // Cinema room interface matching the real API response
-export type CinemaRoom = components["schemas"]["CinemaRoomResponse"] & {
+export type CinemaRoom = Omit<
+  components["schemas"]["CinemaRoomResponse"],
+  "seats"
+> & {
   seats: Seat[];
 };
 

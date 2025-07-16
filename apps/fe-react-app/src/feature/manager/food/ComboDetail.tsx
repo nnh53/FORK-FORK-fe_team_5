@@ -3,7 +3,12 @@ import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { type Combo, type ComboSnack } from "@/interfaces/combo.interface";
 import { type Snack } from "@/interfaces/snacks.interface";
-import { calculateComboPrice, formatPrice, getComboStatusLabel } from "@/services/comboService";
+import {
+  calculateComboPrice,
+  formatPrice,
+  getComboStatusLabel,
+  type ComboStatus,
+} from "@/services/comboService";
 import { Icon } from "@iconify/react";
 import { Edit, ShoppingBag, Utensils } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -83,7 +88,7 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
   }, [combo, combo.snacks]); // Thêm combo.snacks vào dependency để cập nhật khi snacks thay đổi
 
   const totalPrice = calculateComboPrice(displayCombo);
-  const statusLabel = getComboStatusLabel(displayCombo.status);
+  const statusLabel = getComboStatusLabel(displayCombo.status as ComboStatus);
 
   const handleEditSnacks = () => {
     setEditMode(true);

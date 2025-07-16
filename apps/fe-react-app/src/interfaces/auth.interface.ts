@@ -1,4 +1,4 @@
 //để dành khi nào có user rồi áp sau
-import type { UserLoginResponse } from "./users.interface";
+import type { components } from "@/schema-from-be";
 
-export type AuthLoginData = Pick<UserLoginResponse, "token" | "roles" | "id" | "fullName">;
+export type AuthLoginData = components["schemas"]["AuthenticationResponse"];

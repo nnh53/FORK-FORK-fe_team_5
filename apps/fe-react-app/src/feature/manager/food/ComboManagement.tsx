@@ -37,6 +37,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import ComboDetail from "./ComboDetail";
 import ComboForm from "./ComboForm";
+import type { ComboForm as ComboFormData } from "@/interfaces/combo.interface";
 import ComboTable from "./ComboTable";
 
 // Hàm filter toàn cục với kiểm tra null/undefined
@@ -257,8 +258,8 @@ const ComboManagement: React.FC = () => {
           })) || [],
       };
 
-      setDetailsCombo(comboWithValidSnacks);
-      setSelectedComboIdForDetails(combo.id);
+        setDetailsCombo(comboWithValidSnacks);
+        setSelectedComboIdForDetails(combo.id ?? null);
       setDetailsOpen(true);
     },
     [selectedComboIdForDetails, detailsOpen],
@@ -266,17 +267,17 @@ const ComboManagement: React.FC = () => {
 
   const confirmDelete = useCallback(() => {
     if (!comboToDelete) return;
-    deleteComboMutation.mutate({
-      params: { path: { id: comboToDelete.id } },
-    });
+      deleteComboMutation.mutate({
+        params: { path: { id: comboToDelete.id ?? 0 } },
+      });
   }, [comboToDelete, deleteComboMutation]);
 
   const handleFormSubmit = useCallback(
-    (data: Omit<Combo, "id">) => {
+    (data: ComboFormData) => {
       if (selectedCombo) {
         updateComboMutation.mutate({
-          params: { path: { id: selectedCombo.id } },
-          body: transformComboToRequest({ ...selectedCombo, ...data }),
+          params: { path: { id: selectedCombo.id ?? 0 } },
+        body: transformComboToRequest({ ...selectedCombo, ...data }),
         });
       } else {
         createComboMutation.mutate({
@@ -298,7 +299,7 @@ const ComboManagement: React.FC = () => {
 
       setDetailsCombo((prev) => (prev ? { ...prev, snacks: prev.snacks.filter((s) => s.id !== comboSnackId) } : null));
       deleteComboSnackByComboAndSnackMutation.mutate({
-        params: { path: { comboId: detailsCombo.id, snackId: comboSnackToDelete.snack.id } },
+        params: { path: { comboId: detailsCombo.id ?? 0, snackId: comboSnackToDelete.snack.id } },
       });
     },
     [detailsCombo, deleteComboSnackByComboAndSnackMutation],
@@ -319,7 +320,7 @@ const ComboManagement: React.FC = () => {
 
       const requestBody = transformComboSnackToRequest(comboSnack);
       updateComboSnackMutation.mutate({
-        params: { path: { id: comboSnack.id } },
+        params: { path: { id: comboSnack.id ?? 0 } },
         body: requestBody,
       });
     },
@@ -331,18 +332,18 @@ const ComboManagement: React.FC = () => {
       if (!detailsCombo || !newComboSnack.snack?.id) return;
 
       const tempId = -Date.now();
-      const tempComboSnack: ComboSnack = {
-        id: tempId,
-        combo: detailsCombo,
-        snack: newComboSnack.snack,
-        quantity: newComboSnack.quantity ?? 1,
-        snackSizeId: newComboSnack.snackSizeId ?? null,
-        discountPercentage: newComboSnack.discountPercentage ?? 0,
-      };
+        const tempComboSnack: ComboSnack = {
+          id: tempId,
+          combo: detailsCombo,
+          snack: newComboSnack.snack,
+          quantity: newComboSnack.quantity ?? 1,
+          snackSizeId: newComboSnack.snackSizeId ?? undefined,
+          discountPercentage: newComboSnack.discountPercentage ?? 0,
+        };
 
       setDetailsCombo((prev) => (prev ? { ...prev, snacks: [...prev.snacks, tempComboSnack] } : prev));
       addSnacksToComboMutation.mutate({
-        params: { path: { comboId: detailsCombo.id } },
+        params: { path: { comboId: detailsCombo.id ?? 0 } },
         body: [{ snackId: newComboSnack.snack.id, quantity: newComboSnack.quantity ?? 1 }],
       });
     },
