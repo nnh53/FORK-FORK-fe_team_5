@@ -1,69 +1,15 @@
-// Receipt related interfaces based on backend schema
-export interface Receipt {
-  id?: number;
-  user?: {
-    id?: string;
-    fullName?: string;
-    email?: string;
-    phone?: string;
-  };
-  bookingId?: number;
-  movieId?: number;
-  movieName?: string;
-  showtime?: string;
-  promotionName?: string;
-  roomName?: string;
-  items?: ReceiptItem[];
-  totalAmount?: number;
-  paymentMethod?: "CASH" | "ONLINE";
-  refunded?: boolean;
-  paymentReference?: string;
-  issuedAt?: string;
-  addedPoints?: number;
-  usedPoints?: number;
-  refundedPoints?: number;
-  ticketCount?: number;
-}
+import type { components } from "@/schema-from-be";
 
-export interface ReceiptItem {
-  id?: number;
-  receipt?: Receipt;
-  name?: string;
-  unitPrice?: number;
-  totalPrice?: number;
-  quantity?: number;
-  type?: "COMBO" | "SNACK" | "TICKET";
-}
+export type Receipt = components["schemas"]["Receipt"];
 
-export interface ReceiptFilterRequest {
-  userId?: string;
-  fromDate?: string;
-  toDate?: string;
-  bookingId?: string;
-  movieName?: string;
-  paymentMethod?: "CASH" | "ONLINE";
-  refunded?: boolean;
-  minAmount?: number;
-  maxAmount?: number;
-}
+export type ReceiptItem = components["schemas"]["ReceiptItem"];
 
-// For GET /receipt/topMovie endpoint
-export interface MovieTrendingResponse {
-  movieId?: number;
-  movieName?: string;
-  ticketCount?: number;
-  totalRevenue?: number;
-}
+export type ReceiptFilterRequest = components["schemas"]["ReceiptFilterRequest"];
 
-// API Response wrappers
-export interface ApiResponseListReceipt {
-  code?: number;
-  message?: string;
-  result?: Receipt[];
-}
+export type MovieTrendingResponse = components["schemas"]["MovieTrendingResponse"];
 
-export interface ApiResponseListMovieTrendingResponse {
-  code?: number;
-  message?: string;
-  result?: MovieTrendingResponse[];
-}
+// API Response wrappers from backend schema
+export type ApiResponseListReceipt = components["schemas"]["ApiResponseListReceipt"];
+
+export type ApiResponseListMovieTrendingResponse =
+  components["schemas"]["ApiResponseListMovieTrendingResponse"];

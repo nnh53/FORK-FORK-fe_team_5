@@ -7,7 +7,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/
 import AuthLayout from "@/layouts/auth/AuthLayout";
 import { ROUTES } from "@/routes/route.constants";
 import { transformRegisterRequest, useRegister } from "@/services/userService";
-import type { CustomAPIResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type CustomAPIResponse = components["schemas"]["ApiResponseVoid"];
 import { cn } from "@/utils/utils";
 import { registerFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";

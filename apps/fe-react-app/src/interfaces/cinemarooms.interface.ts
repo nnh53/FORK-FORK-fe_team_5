@@ -1,17 +1,10 @@
 import type { Seat, SeatMap } from "./seat.interface";
+import type { components } from "@/schema-from-be";
 
 // Cinema room interface matching the real API response
-export interface CinemaRoom {
-  id: number;
-  name: string;
-  type: string;
-  fee: number;
-  capacity: number;
-  status: "ACTIVE" | "MAINTENANCE" | "CLOSED";
-  width: number;
-  length: number;
-  seats: Seat[]; // Direct seats array from API
-}
+export type CinemaRoom = components["schemas"]["CinemaRoomResponse"] & {
+  seats: Seat[];
+};
 
 // Extended cinema room with seat map for UI components
 export interface CinemaRoomWithSeatMap extends CinemaRoom {

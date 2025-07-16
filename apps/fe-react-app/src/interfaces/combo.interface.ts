@@ -1,31 +1,16 @@
-import { type Snack } from "@/interfaces/snacks.interface";
+import type { Snack } from "@/interfaces/snacks.interface";
+import type { components } from "@/schema-from-be";
 
-export interface Combo {
-  id: number;
-  name: string;
-  description: string;
-  status: "AVAILABLE" | "UNAVAILABLE";
-  img: string;
+export type Combo = Omit<components["schemas"]["ComboResponse"], "snacks"> & {
   snacks: ComboSnack[];
-}
+};
 
-export interface ComboSnack {
-  id: number;
-  quantity: number;
-  snackSizeId: number | null;
-  discountPercentage: number | null;
+export type ComboSnack = components["schemas"]["ComboSnackResponse"] & {
   combo: Combo;
   snack: Snack;
-}
+};
 
-export type ComboForm = Omit<Combo, "id">;
+export type ComboForm = components["schemas"]["ComboRequest"];
 
-// API Combo interface (from OpenAPI schema)
-export interface ApiCombo {
-  id: number;
-  name: string;
-  description: string;
-  status: string;
-  img: string;
-  snacks?: import("./snacks.interface").ApiSnack[];
-}
+// API Combo interface from backend schema
+export type ApiCombo = components["schemas"]["ComboResponse"];

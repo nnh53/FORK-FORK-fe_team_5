@@ -1,4 +1,5 @@
-import type { CinemaRoomResponse } from "@/type-from-be";
+import type { components } from "@/schema-from-be";
+type CinemaRoomResponse = components["schemas"]["CinemaRoomResponse"];
 import { $api } from "@/utils/api";
 
 // Interface cho Room để match với ShowtimeManagement

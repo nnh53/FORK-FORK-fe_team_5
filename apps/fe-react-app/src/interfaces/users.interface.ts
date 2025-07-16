@@ -1,45 +1,15 @@
 import { type ROLE_TYPE } from "./roles.interface.ts";
+import type { components } from "@/schema-from-be";
 
 export type USER_STATUS = "ACTIVE" | "BAN";
 export type USER_GENDER = "MALE" | "FEMALE" | "OTHER";
 
 // Interface phù hợp với schema của BE - API User interface (from OpenAPI schema)
-export interface User {
-  id: string;
-  email: string;
-  fullName: string;
-  phone: string;
-  address?: string;
-  avatar?: string;
-  role: string;
-  status: string;
-  dateOfBirth?: string;
-  gender?: "MALE" | "FEMALE" | "OTHER";
-}
+export type User = components["schemas"]["UserResponse"];
 
-export type UserRequest = {
-  email: string;
-  fullName: string;
-  password: string;
-  phone?: string;
-  role?: string;
-  dateOfBirth?: string;
-  gender?: USER_GENDER;
-  address?: string;
-  status?: USER_STATUS;
-  loyaltyPoint?: number;
-};
+export type UserRequest = components["schemas"]["UserRequest"];
 
-export type UserUpdate = {
-  fullName?: string;
-  phone?: string;
-  address?: string;
-  avatar?: string;
-  role?: string;
-  status?: string;
-  gender?: USER_GENDER;
-  dateOfBirth?: string;
-};
+export type UserUpdate = components["schemas"]["UserUpdate"];
 
 // Interface cho phản hồi từ API Authentication
 export interface AuthenticationResponse {
@@ -161,17 +131,7 @@ export type UserLoginResponse = {
 };
 
 // API User interface (from OpenAPI schema)
-export interface ApiUser {
-  id: string;
-  email: string;
-  fullName: string;
-  phone: string;
-  address?: string;
-  avatar?: string;
-  role: string;
-  status: string;
-  dateOfBirth?: string;
-  gender?: "MALE" | "FEMALE" | "OTHER";
-}
+
+export type ApiUser = components["schemas"]["UserResponse"];
 
 // Legacy alias for backward compatibility

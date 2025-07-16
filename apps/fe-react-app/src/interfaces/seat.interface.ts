@@ -1,26 +1,18 @@
+import type { components } from "@/schema-from-be";
+
 export type SeatStatus = "AVAILABLE" | "MAINTENANCE";
 export type SeatTypeEnum = "COUPLE" | "PATH" | "REGULAR" | "VIP" | "BLOCK";
 export type SeatBookingStatus = "AVAILABLE" | "MAINTENANCE" | "BOOKED" | "RESERVED";
 
-// API Response seat entity - matches PickingSeatResponse from backend
-export interface Seat {
-  id: number;
-  roomId: number;
-  row: string;
-  column: string;
-  name: string;
-  type: SeatType;
-  status: string;
-  selected?: boolean; // true means seat is booked/selected by others
-  discarded?: boolean; // for internal use
-}
+// API Response seat entity
+export type Seat =
+  Omit<Required<components["schemas"]["SeatResponse"]>, "linkSeatId"> & {
+    linkSeatId?: number | null;
+    selected?: boolean;
+    discarded?: boolean;
+  };
 
-export interface SeatType {
-  id: number;
-  price: number;
-  name: SeatTypeEnum;
-  seatCount?: number;
-}
+export type SeatType = components["schemas"]["SeatTypeResponse"];
 
 // Database seat entity - matches the 'seat' table in database (legacy)
 export interface DatabaseSeat {
