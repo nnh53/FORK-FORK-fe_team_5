@@ -113,7 +113,7 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
       changedFields.fullName = data.fullName;
     }
 
-    // Skip email comparison since it's likely a unique field that can't be changed
+    // Email field is read-only when editing
 
     // Only include password if it's not empty (user wants to change password)
     if (data.password) {
@@ -171,13 +171,13 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
         {/* Email */}
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium">
-            Email
+            Email {staff && <span className="text-muted-foreground text-xs">(không thể thay đổi)</span>}
           </label>
           <Controller
             name="email"
             control={control}
             rules={{
-              required: "Vui lòng nhập email",
+              required: !staff ? "Vui lòng nhập email" : false,
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                 message: "Email không hợp lệ",
@@ -185,7 +185,14 @@ const StaffForm = ({ staff, onSubmit, onCancel }: StaffFormProps) => {
             }}
             render={({ field, fieldState }) => (
               <div>
-                <Input id="email" placeholder="Email" type="email" {...field} />
+                <Input
+                  id="email"
+                  placeholder="Email"
+                  type="email"
+                  {...field}
+                  readOnly={!!staff}
+                  className={staff ? "bg-muted cursor-not-allowed" : ""}
+                />
                 {fieldState.error && <p className="mt-1 text-xs text-red-500">{fieldState.error.message}</p>}
               </div>
             )}

@@ -111,7 +111,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
       changedFields.fullName = data.fullName;
     }
 
-    // Skip email since it's a unique field
+    // Email field is read-only when editing
 
     // Only include password if it's not empty (user wants to change password)
     if (data.password) {
@@ -169,13 +169,13 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
         {/* Email */}
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium">
-            Email
+            Email {member && <span className="text-muted-foreground text-xs">(không thể thay đổi)</span>}
           </label>
           <Controller
             name="email"
             control={control}
             rules={{
-              required: "Vui lòng nhập email",
+              required: !member ? "Vui lòng nhập email" : false,
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                 message: "Email không hợp lệ",
@@ -183,7 +183,14 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
             }}
             render={({ field, fieldState }) => (
               <div>
-                <Input id="email" placeholder="Email" type="email" {...field} />
+                <Input
+                  id="email"
+                  placeholder="Email"
+                  type="email"
+                  {...field}
+                  readOnly={!!member}
+                  className={member ? "bg-muted cursor-not-allowed" : ""}
+                />
                 {fieldState.error && <p className="mt-1 text-xs text-red-500">{fieldState.error.message}</p>}
               </div>
             )}
