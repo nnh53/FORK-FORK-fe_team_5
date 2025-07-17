@@ -25,7 +25,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   formPosition = "right",
 }) => {
   const { pageAnimation, slides } = useAuthPageAnimation({ direction });
-  const isDesktop = useMediaQuery("(min-width: 1000px)");
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const FormSection = (
     <div className={`${isDesktop ? "w-1/2" : "mt-15 w-full"} flex items-center justify-center p-8 md:p-12`}>
