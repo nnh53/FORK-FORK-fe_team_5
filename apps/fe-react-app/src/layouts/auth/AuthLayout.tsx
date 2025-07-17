@@ -28,7 +28,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   const isDesktop = useMediaQuery("(min-width: 1000px)");
 
   const FormSection = (
-    <div className={`${isDesktop ? "w-1/2" : "w-full"} flex items-center justify-center p-8 md:p-12`}>
+    <div className={`${isDesktop ? "w-1/2" : "mt-15 w-full"} flex items-center justify-center p-8 md:p-12`}>
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <AuthLogo />
@@ -41,7 +41,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   );
 
   const BannerSection = (
-    <div className={`${isDesktop ? "w-1/2" : "w-full"} ${!isDesktop ? "h-64" : "h-screen"}`}>
+    <div className={`${isDesktop ? "h-screen w-1/2" : "h-87 w-full"}`}>
       <BannerTransition slides={slides}>
         <h2 className="text-3xl font-bold">{bannerTitle}</h2>
         <p className="text-lg">{bannerSubtitle}</p>
@@ -54,10 +54,10 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
     // On mobile, form always on top
     if (!isDesktop) {
       return (
-        <>
+        <div className="flex h-full flex-col items-center justify-center">
           {FormSection}
           {BannerSection}
-        </>
+        </div>
       );
     }
 
