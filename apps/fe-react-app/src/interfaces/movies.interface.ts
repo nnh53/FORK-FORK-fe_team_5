@@ -25,17 +25,7 @@ export enum MovieGenre {
   CRIME = "CRIME",
 }
 
-export interface Showtime {
-  id: string;
-  movieId: number;
-  cinemaRoomId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  format: string;
-  availableSeats: number;
-  price: number;
-}
+export type { Showtime } from "./showtime.interface";
 
 export type Movie = components["schemas"]["MovieResponse"] & { categoryIds?: number[] };
 

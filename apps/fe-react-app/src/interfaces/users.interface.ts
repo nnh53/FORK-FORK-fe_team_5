@@ -12,13 +12,7 @@ export type UserRequest = components["schemas"]["UserRequest"];
 export type UserUpdate = components["schemas"]["UserUpdate"];
 
 // Interface cho phản hồi từ API Authentication
-export interface AuthenticationResponse {
-  token: string;
-  freshToken: string;
-  roles: ROLE_TYPE;
-  fullName: string;
-  id: string;
-}
+export type AuthenticationResponse = components["schemas"]["AuthenticationResponse"];
 
 // Giữ nguyên các interface cũ bên dưới
 export type UserDetailsResponse = UserBase & {
@@ -119,8 +113,6 @@ export type LoginDTO = {
   password: string;
 };
 
-export type Member = UserBase;
-export type Staff = UserBase;
 
 export type UserLoginResponse = {
   id: string;
