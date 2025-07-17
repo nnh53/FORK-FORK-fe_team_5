@@ -231,21 +231,6 @@ export interface BookingState {
   totalCost: number;
 }
 
-// Receipt interface (mirrors booking but for completed transactions)
-export interface Receipt {
-  id: number;
-  user_id?: string;
-  booking_date_time?: Date;
-  showtime_id?: number;
-  promotion_id?: number;
-  loyalty_point_used?: number;
-  total_price?: number;
-  payment_method?: PaymentMethod;
-  payment_status?: PaymentStatus;
-  booking_status?: BookingStatus;
-  pay_os_code?: string;
-  staff_id?: string;
-}
 
 // API Booking interfaces (from OpenAPI schema)
 import type { components } from "@/schema-from-be";

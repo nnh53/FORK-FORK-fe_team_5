@@ -1,6 +1,6 @@
 // File: src/components/showtimesGroup/ShowtimesGroup.tsx
 
-import type { Showtime } from "@/interfaces/movies.interface.ts";
+import type { UIShowtime } from "@/feature/staff/sales/types";
 import React, { useMemo } from "react";
 import type { SchedulePerDay } from "../ShowtimesModal/ShowtimesModal";
 
@@ -19,7 +19,7 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
         acc[showtime.format].push(showtime);
         return acc;
       },
-      {} as Record<string, Showtime[]>,
+      {} as Record<string, UIShowtime[]>,
     );
   }, [scheduleForDay]);
 

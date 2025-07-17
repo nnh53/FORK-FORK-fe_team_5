@@ -1,9 +1,9 @@
-export interface AuthLoginData {
-  token: string;
-  freshToken?: string;
-  roles: ROLE_TYPE[];
-  fullName: string;
-  id: string;
-}
-
+import type { components } from "@/schema-from-be";
 import type { ROLE_TYPE } from "./roles.interface";
+
+export type AuthLoginData = Omit<
+  components["schemas"]["AuthenticationResponse"],
+  "roles"
+> & {
+  roles: ROLE_TYPE[];
+};
