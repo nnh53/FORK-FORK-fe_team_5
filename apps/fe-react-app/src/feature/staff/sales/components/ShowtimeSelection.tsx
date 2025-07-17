@@ -4,6 +4,7 @@ import type { Movie } from "@/interfaces/movies.interface";
 import { Clock } from "lucide-react";
 import React from "react";
 import type { UIShowtime } from "@/interfaces/staff-sales.interface";
+import { useAvailableSeats } from "@/hooks/useAvailableSeats";
 
 interface ShowtimeSelectionProps {
   selectedMovie: Movie;
@@ -14,7 +15,40 @@ interface ShowtimeSelectionProps {
   onNext: () => void;
 }
 
-const ShowtimeSelection: React.FC<ShowtimeSelectionProps> = ({ selectedMovie, showtimes, selectedShowtime, onShowtimeSelect, onBack, onNext }) => {
+const ShowtimeSelection: React.FC<ShowtimeSelectionProps> = ({
+  selectedMovie,
+  showtimes,
+  selectedShowtime,
+  onShowtimeSelect,
+  onBack,
+  onNext,
+}) => {
+
+  const ShowtimeItem = ({ showtime }: { showtime: UIShowtime }) => {
+    const { availableSeats, isLoading } = useAvailableSeats(
+      parseInt(showtime.id),
+    );
+
+    return (
+      <button
+        onClick={() => handleShowtimeSelect(showtime)}
+        className={`cursor-pointer rounded-lg border p-4 text-center transition-colors ${
+          selectedShowtime?.id === showtime.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
+        }`}
+        type="button"
+        disabled={isLoading || availableSeats === 0}
+      >
+        <div className="text-center">
+          <div className="text-lg font-semibold">{showtime.startTime}</div>
+          <div className="text-sm text-gray-500">{showtime.date}</div>
+          <div className="text-sm text-gray-500">Phòng {showtime.cinemaRoomId}</div>
+          <div className="text-sm text-green-600">
+            {isLoading ? "..." : `${availableSeats} ghế trống`}
+          </div>
+        </div>
+      </button>
+    );
+  };
   const handleShowtimeSelect = (showtime: UIShowtime) => {
     onShowtimeSelect(showtime);
     onNext();
@@ -31,21 +65,7 @@ const ShowtimeSelection: React.FC<ShowtimeSelectionProps> = ({ selectedMovie, sh
       <CardContent>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           {showtimes.map((showtime) => (
-            <button
-              key={showtime.id}
-              onClick={() => handleShowtimeSelect(showtime)}
-              className={`cursor-pointer rounded-lg border p-4 text-center transition-colors ${
-                selectedShowtime?.id === showtime.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
-              }`}
-              type="button"
-            >
-              <div className="text-center">
-                <div className="text-lg font-semibold">{showtime.startTime}</div>
-                <div className="text-sm text-gray-500">{showtime.date}</div>
-                <div className="text-sm text-gray-500">Phòng {showtime.cinemaRoomId}</div>
-                <div className="text-sm text-green-600">{showtime.availableSeats} ghế trống</div>
-              </div>
-            </button>
+            <ShowtimeItem key={showtime.id} showtime={showtime} />
           ))}
         </div>
         <div className="mt-4">
