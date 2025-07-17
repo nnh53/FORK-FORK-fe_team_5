@@ -132,7 +132,7 @@ function MovieSelection() {
             const showDate = new Date(newShowtime.showDateTime);
             const endDate = new Date(newShowtime.endDateTime);
 
-            const seatsResponse = await fetchClient.GET("/showtimes/seats/{showtimeId}", {
+            const seatsResponse = await fetchClient.GET("/seats/showtime/{showtimeId}", {
               params: { path: { showtimeId: newShowtime.id } },
             });
             const seats = seatsResponse.data?.result ?? [];
