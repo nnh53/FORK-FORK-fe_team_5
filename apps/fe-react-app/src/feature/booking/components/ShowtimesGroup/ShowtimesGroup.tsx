@@ -1,7 +1,8 @@
 // File: src/components/showtimesGroup/ShowtimesGroup.tsx
 
-import type { Showtime } from "@/interfaces/movies.interface.ts";
+import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 import React, { useMemo } from "react";
+import { useAvailableSeats } from "@/hooks/useAvailableSeats";
 import type { SchedulePerDay } from "../ShowtimesModal/ShowtimesModal";
 
 interface ShowtimesGroupProps {
@@ -9,7 +10,38 @@ interface ShowtimesGroupProps {
   onSelectShowtime: (showtime: { time: string; format: string; showtimeId: string; roomId: string }) => void;
 }
 
-const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelectShowtime }) => {
+const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({
+  scheduleForDay,
+  onSelectShowtime,
+}) => {
+  const ShowtimeButton = ({ showtime }: { showtime: UIShowtime }) => {
+    const { availableSeats, isLoading } = useAvailableSeats(
+      parseInt(showtime.id),
+    );
+
+    let seatLabel = "...";
+    if (!isLoading) {
+      seatLabel = availableSeats > 0 ? `${availableSeats} ghế trống` : "Hết vé";
+    }
+
+    return (
+      <button
+        onClick={() =>
+          onSelectShowtime({
+            time: showtime.startTime,
+            format: showtime.format,
+            showtimeId: showtime.id,
+            roomId: showtime.cinemaRoomId,
+          })
+        }
+        className="rounded-md border border-gray-300 bg-gray-50 p-2 text-center transition-all duration-200 hover:border-red-500 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={isLoading || availableSeats === 0}
+      >
+        <p className="text-base font-bold text-gray-900">{showtime.startTime}</p>
+        <p className="text-xs text-gray-500">{seatLabel}</p>
+      </button>
+    );
+  };
   const groupedShowtimes = useMemo(() => {
     if (!scheduleForDay?.showtimes) return {};
 
@@ -19,7 +51,7 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
         acc[showtime.format].push(showtime);
         return acc;
       },
-      {} as Record<string, Showtime[]>,
+      {} as Record<string, UIShowtime[]>,
     );
   }, [scheduleForDay]);
 
@@ -37,24 +69,7 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
           {/* CẬP NHẬT: Tăng số cột trong grid */}
           <div className="grid grid-cols-4 gap-3 md:grid-cols-5 lg:grid-cols-6">
             {showtimes.map((showtime) => (
-              <button
-                key={showtime.startTime}
-                onClick={() =>
-                  onSelectShowtime({
-                    time: showtime.startTime,
-                    format,
-                    showtimeId: showtime.id,
-                    roomId: showtime.cinemaRoomId,
-                  })
-                }
-                // CẬP NHẬT: Toàn bộ style của button suất chiếu
-                className="rounded-md border border-gray-300 bg-gray-50 p-2 text-center transition-all duration-200 hover:border-red-500 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={showtime.availableSeats === 0} // Thêm: disable nút nếu hết ghế
-              >
-                {/* CẬP NHẬT: Style lại text bên trong */}
-                <p className="text-base font-bold text-gray-900">{showtime.startTime}</p>
-                <p className="text-xs text-gray-500">{showtime.availableSeats > 0 ? `${showtime.availableSeats} ghế trống` : "Hết vé"}</p>
-              </button>
+              <ShowtimeButton key={showtime.startTime} showtime={showtime} />
             ))}
           </div>
         </div>

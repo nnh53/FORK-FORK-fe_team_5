@@ -1,10 +1,12 @@
-import type { Showtime } from "@/interfaces/movies.interface";
+import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 import type { SchedulePerDay } from "../feature/booking/components/ShowtimesModal/ShowtimesModal";
 
 /**
  * Convert Showtime[] to SchedulePerDay[] format used by UI components
  */
-export const convertShowtimesToSchedulePerDay = (showtimes: Showtime[]): SchedulePerDay[] => {
+export const convertShowtimesToSchedulePerDay = (
+  showtimes: UIShowtime[],
+): SchedulePerDay[] => {
   const now = new Date();
 
   // Group future showtimes by date
@@ -22,7 +24,7 @@ export const convertShowtimesToSchedulePerDay = (showtimes: Showtime[]): Schedul
       acc[date].push(showtime);
       return acc;
     },
-    {} as Record<string, Showtime[]>,
+    {} as Record<string, UIShowtime[]>,
   );
 
   // Convert to SchedulePerDay format with sorted dates and times
@@ -40,7 +42,9 @@ export const convertShowtimesToSchedulePerDay = (showtimes: Showtime[]): Schedul
 /**
  * Get unique dates from showtimes
  */
-export const getAvailableDatesFromShowtimes = (showtimes: Showtime[]): string[] => {
+export const getAvailableDatesFromShowtimes = (
+  showtimes: UIShowtime[],
+): string[] => {
   const dates = [...new Set(showtimes.map((showtime) => showtime.date))];
   return dates.sort((a, b) => a.localeCompare(b));
 };

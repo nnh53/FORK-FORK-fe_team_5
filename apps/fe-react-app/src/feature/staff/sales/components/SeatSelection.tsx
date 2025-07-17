@@ -4,7 +4,7 @@ import type { SeatMap } from "@/interfaces/seat.interface";
 import { Ticket } from "lucide-react";
 import React from "react";
 import BookingSeatMap from "../../../booking/components/BookingSeatMap/BookingSeatMap";
-import type { UIShowtime } from "../types";
+import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 
 interface SeatSelectionProps {
   selectedShowtime: UIShowtime;

@@ -7,7 +7,7 @@ import type { Member } from "@/interfaces/member.interface";
 import type { Movie } from "@/interfaces/movies.interface";
 import type { Promotion } from "@/interfaces/promotion.interface";
 import { ROUTES } from "@/routes/route.constants.ts";
-import type { components } from "@/schema-from-be";
+import type { components, paths } from "@/schema-from-be";
 import { transformSeatsToSeatMap, useConfirmBookingPayment, useCreateBooking, useSeatsByShowtimeId } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
 import { queryMovies, transformMovieResponse } from "@/services/movieService";
@@ -15,6 +15,7 @@ import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@
 import { queryShowtimesByMovie } from "@/services/showtimeService";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import createFetchClient from "openapi-fetch";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { memberService } from "../../../services/memberService";
@@ -28,20 +29,28 @@ import {
   SnackSelection,
   StepProgress,
 } from "./components";
-import type { CustomerInfo as CustomerInfoType, StaffSalesStep, UIShowtime } from "./types";
+import type { CustomerInfo as CustomerInfoType, StaffSalesStep, UIShowtime } from "@/interfaces/staff-sales.interface";
 type BookingRequest = components["schemas"]["BookingRequest"];
 type BookingResponse = components["schemas"]["BookingResponse"];
 type MovieResponse = components["schemas"]["MovieResponse"];
 type ShowtimeResponse = components["schemas"]["ShowtimeResponse"];
 
 // Utility function to convert API Showtime to UI Showtime format
-const convertApiShowtimeToUI = (apiShowtime: ShowtimeResponse): UIShowtime => {
+const convertApiShowtimeToUI = (
+  apiShowtime: ShowtimeResponse,
+  availableSeats = 0,
+): UIShowtime => {
   const showDateTime = new Date(apiShowtime.showDateTime ?? "");
   const endDateTime = new Date(apiShowtime.endDateTime ?? "");
 
   return {
     id: (apiShowtime.id ?? 0).toString(),
     movieId: apiShowtime.movieId ?? 0,
+    roomId: apiShowtime.roomId ?? 0,
+    roomName: apiShowtime.roomName ?? "Unknown",
+    showDateTime: apiShowtime.showDateTime ?? "",
+    endDateTime: apiShowtime.endDateTime ?? "",
+    status: apiShowtime.status ?? "SCHEDULE",
     cinemaRoomId: apiShowtime.roomId?.toString() ?? apiShowtime.roomName ?? "Unknown",
     date: showDateTime.toLocaleDateString("vi-VN"),
     startTime: showDateTime.toLocaleTimeString("vi-VN", {
@@ -54,9 +63,9 @@ const convertApiShowtimeToUI = (apiShowtime: ShowtimeResponse): UIShowtime => {
       minute: "2-digit",
       hour12: false,
     }),
-    format: "2D", // Default format - could be enhanced later
-    availableSeats: 50, // Mock value - would need actual seat data from API
-    price: 100000, // Mock value - would need actual price from API
+    format: "2D",
+    availableSeats,
+    price: 100000,
   };
 };
 
@@ -64,6 +73,24 @@ const StaffTicketSales: React.FC = () => {
   // Get current staff information from auth context
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Create fetch client for manual API calls
+  const fetchClient = createFetchClient<paths>({
+    baseUrl: `${import.meta.env.VITE_API_URL}/movie_theater/`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  fetchClient.use({
+    onRequest({ request }) {
+      const token = localStorage.getItem("token");
+      if (token) {
+        request.headers.set("Authorization", `Bearer ${token}`);
+      }
+      return request;
+    },
+  });
 
   // Cash payment dialog state
   const [showCashPaymentDialog, setShowCashPaymentDialog] = useState(false);
@@ -137,7 +164,7 @@ const StaffTicketSales: React.FC = () => {
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(null);
 
   // Fetch seat data for the selected showtime
-  const showtimeId = selectedShowtime?.id ? parseInt(selectedShowtime.id) : 0;
+  const showtimeId = selectedShowtime ? parseInt(selectedShowtime.id) : 0;
   const { data: seatsData, isLoading: seatsLoading } = useSeatsByShowtimeId(showtimeId);
 
   // Transform API seat data to SeatMap format
@@ -188,19 +215,34 @@ const StaffTicketSales: React.FC = () => {
 
   // Handle showtimes data from React Query
   useEffect(() => {
-    if (showtimesQuery.data?.result && selectedMovieId !== null) {
-      try {
-        const convertedShowtimes = showtimesQuery.data.result.map(convertApiShowtimeToUI);
-        setShowtimes(convertedShowtimes);
-      } catch (error) {
-        console.error("Error converting showtimes:", error);
+    const loadShowtimes = async () => {
+      if (showtimesQuery.data?.result && selectedMovieId !== null) {
+        try {
+          const convertedShowtimes = await Promise.all(
+            showtimesQuery.data.result.map(async (apiShowtime) => {
+              const seatsResponse = await fetchClient.GET("/seats/showtime/{showtimeId}", {
+                params: { path: { showtimeId: apiShowtime.id ?? 0 } },
+              });
+              const seats = Array.isArray(seatsResponse.data?.result)
+                ? (seatsResponse.data.result as components["schemas"]["SeatResponse"][])
+                : [];
+              const availableSeats = seats.filter((seat) => seat.status === "AVAILABLE").length;
+              return convertApiShowtimeToUI(apiShowtime, availableSeats);
+            }),
+          );
+          setShowtimes(convertedShowtimes);
+        } catch (error) {
+          console.error("Error converting showtimes:", error);
+          toast.error("Không thể tải lịch chiếu");
+        }
+      } else if (showtimesQuery.isError) {
+        console.error("Error fetching showtimes:", showtimesQuery.error);
         toast.error("Không thể tải lịch chiếu");
       }
-    } else if (showtimesQuery.isError) {
-      console.error("Error fetching showtimes:", showtimesQuery.error);
-      toast.error("Không thể tải lịch chiếu");
-    }
-  }, [showtimesQuery.data, showtimesQuery.isError, showtimesQuery.error, selectedMovieId]);
+    };
+
+    void loadShowtimes();
+  }, [fetchClient, showtimesQuery.data, showtimesQuery.isError, showtimesQuery.error, selectedMovieId]);
 
   useEffect(() => {
     if (selectedShowtime) {
@@ -362,7 +404,7 @@ const StaffTicketSales: React.FC = () => {
     const totalPrice = calculateTotal();
     return {
       userId: memberInfo?.id || `guest_${Date.now()}`,
-      showtimeId: parseInt(selectedShowtime?.id || "0") || 1,
+      showtimeId: selectedShowtime ? parseInt(selectedShowtime.id) : 1,
       promotionId: selectedPromotion?.id,
       seatIds: selectedSeatIds,
       totalPrice,
