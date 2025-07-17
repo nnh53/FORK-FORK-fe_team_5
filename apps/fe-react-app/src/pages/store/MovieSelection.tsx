@@ -268,7 +268,7 @@ function MovieSelection() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <TrueFocus
           sentence="NOW UPCOMING ALL"
-          blurAmount={5}
+          blurAmount={2}
           borderColor="var(--primary)"
           glowColor="var(--primary)"
           animationDuration={0.3}
