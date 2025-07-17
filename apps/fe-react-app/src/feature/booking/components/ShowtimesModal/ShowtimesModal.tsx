@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog.tsx";
-import type { UIShowtime } from "@/feature/staff/sales/types";
+import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 import React, { useEffect, useMemo, useState } from "react";
 import ShowDateSelector from "../ShowDateSelector/ShowDateSelector.tsx";
 import ShowtimesGroup from "../ShowtimesGroup/ShowtimesGroup";

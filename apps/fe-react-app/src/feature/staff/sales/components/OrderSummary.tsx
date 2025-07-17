@@ -6,7 +6,7 @@ import type { Promotion } from "@/interfaces/promotion.interface";
 import type { Snack } from "@/interfaces/snacks.interface";
 import { calculateDiscount, formatCurrency } from "@/services/promotionService";
 import React from "react";
-import type { UIShowtime } from "../types";
+import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 
 interface OrderSummaryProps {
   selectedMovie: Movie | null;

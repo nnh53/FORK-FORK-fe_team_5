@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui
 import type { Movie } from "@/interfaces/movies.interface";
 import { Clock } from "lucide-react";
 import React from "react";
-import type { UIShowtime } from "../types";
+import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 
 interface ShowtimeSelectionProps {
   selectedMovie: Movie;

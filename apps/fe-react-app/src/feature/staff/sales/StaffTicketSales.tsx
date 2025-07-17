@@ -28,7 +28,7 @@ import {
   SnackSelection,
   StepProgress,
 } from "./components";
-import type { CustomerInfo as CustomerInfoType, StaffSalesStep, UIShowtime } from "./types";
+import type { CustomerInfo as CustomerInfoType, StaffSalesStep, UIShowtime } from "@/interfaces/staff-sales.interface";
 type BookingRequest = components["schemas"]["BookingRequest"];
 type BookingResponse = components["schemas"]["BookingResponse"];
 type MovieResponse = components["schemas"]["MovieResponse"];
@@ -42,6 +42,11 @@ const convertApiShowtimeToUI = (apiShowtime: ShowtimeResponse): UIShowtime => {
   return {
     id: (apiShowtime.id ?? 0).toString(),
     movieId: apiShowtime.movieId ?? 0,
+    roomId: apiShowtime.roomId ?? 0,
+    roomName: apiShowtime.roomName ?? "Unknown",
+    showDateTime: apiShowtime.showDateTime ?? "",
+    endDateTime: apiShowtime.endDateTime ?? "",
+    status: apiShowtime.status ?? "SCHEDULE",
     cinemaRoomId: apiShowtime.roomId?.toString() ?? apiShowtime.roomName ?? "Unknown",
     date: showDateTime.toLocaleDateString("vi-VN"),
     startTime: showDateTime.toLocaleTimeString("vi-VN", {
@@ -54,9 +59,9 @@ const convertApiShowtimeToUI = (apiShowtime: ShowtimeResponse): UIShowtime => {
       minute: "2-digit",
       hour12: false,
     }),
-    format: "2D", // Default format - could be enhanced later
-    availableSeats: 50, // Mock value - would need actual seat data from API
-    price: 100000, // Mock value - would need actual price from API
+    format: "2D",
+    availableSeats: 50,
+    price: 100000,
   };
 };
 
@@ -137,7 +142,7 @@ const StaffTicketSales: React.FC = () => {
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(null);
 
   // Fetch seat data for the selected showtime
-  const showtimeId = selectedShowtime?.id ? parseInt(selectedShowtime.id) : 0;
+  const showtimeId = selectedShowtime ? parseInt(selectedShowtime.id) : 0;
   const { data: seatsData, isLoading: seatsLoading } = useSeatsByShowtimeId(showtimeId);
 
   // Transform API seat data to SeatMap format
@@ -362,7 +367,7 @@ const StaffTicketSales: React.FC = () => {
     const totalPrice = calculateTotal();
     return {
       userId: memberInfo?.id || `guest_${Date.now()}`,
-      showtimeId: parseInt(selectedShowtime?.id || "0") || 1,
+      showtimeId: selectedShowtime ? parseInt(selectedShowtime.id) : 1,
       promotionId: selectedPromotion?.id,
       seatIds: selectedSeatIds,
       totalPrice,

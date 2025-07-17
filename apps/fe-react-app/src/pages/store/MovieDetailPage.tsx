@@ -3,7 +3,7 @@
 import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/ShowDateSelector";
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
-import type { UIShowtime as OldShowtime } from "@/feature/staff/sales/types";
+import type { UIShowtime as OldShowtime } from "@/interfaces/staff-sales.interface";
 import type { Showtime as NewShowtime } from "@/interfaces/showtime.interface";
 import { queryMovie } from "@/services/movieService";
 import { queryShowtimesByMovie, transformShowtimesResponse } from "@/services/showtimeService";

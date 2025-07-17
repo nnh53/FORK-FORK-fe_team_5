@@ -1,4 +1,4 @@
-import type { UIShowtime } from "@/feature/staff/sales/types";
+import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 import type { SchedulePerDay } from "../feature/booking/components/ShowtimesModal/ShowtimesModal";
 
 /**

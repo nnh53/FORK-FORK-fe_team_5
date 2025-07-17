@@ -1,6 +1,6 @@
 // File: src/components/showtimesGroup/ShowtimesGroup.tsx
 
-import type { UIShowtime } from "@/feature/staff/sales/types";
+import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 import React, { useMemo } from "react";
 import type { SchedulePerDay } from "../ShowtimesModal/ShowtimesModal";
 
