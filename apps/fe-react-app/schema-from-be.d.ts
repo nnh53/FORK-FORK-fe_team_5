@@ -592,38 +592,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/showtimes/seats/{showtimeId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAvailableSeats"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/showtimes/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["searchShowtimes"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/showtimes/room/{roomId}": {
         parameters: {
             query?: never;
@@ -1293,32 +1261,6 @@ export interface components {
             message?: string;
             result?: components["schemas"]["Receipt"][];
         };
-        Booking: {
-            /** Format: int32 */
-            id?: number;
-            /** Format: date-time */
-            bookingDate?: string;
-            /** Format: int32 */
-            loyaltyPointsUsed?: number;
-            /** Format: float */
-            estimatedPrice?: number;
-            /** Format: float */
-            totalPrice?: number;
-            /** @enum {string} */
-            paymentMethod?: "CASH" | "ONLINE";
-            /** @enum {string} */
-            paymentStatus?: "PENDING" | "SUCCESS" | "FAILED";
-            staffId?: string;
-            /** @enum {string} */
-            status?: "PENDING" | "SUCCESS" | "CANCELLED";
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-            payOsCode?: string;
-            payOsLink?: string;
-            feUrl?: string;
-        };
         Receipt: {
             /** Format: int32 */
             id?: number;
@@ -1405,7 +1347,6 @@ export interface components {
             avatar?: string;
             /** Format: int32 */
             loyaltyPoint?: number;
-            bookings?: components["schemas"]["Booking"][];
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
@@ -1617,24 +1558,6 @@ export interface components {
             code?: number;
             message?: string;
             result?: components["schemas"]["SeatResponse"][];
-        };
-        ApiResponsePageResponseShowtimeResponse: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            result?: components["schemas"]["PageResponseShowtimeResponse"];
-        };
-        PageResponseShowtimeResponse: {
-            content?: components["schemas"]["ShowtimeResponse"][];
-            /** Format: int32 */
-            pageNo?: number;
-            /** Format: int32 */
-            pageSize?: number;
-            /** Format: int64 */
-            totalElements?: number;
-            /** Format: int32 */
-            totalPages?: number;
-            last?: boolean;
         };
         ApiResponseListPickingSeatResponse: {
             /** Format: int32 */
@@ -3343,56 +3266,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseUserResponse"];
-                };
-            };
-        };
-    };
-    getAvailableSeats: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                showtimeId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponseListSeatResponse"];
-                };
-            };
-        };
-    };
-    searchShowtimes: {
-        parameters: {
-            query?: {
-                movieId?: number;
-                roomId?: number;
-                startDate?: string;
-                endDate?: string;
-                status?: string;
-                pageNo?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponsePageResponseShowtimeResponse"];
                 };
             };
         };
