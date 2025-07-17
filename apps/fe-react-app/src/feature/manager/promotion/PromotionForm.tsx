@@ -1,8 +1,9 @@
 import { Button } from "@/components/Shadcn/ui/button";
+import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
-import { DateTimePicker } from "@/components/Shadcn/ui/date-time-picker";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
 import ImageUpload from "@/components/shared/ImageUpload";
@@ -10,9 +11,10 @@ import type { Promotion } from "@/interfaces/promotion.interface";
 import { promotionStatusOptions, promotionTypeOptions } from "@/services/promotionService";
 import { promotionValidationSchema } from "@/utils/validation.utils";
 import { Icon } from "@iconify/react";
+import { format } from "date-fns";
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from "formik";
-import { ImageIcon } from "lucide-react";
-import React, { useState } from "react";
+import { CalendarIcon, ImageIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 interface PromotionFormProps {
   selectedPromotion?: Promotion;
@@ -103,6 +105,75 @@ const SelectField = ({ name, label, icon, options, errors, touched, setFieldValu
     <ErrorMessage name={name} component="div" className="text-destructive mt-1 text-sm" />
   </div>
 );
+
+// DateTimePickerCustom component để thay thế DateTimePicker cũ
+interface DateTimePickerCustomProps {
+  date: Date | undefined;
+  setDate: (date: Date | undefined) => void;
+  error?: boolean;
+}
+
+const DateTimePickerCustom: React.FC<DateTimePickerCustomProps> = ({ date, setDate, error }) => {
+  const [open, setOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(date);
+  const [time, setTime] = useState(
+    date ? `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}` : "00:00",
+  );
+
+  // Khi date prop thay đổi từ bên ngoài, cập nhật state nội bộ
+  useEffect(() => {
+    if (date !== selectedDate) {
+      setSelectedDate(date);
+      if (date) {
+        setTime(`${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`);
+      }
+    }
+  }, [date, selectedDate]);
+
+  // Xử lý khi chọn ngày mới
+  const handleDateSelect = (newDate: Date | undefined) => {
+    if (newDate) {
+      // Giữ nguyên giờ phút hiện tại khi chọn ngày mới
+      const [hours, minutes] = time.split(":").map(Number);
+      newDate.setHours(hours, minutes, 0, 0);
+      setSelectedDate(newDate);
+      setDate(newDate);
+    }
+    setOpen(false);
+  };
+
+  // Xử lý khi thay đổi thời gian
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = e.target.value;
+    setTime(newTime);
+
+    if (selectedDate) {
+      const [hours, minutes] = newTime.split(":").map(Number);
+      const newDateTime = new Date(selectedDate);
+      newDateTime.setHours(hours, minutes, 0, 0);
+      setDate(newDateTime);
+    }
+  };
+
+  return (
+    <div className="flex gap-2">
+      <div className="flex-grow">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className={`w-full justify-start text-left font-normal ${error ? "border-destructive ring-destructive" : ""}`}>
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {selectedDate ? format(selectedDate, "dd/MM/yyyy") : <span className="text-muted-foreground">Chọn ngày</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar mode="single" selected={selectedDate} onSelect={handleDateSelect} />
+          </PopoverContent>
+        </Popover>
+      </div>
+      <Input type="time" value={time} onChange={handleTimeChange} className={`w-32 ${error ? "border-destructive ring-destructive" : ""}`} />
+    </div>
+  );
+};
 
 export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion, onSubmit, onCancel }) => {
   // Khởi tạo imagePreview là null để có thể phân biệt giữa chưa thay đổi (null) và đã xóa ("")
@@ -255,9 +326,9 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                             Thời gian bắt đầu <span className="text-destructive">*</span>
                           </Label>
                         </div>
-                        <DateTimePicker
+                        <DateTimePickerCustom
                           date={startDate}
-                          setDate={(date) => {
+                          setDate={(date: Date | undefined) => {
                             setStartDate(date);
                             if (date) {
                               setFieldValue("startTime", date.toISOString());
@@ -275,9 +346,9 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                             Thời gian kết thúc <span className="text-destructive">*</span>
                           </Label>
                         </div>
-                        <DateTimePicker
+                        <DateTimePickerCustom
                           date={endDate}
-                          setDate={(date) => {
+                          setDate={(date: Date | undefined) => {
                             setEndDate(date);
                             if (date) {
                               setFieldValue("endTime", date.toISOString());
