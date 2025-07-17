@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const PaymentReturn = () => {
-  const { search } = useLocation();
+  const { search, state } = useLocation();
   const navigate = useNavigate();
   const cancelRequestWithOrderCode = $api.useMutation("post", "/bookings/cancel/{id}");
 
@@ -18,9 +18,27 @@ const PaymentReturn = () => {
   const status = searchParams.get("status");
   const orderCode = searchParams.get("orderCode");
 
-  console.log("Payment return params:", { code, id, cancel, status, orderCode });
+  // Check if this is a staff booking (from navigation state)
+  const isStaffBooking = state?.isStaffBooking || false;
+  const paymentMethod = state?.paymentMethod;
+
+  console.log("Payment return params:", { code, id, cancel, status, orderCode, isStaffBooking, paymentMethod });
 
   useEffect(() => {
+    // Handle staff booking - they should always go to success page
+    if (isStaffBooking && paymentMethod === "OFFLINE") {
+      console.log("Staff booking with offline payment, navigating to success page");
+      navigate(ROUTES.BOOKING_SUCCESS);
+      return;
+    }
+
+    // If no URL parameters but we have state, it might be a staff booking
+    if (!code && !id && !status && !cancel && !orderCode && state) {
+      console.log("No URL parameters but state exists, assuming staff booking success");
+      navigate(ROUTES.BOOKING_SUCCESS);
+      return;
+    }
+
     // Check if payment was cancelled
     if (cancel === "true" && orderCode != null) {
       console.log("orderCode:", orderCode);
@@ -37,7 +55,7 @@ const PaymentReturn = () => {
       return;
     }
 
-    // Check if payment was successful
+    // Check if payment was successful (for online payments)
     if (status === "PAID" && cancel === "false") {
       // Navigate to booking success page with the booking ID in URL params
       console.log("Payment successful, navigating to success page with booking ID:", id);
@@ -50,8 +68,11 @@ const PaymentReturn = () => {
     }
 
     // Handle other cases (failed payment, invalid status, etc.)
-    toast.error("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
-    navigate(ROUTES.CHECKOUT);
+    // Only show error if we have URL parameters (indicating this is an online payment return)
+    if (code || id || status || cancel || orderCode) {
+      toast.error("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
+      navigate(ROUTES.CHECKOUT);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

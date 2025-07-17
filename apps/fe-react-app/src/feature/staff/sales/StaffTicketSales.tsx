@@ -563,14 +563,8 @@ const StaffTicketSales: React.FC = () => {
       const staffInfo = user?.fullName ? ` - Nhân viên: ${user.fullName}` : "";
       toast.success(successMessage + staffInfo);
 
-      // Navigate to payment return page to show QR code
-      navigate(ROUTES.PAYMENT_RETURN, {
-        state: {
-          paymentMethod: "OFFLINE",
-          bookingData: bookingDataForStorage,
-          isStaffBooking: true,
-        },
-      });
+      // Navigate directly to booking success page for staff bookings
+      navigate(ROUTES.BOOKING_SUCCESS);
 
       resetForm();
     },
