@@ -26,12 +26,8 @@ export const queryShowtimesByRoom = (roomId: number) => {
   });
 };
 
-export const queryShowtimeSearch = () => {
-  return $api.useQuery("get", "/showtimes/search");
-};
-
 export const queryShowtimeSeats = (showtimeId: number) => {
-  return $api.useQuery("get", "/showtimes/seats/{showtimeId}", {
+  return $api.useQuery("get", "/seats/showtime/{showtimeId}", {
     params: { path: { showtimeId } },
   });
 };
