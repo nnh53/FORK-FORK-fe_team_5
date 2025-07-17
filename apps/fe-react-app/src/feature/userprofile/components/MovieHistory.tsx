@@ -148,6 +148,17 @@ export const MyMovieHistory: React.FC = () => {
       .map((booking: BookingResponse) => {
         const transformedBooking = transformBookingResponse(booking);
 
+        // Resolve show time as Date for sorting and display
+        const showDateTime = (() => {
+          if (transformedBooking.showtime?.show_date_time) {
+            return transformedBooking.showtime.show_date_time;
+          }
+          if (booking.showTime?.showDateTime) {
+            return new Date(booking.showTime.showDateTime);
+          }
+          return new Date(0);
+        })();
+
         // Get movie name from movieId
         const movieId = booking.showTime?.movieId;
         const movie = movieId ? moviesMap.get(movieId) : null;
@@ -168,21 +179,15 @@ export const MyMovieHistory: React.FC = () => {
           receiptId: `HD${transformedBooking.id.toString().padStart(3, "0")}`,
           movieName,
           room: roomName,
-          movieSlot: (() => {
-            if (transformedBooking.showtime?.show_date_time) {
-              return transformedBooking.showtime.show_date_time.toLocaleString("vi-VN");
-            }
-            if (booking.showTime?.showDateTime) {
-              return new Date(booking.showTime.showDateTime).toLocaleString("vi-VN");
-            }
-            return "Unknown Time";
-          })(),
+          movieSlot: showDateTime.toLocaleString("vi-VN"),
+          movieTime: showDateTime,
           seats: transformedBooking.booking_seats?.map((seatRelation) => seatRelation.seat?.name).filter(Boolean) || [],
           points: transformedBooking.loyalty_point_used || 0,
           poster: movie?.poster || "https://via.placeholder.com/100x150",
           status: transformedBooking.booking_status || "PENDING",
         };
-      });
+      })
+      .sort((a, b) => b.movieTime.getTime() - a.movieTime.getTime());
   }, [bookingsData, statusFilter, moviesData, cinemaRoomsData]);
 
   const getStatusBadge = (status: string) => {
