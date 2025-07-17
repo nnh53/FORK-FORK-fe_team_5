@@ -1,14 +1,13 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { Input } from "@/components/Shadcn/ui/input";
-import { Label } from "@/components/Shadcn/ui/label";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { clearUploadedImageId, useImageUpload } from "@/hooks/useImageUpload";
-import { ImageIcon, ImageOffIcon, LinkIcon, Trash2Icon, UploadIcon } from "lucide-react";
+import { ImageIcon, ImageOffIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface ImageUploadProps {
   currentImage: string; // URL hoặc ID hình ảnh hiện tại
-  onImageChange: (imageIdOrUrl: string) => void; // Callback trả về ID hoặc URL
+  onImageChange: (imageId: string) => void; // Callback trả về ID
   onImageClear: () => void; // Callback khi xóa hình ảnh
   label?: string;
   aspectRatio?: string;
@@ -37,9 +36,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const [dragActive, setDragActive] = useState(false);
   const [imageInfo, setImageInfo] = useState<{ width: number; height: number } | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(""); // URL tạm thời từ file cục bộ
-  const [externalImageUrl, setExternalImageUrl] = useState<string>(""); // URL nhập tay
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+
+  // Responsive state using media query
+  const isMobile = useMediaQuery("(max-width: 640px)");
 
   // Load image dimensions when currentImage changes
   useEffect(() => {
@@ -67,25 +68,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
     return () => {};
   }, [previewUrl]);
-
-  // Kiểm tra URL hợp lệ
-  const isValidImageUrl = useCallback(async (url: string): Promise<boolean> => {
-    const urlPattern = /^(https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif))/i;
-    if (!urlPattern.test(url)) {
-      return false;
-    }
-    try {
-      const img = new Image();
-      img.src = url;
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
 
   // Xử lý file được chọn hoặc kéo thả
   const processFile = useCallback(
@@ -173,21 +155,26 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const handleClearImage = useCallback(() => {
     onImageClear();
     setPreviewUrl("");
-    setExternalImageUrl("");
     clearUploadedImageId();
     toast.success("Ảnh đã được xóa!");
   }, [onImageClear]);
 
   // Tính toán style cho container preview
   const getPreviewContainerStyle = useCallback(() => {
+    // Adjust size based on screen size
+    let responsiveSize = previewSize;
+    if (isMobile && previewSize === "lg") {
+      responsiveSize = "md";
+    }
+
     const sizeMap = {
-      sm: "h-32 w-32 min-h-[120px] min-w-[120px]",
-      md: "h-48 w-48 min-h-[180px] min-w-[180px]",
-      lg: "h-64 w-64 min-h-[240px] min-w-[240px]",
-      auto: "h-auto w-64 min-h-[200px] max-w-md",
+      sm: isMobile ? "h-28 w-28 min-h-[100px] min-w-[100px]" : "h-32 w-32 min-h-[120px] min-w-[120px]",
+      md: isMobile ? "h-36 w-36 min-h-[140px] min-w-[140px]" : "h-48 w-48 min-h-[180px] min-w-[180px]",
+      lg: isMobile ? "h-48 w-48 min-h-[180px] min-w-[180px]" : "h-64 w-64 min-h-[240px] min-w-[240px]",
+      auto: isMobile ? "h-auto w-full min-h-[180px] max-w-full" : "h-auto w-64 min-h-[200px] max-w-md",
     };
 
-    const baseClass = `relative overflow-hidden rounded-xl ${sizeMap[previewSize]} flex items-center justify-center p-2`;
+    const baseClass = `relative overflow-hidden rounded-xl ${sizeMap[responsiveSize]} flex items-center justify-center p-2`;
 
     if (!imageInfo || !preserveAspectRatio) {
       return `${baseClass} aspect-[${aspectRatio.replace(":", "/")}]`;
@@ -201,11 +188,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
 
     return `${baseClass} aspect-square`;
-  }, [imageInfo, preserveAspectRatio, previewSize, aspectRatio]);
+  }, [imageInfo, preserveAspectRatio, previewSize, aspectRatio, isMobile]);
 
   // Render nội dung preview hình ảnh
   const renderImageContent = () => {
-    const displayImage = previewUrl || externalImageUrl || currentImage;
+    const displayImage = previewUrl || currentImage;
     if (displayImage) {
       return (
         <div className="group relative h-full w-full overflow-hidden">
@@ -281,10 +268,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     );
   };
 
-  // Xác định layout class
-  const getLayoutClass = () => {
+  // Xác định layout class dựa trên responsive
+  const getLayoutClass = useCallback(() => {
+    if (isMobile) {
+      return "flex-col items-center gap-4";
+    }
+
+    // Dùng media query để quyết định layout
     return layout === "horizontal" ? "flex-col items-center gap-4 sm:flex-row sm:items-start" : "flex-col items-center gap-4";
-  };
+  }, [isMobile, layout]);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -299,7 +291,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       <div className={`flex ${getLayoutClass()}`}>
         <button
           type="button"
-          role="button"
           aria-label="Khu vực tải lên hình ảnh"
           aria-describedby={uploadError || externalError ? "image-upload-error" : undefined}
           onClick={handleImageClick}
@@ -325,7 +316,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           />
 
           <div className="space-y-3">
-            {!currentImage && !previewUrl && !externalImageUrl ? (
+            {!currentImage && !previewUrl ? (
               <div className="space-y-2">
                 <Button
                   onClick={(e) => {
@@ -340,55 +331,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                   <UploadIcon className="mr-2 h-4 w-4" />
                   Tải ảnh lên
                 </Button>
-
-                <div className="relative">
-                  <Label htmlFor="image-url" className="mb-1 block text-xs">
-                    Hoặc nhập URL của ảnh
-                  </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="url"
-                      id="image-url"
-                      placeholder="https://example.com/image.jpg"
-                      className="w-full text-sm"
-                      onKeyDown={async (e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          const input = e.currentTarget as HTMLInputElement;
-                          if (input.value && (await isValidImageUrl(input.value))) {
-                            setExternalImageUrl(input.value);
-                            onImageChange(input.value);
-                            input.value = "";
-                            toast.success("URL ảnh đã được áp dụng!");
-                          } else {
-                            toast.error("URL không hợp lệ hoặc không phải ảnh!");
-                          }
-                        }
-                      }}
-                      aria-describedby="image-upload-error"
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        const input = document.getElementById("image-url") as HTMLInputElement;
-                        if (input.value && (await isValidImageUrl(input.value))) {
-                          setExternalImageUrl(input.value);
-                          onImageChange(input.value);
-                          input.value = "";
-                          toast.success("URL ảnh đã được áp dụng!");
-                        } else {
-                          toast.error("URL không hợp lệ hoặc không phải ảnh!");
-                        }
-                      }}
-                      disabled={isLoading}
-                      aria-label="Áp dụng URL ảnh"
-                    >
-                      <LinkIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
               </div>
             ) : (
               <Button
