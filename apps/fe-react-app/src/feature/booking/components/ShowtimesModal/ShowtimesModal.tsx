@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog.tsx";
-import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import type { UIShowtime } from "@/interfaces/staff-sales.interface";
 import React, { useEffect, useMemo, useState } from "react";
 import ShowDateSelector from "../ShowDateSelector/ShowDateSelector.tsx";
 import ShowtimesGroup from "../ShowtimesGroup/ShowtimesGroup";
@@ -57,17 +57,12 @@ const ShowtimesModal: React.FC<ShowtimesModalProps> = ({
     }
   };
   // Sử dụng hook useMediaQuery để xác định kích thước màn hình
-  const isMobile = useMediaQuery("(max-width: 640px)");
-  const isTablet = useMediaQuery("(min-width: 641px) and (max-width: 1023px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Xác định các lớp CSS và nội dung dựa trên kích thước màn hình
-  let dialogContentClass = "max-h-[90vh] w-[95vw] overflow-y-auto";
+  let dialogContentClass = "min-w-3xl max-h-[90vh] w-full max-w-4xl overflow-y-auto";
   if (isMobile) {
-    dialogContentClass += " max-w-[95vw] p-2";
-  } else if (isTablet) {
-    dialogContentClass += " max-w-2xl p-3";
-  } else {
-    dialogContentClass += " max-w-4xl";
+    dialogContentClass = " max-w-[95vw] p-2";
   }
 
   const titleSizeClass = isMobile ? "text-base" : "text-lg";
@@ -82,10 +77,6 @@ const ShowtimesModal: React.FC<ShowtimesModalProps> = ({
   let contentPaddingClass = "";
   if (isMobile) {
     contentPaddingClass = "p-2";
-  } else if (isTablet) {
-    contentPaddingClass = "p-4";
-  } else {
-    contentPaddingClass = "p-4 sm:p-6";
   }
 
   const headingClass = `mb-4 sm:mb-6 text-center ${isMobile ? "text-xl" : "text-3xl"} font-bold text-gray-800`;

@@ -1,4 +1,3 @@
-import AuthLogo from "@/components/auth/AuthLogo";
 import BannerTransition from "@/components/shared/BannerTransition";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useAuthPageAnimation } from "@/hooks/useAuthPageAnimation";
@@ -31,7 +30,6 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
     <div className={`${isDesktop ? "w-1/2" : "mt-15 w-full"} flex items-center justify-center p-8 md:p-12`}>
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <AuthLogo />
           <h3 className="text-2xl font-semibold">{title}</h3>
           <p className="text-gray-600">{subtitle}</p>
         </div>
