@@ -39,7 +39,10 @@ export interface Showtime {
 
 export type Movie = components["schemas"]["MovieResponse"] & { categoryIds?: number[] };
 
-export type MovieFormData = components["schemas"]["MovieRequest"] & { posterFile?: File };
+export type MovieFormData = components["schemas"]["MovieRequest"] & {
+  posterFile?: File;
+  bannerFile?: File;
+};
 
 export interface MovieHistory {
   receiptId: string;
