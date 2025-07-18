@@ -32,7 +32,6 @@ export const useAppNavigation = () => {
     // Admin routes
     goToAdminDashboard: () => navigate(ROUTES.ADMIN.DASHBOARD),
     goToMovieManagement: () => navigate(ROUTES.ADMIN.MOVIE),
-    goToTrendingManagement: () => navigate(ROUTES.ADMIN.TRENDING),
     goToGenresManagement: () => navigate(ROUTES.ADMIN.GENRES),
     goToCinemaRoomManagement: () => navigate(ROUTES.ADMIN.CINEMA_ROOM),
     goToCinemaRoomDetail: (roomId: string | number) => navigate(createCinemaRoomDetailRoute(roomId)),

@@ -26,7 +26,6 @@ import { PromotionManagement } from "@/feature/manager/promotion/PromotionManage
 import { ShowtimeManagement } from "@/feature/manager/show-time";
 import SpotlightManagement from "@/feature/manager/spotlight/SpotlightManagement";
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
-import TrendingManagement from "@/feature/manager/trending/TrendingManagement";
 import PaymentReturn from "@/feature/payment/PaymentReturn";
 import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
 import CarouselSection from "@/feature/views/CarouselSection/CarouselSection";
@@ -54,6 +53,7 @@ import MovieDetailPage from "@/pages/store/MovieDetailPage";
 import MovieSelection from "@/pages/store/MovieSelection";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
+import TrendingSection from "@/feature/views/TrendingSection";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -143,7 +143,6 @@ export const AppRoutes = () => (
           <Route path="staffs" element={<StaffManagement />} />
           <Route path="combo" element={<ComboManagement />} />
           <Route path="snacks" element={<SnackManagement />} />
-          <Route path="trending" element={<TrendingManagement />} />
           <Route path="spotlight" element={<SpotlightManagement />} />
         </Route>
       </Route>
@@ -184,6 +183,7 @@ export const AppRoutes = () => (
     <Route path={ROUTES.CINEMA_EXPERIENCE} element={<CinemaExperience />} />
     {/* <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} /> */}
     <Route path={ROUTES.SPOTLIGHT_SECTION} element={<SpotlightSection />} />
+    <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
     <Route path={ROUTES.FLOWING_MENU_SECTION} element={<FlowingMenuSection />} />
 
     {/* Catch-all for unknown routes */}

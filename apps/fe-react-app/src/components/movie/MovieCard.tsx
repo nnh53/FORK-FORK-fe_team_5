@@ -1,6 +1,3 @@
-// File: MovieCard.tsx
-
-import hotBadgeImage from "@/assets/hotBadge.webp";
 import { Icon } from "@iconify/react";
 import React from "react";
 export interface MovieCardProps {
@@ -31,11 +28,6 @@ const MovieCard: React.FC<MovieCardProps> = ({ posterUrl, title, genres, duratio
             <Icon icon="mdi:play-circle" width="60" height="60" />
           </div>
         </div>
-        {isHot && (
-          <div className="absolute right-0 top-0 z-10">
-            <img src={hotBadgeImage} alt="Hot" className="h-20 w-20" />
-          </div>
-        )}
       </button>
 
       {/* --- Phần Nội dung --- */}

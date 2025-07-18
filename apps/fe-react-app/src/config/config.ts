@@ -1,7 +1,4 @@
 import ctaImage from "@/assets/cta.png";
-import { ROUTES } from "@/routes/route.constants";
-
-export const BLUR_FADE_DELAY = 0.15;
 
 export const siteConfig = {
   name: "F Cinema",
@@ -170,18 +167,92 @@ export const siteConfig = {
       { id: 5, img: "" },
     ],
   },
-  footer: {
-    quickLinks: [
-      { label: "Home", href: "#home" },
-      { label: "Movies", href: "#movies" },
-      { label: "Chairs", href: "#chairs" },
-      { label: "Offers", href: "#offers" },
+  termsOfService: {
+    title: "Điều khoản dịch vụ",
+    updatedDate: "18/06/2025",
+    sections: [
+      {
+        id: 1,
+        title: "Chấp nhận điều khoản",
+        content:
+          'Bằng cách tải xuống, cài đặt hoặc sử dụng ứng dụng di động của chúng tôi ("Ứng dụng"), bạn đồng ý bị ràng buộc bởi các Điều khoản dịch vụ này. Nếu bạn không đồng ý, vui lòng không sử dụng Ứng dụng.',
+      },
+      {
+        id: 2,
+        title: "Đặt vé và thanh toán",
+        items: [
+          "Tất cả các giao dịch mua vé là cuối cùng.",
+          "Chính sách hoàn tiền hoặc hủy vé sẽ được áp dụng tùy theo quy định của từng rạp chiếu phim đối tác. Vui lòng kiểm tra các điều khoản cụ thể trước khi hoàn tất giao dịch.",
+          "Giá vé được hiển thị bằng Việt Nam Đồng (VND) và đã bao gồm các loại thuế áp dụng.",
+        ],
+      },
+      {
+        id: 3,
+        title: "Tài khoản người dùng",
+        content:
+          "Bạn chịu trách nhiệm bảo mật thông tin tài khoản và mật khẩu của mình. Bạn đồng ý chịu trách nhiệm cho tất cả các hoạt động xảy ra dưới tài khoản của mình.",
+      },
+      {
+        id: 4,
+        title: "Sở hữu trí tuệ",
+        content:
+          "Ứng dụng và tất cả nội dung của nó, bao gồm logo, đồ họa và văn bản, là tài sản của chúng tôi và được bảo vệ bởi luật sở hữu trí tuệ.",
+      },
+      {
+        id: 5,
+        title: "Chấm dứt",
+        content: "Chúng tôi có quyền tạm ngưng hoặc chấm dứt quyền truy cập của bạn vào Ứng dụng bất kỳ lúc nào nếu bạn vi phạm các điều khoản này.",
+      },
+      {
+        id: 6,
+        title: "Thay đổi điều khoản",
+        content:
+          "Chúng tôi có thể sửa đổi các điều khoản này theo thời gian. Chúng tôi sẽ thông báo cho bạn về bất kỳ thay đổi nào bằng cách đăng các điều khoản mới trong Ứng dụng.",
+      },
     ],
-    supportLinks: [
-      { label: "FAQs", href: "#faq" },
-      { label: "Terms of Service", to: ROUTES.TERM_OF_SERVICE },
-      { label: "Privacy Policy", to: ROUTES.PRIVACY_POLICY },
-      { label: "Contact Us", href: "#" },
+  },
+  privacyPolicy: {
+    title: "Chính sách quyền riêng tư",
+    updatedDate: "18/06/2025",
+    sections: [
+      {
+        id: 1,
+        title: "Giới thiệu",
+        content:
+          "Chính sách quyền riêng tư này giải thích cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn khi bạn sử dụng ứng dụng di động của chúng tôi. Chúng tôi cam kết bảo vệ quyền riêng tư của bạn theo Nghị định 13/2023/NĐ-CP của Chính phủ Việt Nam về Bảo vệ dữ liệu cá nhân.",
+      },
+      {
+        id: 2,
+        title: "Thông tin chúng tôi thu thập",
+        description: "Chúng tôi có thể thu thập các loại thông tin sau:",
+        items: [
+          "Thông tin cá nhân: Tên, địa chỉ email, số điện thoại khi bạn đăng ký tài khoản.",
+          "Thông tin giao dịch: Chi tiết về các lượt đặt vé xem phim của bạn, bao gồm phim, rạp, và thời gian. Chúng tôi không lưu trữ chi tiết thẻ thanh toán của bạn.",
+          "Thông tin sử dụng: Cách bạn tương tác với Ứng dụng, chẳng hạn như lịch sử tìm kiếm và các phim đã xem.",
+        ],
+      },
+      {
+        id: 3,
+        title: "Cách chúng tôi sử dụng thông tin của bạn",
+        description: "Chúng tôi sử dụng thông tin của bạn để:",
+        items: [
+          "Xử lý đặt vé và thanh toán của bạn.",
+          "Gửi cho bạn xác nhận vé và thông báo.",
+          "Cá nhân hóa trải nghiệm của bạn và đề xuất các bộ phim bạn có thể thích.",
+          "Cải thiện dịch vụ và ứng dụng của chúng tôi.",
+        ],
+      },
+      {
+        id: 4,
+        title: "Quyền của bạn",
+        content:
+          "Bạn có quyền truy cập, chỉnh sửa hoặc yêu cầu xóa dữ liệu cá nhân của mình. Vui lòng liên hệ với chúng tôi để thực hiện các quyền này.",
+      },
+      {
+        id: 5,
+        title: "Liên hệ",
+        content: "Nếu bạn có bất kỳ câu hỏi nào về chính sách này, vui lòng liên hệ với chúng tôi tại support@fcinema.vn",
+      },
     ],
   },
 };

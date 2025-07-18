@@ -9,7 +9,7 @@ import {
   Package,
   Settings,
   SquareStack,
-  Star,
+  // Star,
   Tag,
   Ticket,
   User,
@@ -48,11 +48,6 @@ export const sidebarData = {
           icon: Monitor,
         },
         {
-          title: "Trending",
-          url: "/admin/trending",
-          icon: Star,
-        },
-        {
           title: "Genres",
           url: "/admin/genres",
           icon: SquareStack,
@@ -74,7 +69,6 @@ export const sidebarData = {
           url: "/admin/showtime",
           icon: ClockPlus,
         },
-
         {
           title: "Showtime in mov",
           url: "#",

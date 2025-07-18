@@ -16,8 +16,3 @@ export const queryReceiptTopMovies = (fromDate: string, toDate: string) => {
 export const queryReceipts = () => {
   return $api.useMutation("post", "/receipt");
 };
-
-// Helper function to get receipts with filters
-export const getReceiptsWithFilters = () => {
-  return $api.useMutation("post", "/receipt");
-};

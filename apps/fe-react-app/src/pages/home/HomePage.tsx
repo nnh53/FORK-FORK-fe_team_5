@@ -11,6 +11,7 @@ import { FeatureSection } from "@/components/magicui/sections/feature-section";
 import { useRef } from "react";
 import MovieSelection from "../store/MovieSelection";
 import "./styles/HomePage.css";
+import TrendingSection from "@/feature/views/TrendingSection";
 
 
 const HomePage = () => {
@@ -34,6 +35,7 @@ const HomePage = () => {
           <section id="movies">
             <MovieSelection />
           </section>
+          <TrendingSection />
           <section id="spotlight">
             <SpotlightSection ref={cardSwapRef} />
           </section>

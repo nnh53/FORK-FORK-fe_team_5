@@ -4,6 +4,7 @@ import type { SpotlightMovie } from "@/services/spotlightService";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { toast } from "sonner";
 import SortableSpotlightItem from "./SortableSpotlightItem";
 
 interface SpotlightListProps {
@@ -19,6 +20,12 @@ function SpotlightList({ spotlightMovies, onRemove, onDragEnd }: Readonly<Spotli
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
+
+  // Wrap onRemove to show toast feedback
+  const handleRemove = (movieId: number) => {
+    onRemove(movieId);
+    toast.success("Removed from spotlight");
+  };
 
   return (
     <Card>
@@ -39,7 +46,7 @@ function SpotlightList({ spotlightMovies, onRemove, onDragEnd }: Readonly<Spotli
             <TableBody>
               <SortableContext items={spotlightMovies.map((m) => m.id?.toString() || `item-${m.id}`)} strategy={verticalListSortingStrategy}>
                 {spotlightMovies.map((movie) => (
-                  <SortableSpotlightItem key={movie.id} movie={movie} onRemove={onRemove} />
+                  <SortableSpotlightItem key={movie.id} movie={movie} onRemove={handleRemove} />
                 ))}
               </SortableContext>
             </TableBody>

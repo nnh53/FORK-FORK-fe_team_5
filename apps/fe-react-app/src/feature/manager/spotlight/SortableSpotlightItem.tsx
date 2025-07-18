@@ -1,9 +1,21 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/Shadcn/ui/alert-dialog";
 import { Button } from "@/components/Shadcn/ui/button";
 import { TableCell, TableRow } from "@/components/Shadcn/ui/table";
 import type { SpotlightMovie } from "@/services/spotlightService";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Grip, Play, X } from "lucide-react";
+import { toast } from "sonner";
 
 function SortableSpotlightItem({
   movie,
@@ -18,6 +30,13 @@ function SortableSpotlightItem({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+  };
+
+  const handleRemove = () => {
+    if (movie.id) {
+      onRemove(movie.id);
+      toast.success(`"${movie.name}" has been removed from spotlight`);
+    }
   };
 
   return (
@@ -49,9 +68,27 @@ function SortableSpotlightItem({
       </TableCell>
 
       <TableCell className="text-right">
-        <Button variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => movie.id && onRemove(movie.id)}>
-          <X className="h-4 w-4" />
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="text-destructive h-8 w-8">
+              <X className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove from Spotlight</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to remove "{movie.name}" from the spotlight? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleRemove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Remove
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </TableCell>
     </TableRow>
   );

@@ -1,6 +1,7 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import { useSpotlightManagement } from "@/hooks/useSpotlightManagement";
+import { toast } from "sonner";
 import AddMoviesSection from "./AddtoSpotlight";
 import SpotlightErrorBoundary from "./SpotlightErrorBoundary";
 import SpotlightHeader from "./SpotlightHeader";
@@ -31,7 +32,14 @@ export function SpotlightManagement() {
           <div className="text-center">
             <h2 className="mb-2 text-xl font-semibold text-red-600">Error</h2>
             <p className="text-gray-600">{error}</p>
-            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => {
+                toast("Retrying...");
+                window.location.reload();
+              }}
+            >
               Retry
             </Button>
           </div>

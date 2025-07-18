@@ -70,7 +70,7 @@ const SpotlightSection = forwardRef<HTMLElement, SpotlightSectionProps>(({ class
         skewAmount: 0,
       }
     : {
-        cardDistance: 80,
+        cardDistance: 50,
         verticalDistance: 100,
         delay: 8000,
         pauseOnHover: true,
@@ -82,7 +82,7 @@ const SpotlightSection = forwardRef<HTMLElement, SpotlightSectionProps>(({ class
       <div className="spotlight-content">
         {/* Left Side - Movie List */}
         <div className="spotlight-text">
-          <h3 className="spotlight-title">Phim Nổi Bật</h3>
+          <h3 className="spotlight-title">Phim Gợi ý</h3>
 
           <ul className="spotlight-list">
             {spotlightMovies.map((movie, idx) => (

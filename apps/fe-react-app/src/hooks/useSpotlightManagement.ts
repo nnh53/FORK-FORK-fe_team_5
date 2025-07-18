@@ -12,6 +12,7 @@ import {
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export function useSpotlightManagement() {
   const [spotlightMovies, setSpotlightMovies] = useState<SpotlightMovie[]>([]);
@@ -119,9 +120,9 @@ export function useSpotlightManagement() {
         // Show error message
         const currentSpotlight = getSpotlightMovies();
         if (currentSpotlight.length >= 4) {
-          alert("Spotlight is full! Maximum 4 movies allowed.");
+          toast.error("Spotlight is full! Maximum 4 movies allowed.");
         } else {
-          alert("Movie is already in spotlight or an error occurred.");
+          toast.error("Movie is already in spotlight or an error occurred.");
         }
       }
     },
@@ -136,7 +137,7 @@ export function useSpotlightManagement() {
         loadSpotlightData();
         setHasUnsavedChanges(true); // Removing a movie is a change
       } else {
-        alert("Failed to remove movie from spotlight.");
+        toast.error("Failed to remove movie from spotlight.");
       }
     },
     [loadSpotlightData],
@@ -148,13 +149,13 @@ export function useSpotlightManagement() {
       const success = updateSpotlightOrder(spotlightMovies);
       if (success) {
         setHasUnsavedChanges(false);
-        alert("Spotlight changes saved successfully!");
+        toast.success("Spotlight changes saved successfully!");
       } else {
-        alert("Failed to save changes. Please try again.");
+        toast.error("Failed to save changes. Please try again.");
       }
     } catch (error) {
       console.error("Error saving spotlight data:", error);
-      alert("Failed to save changes. Please try again.");
+      toast.error("Failed to save changes. Please try again.");
     }
   }, [spotlightMovies]);
 
