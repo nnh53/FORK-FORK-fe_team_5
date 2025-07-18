@@ -2,10 +2,12 @@ import {
   Building,
   CalendarClock,
   Clapperboard,
+  ClockPlus,
   Cookie,
+  FileClock,
   Film,
-  Monitor,
   LayoutDashboard,
+  Monitor,
   Package,
   Settings,
   SquareStack,
@@ -16,8 +18,6 @@ import {
   UserCheck,
   Users,
   Utensils,
-  ClockPlus,
-  FileClock,
 } from "lucide-react";
 
 export const sidebarData = {

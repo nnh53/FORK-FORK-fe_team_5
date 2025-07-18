@@ -89,7 +89,7 @@ const TrendingSection = () => {
             className="h-full w-full object-cover transition-opacity duration-500 ease-in-out"
             height={1080}
             aspectRatio={1920 / 1080}
-            breakpoints={[ 768, 1024, 1280, 1536]}
+            breakpoints={[768, 1024, 1280, 1536]}
           />
           {/* Dark overlay */}
           <div className="absolute inset-0 z-10 bg-black/60" />
@@ -127,7 +127,7 @@ const TrendingSection = () => {
             <div className="space-y-6 text-center">
               <div className="space-y-2">
                 <h3 className="text-6xl font-bold text-white"></h3>
-                <p className="text-orange-400 text-xl tracking-wider">BY F-Cinema</p>
+                <p className="text-xl tracking-wider text-orange-400">BY F-Cinema</p>
               </div>
             </div>
           </div>

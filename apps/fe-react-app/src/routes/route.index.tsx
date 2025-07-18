@@ -43,6 +43,7 @@ import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import Login from "@/pages/authentication/Login";
 import Register from "@/pages/authentication/Register";
 
+import TrendingSection from "@/feature/views/TrendingSection";
 import { InternalServerError } from "@/pages/error/InternalServerError";
 import { NotFoundError } from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
@@ -53,7 +54,6 @@ import MovieDetailPage from "@/pages/store/MovieDetailPage";
 import MovieSelection from "@/pages/store/MovieSelection";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./route.constants";
-import TrendingSection from "@/feature/views/TrendingSection";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
