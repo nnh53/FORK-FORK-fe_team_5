@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import { Info, Receipt } from "lucide-react";
-import { MyMovieHistory } from "./components/MovieHistory";
+import { MovieHistory } from "./components/MovieHistory";
 import { MyInfo } from "./components/MyInfoManagement";
 
 interface Tab {
@@ -22,7 +22,7 @@ const tabsData: Tab[] = [
     id: "movie-history",
     label: "LỊCH SỬ GIAO DỊCH",
     icon: <Receipt className="h-4 w-4" />,
-    component: <MyMovieHistory />,
+    component: <MovieHistory />,
   },
 ];
 

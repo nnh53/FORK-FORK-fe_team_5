@@ -98,7 +98,7 @@ const MovieDetailDialog = ({ movie }: MovieDetailDialogProps) => {
   );
 };
 
-export const MyMovieHistory: React.FC = () => {
+export const MovieHistory: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
   // Get user ID from auth context or cookies

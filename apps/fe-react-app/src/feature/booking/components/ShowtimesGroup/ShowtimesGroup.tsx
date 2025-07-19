@@ -75,7 +75,7 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
           {/* CẬP NHẬT: Tăng số cột trong grid */}
           <div className="grid grid-cols-4 gap-3 md:grid-cols-5 lg:grid-cols-6">
             {showtimes.map((showtime) => (
-              <ShowtimeButton key={showtime.startTime} showtime={showtime} />
+              <ShowtimeButton key={showtime.id} showtime={showtime} />
             ))}
           </div>
         </div>
