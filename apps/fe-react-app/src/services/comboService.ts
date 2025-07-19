@@ -2,6 +2,7 @@ import type { Combo, ComboForm, ComboSnack } from "@/interfaces/combo.interface"
 import type { Snack } from "@/interfaces/snacks.interface";
 import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
+import { formatVND } from "@/utils/currency.utils";
 type ComboResponse = components["schemas"]["ComboResponse"];
 type ComboSnackResponse = components["schemas"]["ComboSnackResponse"];
 
@@ -404,7 +405,7 @@ export const useComboPrice = (comboId: number) => {
  * Format a price in VND
  */
 export const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
+  return formatVND(price);
 };
 
 /**

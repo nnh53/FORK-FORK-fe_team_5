@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/Shadcn/ui/scroll-area";
 import { type Combo, type ComboSnack } from "@/interfaces/combo.interface";
 import { type Snack } from "@/interfaces/snacks.interface";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
+import { formatVND } from "@/utils/currency.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import { ArrowLeft, ListPlus, Save, X } from "lucide-react";
@@ -79,9 +80,7 @@ const SnackInfo: React.FC<{ snack: Snack }> = ({ snack }) => (
         <p className="text-xs text-gray-500">ID: #{snack?.id}</p>
       </div>
       <div className="col-span-4 flex items-center justify-end">
-        <span className="text-lg font-bold text-green-600">
-          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(snack.price || 0)}
-        </span>
+        <span className="text-lg font-bold text-green-600">{formatVND(snack.price || 0)}</span>
       </div>
     </div>
   </div>

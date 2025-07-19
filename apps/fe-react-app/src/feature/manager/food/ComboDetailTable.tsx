@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/Shadcn/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { type ComboSnack } from "@/interfaces/combo.interface";
 import { type Snack } from "@/interfaces/snacks.interface";
+import { formatVND } from "@/utils/currency.utils";
 import { Icon } from "@iconify/react";
 import { Edit, MinusCircle, Plus } from "lucide-react";
 
@@ -130,11 +131,7 @@ const ComboDetailTable: React.FC<ComboDetailTableProps> = ({ comboSnacks, onAddN
                                   </Badge>
                                 )}
                               </div>
-                              {Boolean(snack?.price) && (
-                                <div className="text-xs font-bold text-green-600">
-                                  {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(snack.price || 0)}
-                                </div>
-                              )}
+                              {Boolean(snack?.price) && <div className="text-xs font-bold text-green-600">{formatVND(snack.price || 0)}</div>}
                             </div>
                           </div>
                         </TableCell>

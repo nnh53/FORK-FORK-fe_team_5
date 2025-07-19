@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { type Combo, type ComboSnack } from "@/interfaces/combo.interface";
 import { type Snack } from "@/interfaces/snacks.interface";
-import { calculateComboPrice, formatPrice, getComboStatusLabel, type ComboStatus } from "@/services/comboService";
+import { calculateComboPrice, getComboStatusLabel, type ComboStatus } from "@/services/comboService";
+import { formatVND } from "@/utils/currency.utils";
 import { Icon } from "@iconify/react";
 import { Edit, ShoppingBag, Utensils } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -164,7 +165,7 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
                   <h3 className="text-lg font-semibold">Danh sách thực phẩm trong combo ({displayCombo.snacks?.length || 0})</h3>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="text-primary font-medium">Tổng giá: {formatPrice(totalPrice)}</div>
+                  <div className="text-primary font-medium">Tổng giá: {formatVND(totalPrice)}</div>
                   {onAddSnack && onUpdateSnack && (
                     <Button variant="outline" size="sm" onClick={handleEditSnacks}>
                       <Edit className="mr-1 h-4 w-4" />
