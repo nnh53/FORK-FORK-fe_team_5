@@ -105,7 +105,7 @@ const SizeBadge = ({ snack }: { snack: Snack | null | undefined }) => {
   );
 };
 
-const formatPrice = (price: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
+import { formatVND } from "@/utils/currency.utils";
 
 interface ActionButtonsProps {
   snack: Snack;
@@ -204,7 +204,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-500">Giá</span>
-                <span className="text-lg font-bold text-green-600">{snack?.price ? formatPrice(snack.price) : "N/A"}</span>
+                <span className="text-lg font-bold text-green-600">{snack?.price ? formatVND(snack.price) : "N/A"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-500">Kích cỡ</span>
@@ -305,7 +305,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
           <div className="col-span-1">
             <SizeBadge snack={snack} />
           </div>
-          <div className="col-span-1 font-bold text-green-600">{snack?.price ? formatPrice(snack.price) : "N/A"}</div>
+          <div className="col-span-1 font-bold text-green-600">{snack?.price ? formatVND(snack.price) : "N/A"}</div>
           <div className="col-span-2 flex justify-end gap-1">
             <ActionButtons snack={snack} onEdit={onEdit} onDelete={onDelete} isFullWidth={false} />
           </div>

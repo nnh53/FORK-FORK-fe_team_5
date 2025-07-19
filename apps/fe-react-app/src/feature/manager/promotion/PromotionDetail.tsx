@@ -6,6 +6,7 @@ import { Separator } from "@/components/Shadcn/ui/separator";
 
 import type { Promotion } from "@/interfaces/promotion.interface";
 import { formatPromotionDate, getPromotionStatusLabel, getPromotionTypeLabel } from "@/services/promotionService";
+import { formatVND } from "@/utils/currency.utils";
 import { Icon } from "@iconify/react";
 import React from "react";
 
@@ -112,7 +113,7 @@ export const PromotionDetail: React.FC<PromotionDetailProps> = ({ open, setOpen,
                           </>
                         ) : (
                           <>
-                            <span className="text-xl font-semibold">{promotion.discountValue.toLocaleString()}</span>
+                            <span className="text-xl font-semibold">{formatVND(promotion.discountValue, 0, "")}</span>
                             <Icon icon="tabler:currency-dong" className="h-5 w-5 text-green-600" />
                           </>
                         )}
@@ -124,7 +125,7 @@ export const PromotionDetail: React.FC<PromotionDetailProps> = ({ open, setOpen,
                         <Icon icon="tabler:shopping-cart" className="h-4 w-4" /> Đơn hàng tối thiểu
                       </p>
                       <p className="flex items-center gap-1 font-medium">
-                        <span className="text-xl font-semibold">{promotion.minPurchase.toLocaleString()}</span>
+                        <span className="text-xl font-semibold">{formatVND(promotion.minPurchase, 0, "")}</span>
                         <Icon icon="tabler:currency-dong" className="h-5 w-5 text-green-600" />
                       </p>
                     </div>
