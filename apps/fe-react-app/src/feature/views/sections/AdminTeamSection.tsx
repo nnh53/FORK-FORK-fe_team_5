@@ -8,15 +8,14 @@ const AdminTeamSection = () => {
       <div className="text-center">
         <h2 className="mb-8 text-3xl font-bold">{adminTeamSection.title}</h2>
         <p className="mb-12 text-lg">{adminTeamSection.description}</p>
-        <div className="flex w-full items-center justify-center">
-          <div className="relative" style={{ left: "-130px" }}>
+        <div>
+          <div>
             <Stack
               randomRotation={true}
-              sensitivity={150}
-              cardDimensions={{ width: 280, height: 350 }}
-              sendToBackOnClick={true}
+              sensitivity={180}
+              cardDimensions={{ width: 350, height: 450 }}
+              sendToBackOnClick={false}
               cardsData={adminTeamSection.cards}
-              animationConfig={{ stiffness: 260, damping: 20 }}
             />
           </div>
         </div>

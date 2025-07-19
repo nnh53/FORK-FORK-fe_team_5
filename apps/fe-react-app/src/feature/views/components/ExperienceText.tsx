@@ -1,6 +1,6 @@
 import { siteConfig } from "@/config/config";
 import React from "react";
-import "./css/ExperienceText.css";
+import "../styles/ExperienceText.css";
 
 interface ExperienceTextProps {
   onButtonClick?: () => void;

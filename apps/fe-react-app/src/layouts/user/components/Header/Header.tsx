@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/magicui/sections/navbar";
+import { Navbar } from "@/feature/views/sections/navbar";
 import "./Header.css";
 
 const Header = () => {

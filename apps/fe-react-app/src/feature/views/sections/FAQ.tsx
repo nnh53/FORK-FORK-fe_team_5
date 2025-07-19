@@ -1,8 +1,8 @@
 import React, { forwardRef, useRef, useState } from "react";
-import { FaqFolderGroup } from "./components/FaqFolderGroup";
-import { FAQ_DATA } from "./data/faqData";
-import { useClickOutside } from "./hooks/useClickOutside";
-import "./styles/faq.css";
+import { useClickOutside } from "../../../hooks/useClickOutside";
+import { FaqFolderGroup } from "../components/FaqFolderGroup";
+import { FAQ_DATA } from "../data/faqData";
+import "../styles/faq.css";
 
 interface FAQProps {
   className?: string;

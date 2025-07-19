@@ -1,15 +1,15 @@
 "use client";
 
+import { NavMenu } from "@/components/magicui/nav-menu";
+import { ThemeToggle } from "@/components/magicui/theme-toggle";
 import AuthAvatar from "@/components/shared/AuthAvatar";
 import { siteConfig } from "@/config/config";
 import Logo from "@/layouts/user/components/Header/components/Logo";
 import { cn } from "@/utils/utils";
-import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { AnimatePresence, motion, useScroll } from "motion/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { NavMenu } from "../nav-menu";
-import { ThemeToggle } from "../theme-toggle";
 
 const INITIAL_WIDTH = "70rem";
 const MAX_WIDTH = "800px";

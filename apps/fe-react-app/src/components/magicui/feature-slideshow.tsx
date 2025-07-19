@@ -1,9 +1,11 @@
 "use client";
+/* eslint-disable */
+import * as Accordion from "@radix-ui/react-accordion";
+import { motion, useInView } from "motion/react";
+import type { ReactNode } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/utils/utils";
-import * as Accordion from "@radix-ui/react-accordion";
-import { motion, useInView } from "framer-motion";
-import React, { forwardRef, type ReactNode, useEffect, useRef, useState } from "react";
 
 type AccordionItemProps = {
   children: React.ReactNode;
@@ -83,21 +85,6 @@ export const Feature = ({
     once: true,
     amount: 0.5,
   });
-
-  // Helper functions to replace nested ternary operations
-  const getProgressClassForActive = () => {
-    if (["left", "right"].includes(linePosition)) {
-      return "h-full";
-    }
-    return "w-full";
-  };
-
-  const getProgressClassForInactive = () => {
-    if (["left", "right"].includes(linePosition)) {
-      return "h-0";
-    }
-    return "w-0";
-  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -281,7 +268,13 @@ export const Feature = ({
                           "left-0 top-0 w-full": ["left", "right"].includes(linePosition),
                           "left-0 top-0 h-full": ["top", "bottom"].includes(linePosition),
                         },
-                        currentIndex === index ? getProgressClassForActive() : getProgressClassForInactive(),
+                        currentIndex === index
+                          ? ["left", "right"].includes(linePosition)
+                            ? "h-full"
+                            : "w-full"
+                          : ["left", "right"].includes(linePosition)
+                            ? "h-0"
+                            : "w-0",
                       )}
                       style={{
                         transitionDuration: currentIndex === index ? `${collapseDelay}ms` : "0s",
@@ -304,20 +297,10 @@ export const Feature = ({
             }}
           >
             {featureItems.map((item, index) => (
-              <button
+              <a
                 key={item.id}
-                type="button"
-                className="card bg-background relative grid h-full max-w-64 shrink-0 items-start justify-center border-b border-l border-t p-3 text-left first:rounded-tl-xl last:rounded-tr-xl last:border-r"
+                className="card bg-background relative grid h-full max-w-64 shrink-0 items-start justify-center border-b border-l border-t p-3 first:rounded-tl-xl last:rounded-tr-xl last:border-r"
                 onClick={() => setCurrentIndex(index)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setCurrentIndex(index);
-                  }
-                }}
-                aria-label={`View ${item.title}`}
-                role="tab"
-                aria-selected={currentIndex === index}
                 style={{
                   scrollSnapAlign: "center",
                 }}
@@ -344,7 +327,13 @@ export const Feature = ({
                         "left-0 top-0 w-full": ["left", "right"].includes(linePosition),
                         "left-0 top-0 h-full": ["top", "bottom"].includes(linePosition),
                       },
-                      currentIndex === index ? getProgressClassForActive() : getProgressClassForInactive(),
+                      currentIndex === index
+                        ? ["left", "right"].includes(linePosition)
+                          ? "h-full"
+                          : "w-full"
+                        : ["left", "right"].includes(linePosition)
+                          ? "h-0"
+                          : "w-0",
                     )}
                     style={{
                       transitionDuration: currentIndex === index ? `${collapseDelay}ms` : "0s",
@@ -355,7 +344,7 @@ export const Feature = ({
                   <h2 className="text-lg font-bold">{item.title}</h2>
                   <p className="mx-0 max-w-sm text-balance text-sm font-medium leading-relaxed">{item.content}</p>
                 </div>
-              </button>
+              </a>
             ))}
           </ul>
         </div>

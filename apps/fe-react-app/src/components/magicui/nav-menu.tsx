@@ -1,7 +1,7 @@
 "use client";
 
 import { siteConfig } from "@/config/config";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import React, { useRef, useState } from "react";
 
 interface NavItem {

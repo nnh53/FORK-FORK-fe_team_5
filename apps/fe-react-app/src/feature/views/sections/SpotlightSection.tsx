@@ -4,7 +4,7 @@ import { getSpotlightMovies, type SpotlightMovie } from "@/services/spotlightSer
 import { getYouTubeEmbedUrl, getYouTubeVideoId } from "@/utils/movie.utils";
 import { forwardRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./SpotlightSection.css";
+import "../styles/SpotlightSection.css";
 
 interface SpotlightSectionProps {
   className?: string;

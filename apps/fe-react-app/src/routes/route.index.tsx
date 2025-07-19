@@ -28,12 +28,11 @@ import SpotlightManagement from "@/feature/manager/spotlight/SpotlightManagement
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import PaymentReturn from "@/feature/payment/PaymentReturn";
 import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
-import CarouselSection from "@/feature/views/CarouselSection/CarouselSection";
-import CinemaExperience from "@/feature/views/CinemaExperience";
-import FAQ from "@/feature/views/FAQ/FAQ";
-import FlowingMenuSection from "@/feature/views/FlowingMenuSection";
+import CarouselSection from "@/feature/views/sections/CarouselSection";
+import CinemaExperience from "@/feature/views/sections/CinemaExperience";
+import FAQ from "@/feature/views/sections/FAQ";
 
-import SpotlightSection from "@/feature/views/SpotlightSection";
+import SpotlightSection from "@/feature/views/sections/SpotlightSection";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import dataMock from "@/layouts/admin/data.admin-layout.json";
 import StaffLayout from "@/layouts/staff/StaffLayout";
@@ -43,7 +42,7 @@ import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import Login from "@/pages/authentication/Login";
 import Register from "@/pages/authentication/Register";
 
-import TrendingSection from "@/feature/views/TrendingSection";
+import TrendingSection from "@/feature/views/sections/TrendingSection";
 import { InternalServerError } from "@/pages/error/InternalServerError";
 import { NotFoundError } from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
@@ -184,7 +183,6 @@ export const AppRoutes = () => (
     {/* <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} /> */}
     <Route path={ROUTES.SPOTLIGHT_SECTION} element={<SpotlightSection />} />
     <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
-    <Route path={ROUTES.FLOWING_MENU_SECTION} element={<FlowingMenuSection />} />
 
     {/* Catch-all for unknown routes */}
   </Routes>

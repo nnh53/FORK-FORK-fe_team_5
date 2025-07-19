@@ -5,7 +5,7 @@ import { Image } from "@unpic/react";
 import Autoplay from "embla-carousel-autoplay";
 import { forwardRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import "./CarouselSection.css";
+import "../styles/CarouselSection.css";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface CarouselSectionProps {}
@@ -52,7 +52,7 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
     );
   }
   return (
-    <section className="carousel-section" ref={ref} id="new-releases">
+    <section className="carousel-section" ref={ref} id="home">
       {" "}
       {/* Aurora Background */}
       <div className="aurora-background">

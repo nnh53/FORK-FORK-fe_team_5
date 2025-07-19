@@ -19,41 +19,37 @@ export const siteConfig = {
       { id: 2, name: "Movies", href: "#movies" },
       { id: 3, name: "Spotlight", href: "#spotlight" },
       { id: 4, name: "Features", href: "#features" },
-      { id: 5, name: "Chairs", href: "#chairs" },
-      { id: 6, name: "FAQ", href: "#faq" },
+      { id: 5, name: "FAQ", href: "#faq" },
     ],
   },
   featureSection: {
-    title: "Simple. Seamless. Smart.",
-    description: "Discover how SkyAgent transforms your commands into action in four easy steps",
+    title: "Công Nghệ. Phong Cách. Trải nghiệm.",
+    description: "Nâng cấp trải nghiệm và cảm xúc khi xem phim",
     items: [
       {
         id: 1,
-        title: "Ask Your AI Agent Directly",
-        content: "Speak or type your command—let SkyAgent capture your intent. Your request instantly sets the process in motion.",
-        image:
-          "https://images.unsplash.com/photo-1720371300677-ba4838fa0678?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        title: "Phòng Standard",
+        content: "Trải nghiệm xem phim cơ bản với trang thiết bị tiêu chuẩn, mang đến những giây phút giải trí thoải mái và tiết kiệm.",
+        image: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/16d07de8-3c27-48a4-b93b-fe1e220a7e6d-standard.webp",
       },
       {
         id: 2,
-        title: "Let SkyAgent Process It",
-        content: "We prioritize the needs and preferences of our users in our design process.",
-        image:
-          "https://images.unsplash.com/photo-1686170287433-c95faf6d3608?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwzfHx8ZW58MHx8fHx8fA%3D%3D",
+        title: "Phòng Vip",
+        content: "Tận hưởng không gian sang trọng, ghế ngồi êm ái và dịch vụ đặc biệt, nâng tầm trải nghiệm xem phim của bạn.",
+        image: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/7ab5398b-4a52-4392-bc79-3edaad74eec0-vip.webp",
       },
       {
         id: 3,
-        title: "Receive Instant, Actionable Results",
-        content: "Our features seamlessly integrate with your existing systems for a smooth experience.",
-        image:
-          "https://images.unsplash.com/photo-1720378042271-60aff1e1c538?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxMHx8fGVufDB8fHx8fA%3D%3D",
+        title: "Phòng Premium",
+        content: "Kết hợp giữa sự thoải mái và công nghệ hiện đại, với màn hình lớn, âm thanh sống động và ghế ngồi rộng rãi. ",
+        image: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/d05097fb-bb37-4fe8-89ba-ee94eda41680-premium.webp",
       },
       {
         id: 4,
-        title: "Continuous Improvement",
-        content: "We are constantly updating and improving our features to provide the best experience.",
-        image:
-          "https://images.unsplash.com/photo-1666882990322-e7f3b8df4f75?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDF8fHxlbnwwfHx8fHw%3D",
+        title: "Phòng 4DMax",
+        content:
+          "Hòa mình vào thế giới điện ảnh với hiệu ứng chuyển động, ánh sáng và gió, mang đến trải nghiệm xem phim chân thực và sống động nhất.",
+        image: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/81ecb4dc-fa3f-46b9-9687-6c908707a0d8-4dmax.webp",
       },
     ],
   },
@@ -164,7 +160,7 @@ export const siteConfig = {
       { id: 2, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/714dbf1c-a580-4586-96c8-f22e894541d9-hoang.webp" },
       { id: 3, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/0658ccab-ff6b-4eab-8eac-0890c4f93c3a-phat.webp" },
       { id: 4, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/bc051d33-b955-4e44-a19a-350b65c48d9b-tan.webp" },
-      { id: 5, img: "" },
+      { id: 5, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/567afc59-c987-45ac-90fd-7911d5f4381f-bao.webp" },
     ],
   },
   termsOfService: {

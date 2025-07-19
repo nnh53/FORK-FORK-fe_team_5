@@ -11,19 +11,17 @@ const Footer = () => {
   };
 
   return (
-    <>
-      <footer className="footer-test" ref={footerRef}>
-        <section className="footer-container">
-          <header className="footer-top">
-            <FooterLogo />
-            <FooterLinks title="Quick Links" links={quickLinks} />
-            <FooterLinks title="Support" links={supportLinks} />
-            <NewsletterSubscription onSubscribe={handleNewsletterSubscribe} />
-          </header>
-          <FooterBottom />
-        </section>
-      </footer>
-    </>
+    <footer className="footer-test" ref={footerRef}>
+      <section className="footer-container">
+        <header className="footer-top">
+          <FooterLogo />
+          <FooterLinks title="Quick Links" links={quickLinks} />
+          <FooterLinks title="Support" links={supportLinks} />
+          <NewsletterSubscription onSubscribe={handleNewsletterSubscribe} />
+        </header>
+        <FooterBottom />
+      </section>
+    </footer>
   );
 };
 

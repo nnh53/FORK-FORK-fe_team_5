@@ -1,6 +1,6 @@
+import { Feature as FeatureComponent } from "@/components/magicui/feature-slideshow";
+import { SectionHeader } from "@/components/magicui/section-header";
 import { siteConfig } from "@/config/config";
-import { SectionHeader } from "../section-header";
-import { Feature as FeatureComponent } from "../ui/feature-slideshow";
 
 export function FeatureSection() {
   const { title, description, items } = siteConfig.featureSection;

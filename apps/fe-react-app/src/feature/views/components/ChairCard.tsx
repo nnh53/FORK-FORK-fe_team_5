@@ -1,5 +1,5 @@
 import React from "react";
-import "./css/ChairCard.css";
+import "../styles/ChairCard.css";
 
 interface ChairCardProps {
   imageSrc: string;

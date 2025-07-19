@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
-import { ChairGrid, ExperienceText } from "./components";
-import "./styles/CinemaExperience.css";
+import ChairGrid from "../components/ChairGrid";
+import ExperienceText from "../components/ExperienceText";
+import "../styles/CinemaExperience.css";
 
 interface CinemaExperienceProps {
   className?: string;

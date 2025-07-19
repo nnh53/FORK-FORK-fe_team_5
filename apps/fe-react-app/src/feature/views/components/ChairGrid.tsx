@@ -1,7 +1,7 @@
 import { siteConfig } from "@/config/config";
 import React from "react";
+import "../styles/ChairGrid.css";
 import ChairCard from "./ChairCard";
-import "./css/ChairGrid.css";
 
 interface ChairGridProps {
   className?: string;
