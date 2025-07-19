@@ -31,18 +31,16 @@ import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
 import CarouselSection from "@/feature/views/sections/CarouselSection";
 import CinemaExperience from "@/feature/views/sections/CinemaExperience";
 import FAQ from "@/feature/views/sections/FAQ";
-
 import SpotlightSection from "@/feature/views/sections/SpotlightSection";
+import TrendingSection from "@/feature/views/sections/TrendingSection";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import dataMock from "@/layouts/admin/data.admin-layout.json";
 import StaffLayout from "@/layouts/staff/StaffLayout";
-import { Header } from "@/layouts/user/components/Header";
+import { Header } from "@/layouts/user/components/Header/Header";
 import UserLayout from "@/layouts/user/UserLayout";
 import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import Login from "@/pages/authentication/Login";
 import Register from "@/pages/authentication/Register";
-
-import TrendingSection from "@/feature/views/sections/TrendingSection";
 import { InternalServerError } from "@/pages/error/InternalServerError";
 import { NotFoundError } from "@/pages/error/NotFoundError";
 import HomePage from "@/pages/home/HomePage";
@@ -51,8 +49,8 @@ import PrivacyPolicy from "@/pages/static/rule/PrivacyPolicy";
 import TermOfService from "@/pages/static/rule/TermOfService";
 import MovieDetailPage from "@/pages/store/MovieDetailPage";
 import MovieSelection from "@/pages/store/MovieSelection";
+import { ROUTES } from "@/routes/route.constants";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
-import { ROUTES } from "./route.constants";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (

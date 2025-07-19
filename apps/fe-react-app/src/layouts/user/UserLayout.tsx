@@ -2,7 +2,7 @@ import PageTransition from "@/components/shared/PageTransition";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Footer from "./components/Footer/Footer";
-import { Header } from "./components/Header";
+import { Header } from "./components/Header/Header";
 
 interface UserLayoutProps {
   children?: React.ReactNode;
@@ -10,9 +10,9 @@ interface UserLayoutProps {
 
 const UserLayout = ({ children }: UserLayoutProps) => {
   return (
-    <div className="flex min-h-screen flex-col bg-amber-50">
+    <div className="relative h-[50vh] w-full overflow-y-auto">
       <Header />
-      <main className={`flex-grow pt-20`}>
+      <main className="w-full bg-yellow-200">
         <PageTransition>{children || <Outlet />}</PageTransition>
       </main>
       <Footer />
