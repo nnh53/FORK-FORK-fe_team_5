@@ -2,6 +2,7 @@ import { ROLES, type ROLE_TYPE } from "@/interfaces/roles.interface";
 import type { LoginDTO, User, UserLoginResponse, UserRequest, UserUpdate } from "@/interfaces/users.interface";
 import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
+import type { UseQueryOptions } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 type UserResponse = components["schemas"]["UserResponse"];
 
@@ -84,14 +85,22 @@ export const useIntrospect = () => {
 /**
  * Hook for searching users by email or phone
  */
-export const useSearchUser = (searchInput: string) => {
-  return $api.useQuery("get", "/users/search", {
-    params: {
-      query: {
-        input: searchInput,
+export const useSearchUser = (
+  searchInput: string,
+  options?: UseQueryOptions<unknown, unknown>
+) => {
+  return $api.useQuery(
+    "get",
+    "/users/search",
+    {
+      params: {
+        query: {
+          input: searchInput,
+        },
       },
     },
-  });
+    { refetchOnWindowFocus: false, ...options }
+  );
 };
 
 // ==================== TRANSFORM FUNCTIONS ====================
