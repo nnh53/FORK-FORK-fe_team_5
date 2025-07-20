@@ -251,6 +251,22 @@ export const siteConfig = {
       },
     ],
   },
+    hero: {
+    badge: "Web đặt phim",
+    title: "Welcome to F Cinema",
+    description:
+      "Một project nhỏ đến từ nhóm 5 thành viên",
+    cta: {
+      primary: {
+        text: "Try for Free",
+        href: "/register",
+      },
+      secondary: {
+        text: "Log in",
+        href: "/login",
+      },
+    },
+  },
 };
 
 export type SiteConfig = typeof siteConfig;

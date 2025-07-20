@@ -82,7 +82,7 @@ const SpotlightSection = forwardRef<HTMLElement, SpotlightSectionProps>(({ class
       <div className="spotlight-content">
         {/* Left Side - Movie List */}
         <div className="spotlight-text">
-          <h3 className="spotlight-title">Phim Gợi ý</h3>
+          <h3 className="spotlight-title">Xem Trailer</h3>
 
           <ul className="spotlight-list">
             {spotlightMovies.map((movie, idx) => (
@@ -104,7 +104,7 @@ const SpotlightSection = forwardRef<HTMLElement, SpotlightSectionProps>(({ class
               }
             }}
           >
-            Book Now
+            Phim Hay, Đặt Ngay!
           </button>
         </div>
 

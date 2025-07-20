@@ -15,6 +15,7 @@ import AdminTeamSection from "@/feature/views/sections/AdminTeamSection";
 import CinemaExperience from "@/feature/views/sections/CinemaExperience";
 import { CTASection } from "@/feature/views/sections/cta-section";
 import { FeatureSection } from "@/feature/views/sections/feature-section";
+import { HeroSection } from "@/feature/views/sections/hero-section";
 
 // Loading component for hero section
 const HeroSkeleton = () => (
@@ -31,28 +32,24 @@ const HomePage = () => {
     <div>
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="home-page">
+          <HeroSection />
           {/* CarouselSection - Load immediately as it's above the fold */}
           <Suspense fallback={<HeroSkeleton />}>
             <CarouselSection />
           </Suspense>
-
           {/* MovieSelection - Load when in viewport */}
           <section id="movies">
             <LazySection threshold={0.1} rootMargin="200px" minHeight="600px" loadingTitle="Movie Selection">
               <MovieSelection />
             </LazySection>
           </section>
-
           {/* SpotlightSection - Load when in viewport */}
           <LazySection threshold={0.1} rootMargin="150px" minHeight="500px" loadingTitle="Spotlight Movies">
             <SpotlightSection />
           </LazySection>
-
-          {/* TrendingSection - Load when in viewport */}
-          <LazySection threshold={0.1} rootMargin="150px" minHeight="600px" loadingTitle="Trending Movies">
-            <TrendingSection />
-          </LazySection>
-
+          {/* TrendingSection - Load when in viewport
+          <LazySection threshold={0.1} rootMargin="150px" minHeight="600px" loadingTitle="Trending Movies"> */}
+          <TrendingSection />
           {/* Light sections - can load normally */}
           <FeatureSection />
           <CinemaExperience />
