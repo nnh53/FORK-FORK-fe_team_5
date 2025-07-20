@@ -26,7 +26,7 @@ export const PromotionDetail: React.FC<PromotionDetailProps> = ({ open, setOpen,
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[90vw] overflow-y-auto bg-white sm:max-w-[800px]">
+      <DialogContent className="max-h-[90vh] overflow-y-auto bg-white sm:max-w-[700px]">
         <DialogHeader className="border-b pb-3">
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             <Icon icon="tabler:ticket-discount" className="h-5 w-5 text-blue-600" />
