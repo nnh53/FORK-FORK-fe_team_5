@@ -32,6 +32,8 @@ import CarouselSection from "@/feature/views/sections/CarouselSection";
 import CinemaExperience from "@/feature/views/sections/CinemaExperience";
 import FAQ from "@/feature/views/sections/FAQ";
 
+import StaffBookingManagement from "@/feature/staff/booking/StaffBookingManagement";
+import StaffTicketSales from "@/feature/staff/sales/StaffTicketSales";
 import SpotlightSection from "@/feature/views/sections/SpotlightSection";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import dataMock from "@/layouts/admin/data.admin-layout.json";
@@ -149,8 +151,20 @@ export const AppRoutes = () => (
 
     {/* Staff Routes - Protected for STAFF role */}
     <Route element={<RoleRoute allowedRoles={["STAFF"]} />}>
-      <Route path={ROUTES.STAFF.ROOT} element={<Navigate to={ROUTES.STAFF.DASHBOARD} replace />} />
-      <Route path={ROUTES.STAFF.ROOT + "/*"} element={<StaffLayout />} />
+      <Route path={ROUTES.STAFF.ROOT} element={<StaffLayout />}>
+        <Route index element={<Navigate to={ROUTES.STAFF.DASHBOARD} replace />} />
+        <Route
+          path="dashboard"
+          element={
+            <div className="p-4">
+              <h1 className="text-2xl font-bold">Staff Dashboard</h1>
+              <p>Welcome to staff dashboard!</p>
+            </div>
+          }
+        />
+        <Route path="booking" element={<StaffBookingManagement />} />
+        <Route path="sales" element={<StaffTicketSales />} />
+      </Route>
     </Route>
     {/* Legacy Management Routes - Protected for ADMIN/STAFF */}
     <Route element={<RoleRoute allowedRoles={["ADMIN", "STAFF"]} />}>

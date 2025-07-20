@@ -7,6 +7,7 @@ import type { Promotion } from "@/interfaces/promotion.interface.ts";
 import { ROUTES } from "@/routes/route.constants.ts";
 import { transformBookingToRequest, useCreateBooking } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
+import type { Combo, ComboSnack } from "@/interfaces/combo.interface";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import { useGetUserById } from "@/services/userService";
@@ -23,13 +24,13 @@ import PromotionSelection from "./components/PromotionSelection/PromotionSelecti
 import SnackList from "./components/SnackList/SnackList.tsx";
 
 // Helper function to calculate combo price
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const calculateComboPrice = (combo: any): number => {
+
+const calculateComboPrice = (combo: Combo): number => {
   let comboPrice = 0;
 
   if (combo.snacks && Array.isArray(combo.snacks) && combo.snacks.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    comboPrice = combo.snacks.reduce((snackTotal: number, comboSnack: any) => {
+
+    comboPrice = combo.snacks.reduce((snackTotal: number, comboSnack: ComboSnack) => {
       const snackPrice = comboSnack.snack?.price || 0;
       // Use the actual quantity from ComboSnack, or default to 1 if it's 0 or undefined
       let snackQuantity = comboSnack.quantity;
@@ -49,8 +50,10 @@ const calculateComboPrice = (combo: any): number => {
     // Estimate price based on number of snacks and their average price
     if (combo.snacks && combo.snacks.length > 0) {
       // Calculate average snack price and multiply by number of snacks
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const avgSnackPrice = combo.snacks.reduce((sum: number, cs: any) => sum + (cs.snack?.price || 0), 0) / combo.snacks.length;
+
+      const avgSnackPrice =
+        combo.snacks.reduce((sum: number, cs: ComboSnack) => sum + (cs.snack?.price || 0), 0) /
+        combo.snacks.length;
       comboPrice = avgSnackPrice * combo.snacks.length;
     }
 

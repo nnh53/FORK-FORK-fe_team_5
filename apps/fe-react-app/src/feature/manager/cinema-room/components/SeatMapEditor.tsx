@@ -2,6 +2,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Seat, SeatMap } from "@/interfaces/seat.interface";
 import { transformSeatResponse, updateSeatStatus, updateSeatToCouple, updateSeatType, useUpdateSeat } from "@/services/cinemaRoomService";
+import type { components } from "@/schema-from-be";
 import { Icon } from "@iconify/react";
 import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -277,8 +278,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
   const updateUIWithAPIResponse = (response: unknown) => {
     if (!response || typeof response !== "object" || !("result" in response) || !currentSeatMap) return false;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const apiResponse = response as { result: any }; // Using any for API response type flexibility
+    const apiResponse = response as { result: components["schemas"]["SeatResponse"] };
     const transformedSeat = transformSeatResponse(apiResponse.result);
     const updatedSeatMap = { ...currentSeatMap };
     updatedSeatMap.gridData = [...currentSeatMap.gridData];

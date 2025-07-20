@@ -44,7 +44,9 @@ export const useBookingsByUserAndStatus = (userId: string, status: "PENDING" | "
 /**
  * Hook for getting bookings by status
  */
-export const useBookingsByStatus = (status: "PENDING" | "SUCCESS" | "CANCELLED") => {
+export const useBookingsByStatus = (
+  status: "PENDING" | "SUCCESS" | "CANCELLED",
+) => {
   return $api.useQuery("get", "/bookings/status/{status}", {
     params: { path: { status } },
   });

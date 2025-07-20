@@ -21,7 +21,14 @@ interface SearchBarProps {
   resetPagination?: () => void; // Thêm prop để reset pagination
 }
 
-function SearchBar({ searchOptions, onSearchChange, className, placeholder = "Tìm kiếm...", limitedFields = true, resetPagination }: SearchBarProps) {
+function SearchBar({
+  searchOptions,
+  onSearchChange,
+  className,
+  placeholder = "Tìm kiếm...",
+  limitedFields = true,
+  resetPagination,
+}: SearchBarProps) {
   const [searchValue, setSearchValue] = useState("");
 
   const handleSearchChange = (value: string) => {
@@ -50,7 +57,13 @@ function SearchBar({ searchOptions, onSearchChange, className, placeholder = "T�
       <div className="flex items-center gap-2">
         <div className="relative flex-1 max-w-xl border border-gray-300 rounded-md focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
           <SearchIcon className="absolute left-3  top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input type="text" placeholder={placeholder} value={searchValue} onChange={(e) => handleSearchChange(e.target.value)} className="pl-10" />
+          <Input
+            type="text"
+            placeholder={placeholder}
+            value={searchValue}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="pl-10"
+          />
         </div>
 
         {/* Clear button */}
@@ -61,6 +74,11 @@ function SearchBar({ searchOptions, onSearchChange, className, placeholder = "T�
           </Button>
         )}
       </div>
+      {limitedFields && searchOptions.length > 0 && (
+        <p className="text-sm text-muted-foreground">
+          Có thể tìm kiếm theo: {searchOptions.map((opt) => opt.label).join(", ")}
+        </p>
+      )}
     </div>
   );
 }
