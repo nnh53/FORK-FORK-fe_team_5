@@ -85,10 +85,8 @@ const TrendingSection = () => {
             src={backgroundBanner}
             alt={`${selectedMovieName} banner background`}
             layout="fullWidth"
-            priority={true}
             className="h-full w-full object-cover transition-opacity duration-500 ease-in-out"
             height={1080}
-            aspectRatio={1920 / 1080}
             breakpoints={[768, 1024, 1280, 1536]}
           />
           {/* Dark overlay */}

@@ -23,7 +23,7 @@ const FAQ = forwardRef<HTMLElement, FAQProps>(({ className }, ref) => {
   const secondRowFaqs = FAQ_DATA.slice(2, 5);
 
   return (
-    <section className={`faq-section ${className || ""}`} ref={ref}>
+    <section id="faq" className={`faq-section ${className || ""}`} ref={ref}>
       {/* Section Header */}
       <div className="section-header">
         <h2

@@ -97,7 +97,6 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
                         className="max-h-full max-w-full object-contain"
                         layout="fullWidth"
                         height={450}
-                        priority
                         background="auto"
                         loading="eager"
                       />

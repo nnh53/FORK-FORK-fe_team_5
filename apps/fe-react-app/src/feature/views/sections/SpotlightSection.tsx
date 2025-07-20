@@ -78,7 +78,7 @@ const SpotlightSection = forwardRef<HTMLElement, SpotlightSectionProps>(({ class
       };
 
   return (
-    <section className={`spotlight-section ${className ?? ""}`} ref={ref} id="spotlight-movies">
+    <section className={`spotlight-section ${className ?? ""}`} ref={ref} id="spotlight">
       <div className="spotlight-content">
         {/* Left Side - Movie List */}
         <div className="spotlight-text">
