@@ -1,11 +1,31 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
+import type {
+  ApiBooking,
+  Booking,
+  BookingComboRelation,
+  BookingSnackRelation,
+  BookingSeatRelation,
+} from "@/interfaces/booking.interface";
 import { queryMovie } from "@/services/movieService.ts";
 import { CheckCircle } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+
+interface StoredBookingData {
+  bookingResult?: ApiBooking;
+  movieInfo?: { id?: number; title?: string; name?: string; duration?: number };
+  selectionInfo?: { showtimeId?: number; showDateTime?: string };
+  selectedSeats?: Array<{ name?: string; id?: string }>;
+  bookingCombos?: unknown[];
+  bookingSnacks?: unknown[];
+  selectedPromotion?: unknown;
+  paymentMethod?: string;
+  costs?: { finalTotalCost?: number };
+  cinemaName?: string;
+}
 
 // Helper function to get booking ID from localStorage
 const getBookingIdFromStorage = () => {
@@ -51,7 +71,7 @@ const getBookingDataFromStorage = () => {
 
 // Helper function to transform API booking data
 
-const transformApiBookingData = (apiData: any) => {
+const transformApiBookingData = (apiData: ApiBooking) => {
   return {
     id: apiData.id,
     user: {
@@ -86,8 +106,9 @@ const transformApiBookingData = (apiData: any) => {
 
 // Helper function to transform localStorage booking data
 
-const transformLocalStorageBookingData = (savedBookingData: any) => {
-  const bookingResult = savedBookingData.bookingResult || savedBookingData;
+const transformLocalStorageBookingData = (savedBookingData: StoredBookingData) => {
+  const bookingResult: ApiBooking =
+    savedBookingData.bookingResult ?? (savedBookingData as unknown as ApiBooking);
   const movieInfo = savedBookingData.movieInfo;
   const selectionInfo = savedBookingData.selectionInfo;
   const selectedSeats = savedBookingData.selectedSeats;
@@ -192,13 +213,17 @@ const NoBookingFoundState: React.FC<{ bookingIdNumber: number }> = ({ bookingIdN
 );
 
 // Helper component for main booking success content
-const BookingSuccessContent: React.FC<{
-  booking: any;
+interface BookingSuccessContentProps {
+  booking: Booking;
+  movieInfo: { name: string; duration: number } | null;
+  cinemaRoomInfo: { room_number: string } | null;
+}
 
-  movieInfo: any;
-
-  cinemaRoomInfo: any;
-}> = ({ booking, movieInfo, cinemaRoomInfo }) => (
+const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({
+  booking,
+  movieInfo,
+  cinemaRoomInfo,
+}) => (
   <div>
     <div className="mx-auto max-w-4xl p-8">
       <div className="rounded-lg bg-white p-8 shadow-lg">
@@ -224,7 +249,7 @@ const BookingSuccessContent: React.FC<{
             <div>
               <p className="text-sm text-gray-500">Ghế ngồi</p>
 
-              <p className="font-semibold">{booking.booking_seats?.map((bs: any) => bs.seat?.name).join(", ") || "N/A"}</p>
+              <p className="font-semibold">{booking.booking_seats?.map((bs: BookingSeatRelation) => bs.seat?.name).join(", ") || "N/A"}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Tổng tiền</p>
@@ -294,7 +319,7 @@ const BookingSuccessContent: React.FC<{
 
             {/* Combos */}
 
-            {booking.booking_combos?.map((bookingCombo: any, index: number) => {
+            {booking.booking_combos?.map((bookingCombo: BookingComboRelation, index: number) => {
               // Calculate combo price from snacks
               const comboPrice = bookingCombo.combo?.snacks?.reduce((total: number, snack: { price?: number }) => total + (snack.price || 0), 0) || 0;
               const totalPrice = comboPrice * (bookingCombo.quantity || 1);
@@ -310,7 +335,7 @@ const BookingSuccessContent: React.FC<{
 
             {/* Individual Snacks */}
 
-            {booking.booking_snacks?.map((bookingSnack: any, index: number) => (
+            {booking.booking_snacks?.map((bookingSnack: BookingSnackRelation, index: number) => (
               <div key={`snack-${index}`} className="flex items-center justify-between py-2">
                 <span>{bookingSnack.snack?.name || "Snack"}</span>
                 <span>x{bookingSnack.quantity}</span>
