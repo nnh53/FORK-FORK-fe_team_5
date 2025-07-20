@@ -1,7 +1,5 @@
 # FCinema Project - AI Coding Agent Instructions
 
-Run all AGENTS task with Environment variables CI = true
-
 ## Architecture Overview
 
 This is an **Nx monorepo** with **pnpm** package manager containing a cinema booking application:
