@@ -30,6 +30,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui
 import type { ApiBooking, BookingStatus, PaymentStatus } from "@/interfaces/booking.interface";
 import { useBookings, useBookingsByStatus, useUpdateBooking } from "@/services/bookingService";
 import { useSearchUser } from "@/services/userService";
+import type { components } from "@/schema-from-be";
+
+type ApiUserResponse = components["schemas"]["ApiResponseUserResponse"];
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CheckCheck, CheckCircle, Edit, Eye, Filter, MoreHorizontal, RotateCcw, Search, X, Zap } from "lucide-react";
@@ -716,19 +719,17 @@ const StaffBookingManagement: React.FC = () => {
   } = useBookings();
 
   const { data: pendingBookings, isLoading: isLoadingPending, error: errorPending } =
-    useBookingsByStatus("PENDING", { enabled: activeTab === "pending" });
+    useBookingsByStatus("PENDING");
 
   const { data: successBookings, isLoading: isLoadingSuccess, error: errorSuccess } =
-    useBookingsByStatus("SUCCESS", { enabled: activeTab === "success" });
+    useBookingsByStatus("SUCCESS");
 
   const { data: cancelledBookings, isLoading: isLoadingCancelled, error: errorCancelled } =
-    useBookingsByStatus("CANCELLED", { enabled: activeTab === "cancelled" });
+    useBookingsByStatus("CANCELLED");
 
   // User search for filtering - only search if searchUser has content
-  const { data: searchResults } = useSearchUser(searchUser, {
-    enabled: searchUser.length > 2,
-  });
-  const searchData = searchResults?.result;
+  const searchQuery = useSearchUser(searchUser);
+  const searchData = (searchQuery.data as ApiUserResponse | undefined)?.result;
 
   // Check for any API errors
   const hasApiError = errorAll || errorPending || errorSuccess || errorCancelled;

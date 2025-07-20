@@ -1,7 +1,6 @@
 import type { Booking } from "@/interfaces/booking.interface";
 import type { SeatMap } from "@/interfaces/seat.interface";
 import type { components } from "@/schema-from-be";
-import type { UseQueryOptions } from "@tanstack/react-query";
 import { $api } from "@/utils/api";
 type BookingRequest = components["schemas"]["BookingRequest"];
 type BookingResponse = components["schemas"]["BookingResponse"];
@@ -11,15 +10,8 @@ type BookingResponse = components["schemas"]["BookingResponse"];
 /**
  * Hook for getting all bookings
  */
-export const useBookings = (
-  options?: UseQueryOptions<unknown, unknown>
-) => {
-  return $api.useQuery(
-    "get",
-    "/bookings",
-    {},
-    { refetchOnWindowFocus: false, ...options }
-  );
+export const useBookings = () => {
+  return $api.useQuery("get", "/bookings", {});
 };
 
 /**
@@ -54,14 +46,10 @@ export const useBookingsByUserAndStatus = (userId: string, status: "PENDING" | "
  */
 export const useBookingsByStatus = (
   status: "PENDING" | "SUCCESS" | "CANCELLED",
-  options?: UseQueryOptions<unknown, unknown>
 ) => {
-  return $api.useQuery(
-    "get",
-    "/bookings/status/{status}",
-    { params: { path: { status } } },
-    { refetchOnWindowFocus: false, ...options }
-  );
+  return $api.useQuery("get", "/bookings/status/{status}", {
+    params: { path: { status } },
+  });
 };
 
 /**
