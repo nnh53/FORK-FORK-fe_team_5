@@ -16,7 +16,7 @@ import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import { $api } from "@/utils/api";
 import createFetchClient from "openapi-fetch";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { memberService } from "../../../services/memberService";
@@ -211,34 +211,40 @@ const StaffTicketSales: React.FC = () => {
     }
   }, [selectedMovie]);
 
-  // Handle showtimes data from React Query
-  useEffect(() => {
-    const loadShowtimes = async () => {
-      if (showtimesQuery.data?.result && selectedMovieId !== null) {
-        try {
-          const convertedShowtimes = await Promise.all(
-            showtimesQuery.data.result.map(async (apiShowtime) => {
-              const seatsResponse = await fetchClient.GET("/seats/showtime/{showtimeId}", {
-                params: { path: { showtimeId: apiShowtime.id ?? 0 } },
-              });
-              const seats = Array.isArray(seatsResponse.data?.result) ? (seatsResponse.data.result as components["schemas"]["SeatResponse"][]) : [];
-              const availableSeats = seats.filter((seat) => seat.status === "AVAILABLE").length;
-              return convertApiShowtimeToUI(apiShowtime, availableSeats);
-            }),
-          );
-          setShowtimes(convertedShowtimes);
-        } catch (error) {
-          console.error("Error converting showtimes:", error);
-          toast.error("Không thể tải lịch chiếu");
-        }
-      } else if (showtimesQuery.isError) {
-        console.error("Error fetching showtimes:", showtimesQuery.error);
+  const convertShowtime = useCallback(
+    async (apiShowtime: components["schemas"]["ShowtimeResponse"]) => {
+      const seatsResponse = await fetchClient.GET("/seats/showtime/{showtimeId}", {
+        params: { path: { showtimeId: apiShowtime.id ?? 0 } },
+      });
+      const seats = Array.isArray(seatsResponse.data?.result)
+        ? (seatsResponse.data.result as components["schemas"]["SeatResponse"][])
+        : [];
+      const availableSeats = seats.filter((seat) => seat.status === "AVAILABLE").length;
+      return convertApiShowtimeToUI(apiShowtime, availableSeats);
+    },
+    [],
+  );
+
+  const loadShowtimes = useCallback(async () => {
+    if (showtimesQuery.data?.result && selectedMovieId !== null) {
+      try {
+        const convertedShowtimes = await Promise.all(
+          showtimesQuery.data.result.map((apiShowtime) => convertShowtime(apiShowtime)),
+        );
+        setShowtimes(convertedShowtimes);
+      } catch (error) {
+        console.error("Error converting showtimes:", error);
         toast.error("Không thể tải lịch chiếu");
       }
-    };
+    } else if (showtimesQuery.isError) {
+      console.error("Error fetching showtimes:", showtimesQuery.error);
+      toast.error("Không thể tải lịch chiếu");
+    }
+  }, [convertShowtime, showtimesQuery.data, showtimesQuery.isError, showtimesQuery.error, selectedMovieId]);
 
+  useEffect(() => {
     void loadShowtimes();
-  }, [showtimesQuery.data, showtimesQuery.isError, showtimesQuery.error, selectedMovieId]);
+  }, [loadShowtimes]);
 
   useEffect(() => {
     if (selectedShowtime) {
