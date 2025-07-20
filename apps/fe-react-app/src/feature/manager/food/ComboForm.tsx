@@ -5,6 +5,7 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
 import ImageUpload from "@/components/shared/ImageUpload";
+import { useMediaQuery } from "@/hooks/use-media-query"; // Import hook
 import { type Combo, type ComboForm as ComboFormType } from "@/interfaces/combo.interface";
 import { comboStatusOptions } from "@/services/comboService";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,6 +38,8 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
     },
   });
 
+  const isMobile = useMediaQuery("(max-width: 768px)"); // Kiểm tra màn hình dưới 768px
+
   useEffect(() => {
     if (combo) {
       setTimeout(() => {
@@ -68,9 +71,9 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
     <div className="w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-          <div className="grid grid-cols-5 gap-8">
+          <div className={isMobile ? "flex flex-col gap-8" : "grid grid-cols-5 gap-8"}>
             {/* Upload ảnh (2/5 width) */}
-            <div className="col-span-2">
+            <div className={isMobile ? "w-full" : "col-span-2"}>
               <Card className="hover:border-primary h-full border-2 border-dashed border-gray-300 transition-colors">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
@@ -104,7 +107,7 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
             </div>
 
             {/* Form fields (3/5 width) */}
-            <div className="space-y-6 md:col-span-3">
+            <div className={isMobile ? "w-full space-y-6" : "space-y-6 md:col-span-3"}>
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">Thông tin combo</CardTitle>

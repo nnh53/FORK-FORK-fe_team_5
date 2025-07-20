@@ -140,10 +140,10 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
               <StatusBadge />
             </div>
           </div>
-          <div className="col-span-2 text-gray-600">{combo.snacks?.length || 0} món</div>
-          <div className="col-span-3 line-clamp-1 text-gray-600">{combo.description || "Không có mô tả"}</div>
-          <div className="text-primary col-span-2 font-semibold">{getDisplayPrice()}</div>
-          <div className="col-span-1 flex justify-end gap-1">
+          <div className="col-span-2 text-gray-600 md:block lg:col-span-1">{combo.snacks?.length || 0} món</div>
+          <div className="col-span-3 line-clamp-1 hidden text-gray-600 lg:col-span-4 lg:block">{combo.description || "Không có mô tả"}</div>
+          <div className="text-primary col-span-2 font-semibold md:col-span-4 lg:col-span-2">{getDisplayPrice()}</div>
+          <div className="col-span-4 flex justify-end gap-1 md:col-span-2 lg:col-span-1">
             <ActionButtons />
           </div>
         </div>
