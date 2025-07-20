@@ -1,10 +1,10 @@
-import { ChartAreaInteractive } from "@/components/Shadcn/chart-area-interactive";
-import { SectionCards } from "@/components/Shadcn/section-cards";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { transformBookingResponse, useBookingsByDateRange } from "@/services/bookingService";
 import { queryReceiptTopMovies } from "@/services/receipService";
-import { format, startOfMonth } from "date-fns";
+import { format, startOfMonth, eachDayOfInterval } from "date-fns";
+import AdminStatCards from "./components/AdminStatCards";
+import RevenueAreaChart from "./components/RevenueAreaChart";
 
 export default function AdminDashboard() {
   const today = new Date();
@@ -17,7 +17,16 @@ export default function AdminDashboard() {
   const bookings = bookingsQuery.data?.result?.map(transformBookingResponse) ?? [];
   const totalRevenue = bookings.reduce((sum, b) => sum + (b.total_price ?? 0), 0);
   const totalBookings = bookings.length;
+  const customers = new Set(bookings.map((b) => b.user_id)).size;
   const trendingMovies = trendingQuery.data?.result ?? [];
+
+  const days = eachDayOfInterval({ start: startOfMonth(today), end: today });
+  const revenueMap = new Map(days.map((d) => [format(d, "yyyy-MM-dd"), 0]));
+  bookings.forEach((b) => {
+    const date = format(b.booking_date_time ?? new Date(), "yyyy-MM-dd");
+    revenueMap.set(date, (revenueMap.get(date) || 0) + (b.total_price ?? 0));
+  });
+  const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
 
   if (trendingQuery.isLoading || bookingsQuery.isLoading) {
     return <LoadingSpinner name="dashboard" />;
@@ -27,13 +36,9 @@ export default function AdminDashboard() {
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-          <div className="flex gap-6 px-4 lg:px-6">
-            <div>Total Revenue: {totalRevenue.toLocaleString()}</div>
-            <div>Total Bookings: {totalBookings}</div>
-          </div>
-          <SectionCards />
+          <AdminStatCards revenue={totalRevenue} bookings={totalBookings} customers={customers} />
           <div className="px-4 lg:px-6">
-            <ChartAreaInteractive />
+            <RevenueAreaChart data={chartData} />
           </div>
           <div className="px-4 lg:px-6">
             <Table>
