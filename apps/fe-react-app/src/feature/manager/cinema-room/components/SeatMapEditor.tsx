@@ -277,7 +277,6 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
   const updateUIWithAPIResponse = (response: unknown) => {
     if (!response || typeof response !== "object" || !("result" in response) || !currentSeatMap) return false;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const apiResponse = response as { result: any }; // Using any for API response type flexibility
     const transformedSeat = transformSeatResponse(apiResponse.result);
     const updatedSeatMap = { ...currentSeatMap };

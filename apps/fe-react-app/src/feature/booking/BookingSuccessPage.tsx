@@ -50,7 +50,7 @@ const getBookingDataFromStorage = () => {
 };
 
 // Helper function to transform API booking data
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const transformApiBookingData = (apiData: any) => {
   return {
     id: apiData.id,
@@ -85,7 +85,7 @@ const transformApiBookingData = (apiData: any) => {
 };
 
 // Helper function to transform localStorage booking data
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const transformLocalStorageBookingData = (savedBookingData: any) => {
   const bookingResult = savedBookingData.bookingResult || savedBookingData;
   const movieInfo = savedBookingData.movieInfo;
@@ -193,11 +193,10 @@ const NoBookingFoundState: React.FC<{ bookingIdNumber: number }> = ({ bookingIdN
 
 // Helper component for main booking success content
 const BookingSuccessContent: React.FC<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   booking: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   movieInfo: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   cinemaRoomInfo: any;
 }> = ({ booking, movieInfo, cinemaRoomInfo }) => (
   <div>
@@ -224,7 +223,7 @@ const BookingSuccessContent: React.FC<{
             </div>
             <div>
               <p className="text-sm text-gray-500">Ghế ngồi</p>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+
               <p className="font-semibold">{booking.booking_seats?.map((bs: any) => bs.seat?.name).join(", ") || "N/A"}</p>
             </div>
             <div>
@@ -294,7 +293,7 @@ const BookingSuccessContent: React.FC<{
             <h2 className="mb-4 text-xl font-semibold">Đồ ăn & Thức uống</h2>
 
             {/* Combos */}
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+
             {booking.booking_combos?.map((bookingCombo: any, index: number) => {
               // Calculate combo price from snacks
               const comboPrice = bookingCombo.combo?.snacks?.reduce((total: number, snack: { price?: number }) => total + (snack.price || 0), 0) || 0;
@@ -310,7 +309,7 @@ const BookingSuccessContent: React.FC<{
             })}
 
             {/* Individual Snacks */}
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+
             {booking.booking_snacks?.map((bookingSnack: any, index: number) => (
               <div key={`snack-${index}`} className="flex items-center justify-between py-2">
                 <span>{bookingSnack.snack?.name || "Snack"}</span>
