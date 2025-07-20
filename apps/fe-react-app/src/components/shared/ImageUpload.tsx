@@ -114,7 +114,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         toast.error("Tải ảnh thất bại, vui lòng thử lại.");
       }
     },
-    [onImageChange],
+    [onImageChange, uploadImage],
   );
 
   // Xử lý chọn file

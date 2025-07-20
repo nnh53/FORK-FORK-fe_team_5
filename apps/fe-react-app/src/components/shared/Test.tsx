@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-commented-code */
 "use client";
 import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from "@/components/Shadcn/file-upload";
 import { Button } from "@/components/Shadcn/ui/button";

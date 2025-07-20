@@ -6,14 +6,13 @@ export interface MovieCardProps {
   title: string;
   genres: string[];
   duration: string;
-  isHot?: boolean;
   trailerUrl: string;
   onPosterClick?: () => void;
   onTitleClick?: () => void;
   onBuyTicketClick?: () => void;
 }
 
-const MovieCard: React.FC<MovieCardProps> = ({ posterUrl, title, genres, duration, isHot, onPosterClick, onTitleClick, onBuyTicketClick }) => {
+const MovieCard: React.FC<MovieCardProps> = ({ posterUrl, title, genres, duration, onPosterClick, onTitleClick, onBuyTicketClick }) => {
   return (
     <div className="flex h-[580px] w-72 flex-col overflow-hidden rounded-xl bg-white shadow-lg transition-shadow duration-300 hover:shadow-2xl">
       {/* --- Phần Poster --- */}
