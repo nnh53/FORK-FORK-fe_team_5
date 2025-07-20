@@ -1,8 +1,6 @@
----
-alwaysApply: true
----
-
 # FCinema Project - AI Coding Agent Instructions
+
+Run all AGENTS task with Environment variables CI = true
 
 ## Architecture Overview
 
@@ -61,7 +59,6 @@ pnpm --filter fe-react-app generate-schema
 ```bash
 # Build app
 pnpm --filter fe-react-app build
-
 
 # Linting
 pnpm --filter fe-react-app lint

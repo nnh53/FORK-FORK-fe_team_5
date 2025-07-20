@@ -58,9 +58,6 @@ pnpm --filter fe-react-app generate-schema
 # Build app
 pnpm --filter fe-react-app build
 
-# Type checking
-pnpm --filter fe-react-app typecheck
-
 # Linting
 pnpm --filter fe-react-app lint
 ```
