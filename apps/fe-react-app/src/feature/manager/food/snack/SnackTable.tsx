@@ -96,7 +96,6 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
         <div className="flex items-center gap-3">
           {/* Sort Controls */}
           <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-1">
-            <span className="px-2 text-sm font-medium">Sắp xếp:</span>
             <SortButton {...getSortProps("name")} label="Tên" />
             <SortButton {...getSortProps("price")} label="Giá" />
           </div>

@@ -5,6 +5,7 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
 import ImageUpload from "@/components/shared/ImageUpload";
+import { useMediaQuery } from "@/hooks/use-media-query"; // Import hook
 import type { Snack } from "@/interfaces/snacks.interface";
 import { snackCategoryOptions, snackSizeOptions, snackStatusOptions } from "@/services/snackService";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +22,6 @@ interface SnackFormProps {
   isLoading?: boolean;
 }
 
-// Update formSchema to include flavor
 const formSchema = z.object({
   img: z.string().min(1, "Image URL is required"),
   name: z.string().min(1, "Snack name is required"),
@@ -34,7 +34,6 @@ const formSchema = z.object({
 });
 
 const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
-  // Update defaultValues and reset logic
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,9 +48,10 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
     },
   });
 
+  const isMobile = useMediaQuery("(max-width: 768px)"); // Kiểm tra màn hình dưới 768px
+
   useEffect(() => {
     if (snack) {
-      // Nếu có snack -> chỉnh sửa, đảm bảo các trường phù hợp với interface mới
       setTimeout(() => {
         form.reset({
           img: snack.img,
@@ -65,7 +65,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
         });
       }, 0);
     } else {
-      // Thêm mới với giá trị mặc định
       form.reset({
         img: "",
         name: "",
@@ -88,9 +87,9 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
           {/* Khu vực upload hình và form */}
-          <div className="grid grid-cols-5 gap-8">
+          <div className={isMobile ? "flex flex-col gap-8" : "grid grid-cols-5 gap-8"}>
             {/* Upload ảnh (2/5 width) */}
-            <div className="col-span-2">
+            <div className={isMobile ? "w-full" : "col-span-2"}>
               <Card className="hover:border-primary h-full border-2 border-dashed border-gray-300 transition-colors">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
@@ -124,7 +123,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
             </div>
 
             {/* Form chính (3/5 width) */}
-            <div className="col-span-3 h-full">
+            <div className={isMobile ? "w-full" : "col-span-3 h-full"}>
               <Card className="h-full">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
@@ -183,7 +182,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
 
                   {/* Danh mục, Kích thước, Trạng thái */}
                   <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    {/* Cập nhật các giá trị enum của category */}
                     <FormField
                       control={form.control}
                       name="category"
@@ -206,7 +204,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                                   ) : (
                                     <Icon icon="ri:drinks-2-line" className="text-shadow-background mx-auto mb-0.5" />
                                   )}
-
                                   {option.label}
                                 </SelectItem>
                               ))}
@@ -217,7 +214,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                       )}
                     />
 
-                    {/* Cập nhật giá trị enum của kích thước */}
                     <FormField
                       control={form.control}
                       name="size"
@@ -244,8 +240,6 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                         </FormItem>
                       )}
                     />
-
-                    {/* Cập nhật giá trị enum của trạng thái */}
                   </div>
 
                   {/* Giá bán, Số lượng tồn kho */}

@@ -332,7 +332,7 @@ const SnackManagement: React.FC = () => {
           if (!open) handleCancel();
         }}
       >
-        <DialogContent className="sm:max-w-220">
+        <DialogContent className="sm:max-w-220 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{selectedSnack ? "Chỉnh sửa thực phẩm" : "Thêm thực phẩm mới"}</DialogTitle>
           </DialogHeader>
