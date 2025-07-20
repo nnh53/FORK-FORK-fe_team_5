@@ -30,10 +30,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui
 import type { ApiBooking, BookingStatus, PaymentStatus } from "@/interfaces/booking.interface";
 import { useBookings, useBookingsByStatus, useUpdateBooking } from "@/services/bookingService";
 import { useSearchUser } from "@/services/userService";
+import type { components } from "@/schema-from-be";
+
+type ApiUserResponse = components["schemas"]["ApiResponseUserResponse"];
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CheckCheck, CheckCircle, Edit, Eye, Filter, MoreHorizontal, RotateCcw, Search, X, Zap } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 
 // Types for filters and booking management
@@ -655,19 +658,17 @@ const BulkStatusUpdate: React.FC<{
 
 // Status Statistics Component
 const StatusStatistics: React.FC<{ bookings: ApiBooking[] }> = ({ bookings }) => {
-  const stats = useMemo(() => {
-    const pending = bookings.filter((b) => b.status === "PENDING").length;
-    const success = bookings.filter((b) => b.status === "SUCCESS").length;
-    const cancelled = bookings.filter((b) => b.status === "CANCELLED").length;
-    const paymentPending = bookings.filter((b) => b.paymentStatus === "PENDING").length;
-    const paymentSuccess = bookings.filter((b) => b.paymentStatus === "SUCCESS").length;
-    const paymentFailed = bookings.filter((b) => b.paymentStatus === "FAILED").length;
+  const pending = bookings.filter((b) => b.status === "PENDING").length;
+  const success = bookings.filter((b) => b.status === "SUCCESS").length;
+  const cancelled = bookings.filter((b) => b.status === "CANCELLED").length;
+  const paymentPending = bookings.filter((b) => b.paymentStatus === "PENDING").length;
+  const paymentSuccess = bookings.filter((b) => b.paymentStatus === "SUCCESS").length;
+  const paymentFailed = bookings.filter((b) => b.paymentStatus === "FAILED").length;
 
-    return {
-      booking: { pending, success, cancelled },
-      payment: { pending: paymentPending, success: paymentSuccess, failed: paymentFailed },
-    };
-  }, [bookings]);
+  const stats = {
+    booking: { pending, success, cancelled },
+    payment: { pending: paymentPending, success: paymentSuccess, failed: paymentFailed },
+  };
 
   if (bookings.length === 0) return null;
 
@@ -710,17 +711,25 @@ const StaffBookingManagement: React.FC = () => {
   const [selectAll, setSelectAll] = useState(false);
 
   // API hooks with error handling
-  const { data: allBookings, isLoading: isLoadingAll, error: errorAll, refetch: refetchAll } = useBookings();
+  const {
+    data: allBookings,
+    isLoading: isLoadingAll,
+    error: errorAll,
+    refetch: refetchAll,
+  } = useBookings();
 
-  const { data: pendingBookings, isLoading: isLoadingPending, error: errorPending } = useBookingsByStatus("PENDING");
+  const { data: pendingBookings, isLoading: isLoadingPending, error: errorPending } =
+    useBookingsByStatus("PENDING");
 
-  const { data: successBookings, isLoading: isLoadingSuccess, error: errorSuccess } = useBookingsByStatus("SUCCESS");
+  const { data: successBookings, isLoading: isLoadingSuccess, error: errorSuccess } =
+    useBookingsByStatus("SUCCESS");
 
-  const { data: cancelledBookings, isLoading: isLoadingCancelled, error: errorCancelled } = useBookingsByStatus("CANCELLED");
+  const { data: cancelledBookings, isLoading: isLoadingCancelled, error: errorCancelled } =
+    useBookingsByStatus("CANCELLED");
 
   // User search for filtering - only search if searchUser has content
-  const { data: searchResults } = useSearchUser(searchUser.length > 2 ? searchUser : "");
-  const searchData = searchResults?.result;
+  const searchQuery = useSearchUser(searchUser);
+  const searchData = (searchQuery.data as ApiUserResponse | undefined)?.result;
 
   // Check for any API errors
   const hasApiError = errorAll || errorPending || errorSuccess || errorCancelled;
@@ -742,36 +751,28 @@ const StaffBookingManagement: React.FC = () => {
   const { data: currentBookings, isLoading } = getCurrentData();
 
   // Filter bookings based on current filters
-  const filteredBookings = useMemo(() => {
-    const bookingsData = currentBookings?.result || [];
-    if (!Array.isArray(bookingsData)) return [];
-
-    let filtered = [...bookingsData];
-
-    // Filter by search term (customer name, email, phone, booking ID)
-    if (filters.searchTerm) {
-      const searchLower = filters.searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (booking) =>
-          booking.id?.toString().includes(searchLower) ||
-          booking.user?.fullName?.toLowerCase().includes(searchLower) ||
-          booking.user?.email?.toLowerCase().includes(searchLower) ||
-          booking.user?.phone?.toLowerCase().includes(searchLower),
-      );
-    }
-
-    // Filter by specific user ID (from user search)
-    if (filters.userId) {
-      filtered = filtered.filter((booking) => booking.user?.id === filters.userId);
-    }
-
-    // Filter by payment status
-    if (filters.paymentStatus && filters.paymentStatus !== "ALL") {
-      filtered = filtered.filter((booking) => booking.paymentStatus === filters.paymentStatus);
-    }
-
-    return filtered;
-  }, [currentBookings, filters]);
+  const bookingsData = currentBookings?.result || [];
+  const filteredBookings = Array.isArray(bookingsData)
+    ? bookingsData
+        .filter((booking) => {
+          if (!filters.searchTerm) return true;
+          const searchLower = filters.searchTerm.toLowerCase();
+          return (
+            booking.id?.toString().includes(searchLower) ||
+            booking.user?.fullName?.toLowerCase().includes(searchLower) ||
+            booking.user?.email?.toLowerCase().includes(searchLower) ||
+            booking.user?.phone?.toLowerCase().includes(searchLower)
+          );
+        })
+        .filter((booking) =>
+          filters.userId ? booking.user?.id === filters.userId : true,
+        )
+        .filter((booking) =>
+          filters.paymentStatus && filters.paymentStatus !== "ALL"
+            ? booking.paymentStatus === filters.paymentStatus
+            : true,
+        )
+    : [];
 
   // Handle bulk selection functions
   const handleSelectBooking = (bookingId: string, checked: boolean) => {
