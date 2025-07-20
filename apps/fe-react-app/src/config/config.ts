@@ -251,11 +251,10 @@ export const siteConfig = {
       },
     ],
   },
-    hero: {
+  hero: {
     badge: "Web đặt phim",
     title: "Welcome to F Cinema",
-    description:
-      "Một project nhỏ đến từ nhóm 5 thành viên",
+    description: "Một project nhỏ đến từ nhóm 5 thành viên",
     cta: {
       primary: {
         text: "Try for Free",

@@ -6,15 +6,7 @@ import { useState } from "react";
 
 import { cn } from "@/utils/utils";
 
-type AnimationStyle =
-  | "from-bottom"
-  | "from-center"
-  | "from-top"
-  | "from-left"
-  | "from-right"
-  | "fade"
-  | "top-in-bottom-out"
-  | "left-in-right-out";
+type AnimationStyle = "from-bottom" | "from-center" | "from-top" | "from-left" | "from-right" | "fade" | "top-in-bottom-out" | "left-in-right-out";
 
 interface HeroVideoProps {
   animationStyle?: AnimationStyle;
@@ -79,31 +71,27 @@ export function HeroVideoDialog({
 
   return (
     <div className={cn("relative", className)}>
-      <div
-        className="group relative cursor-pointer"
-        onClick={() => setIsVideoOpen(true)}
-      >
+      <div className="group relative cursor-pointer" onClick={() => setIsVideoOpen(true)}>
         {thumbnailSrc ? (
           <img
             src={thumbnailSrc}
             alt={thumbnailAlt}
             width={1920}
             height={1080}
-            className="w-full transition-all duration-200 ease-out group-hover:brightness-[0.8] isolate"
+            className="isolate w-full transition-all duration-200 ease-out group-hover:brightness-[0.8]"
           />
         ) : (
-          <div className="w-full aspect-video bg-background rounded-2xl" />
+          <div className="bg-background aspect-video w-full rounded-2xl" />
         )}
-        <div className="absolute isolate inset-0 flex scale-[0.9] items-center justify-center rounded-2xl transition-all duration-200 ease-out group-hover:scale-100">
-          <div className="flex size-28 items-center justify-center rounded-full bg-gradient-to-t from-secondary/20 to-[#ACC3F7/15] backdrop-blur-md">
+        <div className="absolute inset-0 isolate flex scale-[0.9] items-center justify-center rounded-2xl transition-all duration-200 ease-out group-hover:scale-100">
+          <div className="from-secondary/20 flex size-28 items-center justify-center rounded-full bg-gradient-to-t to-[#ACC3F7/15] backdrop-blur-md">
             <div
-              className={`relative flex size-20 scale-100 items-center justify-center rounded-full bg-gradient-to-t from-secondary to-white/10 shadow-md transition-all duration-200 ease-out group-hover:scale-[1.2]`}
+              className={`from-secondary relative flex size-20 scale-100 items-center justify-center rounded-full bg-gradient-to-t to-white/10 shadow-md transition-all duration-200 ease-out group-hover:scale-[1.2]`}
             >
               <Play
                 className="size-8 scale-100 fill-white text-white transition-transform duration-200 ease-out group-hover:scale-105"
                 style={{
-                  filter:
-                    "drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06))",
+                  filter: "drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06))",
                 }}
               />
             </div>
@@ -125,7 +113,7 @@ export function HeroVideoDialog({
               className="relative mx-4 aspect-video w-full max-w-4xl md:mx-0"
             >
               <motion.button
-                className="absolute cursor-pointer hover:scale-[98%] transition-all duration-200 ease-out -top-16 right-0 rounded-full bg-neutral-900/50 p-2 text-xl text-white ring-1 backdrop-blur-md dark:bg-neutral-100/50 dark:text-black"
+                className="absolute -top-16 right-0 cursor-pointer rounded-full bg-neutral-900/50 p-2 text-xl text-white ring-1 backdrop-blur-md transition-all duration-200 ease-out hover:scale-[98%] dark:bg-neutral-100/50 dark:text-black"
                 onClick={() => setIsVideoOpen(false)}
               >
                 <XIcon className="size-5" />

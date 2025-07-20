@@ -1,6 +1,6 @@
 import { siteConfig } from "@/config/config";
 import { FileStack } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // Custom buttons
 import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";

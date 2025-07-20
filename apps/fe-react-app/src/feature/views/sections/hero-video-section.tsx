@@ -2,8 +2,8 @@ import { HeroVideoDialog } from "@/components/magicui/hero-video-dialog";
 
 export function HeroVideoSection() {
   return (
-    <div className="relative px-6 mt-10">
-      <div className="relative size-full shadow-xl rounded-2xl overflow-hidden">
+    <div className="relative mt-10 px-6">
+      <div className="relative size-full overflow-hidden rounded-2xl shadow-xl">
         <HeroVideoDialog
           className="block dark:hidden"
           animationStyle="from-center"
