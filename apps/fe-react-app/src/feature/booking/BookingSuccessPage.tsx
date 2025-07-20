@@ -1,5 +1,5 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { useBooking } from "@/services/bookingService";
+import { useBooking, transformBookingResponse } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
 import type {
   ApiBooking,
@@ -71,80 +71,19 @@ const getBookingDataFromStorage = () => {
 
 // Helper function to transform API booking data
 
-const transformApiBookingData = (apiData: ApiBooking) => {
-  return {
-    id: apiData.id,
-    user: {
-      full_name: apiData.user?.fullName,
-      phone: apiData.user?.phone,
-      email: apiData.user?.email,
-    },
-    booking_date_time: apiData.bookingDate,
-    booking_status: apiData.status,
-    total_price: apiData.totalPrice,
-    payment_method: apiData.paymentMethod,
-    payment_status: apiData.paymentStatus,
-    loyalty_point_used: apiData.loyaltyPointsUsed,
-    promotion: apiData.promotion,
-    showtime: {
-      id: apiData.showTime?.id,
-      movie_id: apiData.showTime?.movieId,
-      show_date_time: apiData.showTime?.showDateTime,
-      room_id: apiData.showTime?.roomId,
-      cinema_room: {
-        room_number: apiData.showTime?.roomName || `Room ${apiData.showTime?.roomId}`,
-      },
-    },
-    booking_seats:
-      apiData.seats?.map((seat: { name?: string; seatName?: string }) => ({
-        seat: { name: seat.name || seat.seatName },
-      })) || [],
-    booking_combos: apiData.bookingCombos || [],
-    booking_snacks: apiData.bookingSnacks || [],
-  };
+const transformApiBookingData = (apiData: ApiBooking): Booking => {
+  return transformBookingResponse(apiData);
 };
 
 // Helper function to transform localStorage booking data
 
-const transformLocalStorageBookingData = (savedBookingData: StoredBookingData) => {
+const transformLocalStorageBookingData = (
+  savedBookingData: StoredBookingData,
+): Booking => {
   const bookingResult: ApiBooking =
     savedBookingData.bookingResult ?? (savedBookingData as unknown as ApiBooking);
-  const movieInfo = savedBookingData.movieInfo;
-  const selectionInfo = savedBookingData.selectionInfo;
-  const selectedSeats = savedBookingData.selectedSeats;
 
-  return {
-    id: bookingResult.id,
-    user: {
-      full_name: bookingResult.user?.fullName || "N/A",
-      phone: bookingResult.user?.phone || "N/A",
-      email: bookingResult.user?.email || "N/A",
-    },
-    booking_date_time: bookingResult.bookingDate || new Date().toISOString(),
-    booking_status: bookingResult.status || "CONFIRMED",
-    total_price: bookingResult.totalPrice || savedBookingData.costs?.finalTotalCost || 0,
-    payment_method: bookingResult.paymentMethod || savedBookingData.paymentMethod || "ONLINE",
-    payment_status: bookingResult.paymentStatus || "PENDING",
-    loyalty_point_used: bookingResult.loyaltyPointsUsed || 0,
-    promotion: bookingResult.promotion || savedBookingData.selectedPromotion,
-    showtime: {
-      id: bookingResult.showTime?.id || selectionInfo?.showtimeId,
-      movie_id: movieInfo?.id,
-      show_date_time: bookingResult.showTime?.showDateTime || selectionInfo?.showDateTime,
-      room_id: bookingResult.showTime?.roomId,
-      cinema_room: {
-        room_number: bookingResult.showTime?.roomName || `Room ${bookingResult.showTime?.roomId}` || "N/A",
-      },
-    },
-    booking_seats:
-      selectedSeats?.map((seat: { name?: string; id?: string }) => ({
-        seat: { name: seat.name || seat.id || "N/A" },
-      })) || [],
-    booking_combos: bookingResult.bookingCombos || [],
-    booking_snacks: bookingResult.bookingSnacks || [],
-    // Add flag to indicate this is from localStorage
-    _isFromLocalStorage: true,
-  };
+  return transformBookingResponse(bookingResult);
 };
 
 // Helper component for loading state
@@ -354,8 +293,8 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({
                 <div>
                   <p className="text-sm text-gray-500">Khuyến mãi áp dụng</p>
                   <p className="font-semibold text-green-600">{booking.promotion.title || "Khuyến mãi"}</p>
-                  {!!(booking.promotion.discountValue && booking.promotion.discountValue > 0) && (
-                    <p className="text-sm text-gray-600">Giảm {booking.promotion.discountValue.toLocaleString("vi-VN")} VNĐ</p>
+                  {!!(booking.promotion.discount_value && booking.promotion.discount_value > 0) && (
+                    <p className="text-sm text-gray-600">Giảm {booking.promotion.discount_value.toLocaleString("vi-VN")} VNĐ</p>
                   )}
                 </div>
               )}
