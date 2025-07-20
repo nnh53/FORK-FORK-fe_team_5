@@ -1,8 +1,6 @@
 import AuthPageProtector from "@/components/auth/AuthPageProtector";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { ChartAreaInteractive } from "@/components/Shadcn/chart-area-interactive";
-import { DataTable } from "@/components/Shadcn/data-table";
-import { SectionCards } from "@/components/Shadcn/section-cards";
+
 import Loading from "@/components/shared/Loading";
 import PageTransition from "@/components/shared/PageTransition";
 import Test from "@/components/shared/Test";
@@ -32,11 +30,11 @@ import CarouselSection from "@/feature/views/sections/CarouselSection";
 import CinemaExperience from "@/feature/views/sections/CinemaExperience";
 import FAQ from "@/feature/views/sections/FAQ";
 
+import AdminDashboard from "@/feature/manager/dashboard/AdminDashboard";
 import StaffBookingManagement from "@/feature/staff/booking/StaffBookingManagement";
 import StaffTicketSales from "@/feature/staff/sales/StaffTicketSales";
 import SpotlightSection from "@/feature/views/sections/SpotlightSection";
 import AdminLayout from "@/layouts/admin/AdminLayout";
-import dataMock from "@/layouts/admin/data.admin-layout.json";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
 import UserLayout from "@/layouts/user/UserLayout";
@@ -107,22 +105,7 @@ export const AppRoutes = () => (
       >
         <Route path={ROUTES.ADMIN.ROOT} element={<AdminLayout />}>
           <Route index element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
-          <Route
-            path="dashboard"
-            element={
-              <div className="flex flex-1 flex-col">
-                <div className="@container/main flex flex-1 flex-col gap-2">
-                  <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                    <SectionCards />
-                    <div className="px-4 lg:px-6">
-                      <ChartAreaInteractive />
-                    </div>
-                    <DataTable data={dataMock} />
-                  </div>
-                </div>
-              </div>
-            }
-          />
+          <Route path="dashboard" element={<AdminDashboard />} />
           <Route
             path="booking"
             element={
