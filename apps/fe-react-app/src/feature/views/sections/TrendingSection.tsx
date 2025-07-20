@@ -1,4 +1,3 @@
-// import { Particles } from "@/components/magicui/particles";
 import { queryMoviesForTrending } from "@/services/movieService";
 import { queryReceiptTopMovies } from "@/services/receipService";
 import { useMemo, useState } from "react";
@@ -84,7 +83,6 @@ const TrendingSection = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      {/* <Particles /> */}
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
