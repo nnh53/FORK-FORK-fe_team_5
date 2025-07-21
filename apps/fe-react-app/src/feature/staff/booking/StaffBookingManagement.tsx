@@ -35,7 +35,7 @@ import type { components } from "@/schema-from-be";
 type ApiUserResponse = components["schemas"]["ApiResponseUserResponse"];
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { CheckCheck, CheckCircle, Edit, Eye, Filter, MoreHorizontal, RotateCcw, Search, X, Zap } from "lucide-react";
+import { CheckCircle, Edit, Eye, Filter, MoreHorizontal, RotateCcw, Search, X, Zap } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
@@ -161,20 +161,6 @@ const QuickActionButtons: React.FC<{
 
   return (
     <div className="flex items-center gap-1">
-      {/* Quick approve if pending */}
-      {booking.status === "PENDING" && (
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 px-2 text-xs text-green-600 hover:bg-green-50 hover:text-green-700"
-          onClick={() => handleQuickAction("approve")}
-          disabled={isUpdating}
-          title="Duyệt booking (Ctrl+A)"
-        >
-          <CheckCheck className="h-3 w-3" />
-        </Button>
-      )}
-
       {/* Quick cancel if not cancelled */}
       {booking.status !== "CANCELLED" && (
         <Button
@@ -183,7 +169,7 @@ const QuickActionButtons: React.FC<{
           className="h-7 px-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
           onClick={() => handleQuickAction("cancel")}
           disabled={isUpdating}
-          title="Hủy booking (Ctrl+X)"
+          title="Hủy booking"
         >
           <X className="h-3 w-3" />
         </Button>
@@ -197,7 +183,7 @@ const QuickActionButtons: React.FC<{
           className="h-7 px-2 text-xs text-blue-600 hover:bg-blue-50 hover:text-blue-700"
           onClick={() => handleQuickAction("markPaid")}
           disabled={isUpdating}
-          title="Đánh dấu đã thanh toán (Ctrl+P)"
+          title="Đánh dấu đã thanh toán"
         >
           <Zap className="h-3 w-3" />
         </Button>
@@ -211,7 +197,7 @@ const QuickActionButtons: React.FC<{
           className="h-7 px-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-gray-700"
           onClick={() => handleQuickAction("markPending")}
           disabled={isUpdating}
-          title="Đặt lại chờ xử lý (Ctrl+R)"
+          title="Đặt lại chờ xử lý"
         >
           <RotateCcw className="h-3 w-3" />
         </Button>
