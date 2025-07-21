@@ -7,19 +7,6 @@ import { AppRoutes } from "./routes/route.index";
 const TITLE = "FCinema";
 
 function App() {
-  // const [isLoading, setIsLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 500);
-  //   return () => clearTimeout(timer);
-  // }, []);
-
-  // if (isLoading) {
-  //   return <Loading />;
-  // }
-
   return (
     <AuthProvider>
       <div>

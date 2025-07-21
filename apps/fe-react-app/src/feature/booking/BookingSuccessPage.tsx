@@ -1,13 +1,7 @@
 import { Button } from "@/components/Shadcn/ui/button";
+import type { ApiBooking, Booking } from "@/interfaces/booking.interface";
 import { useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
-import type {
-  ApiBooking,
-  Booking,
-  BookingComboRelation,
-  BookingSnackRelation,
-  BookingSeatRelation,
-} from "@/interfaces/booking.interface";
 import { queryMovie } from "@/services/movieService.ts";
 import { CheckCircle } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
@@ -77,11 +71,8 @@ const transformApiBookingData = (apiData: ApiBooking): Booking => {
 
 // Helper function to transform localStorage booking data
 
-const transformLocalStorageBookingData = (
-  savedBookingData: StoredBookingData,
-): Booking => {
-  const bookingResult: ApiBooking =
-    savedBookingData.bookingResult ?? (savedBookingData as unknown as ApiBooking);
+const transformLocalStorageBookingData = (savedBookingData: StoredBookingData): Booking => {
+  const bookingResult: ApiBooking = savedBookingData.bookingResult ?? (savedBookingData as unknown as ApiBooking);
 
   return bookingResult;
 };
@@ -158,11 +149,7 @@ interface BookingSuccessContentProps {
   cinemaRoomInfo: { room_number: string } | null;
 }
 
-const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({
-  booking,
-  movieInfo,
-  cinemaRoomInfo,
-}) => (
+const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, movieInfo, cinemaRoomInfo }) => (
   <div>
     <div className="mx-auto max-w-4xl p-8">
       <div className="rounded-lg bg-white p-8 shadow-lg">
