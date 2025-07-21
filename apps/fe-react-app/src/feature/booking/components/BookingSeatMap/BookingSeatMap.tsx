@@ -4,6 +4,7 @@ import type { Seat, SeatMap } from "@/interfaces/seat.interface";
 import { Icon } from "@iconify/react";
 import React from "react";
 import { toast } from "sonner";
+import SeatLegend from "../SeatLegend/SeatLegend";
 
 interface BookingSeatMapProps {
   seatMap: SeatMap | null;
@@ -161,7 +162,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
             index: i,
             span: 2,
             cellType: "seat" as const,
-            displayCol: seat.name, // Use API name directly
+            displayCol: seat.name,
             displayRow: seat.row,
           });
           // Mark to skip the next seat since it's part of this double seat
@@ -174,7 +175,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
             index: i,
             span: 1,
             cellType: "seat" as const,
-            displayCol: seat.name, // Use API name directly
+            displayCol: seat.name,
             displayRow: seat.row,
           });
         }
@@ -186,7 +187,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
           index: i,
           span: 1,
           cellType: "seat" as const,
-          displayCol: seat.name, // Use API name directly
+          displayCol: seat.name,
           displayRow: seat.row,
         });
       }
@@ -205,6 +206,9 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
     // Do not apply gap logic for COUPLE seats
     const wouldCreateGapIfSelected = seat.type.name !== "COUPLE" && !isSelected && wouldCreateGap(seat);
 
+    // Prevent selection of BLOCK and PATH seat types
+    const isBlockOrPath = seat.type.name === "BLOCK" || seat.type.name === "PATH";
+
     return {
       isSelected,
       isBooked,
@@ -212,7 +216,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
       isMaintenance,
       isDiscarded,
       wouldCreateGapIfSelected,
-      isSelectable: isAvailable && !isBooked && !isMaintenance && !isDiscarded && !isSelected && !wouldCreateGapIfSelected,
+      isSelectable: isAvailable && !isBooked && !isMaintenance && !isDiscarded && !isSelected && !wouldCreateGapIfSelected && !isBlockOrPath,
     };
   };
 
@@ -229,11 +233,6 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
       return `${baseClass} bg-red-500 text-white border-red-500 cursor-not-allowed`;
     }
 
-    // Show warning style for seats that would create gaps
-    // if (state.wouldCreateGapIfSelected && !allowGapSeats) {
-    //   return `${baseClass} bg-orange-100 border-orange-300 text-orange-800 cursor-not-allowed opacity-60`;
-    // }
-
     // Determine base color based on seat type
     let baseColor: string;
     switch (seat.type.name) {
@@ -247,10 +246,10 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
         baseColor = `${baseClass} bg-purple-100 border-purple-300 text-purple-800`;
         break;
       case "PATH":
-        baseColor = `${baseClass} bg-gray-50 border-gray-200 text-gray-500`;
+        baseColor = `border rounded flex items-center justify-center text-xs bg-gray-50 border-gray-200 text-gray-500`;
         break;
       case "BLOCK":
-        baseColor = `${baseClass} bg-red-100 border-red-300 text-red-800`;
+        baseColor = `border rounded flex items-center justify-center text-xs bg-red-100 border-red-300 text-red-800`;
         break;
       default:
         baseColor = `${baseClass} bg-gray-100 border-gray-300 text-gray-600`;
@@ -265,6 +264,10 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
 
   const handleSeatClick = (seat: Seat) => {
     const state = getSeatState(seat);
+    // Prevent selection of BLOCK and PATH seat types
+    if (seat.type.name === "BLOCK" || seat.type.name === "PATH") {
+      return;
+    }
     // Allow deselecting a selected seat
     if (state.isSelected && seat.id) {
       onSeatSelect(seat.id);
@@ -482,56 +485,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
         </div>
 
         {/* Legend */}
-        <div className="mt-6 flex flex-wrap justify-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded border border-blue-300 bg-blue-100"></div>
-            <span className="text-sm">Ghế thường</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded border border-yellow-300 bg-yellow-100"></div>
-            <span className="text-sm">Ghế VIP</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-8 rounded border border-purple-300 bg-purple-100"></div>
-            <span className="text-sm">Ghế đôi</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-4 w-4 items-center justify-center rounded border border-gray-200 bg-gray-50">
-              <Icon icon="mdi:walk" className="h-3 w-3 text-gray-400" />
-            </div>
-            <span className="text-sm">Lối đi</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-4 w-4 items-center justify-center rounded border border-red-300 bg-red-100">
-              <Icon icon="mdi:close" className="h-3 w-3 text-red-500" />
-            </div>
-            <span className="text-sm">Chặn</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded bg-red-500"></div>
-            <span className="text-sm">Đã đặt</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded bg-orange-500"></div>
-            <span className="text-sm">Đang chọn</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded bg-green-500"></div>
-            <span className="text-sm">Đã chọn</span>
-          </div>
-          {!allowGapSeats && (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 rounded border border-orange-300 bg-orange-100 opacity-60"></div>
-              <span className="text-sm">Không thể chọn (tạo khoảng trống)</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2">
-            <div className="relative h-4 w-4 rounded border border-gray-300 bg-gray-100 opacity-50">
-              <Icon icon="mdi:wrench" className="absolute right-0 top-0 h-2 w-2 text-orange-600" style={{ transform: "translate(25%, -25%)" }} />
-            </div>
-            <span className="text-sm">Bảo trì</span>
-          </div>
-        </div>
+        <SeatLegend />
       </CardContent>
     </Card>
   );
