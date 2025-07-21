@@ -1,19 +1,7 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/Shadcn/ui/alert-dialog";
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Checkbox } from "@/components/Shadcn/ui/checkbox";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/Shadcn/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,13 +17,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import type { ApiBooking, BookingStatus, PaymentStatus } from "@/interfaces/booking.interface";
 import type { components } from "@/schema-from-be";
-import { useBookings, useBookingsByStatus, useUpdateBooking } from "@/services/bookingService";
-import { useSearchUser } from "@/services/userService";
+import { useBookings, useBookingsByStatus } from "@/services/bookingService";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { CheckCircle, Edit, Eye, Filter, MoreHorizontal, RotateCcw, Search, X, Zap } from "lucide-react";
+import { Filter, MoreHorizontal, Search } from "lucide-react";
 import React, { useState } from "react";
-import { toast } from "sonner";
+import BookingDetailModal from "./components/BookingDetailModal";
+import BulkStatusUpdate from "./components/BulkStatusUpdate";
+import QuickActionButtons from "./components/QuickActionButtons";
+import QuickStatusChange from "./components/QuickStatusChange";
+import StatusStatistics from "./components/StatusStatistics";
 
 type ApiUserResponse = components["schemas"]["ApiResponseUserResponse"];
 
@@ -116,571 +107,6 @@ const formatDateTime = (dateString: string | undefined): string => {
   }
 };
 
-// Quick Action Buttons Component
-const QuickActionButtons: React.FC<{
-  booking: ApiBooking;
-  onUpdate: () => void;
-}> = ({ booking, onUpdate }) => {
-  const updateBookingMutation = useUpdateBooking();
-  const [isUpdating, setIsUpdating] = useState(false);
-
-  const handleQuickAction = async (action: "approve" | "cancel" | "markPaid" | "markPending") => {
-    setIsUpdating(true);
-    try {
-      let updateData: Partial<{ status: BookingStatus; paymentStatus: PaymentStatus }> = {};
-
-      switch (action) {
-        case "approve":
-          updateData = { status: "SUCCESS" as BookingStatus };
-          break;
-        case "cancel":
-          updateData = { status: "CANCELLED" as BookingStatus };
-          break;
-        case "markPaid":
-          updateData = { paymentStatus: "SUCCESS" as PaymentStatus };
-          break;
-        case "markPending":
-          updateData = { status: "PENDING" as BookingStatus };
-          break;
-      }
-
-      await updateBookingMutation.mutateAsync({
-        params: { path: { id: booking.id ?? 0 } },
-        body: updateData,
-      });
-
-      onUpdate();
-      toast.success("Cập nhật thành công!");
-    } catch (error) {
-      toast.error("Cập nhật thất bại!");
-      console.error("Quick action error:", error);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-1">
-      {/* Quick cancel if not cancelled */}
-      {booking.status !== "CANCELLED" && (
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 px-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
-          onClick={() => handleQuickAction("cancel")}
-          disabled={isUpdating}
-          title="Hủy booking"
-        >
-          <X className="h-3 w-3" />
-        </Button>
-      )}
-
-      {/* Quick mark as paid if payment pending */}
-      {booking.paymentStatus === "PENDING" && (
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 px-2 text-xs text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-          onClick={() => handleQuickAction("markPaid")}
-          disabled={isUpdating}
-          title="Đánh dấu đã thanh toán"
-        >
-          <Zap className="h-3 w-3" />
-        </Button>
-      )}
-
-      {/* Reset to pending */}
-      {(booking.status === "SUCCESS" || booking.status === "CANCELLED") && (
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 px-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-gray-700"
-          onClick={() => handleQuickAction("markPending")}
-          disabled={isUpdating}
-          title="Đặt lại chờ xử lý"
-        >
-          <RotateCcw className="h-3 w-3" />
-        </Button>
-      )}
-    </div>
-  );
-};
-
-// Booking Detail Modal Component
-const BookingDetailModal: React.FC<{ booking: ApiBooking; onUpdate: () => void }> = ({ booking, onUpdate }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({
-    status: booking.status || ("PENDING" as BookingStatus),
-    paymentStatus: booking.paymentStatus || ("PENDING" as PaymentStatus),
-    payOsCode: booking.payOsCode || "",
-  });
-
-  const updateBookingMutation = useUpdateBooking();
-
-  const handleUpdate = async () => {
-    try {
-      await updateBookingMutation.mutateAsync({
-        params: { path: { id: booking.id ?? 0 } },
-        body: editForm,
-      });
-
-      onUpdate();
-      toast.success("Cập nhật booking thành công!");
-      setIsEditing(false);
-      setIsOpen(false);
-    } catch (error) {
-      toast.error("Cập nhật booking thất bại!");
-      console.error("Update booking error:", error);
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <Eye className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Chi tiết Booking #{booking.id}</DialogTitle>
-          <DialogDescription>Thông tin chi tiết về booking và các thao tác quản lý</DialogDescription>
-        </DialogHeader>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Thông tin cơ bản</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Mã booking</Label>
-                <p className="text-sm">{booking.id}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Ngày đặt</Label>
-                <p className="text-sm">{formatDateTime(booking.bookingDate)}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Trạng thái booking</Label>
-                <div className="mt-1">
-                  {isEditing ? (
-                    <Select value={editForm.status} onValueChange={(value) => setEditForm((prev) => ({ ...prev, status: value as BookingStatus }))}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PENDING">Chờ xử lý</SelectItem>
-                        <SelectItem value="SUCCESS">Thành công</SelectItem>
-                        <SelectItem value="CANCELLED">Đã hủy</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    getStatusBadge(booking.status || "PENDING", "booking")
-                  )}
-                </div>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Trạng thái thanh toán</Label>
-                <div className="mt-1">
-                  {isEditing ? (
-                    <Select
-                      value={editForm.paymentStatus}
-                      onValueChange={(value) => setEditForm((prev) => ({ ...prev, paymentStatus: value as PaymentStatus }))}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PENDING">Chờ thanh toán</SelectItem>
-                        <SelectItem value="SUCCESS">Đã thanh toán</SelectItem>
-                        <SelectItem value="FAILED">Thanh toán thất bại</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    getStatusBadge(booking.paymentStatus || "PENDING", "payment")
-                  )}
-                </div>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Phương thức thanh toán</Label>
-                <p className="text-sm">{getPaymentMethodText(booking.paymentMethod)}</p>
-              </div>
-              {isEditing && (
-                <div>
-                  <Label className="text-sm font-medium text-gray-500">Mã PayOS</Label>
-                  <Input
-                    value={editForm.payOsCode}
-                    onChange={(e) => setEditForm((prev) => ({ ...prev, payOsCode: e.target.value }))}
-                    placeholder="Mã PayOS (nếu có)"
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Customer Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Thông tin khách hàng</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Tên khách hàng</Label>
-                <p className="text-sm">{booking.user?.fullName || "N/A"}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Email</Label>
-                <p className="text-sm">{booking.user?.email || "N/A"}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Số điện thoại</Label>
-                <p className="text-sm">{booking.user?.phone || "N/A"}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Điểm tích lũy sử dụng</Label>
-                <p className="text-sm">{booking.loyaltyPointsUsed || 0} điểm</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Nhân viên xử lý</Label>
-                <p className="text-sm">{booking.staffId || "N/A"}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Movie & Showtime Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Thông tin phim & suất chiếu</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Tên phim</Label>
-                <p className="text-sm font-medium">Movie ID: {booking.showTime?.movieId || "N/A"}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Thời gian chiếu</Label>
-                <p className="text-sm">
-                  {booking.showTime?.showDateTime ? format(new Date(booking.showTime.showDateTime), "dd/MM/yyyy HH:mm", { locale: vi }) : "N/A"}
-                </p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Phòng chiếu</Label>
-                <p className="text-sm">Phòng chiếu #{booking.showTime?.roomName || "N/A"}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Seats & Items */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Ghế & Sản phẩm</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Ghế đã đặt</Label>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {booking.seats?.map((seat) => (
-                    <Badge key={seat.id} variant="outline" className="text-xs">
-                      {seat.row}
-                      {seat.column}
-                    </Badge>
-                  )) || <p className="text-sm text-gray-500">Không có ghế</p>}
-                </div>
-              </div>
-
-              {booking.bookingSnacks && booking.bookingSnacks.length > 0 && (
-                <div>
-                  <Label className="text-sm font-medium text-gray-500">Đồ ăn & thức uống</Label>
-                  <div className="mt-1 space-y-1">
-                    {booking.bookingSnacks.map((item, index) => (
-                      <div key={index} className="flex justify-between text-xs">
-                        <span>
-                          {item.snack?.name} x{item.quantity}
-                        </span>
-                        <span>{item.totalPrice ? `${item.totalPrice.toLocaleString()}đ` : "N/A"}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {booking.bookingCombos && booking.bookingCombos.length > 0 && (
-                <div>
-                  <Label className="text-sm font-medium text-gray-500">Combo</Label>
-                  <div className="mt-1 space-y-1">
-                    {booking.bookingCombos.map((item, index) => (
-                      <div key={index} className="flex justify-between text-xs">
-                        <span>
-                          {item.combo?.name} x{item.quantity}
-                        </span>
-                        <span>{item.totalPrice ? `${item.totalPrice.toLocaleString()}đ` : "N/A"}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="border-t pt-2">
-                <div className="flex justify-between font-medium">
-                  <span>Tổng tiền:</span>
-                  <span className="text-red-600">{formatCurrency(booking.totalPrice)}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <DialogFooter className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
-            Đóng
-          </Button>
-          {!isEditing ? (
-            <Button onClick={() => setIsEditing(true)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Chỉnh sửa
-            </Button>
-          ) : (
-            <>
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
-                Hủy
-              </Button>
-              <Button onClick={handleUpdate} disabled={updateBookingMutation.isPending}>
-                <CheckCircle className="mr-2 h-4 w-4" />
-                {updateBookingMutation.isPending ? "Đang cập nhật..." : "Cập nhật"}
-              </Button>
-            </>
-          )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-// Quick Status Change Component
-const QuickStatusChange: React.FC<{
-  booking: ApiBooking;
-  onUpdate: () => void;
-  type: "booking" | "payment";
-}> = ({ booking, onUpdate, type }) => {
-  const updateBookingMutation = useUpdateBooking();
-  const [isChanging, setIsChanging] = useState(false);
-
-  const handleStatusChange = async (newStatus: string) => {
-    setIsChanging(true);
-    try {
-      const updateData = type === "booking" ? { status: newStatus as BookingStatus } : { paymentStatus: newStatus as PaymentStatus };
-
-      await updateBookingMutation.mutateAsync({
-        params: { path: { id: booking.id ?? 0 } },
-        body: updateData,
-      });
-
-      onUpdate();
-      toast.success(`Cập nhật ${type === "booking" ? "trạng thái booking" : "trạng thái thanh toán"} thành công!`);
-    } catch (error) {
-      toast.error(`Cập nhật ${type === "booking" ? "trạng thái booking" : "trạng thái thanh toán"} thất bại!`);
-      console.error("Update status error:", error);
-    } finally {
-      setIsChanging(false);
-    }
-  };
-
-  const currentStatus = type === "booking" ? booking.status : booking.paymentStatus;
-  const statusOptions =
-    type === "booking"
-      ? [
-          { value: "PENDING", label: "Chờ xử lý", variant: "secondary" as const },
-          { value: "SUCCESS", label: "Thành công", variant: "default" as const },
-          { value: "CANCELLED", label: "Đã hủy", variant: "destructive" as const },
-        ]
-      : [
-          { value: "PENDING", label: "Chờ thanh toán", variant: "secondary" as const },
-          { value: "SUCCESS", label: "Đã thanh toán", variant: "default" as const },
-          { value: "FAILED", label: "Thất bại", variant: "destructive" as const },
-        ];
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" disabled={isChanging}>
-          {isChanging ? "Đang cập nhật..." : getStatusBadge(currentStatus || "PENDING", type)}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Đổi trạng thái</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {statusOptions.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            onClick={() => {
-              if (currentStatus !== option.value) {
-                handleStatusChange(option.value);
-              }
-            }}
-            disabled={currentStatus === option.value}
-            className={currentStatus === option.value ? "bg-gray-100 text-gray-400" : ""}
-          >
-            <Badge variant={option.variant} className="mr-2">
-              {option.label}
-            </Badge>
-            {currentStatus === option.value && <span className="text-xs">(Hiện tại)</span>}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
-
-// Bulk Status Update Component
-const BulkStatusUpdate: React.FC<{
-  selectedBookings: string[];
-  onUpdate: () => void;
-  onClearSelection: () => void;
-}> = ({ selectedBookings, onUpdate, onClearSelection }) => {
-  const updateBookingMutation = useUpdateBooking();
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [updateType, setUpdateType] = useState<"booking" | "payment">("booking");
-  const [newStatus, setNewStatus] = useState<string>("");
-
-  const handleBulkUpdate = async () => {
-    if (!newStatus || selectedBookings.length === 0) return;
-
-    setIsUpdating(true);
-    try {
-      const updateData = updateType === "booking" ? { status: newStatus as BookingStatus } : { paymentStatus: newStatus as PaymentStatus };
-
-      // Update each booking sequentially
-      for (const bookingId of selectedBookings) {
-        await updateBookingMutation.mutateAsync({
-          params: { path: { id: parseInt(bookingId) } },
-          body: updateData,
-        });
-      }
-
-      onUpdate();
-      onClearSelection();
-      toast.success(`Cập nhật ${selectedBookings.length} booking thành công!`);
-      setNewStatus("");
-    } catch (error) {
-      toast.error("Có lỗi xảy ra khi cập nhật hàng loạt!");
-      console.error("Bulk update error:", error);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  if (selectedBookings.length === 0) return null;
-
-  return (
-    <Card className="mb-4 border-blue-200 bg-blue-50">
-      <CardContent className="pt-4">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Đã chọn {selectedBookings.length} booking</span>
-            <Button variant="outline" size="sm" onClick={onClearSelection}>
-              Hủy chọn
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Select value={updateType} onValueChange={(value: "booking" | "payment") => setUpdateType(value)}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="booking">Trạng thái booking</SelectItem>
-                <SelectItem value="payment">Trạng thái thanh toán</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={newStatus} onValueChange={setNewStatus}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Chọn trạng thái mới" />
-              </SelectTrigger>
-              <SelectContent>
-                {updateType === "booking" ? (
-                  <>
-                    <SelectItem value="PENDING">Chờ xử lý</SelectItem>
-                    <SelectItem value="SUCCESS">Thành công</SelectItem>
-                    <SelectItem value="CANCELLED">Đã hủy</SelectItem>
-                  </>
-                ) : (
-                  <>
-                    <SelectItem value="PENDING">Chờ thanh toán</SelectItem>
-                    <SelectItem value="SUCCESS">Đã thanh toán</SelectItem>
-                    <SelectItem value="FAILED">Thất bại</SelectItem>
-                  </>
-                )}
-              </SelectContent>
-            </Select>
-
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button disabled={!newStatus || isUpdating}>{isUpdating ? "Đang cập nhật..." : "Cập nhật hàng loạt"}</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Xác nhận cập nhật hàng loạt</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Bạn có chắc muốn cập nhật {updateType === "booking" ? "trạng thái booking" : "trạng thái thanh toán"}
-                    của {selectedBookings.length} booking được chọn không?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Hủy</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleBulkUpdate}>Xác nhận</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-// Status Statistics Component
-const StatusStatistics: React.FC<{ bookings: ApiBooking[] }> = ({ bookings }) => {
-  const pending = bookings.filter((b) => b.status === "PENDING").length;
-  const success = bookings.filter((b) => b.status === "SUCCESS").length;
-  const cancelled = bookings.filter((b) => b.status === "CANCELLED").length;
-  const paymentPending = bookings.filter((b) => b.paymentStatus === "PENDING").length;
-  const paymentSuccess = bookings.filter((b) => b.paymentStatus === "SUCCESS").length;
-  const paymentFailed = bookings.filter((b) => b.paymentStatus === "FAILED").length;
-
-  const stats = {
-    booking: { pending, success, cancelled },
-    payment: { pending: paymentPending, success: paymentSuccess, failed: paymentFailed },
-  };
-
-  if (bookings.length === 0) return null;
-
-  return (
-    <div className="flex flex-wrap gap-2 text-xs">
-      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-        Chờ: {stats.booking.pending}
-      </Badge>
-      <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-200">
-        Thành công: {stats.booking.success}
-      </Badge>
-      <Badge variant="destructive">Hủy: {stats.booking.cancelled}</Badge>
-      <span className="text-gray-400">|</span>
-      <Badge variant="outline" className="border-yellow-500 text-yellow-700">
-        Chờ TT: {stats.payment.pending}
-      </Badge>
-      <Badge variant="outline" className="border-green-500 text-green-700">
-        Đã TT: {stats.payment.success}
-      </Badge>
-      <Badge variant="outline" className="border-red-500 text-red-700">
-        TT thất bại: {stats.payment.failed}
-      </Badge>
-    </div>
-  );
-};
-
 const StaffBookingManagement: React.FC = () => {
   // State for filters and search
   const [filters, setFilters] = useState<BookingFilters>({
@@ -698,16 +124,9 @@ const StaffBookingManagement: React.FC = () => {
 
   // API hooks with error handling
   const { data: allBookings, isLoading: isLoadingAll, error: errorAll, refetch: refetchAll } = useBookings();
-
   const { data: pendingBookings, isLoading: isLoadingPending, error: errorPending } = useBookingsByStatus("PENDING");
-
   const { data: successBookings, isLoading: isLoadingSuccess, error: errorSuccess } = useBookingsByStatus("SUCCESS");
-
   const { data: cancelledBookings, isLoading: isLoadingCancelled, error: errorCancelled } = useBookingsByStatus("CANCELLED");
-
-  // User search for filtering - only search if searchUser has content
-  const searchQuery = useSearchUser(searchUser);
-  const searchData = (searchQuery.data as ApiUserResponse | undefined)?.result;
 
   // Check for any API errors
   const hasApiError = errorAll || errorPending || errorSuccess || errorCancelled;
@@ -857,43 +276,14 @@ const StaffBookingManagement: React.FC = () => {
     </TableRow>
   );
 
-  // Handle user search selection
-  const handleUserSelect = (userId: string, userName: string) => {
-    setFilters((prev) => ({ ...prev, userId }));
-    setSearchUser(userName);
-  };
-
   return (
     <div className="space-y-6">
       {/* Error Display */}
       {hasApiError && (
         <Card className="border-red-200 bg-red-50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600">⚠️ Lỗi kết nối API</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-red-600">⚠️ Lỗi Lấy dữ liệu</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="mb-2 text-red-700">Không thể tải dữ liệu booking. Vui lòng kiểm tra:</p>
-            <ul className="ml-4 list-disc space-y-1 text-sm text-red-600">
-              <li>Kết nối internet</li>
-              <li>Server backend đang hoạt động</li>
-              <li>Cấu hình VITE_API_URL trong file .env</li>
-            </ul>
-            <div className="mt-4 flex gap-2">
-              <Button
-                onClick={() => {
-                  refetchAll();
-                  window.location.reload();
-                }}
-                variant="outline"
-                size="sm"
-              >
-                Thử lại
-              </Button>
-              <Button onClick={() => console.log("API URL:", import.meta.env.VITE_API_URL)} variant="outline" size="sm">
-                Kiểm tra cấu hình
-              </Button>
-            </div>
-          </CardContent>
         </Card>
       )}
 
@@ -914,10 +304,10 @@ const StaffBookingManagement: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6">
             {/* General Search */}
-            <div className="space-y-2">
-              <Label>Tìm kiếm tổng quát</Label>
+            <div className="min-w-[220px] flex-1">
+              <Label className="mb-1 block">Tìm kiếm</Label>
               <div className="relative">
                 <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
                 <Input
@@ -928,34 +318,9 @@ const StaffBookingManagement: React.FC = () => {
                 />
               </div>
             </div>
-
-            {/* User Search */}
-            <div className="space-y-2">
-              <Label>Tìm khách hàng</Label>
-              <div className="relative">
-                <Input placeholder="Nhập tên, email hoặc SĐT..." value={searchUser} onChange={(e) => setSearchUser(e.target.value)} />
-                {searchData && Array.isArray(searchData) && searchData.length > 0 && searchUser.length > 2 && (
-                  <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 overflow-y-auto rounded-md border border-gray-200 bg-white shadow-lg">
-                    {searchData.slice(0, 5).map((user: { id: string; fullName: string; email: string; phoneNumber?: string }) => (
-                      <div
-                        key={user.id}
-                        className="cursor-pointer border-b p-2 last:border-b-0 hover:bg-gray-100"
-                        onClick={() => handleUserSelect(user.id, user.fullName)}
-                      >
-                        <div className="text-sm font-medium">{user.fullName}</div>
-                        <div className="text-xs text-gray-500">
-                          {user.email} • {user.phoneNumber}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Payment Status Filter */}
-            <div className="space-y-2">
-              <Label>Trạng thái thanh toán</Label>
+            <div className="min-w-[180px] flex-1">
+              <Label className="mb-1 block">Trạng thái thanh toán</Label>
               <Select
                 value={filters.paymentStatus}
                 onValueChange={(value) => setFilters((prev) => ({ ...prev, paymentStatus: value as PaymentStatus }))}
@@ -971,10 +336,9 @@ const StaffBookingManagement: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-
             {/* Clear Filters */}
-            <div className="space-y-2">
-              <Label>&nbsp;</Label>
+            <div className="flex-shrink-0">
+              <Label className="mb-1 block">&nbsp;</Label>
               <Button
                 variant="outline"
                 onClick={() => {
@@ -987,10 +351,9 @@ const StaffBookingManagement: React.FC = () => {
               </Button>
             </div>
           </div>
-
           {/* Active Filters Display */}
           {(filters.searchTerm || filters.userId || (filters.paymentStatus && filters.paymentStatus !== "ALL")) && (
-            <div className="mt-4 flex flex-wrap gap-2 border-t pt-4">
+            <div className="mt-4 flex flex-wrap gap-2 rounded-md border border-dashed border-gray-200 bg-gray-50 p-3">
               <span className="text-sm text-gray-500">Bộ lọc đang áp dụng:</span>
               {filters.searchTerm && (
                 <Badge variant="secondary">
@@ -1020,7 +383,6 @@ const StaffBookingManagement: React.FC = () => {
                   let statusText = "Thất bại";
                   if (filters.paymentStatus === "PENDING") statusText = "Chờ thanh toán";
                   if (filters.paymentStatus === "SUCCESS") statusText = "Đã thanh toán";
-
                   return (
                     <Badge variant="secondary">
                       Thanh toán: {statusText}
