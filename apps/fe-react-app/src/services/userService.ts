@@ -3,6 +3,7 @@ import type { LoginDTO, User, UserLoginResponse, UserRequest, UserUpdate } from 
 import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
 import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 type UserResponse = components["schemas"]["UserResponse"];
 
 // ==================== USER API HOOKS ====================
@@ -85,13 +86,24 @@ export const useIntrospect = () => {
  * Hook for searching users by email or phone
  */
 export const useSearchUser = (searchInput: string) => {
-  return $api.useQuery("get", "/users/search", {
-    params: {
-      query: {
-        input: searchInput,
+  const params = React.useMemo(
+    () => ({
+      params: {
+        query: { input: searchInput },
       },
-    },
-  });
+    }),
+    [searchInput]
+  );
+
+  return $api.useQuery(
+    "get",
+    "/users/search",
+    params,
+    {
+      enabled: searchInput.trim().length > 2,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
 };
 
 // ==================== TRANSFORM FUNCTIONS ====================
