@@ -1,4 +1,5 @@
 import type { Combo } from "@/interfaces/combo.interface";
+import { formatVND } from "@/utils/currency.utils";
 import { Icon } from "@iconify/react";
 import React from "react";
 
@@ -85,7 +86,7 @@ const ComboSelection: React.FC<ComboSelectionProps> = ({ combos, selectedCombos,
                 <div className="flex-1">
                   <h4 className="text-base font-semibold">{combo.name}</h4>
                   <p className="mb-2 text-sm text-gray-600">{combo.description}</p>
-                  <p className="text-lg font-bold text-red-600">{price.toLocaleString("vi-VN")}đ</p>
+                  <p className="text-lg font-bold text-red-600">{formatVND(price, 0, "đ")}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button

@@ -1,4 +1,5 @@
 import type { Snack } from "@/interfaces/snacks.interface";
+import { formatVND } from "@/utils/currency.utils";
 import { Icon } from "@iconify/react";
 import React from "react";
 
@@ -59,7 +60,7 @@ const SnackItem: React.FC<SnackItemProps> = ({ snack, quantity, onQuantityChange
             {snack.flavor && <span className="rounded bg-gray-100 px-2 py-1 text-xs">{snack.flavor}</span>}
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-lg font-bold text-red-600">{(snack.price ?? 0).toLocaleString("vi-VN")}đ</p>
+            <p className="text-lg font-bold text-red-600">{formatVND(snack.price ?? 0, 0, "đ")}</p>
 
             <div className="flex items-center gap-2">
               <button

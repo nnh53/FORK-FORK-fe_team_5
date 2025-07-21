@@ -1,4 +1,5 @@
 import type { Combo } from "@/interfaces/combo.interface";
+import { formatVND } from "@/utils/currency.utils";
 import React from "react";
 
 interface ComboItemProps {
@@ -26,7 +27,7 @@ const ComboItem: React.FC<ComboItemProps> = ({ combo, quantity, onQuantityChange
           {isUnavailable && <span className="rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-600">Hết</span>}
         </div>
         <p className="text-xs text-gray-500">{combo.description}</p>
-        <p className={`text-sm font-semibold ${isUnavailable ? "text-gray-400" : "text-red-600"}`}>{totalPrice.toLocaleString("vi-VN")}đ</p>
+        <p className={`text-sm font-semibold ${isUnavailable ? "text-gray-400" : "text-red-600"}`}>{formatVND(totalPrice, 0, "đ")}</p>
       </div>
       <div className="flex items-center gap-2">
         <button
