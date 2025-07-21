@@ -134,16 +134,16 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
       <CardContent className="flex items-center gap-4 p-4">
         <ListImageComponent />
         <div className="grid flex-1 grid-cols-12 items-center gap-2 text-sm">
-          <div className="col-span-4">
+          <div className="col-span-3">
             <div className="font-medium">{combo.name}</div>
             <div className="mt-1 flex gap-1">
               <StatusBadge />
             </div>
+            <div className="text-gray-600 md:block">{combo.snacks?.length || 0} món</div>
           </div>
-          <div className="col-span-2 text-gray-600 md:block lg:col-span-1">{combo.snacks?.length || 0} món</div>
-          <div className="col-span-3 line-clamp-1 hidden text-gray-600 lg:col-span-4 lg:block">{combo.description || "Không có mô tả"}</div>
           <div className="text-primary col-span-2 font-semibold md:col-span-4 lg:col-span-2">{getDisplayPrice()}</div>
-          <div className="col-span-4 flex justify-end gap-1 md:col-span-2 lg:col-span-1">
+          <div className="col-span-6 line-clamp-1 hidden text-gray-600 lg:col-span-4 lg:block">{combo.description || "Không có mô tả"}</div>
+          <div className="col-span-7 flex justify-end gap-1 md:col-span-5 lg:col-span-3">
             <ActionButtons />
           </div>
         </div>

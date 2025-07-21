@@ -2,6 +2,7 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Shadcn/ui/tooltip";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import type { Snack } from "@/interfaces/snacks.interface";
 import {
   getSnackCategoryLabel,
@@ -11,10 +12,10 @@ import {
   type SnackSize,
   type SnackStatus,
 } from "@/services/snackService";
+import { formatVND } from "@/utils/currency.utils";
 import { cn } from "@/utils/utils";
 import { Icon } from "@iconify/react";
 import { Edit, Trash, Utensils } from "lucide-react";
-
 interface SnackCardProps {
   snack: Snack;
   onEdit?: (snack: Snack) => void;
@@ -105,8 +106,6 @@ const SizeBadge = ({ snack }: { snack: Snack | null | undefined }) => {
   );
 };
 
-import { formatVND } from "@/utils/currency.utils";
-
 interface ActionButtonsProps {
   snack: Snack;
   onEdit?: (snack: Snack) => void;
@@ -138,7 +137,7 @@ const ActionButtons = ({ snack, onEdit, onDelete, isFullWidth = false }: ActionB
 
 const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode = "grid" }) => {
   console.log("Rendering SnackCard with data:", snack);
-
+  const isMobile = useMediaQuery("(max-width: 768px)");
   // Grid View
   if (viewMode === "grid") {
     return (
@@ -275,8 +274,8 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
           )}
         </div>{" "}
         <div className="grid flex-1 grid-cols-12 items-center gap-2 text-sm">
-          <div className="col-span-3 flex flex-col gap-1">
-            <div className="flex items-center gap-1">
+          <div className="col-span-6 flex flex-col gap-1 sm:col-span-4 md:col-span-3 lg:col-span-2">
+            <div className={`items-left flex gap-2 ${isMobile ? "flex-col" : "flex-row"}`}>
               <CategoryBadge snack={snack} />
               <StatusBadge snack={snack} />
             </div>
@@ -290,23 +289,20 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
             </Tooltip>
             <p className="text-xs text-gray-500">ID: #{snack?.id ?? "N/A"}</p>
           </div>
-          <div className="col-span-2 line-clamp-1 flex items-center gap-1">
-            <Utensils className="h-4 w-4 text-blue-600" />
-            <span>Hương vị:</span>
-            <span className="italic text-blue-600">{snack?.flavor || "Không có"}</span>
+          <div className="line-clamp-1 flex hidden items-center gap-1 lg:col-span-2 lg:block">
+            <span>Hương vị: </span>
+            <span className="italic leading-relaxed text-blue-600">{snack?.flavor || "Không có"}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Utensils className="h-4 w-4" />
-            <p className="text-sm font-semibold">Mô tả:</p>
-          </div>
-          <div className="col-span-2 flex items-start gap-2">
+          <div className="hidden items-center gap-2 sm:col-span-5 sm:block md:col-span-5 lg:col-span-4">
             <p className="text-sm italic leading-relaxed text-green-600">{snack?.description || "Không có mô tả"}</p>
           </div>
-          <div className="col-span-1">
+          <div className="hidden md:col-span-1 md:block lg:col-span-1">
             <SizeBadge snack={snack} />
           </div>
-          <div className="col-span-1 font-bold text-green-600">{snack?.price ? formatVND(snack.price) : "N/A"}</div>
-          <div className="col-span-2 flex justify-end gap-1">
+          <div className="col-span-3 text-left font-bold text-green-600 sm:col-span-1 md:col-span-1 lg:col-span-1">
+            {snack?.price ? formatVND(snack.price) : "N/A"}
+          </div>
+          <div className="col-span-3 flex justify-end gap-1 sm:col-span-2 md:col-span-2 lg:col-span-2">
             <ActionButtons snack={snack} onEdit={onEdit} onDelete={onDelete} isFullWidth={false} />
           </div>
         </div>
