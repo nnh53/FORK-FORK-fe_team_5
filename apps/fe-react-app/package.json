@@ -5,10 +5,7 @@
   "type": "module",
   "main": "./vite.config.js",
   "scripts": {
-    "build": "tsc --noEmit -p tsconfig.app.json && vite build",
-    "dev": "vite",
     "generate-schema": "pnpm exec openapi-typescript https://fcinema-spring-ujhbb.ondigitalocean.app/movie_theater/v3/api-docs -o ./schema-from-be.d.ts",
-    "lint": "eslint .",
     "preview": "pnpm exec nx run @fcinema-workspace/fe-react-app:build && vite preview",
     "test:ui": "vitest --ui"
   },
@@ -28,6 +25,7 @@
     "@tabler/icons-react": "^3.34.0",
     "@tanstack/react-query": "^5.81.2",
     "@tanstack/react-table": "^8.21.3",
+    "@types/node": "^22.15.23",
     "@unpic/react": "^1.0.1",
     "axios": "1.10.0",
     "class-variance-authority": "^0.7.1",
