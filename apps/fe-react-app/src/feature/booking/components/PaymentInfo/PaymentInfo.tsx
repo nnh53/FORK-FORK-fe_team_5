@@ -37,11 +37,11 @@ const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats = [] }) =
   };
 
   return (
-    <div className="space-y-4">
+  <div className="space-y-4">
       <h3 className="border-l-4 border-red-600 pl-3 text-lg font-bold">THÔNG TIN THANH TOÁN</h3>
       <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
         <div>
-          <span className="font-semibold">Họ tên:</span> {user.full_name}
+          <span className="font-semibold">Họ tên:</span> {user.fullName}
         </div>
         <div>
           <span className="font-semibold">Số điện thoại:</span> {user.phone}

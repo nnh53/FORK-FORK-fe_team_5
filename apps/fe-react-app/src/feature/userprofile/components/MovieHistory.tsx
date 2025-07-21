@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { useAuth } from "@/hooks/useAuth";
 import type { components } from "@/schema-from-be";
-import { queryBookingsByUserId, transformBookingResponse } from "@/services/bookingService";
+import { queryBookingsByUserId } from "@/services/bookingService";
 import { useCinemaRooms } from "@/services/cinemaRoomService";
 import { queryMovies } from "@/services/movieService";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
@@ -139,20 +139,14 @@ export const MovieHistory: React.FC = () => {
       .filter((booking: BookingResponse) => {
         // Filter by status if not "ALL"
         if (statusFilter !== "ALL") {
-          const transformedBooking = transformBookingResponse(booking);
-          const status = transformedBooking.booking_status || "PENDING";
+          const status = booking.status || "PENDING";
           if (status !== statusFilter) return false;
         }
         return true;
       })
       .map((booking: BookingResponse) => {
-        const transformedBooking = transformBookingResponse(booking);
-
         // Resolve show time as Date for sorting and display
         const showDateTime = (() => {
-          if (transformedBooking.showtime?.show_date_time) {
-            return transformedBooking.showtime.show_date_time;
-          }
           if (booking.showTime?.showDateTime) {
             return new Date(booking.showTime.showDateTime);
           }
@@ -175,16 +169,16 @@ export const MovieHistory: React.FC = () => {
         }
 
         return {
-          id: transformedBooking.id.toString(),
-          receiptId: `HD${transformedBooking.id.toString().padStart(3, "0")}`,
+          id: String(booking.id),
+          receiptId: `HD${String(booking.id).padStart(3, "0")}`,
           movieName,
           room: roomName,
           movieSlot: showDateTime.toLocaleString("vi-VN"),
           movieTime: showDateTime,
-          seats: transformedBooking.booking_seats?.map((seatRelation) => seatRelation.seat?.name).filter(Boolean) || [],
-          points: transformedBooking.loyalty_point_used || 0,
+          seats: booking.seats?.map((seat) => seat.name).filter(Boolean) || [],
+          points: booking.loyaltyPointsUsed || 0,
           poster: movie?.poster || "https://via.placeholder.com/100x150",
-          status: transformedBooking.booking_status || "PENDING",
+          status: booking.status || "PENDING",
         };
       })
       .sort((a, b) => b.movieTime.getTime() - a.movieTime.getTime());

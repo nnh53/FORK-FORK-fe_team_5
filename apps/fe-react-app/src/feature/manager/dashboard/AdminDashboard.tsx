@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { transformBookingResponse, useBookingsByDateRange } from "@/services/bookingService";
+import { useBookingsByDateRange } from "@/services/bookingService";
 import { queryReceiptTopMovies } from "@/services/receipService";
 import { format, startOfMonth, eachDayOfInterval } from "date-fns";
 import AdminStatCards from "./components/AdminStatCards";
@@ -14,29 +14,29 @@ export default function AdminDashboard() {
   const trendingQuery = queryReceiptTopMovies(startDate, endDate);
   const bookingsQuery = useBookingsByDateRange(startDate, endDate);
 
-  const bookings =
-    bookingsQuery.data?.result?.map(transformBookingResponse) ?? [];
+  const bookings = bookingsQuery.data?.result ?? [];
 
   // Only consider successful bookings for revenue and statistics
-  const successfulBookings = bookings.filter(
-    (b) => b.booking_status === "SUCCESS"
-  );
+  const successfulBookings = bookings.filter((b) => b.status === "SUCCESS");
 
   const totalRevenue = successfulBookings.reduce(
-    (sum, b) => sum + (b.total_price ?? 0),
-    0
+    (sum, b) => sum + (b.totalPrice ?? 0),
+    0,
   );
 
   const totalBookings = successfulBookings.length;
 
-  const customers = new Set(successfulBookings.map((b) => b.user_id)).size;
+  const customers = new Set(successfulBookings.map((b) => b.user?.id)).size;
   const trendingMovies = trendingQuery.data?.result ?? [];
 
   const days = eachDayOfInterval({ start: startOfMonth(today), end: today });
   const revenueMap = new Map(days.map((d) => [format(d, "yyyy-MM-dd"), 0]));
   successfulBookings.forEach((b) => {
-    const date = format(b.booking_date_time ?? new Date(), "yyyy-MM-dd");
-    revenueMap.set(date, (revenueMap.get(date) || 0) + (b.total_price ?? 0));
+    const date = format(
+      b.bookingDate ? new Date(b.bookingDate) : new Date(),
+      "yyyy-MM-dd",
+    );
+    revenueMap.set(date, (revenueMap.get(date) || 0) + (b.totalPrice ?? 0));
   });
   const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
 
