@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui
 import type { ApiBooking, BookingStatus, PaymentStatus } from "@/interfaces/booking.interface";
 import type { components } from "@/schema-from-be";
 import { useBookings, useBookingsByStatus } from "@/services/bookingService";
+import { formatVND } from "@/utils/currency.utils";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Filter, MoreHorizontal, Search } from "lucide-react";
@@ -94,9 +95,6 @@ const getPaymentMethodText = (method: string | undefined) => {
 };
 
 // Helper functions for safe operations
-const formatCurrency = (amount: number | undefined): string => {
-  return amount ? `${amount.toLocaleString()}đ` : "N/A";
-};
 
 const formatDateTime = (dateString: string | undefined): string => {
   if (!dateString) return "N/A";
@@ -232,7 +230,7 @@ const StaffBookingManagement: React.FC = () => {
         </div>
       </TableCell>
       <TableCell>
-        <div className="font-medium text-red-600">{booking.totalPrice ? `${booking.totalPrice.toLocaleString()}đ` : "N/A"}</div>
+        <div className="font-medium text-red-600">{booking.totalPrice ? formatVND(booking.totalPrice, 0, "đ") : "N/A"}</div>
       </TableCell>
       <TableCell>
         <QuickStatusChange booking={booking} onUpdate={() => refetchAll()} type="booking" />

@@ -3,6 +3,7 @@ import type { ApiBooking, Booking } from "@/interfaces/booking.interface";
 import { useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
 import { queryMovie } from "@/services/movieService.ts";
+import { formatVND } from "@/utils/currency.utils";
 import { CheckCircle } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -179,7 +180,7 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, 
             </div>
             <div>
               <p className="text-sm text-gray-500">Tổng tiền</p>
-              <p className="font-semibold text-red-600">{booking.totalPrice?.toLocaleString("vi-VN") || "0"} VNĐ</p>
+              <p className="font-semibold text-red-600">{formatVND(booking.totalPrice || 0, 0, "VNĐ")}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Phương thức thanh toán</p>
@@ -254,7 +255,7 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, 
                 <div key={`combo-${index}`} className="flex items-center justify-between py-2">
                   <span>{bookingCombo.combo?.name || "Combo"}</span>
                   <span>x{bookingCombo.quantity}</span>
-                  <span className="font-semibold">{totalPrice.toLocaleString("vi-VN")} VNĐ</span>
+                  <span className="font-semibold">{formatVND(totalPrice, 0, "VNĐ")}</span>
                 </div>
               );
             })}
@@ -265,7 +266,7 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, 
               <div key={`snack-${index}`} className="flex items-center justify-between py-2">
                 <span>{bookingSnack.snack?.name || "Snack"}</span>
                 <span>x{bookingSnack.quantity}</span>
-                <span className="font-semibold">{((bookingSnack.snack?.price || 0) * (bookingSnack.quantity ?? 0)).toLocaleString("vi-VN")} VNĐ</span>
+                <span className="font-semibold">{formatVND((bookingSnack.snack?.price || 0) * (bookingSnack.quantity ?? 0), 0, "VNĐ")}</span>
               </div>
             ))}
           </div>
@@ -281,7 +282,7 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, 
                   <p className="text-sm text-gray-500">Khuyến mãi áp dụng</p>
                   <p className="font-semibold text-green-600">{booking.promotion.title || "Khuyến mãi"}</p>
                   {!!(booking.promotion.discountValue && booking.promotion.discountValue > 0) && (
-                    <p className="text-sm text-gray-600">Giảm {booking.promotion.discountValue.toLocaleString("vi-VN")} VNĐ</p>
+                    <p className="text-sm text-gray-600">Giảm {formatVND(booking.promotion.discountValue, 0, "VNĐ")}</p>
                   )}
                 </div>
               )}
