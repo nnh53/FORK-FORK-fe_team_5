@@ -2,6 +2,12 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useBookingsByDateRange } from "@/services/bookingService";
 import { queryReceiptTopMovies } from "@/services/receipService";
+import {
+  calculateComboPrice,
+  transformComboResponse,
+  useCombos,
+} from "@/services/comboService";
+import { transformSnackResponse, useSnacks } from "@/services/snackService";
 import { format, startOfMonth, eachDayOfInterval } from "date-fns";
 import AdminStatCards from "./components/AdminStatCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";
@@ -13,6 +19,8 @@ export default function AdminDashboard() {
 
   const trendingQuery = queryReceiptTopMovies(startDate, endDate);
   const bookingsQuery = useBookingsByDateRange(startDate, endDate);
+  const combosQuery = useCombos();
+  const snacksQuery = useSnacks();
 
   const bookings = bookingsQuery.data?.result ?? [];
 
@@ -28,6 +36,8 @@ export default function AdminDashboard() {
 
   const customers = new Set(successfulBookings.map((b) => b.user?.id)).size;
   const trendingMovies = trendingQuery.data?.result ?? [];
+  const combos = combosQuery.data?.result?.map(transformComboResponse) ?? [];
+  const snacks = snacksQuery.data?.result?.map(transformSnackResponse) ?? [];
 
   const days = eachDayOfInterval({ start: startOfMonth(today), end: today });
   const revenueMap = new Map(days.map((d) => [format(d, "yyyy-MM-dd"), 0]));
@@ -40,7 +50,12 @@ export default function AdminDashboard() {
   });
   const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
 
-  if (trendingQuery.isLoading || bookingsQuery.isLoading) {
+  if (
+    trendingQuery.isLoading ||
+    bookingsQuery.isLoading ||
+    combosQuery.isLoading ||
+    snacksQuery.isLoading
+  ) {
     return <LoadingSpinner name="dashboard" />;
   }
 
@@ -73,6 +88,52 @@ export default function AdminDashboard() {
                 ))}
               </TableBody>
               <TableCaption>Top movies this month</TableCaption>
+            </Table>
+          </div>
+          <div className="px-4 lg:px-6">
+            <h2 className="mb-2 text-lg font-semibold">Combos</h2>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">#</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {combos.map((c, idx) => (
+                  <TableRow key={c.id ?? idx}>
+                    <TableCell>{idx + 1}</TableCell>
+                    <TableCell>{c.name}</TableCell>
+                    <TableCell className="text-right">
+                      {calculateComboPrice(c).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableCaption>Available combos</TableCaption>
+            </Table>
+          </div>
+          <div className="px-4 lg:px-6">
+            <h2 className="mb-2 text-lg font-semibold">Snacks</h2>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">#</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {snacks.map((s, idx) => (
+                  <TableRow key={s.id ?? idx}>
+                    <TableCell>{idx + 1}</TableCell>
+                    <TableCell>{s.name}</TableCell>
+                    <TableCell className="text-right">{s.price?.toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableCaption>Available snacks</TableCaption>
             </Table>
           </div>
         </div>
