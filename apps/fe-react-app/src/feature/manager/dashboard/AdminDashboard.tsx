@@ -14,15 +14,27 @@ export default function AdminDashboard() {
   const trendingQuery = queryReceiptTopMovies(startDate, endDate);
   const bookingsQuery = useBookingsByDateRange(startDate, endDate);
 
-  const bookings = bookingsQuery.data?.result?.map(transformBookingResponse) ?? [];
-  const totalRevenue = bookings.reduce((sum, b) => sum + (b.total_price ?? 0), 0);
-  const totalBookings = bookings.length;
-  const customers = new Set(bookings.map((b) => b.user_id)).size;
+  const bookings =
+    bookingsQuery.data?.result?.map(transformBookingResponse) ?? [];
+
+  // Only consider successful bookings for revenue and statistics
+  const successfulBookings = bookings.filter(
+    (b) => b.booking_status === "SUCCESS"
+  );
+
+  const totalRevenue = successfulBookings.reduce(
+    (sum, b) => sum + (b.total_price ?? 0),
+    0
+  );
+
+  const totalBookings = successfulBookings.length;
+
+  const customers = new Set(successfulBookings.map((b) => b.user_id)).size;
   const trendingMovies = trendingQuery.data?.result ?? [];
 
   const days = eachDayOfInterval({ start: startOfMonth(today), end: today });
   const revenueMap = new Map(days.map((d) => [format(d, "yyyy-MM-dd"), 0]));
-  bookings.forEach((b) => {
+  successfulBookings.forEach((b) => {
     const date = format(b.booking_date_time ?? new Date(), "yyyy-MM-dd");
     revenueMap.set(date, (revenueMap.get(date) || 0) + (b.total_price ?? 0));
   });
