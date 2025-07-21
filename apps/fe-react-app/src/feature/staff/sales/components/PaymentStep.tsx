@@ -7,6 +7,7 @@ import type { PaymentMethod } from "@/interfaces/booking.interface";
 import type { Combo } from "@/interfaces/combo.interface";
 import type { Member } from "@/interfaces/member.interface";
 import type { Snack } from "@/interfaces/snacks.interface";
+import { formatVND } from "@/utils/currency.utils.ts";
 import { CreditCard } from "lucide-react";
 import React from "react";
 
@@ -58,7 +59,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           <div className="space-y-2 rounded-lg bg-gray-50 p-4">
             <div className="flex justify-between">
               <span>Vé phim ({selectedSeatIds.length} ghế):</span>
-              <span>{calculateSeatPrice().toLocaleString("vi-VN")} VNĐ</span>
+              <span>{formatVND(calculateSeatPrice(), 0, "VNĐ")}</span>
             </div>
 
             {/* Show selected combos */}
@@ -70,14 +71,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                     {combo.name} x{quantity}:
                   </span>
                   <span>
-                    {(
+                    {formatVND(
                       (combo.snacks?.reduce((total, comboSnack) => {
                         const snackPrice = comboSnack.snack?.price || 0;
                         const snackQuantity = comboSnack.quantity || 1;
                         return total + snackPrice * snackQuantity;
-                      }, 0) || 0) * quantity
-                    ).toLocaleString("vi-VN")}{" "}
-                    VNĐ
+                      }, 0) || 0) * quantity,
+                      0,
+                      "VNĐ",
+                    )}
                   </span>
                 </div>
               ))}
@@ -92,7 +94,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                     <span>
                       {snack.name} x{quantity}:
                     </span>
-                    <span>{((snack.price ?? 0) * quantity).toLocaleString("vi-VN")} VNĐ</span>
+                    <span>{formatVND((snack.price ?? 0) * quantity, 0, "VNĐ")}</span>
                   </div>
                 ) : null;
               })}
@@ -115,7 +117,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                 max={memberInfo.currentPoints}
                 className="w-24"
               />
-              <span className="text-sm text-gray-500">= {(usePoints * 1000).toLocaleString("vi-VN")} VNĐ</span>
+              <span className="text-sm text-gray-500">= {formatVND(usePoints * 1000, 0, "VNĐ")}</span>
             </div>
           </div>
         )}
@@ -148,7 +150,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             Quay lại
           </Button>
           <Button onClick={onCreateBooking} disabled={loading} className="bg-green-600 hover:bg-green-700">
-            {loading ? "Đang xử lý..." : `Thanh toán ${calculateTotal().toLocaleString("vi-VN")} VNĐ`}
+            {loading ? "Đang xử lý..." : `Thanh toán ${formatVND(calculateTotal(), 0, "VNĐ")}`}
           </Button>
         </div>
       </CardContent>

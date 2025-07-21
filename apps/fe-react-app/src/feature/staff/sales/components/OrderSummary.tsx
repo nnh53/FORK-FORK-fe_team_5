@@ -5,7 +5,7 @@ import type { Movie } from "@/interfaces/movies.interface";
 import type { Promotion } from "@/interfaces/promotion.interface";
 import type { Snack } from "@/interfaces/snacks.interface";
 import type { UIShowtime } from "@/interfaces/staff-sales.interface";
-import { calculateDiscount } from "@/services/promotionService";
+import { calculateDiscount, formatCurrency } from "@/services/promotionService";
 import { formatVND } from "@/utils/currency.utils";
 import React from "react";
 
@@ -137,7 +137,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <p className="text-sm">{selectedPromotion.title}</p>
             <p className="text-sm text-green-600">
               -
-              {formatVND(
+              {formatCurrency(
                 calculateDiscount(
                   selectedPromotion,
                   calculateSeatPrice() +
