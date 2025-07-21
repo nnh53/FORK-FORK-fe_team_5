@@ -2,6 +2,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
+import { formatVND } from "@/utils/currency.utils.ts";
 import React, { useState } from "react";
 
 interface CashPaymentDialogProps {
@@ -63,7 +64,7 @@ const CashPaymentDialog: React.FC<CashPaymentDialogProps> = ({ isOpen, onClose, 
           <div className="rounded-lg bg-gray-50 p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Tổng tiền cần thanh toán:</span>
-              <span className="text-lg font-bold text-red-600">{totalAmount.toLocaleString("vi-VN")} VNĐ</span>
+              <span className="text-lg font-bold text-red-600">{formatVND(totalAmount, 0, "VNĐ")}</span>
             </div>
           </div>
 
@@ -88,7 +89,7 @@ const CashPaymentDialog: React.FC<CashPaymentDialogProps> = ({ isOpen, onClose, 
             <div className="rounded-lg bg-green-50 p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Tiền thối:</span>
-                <span className="text-lg font-bold text-green-600">{changeAmount.toLocaleString("vi-VN")} VNĐ</span>
+                <span className="text-lg font-bold text-green-600">{formatVND(changeAmount, 0, "VNĐ")}</span>
               </div>
             </div>
           )}

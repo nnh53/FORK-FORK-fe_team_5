@@ -7,6 +7,7 @@ import type { Member } from "@/interfaces/member.interface";
 import type { VoucherValidationResult } from "@/interfaces/voucher.interface";
 import { memberService } from "@/services/memberService";
 import { voucherService } from "@/services/voucherService";
+import { formatVND } from "@/utils/currency.utils";
 import { Check, Coins, Gift, Loader2, Ticket, X } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
@@ -125,7 +126,7 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
 
       if (result.isValid) {
         onVoucherChange(voucherCode.trim(), result.discount);
-        toast.success(`Áp dụng mã giảm giá thành công! Giảm ${result.discount.toLocaleString()} VNĐ`);
+        toast.success(`Áp dụng mã giảm giá thành công! Giảm ${formatVND(result.discount)}`);
       } else {
         onVoucherChange("", 0);
         toast.error(result.message);
@@ -244,8 +245,8 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
               </div>
 
               <div className="text-xs text-gray-600">
-                Tối đa {maxPointsCanUse.toLocaleString()} điểm (= {(maxPointsCanUse * 1000).toLocaleString()} VNĐ)
-                {pointsToUse > 0 && <span className="ml-2 font-medium text-green-600">Giảm {pointsDiscount.toLocaleString()} VNĐ</span>}
+                Tối đa {maxPointsCanUse.toLocaleString()} điểm (= {formatVND(maxPointsCanUse * 1000)})
+                {pointsToUse > 0 && <span className="ml-2 font-medium text-green-600">Giảm {formatVND(pointsDiscount)}</span>}
               </div>
             </div>
           </div>
@@ -288,7 +289,7 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
                 {voucherValidation.isValid ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                 <span>{voucherValidation.message}</span>
                 {voucherValidation.isValid && voucherValidation.discount > 0 && (
-                  <span className="font-medium">(-{voucherValidation.discount.toLocaleString()} VNĐ)</span>
+                  <span className="font-medium">(-{formatVND(voucherValidation.discount)})</span>
                 )}
               </div>
             )}
@@ -300,12 +301,10 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
           <div className="rounded-lg border border-green-200 bg-green-50 p-3">
             <div className="text-sm font-medium text-green-700">Tổng giảm giá:</div>
             <div className="space-y-1 text-xs text-green-600">
-              {pointsDiscount > 0 && <div>• Điểm tích lũy: -{pointsDiscount.toLocaleString()} VNĐ</div>}
-              {voucherValidation?.isValid && voucherValidation.discount > 0 && (
-                <div>• Mã giảm giá: -{voucherValidation.discount.toLocaleString()} VNĐ</div>
-              )}
+              {pointsDiscount > 0 && <div>• Điểm tích lũy: -{formatVND(pointsDiscount)}</div>}
+              {voucherValidation?.isValid && voucherValidation.discount > 0 && <div>• Mã giảm giá: -{formatVND(voucherValidation.discount)}</div>}
               <div className="border-t border-green-200 pt-1 font-medium text-green-700">
-                Tổng cộng: -{(pointsDiscount + (voucherValidation?.discount || 0)).toLocaleString()} VNĐ
+                Tổng cộng: -{formatVND(pointsDiscount + (voucherValidation?.discount || 0))}
               </div>
             </div>
           </div>
