@@ -2,6 +2,7 @@
 import React from "react";
 
 import type { Promotion } from "@/interfaces/promotion.interface.ts";
+import { formatVND } from "@/utils/currency.utils.ts";
 import { useNavigate } from "react-router-dom";
 import type { MovieCardProps } from "../../../../components/movie/MovieCard.tsx";
 
@@ -92,45 +93,45 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         {/* Ticket cost */}
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Tiền vé ({selectedSeats.length} ghế):</span>
-          <span className="font-semibold">{totalCost.toLocaleString("vi-VN")}VND</span>
+          <span className="font-semibold">{formatVND(totalCost)}</span>
         </div>
         {/* Combo cost */}
         {comboCost > 0 && (
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Combo bắp nước:</span>
-            <span className="font-semibold">{comboCost.toLocaleString("vi-VN")}VND</span>
+            <span className="font-semibold">{formatVND(comboCost)}</span>
           </div>
         )}
         {/* Subtotal */}
         {(comboCost > 0 || totalDiscounts > 0) && (
           <div className="flex justify-between border-t pt-2 text-sm">
             <span className="text-gray-600">Tạm tính:</span>
-            <span className="font-semibold">{subtotal.toLocaleString("vi-VN")}VND</span>
+            <span className="font-semibold">{formatVND(subtotal)}</span>
           </div>
         )}
         {/* Discounts */}
         {pointsDiscount > 0 && (
           <div className="flex justify-between text-sm text-green-600">
             <span>Giảm từ điểm:</span>
-            <span>-{pointsDiscount.toLocaleString("vi-VN")}VND</span>
+            <span>-{formatVND(pointsDiscount)}</span>
           </div>
         )}
         {voucherDiscount > 0 && (
           <div className="flex justify-between text-sm text-green-600">
             <span>Giảm từ voucher:</span>
-            <span>-{voucherDiscount.toLocaleString("vi-VN")}VND</span>
+            <span>-{formatVND(voucherDiscount)}</span>
           </div>
         )}{" "}
         {selectedPromotion && (
           <div className="flex justify-between text-sm text-green-600">
             <span>Giảm từ khuyến mãi:</span>
-            <span>{promotionDiscount > 0 ? `-${promotionDiscount.toLocaleString("vi-VN")}VND` : "0VND"}</span>
+            <span>{promotionDiscount > 0 ? `-${formatVND(promotionDiscount)}` : "0VND"}</span>
           </div>
         )}
         {/* Final total */}
         <div className="flex justify-between border-t pt-2 text-xl font-bold">
           <span>TỔNG TIỀN</span>
-          <span className="text-red-600">{displayTotal.toLocaleString("vi-VN")}đ</span>
+          <span className="text-red-600">{formatVND(displayTotal)}</span>
         </div>
       </div>
 

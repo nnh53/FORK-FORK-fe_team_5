@@ -1,5 +1,6 @@
 // src/pages/SeatSelectionPage/components/BookingFooter.tsx
 import type { BookingSeat } from "@/interfaces/booking.interface";
+import { formatVND } from "@/utils/currency.utils.ts";
 import React, { useEffect, useState } from "react";
 
 interface BookingFooterProps {
@@ -59,25 +60,25 @@ const BookingFooter: React.FC<BookingFooterProps> = ({ selectedSeats, totalCost 
   );
 
   return (
-    <div className="mt-8 p-4 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-4 items-center">
+    <div className="mt-8 grid grid-cols-2 items-center gap-4 border-t border-gray-200 p-4 md:grid-cols-4">
       {/* Các loại ghế */}
-      <div className="md:col-span-2 grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2 md:col-span-2">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-t-md bg-gray-200"></div>
+          <div className="h-5 w-5 rounded-t-md bg-gray-200"></div>
           <div>
             <p className="text-xs text-gray-500">Ghế thường</p>
             <p className="font-bold">{seatCounts.standard || 0}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-t-md bg-yellow-400"></div>
+          <div className="h-5 w-5 rounded-t-md bg-yellow-400"></div>
           <div>
             <p className="text-xs text-gray-500">Ghế VIP</p>
             <p className="font-bold">{seatCounts.vip || 0}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-10 h-5 rounded-t-md bg-pink-400"></div>
+          <div className="h-5 w-10 rounded-t-md bg-pink-400"></div>
           <div>
             <p className="text-xs text-gray-500">Ghế đôi</p>
             <p className="font-bold">{seatCounts.double || 0}</p>
@@ -88,13 +89,13 @@ const BookingFooter: React.FC<BookingFooterProps> = ({ selectedSeats, totalCost 
       {/* Tổng tiền */}
       <div className="text-center">
         <p className="text-sm text-gray-500">Tổng tiền</p>
-        <p className="font-bold text-xl text-red-600">{totalCost.toLocaleString("vi-VN")}đ</p>
+        <p className="text-xl font-bold text-red-600">{formatVND(totalCost, 0, "đ")}</p>
       </div>
 
       {/* Thời gian còn lại */}
       <div className="text-center">
         <p className="text-sm text-gray-500">Thời gian còn lại</p>
-        <p className="font-bold text-xl">{formatTime(remainingTime)}</p>
+        <p className="text-xl font-bold">{formatTime(remainingTime)}</p>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import type { BookingSeat, BookingUser } from "@/interfaces/booking.interface";
+import { formatVND } from "@/utils/currency.utils";
 import React from "react";
 
 type DisplaySeatType = "standard" | "vip" | "double";
@@ -57,7 +58,7 @@ const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats = [] }) =
               <p className="font-semibold capitalize">{`Ghế ${type === "standard" ? "thường" : type}`}</p>
               <p className="text-xs text-gray-500">{seats.join(", ")}</p>
             </div>
-            <p className="font-semibold">{`${seats.length} x ${getPricePerSeat(type as DisplaySeatType).toLocaleString("vi-VN")}đ`}</p>
+            <p className="font-semibold">{`${seats.length} x ${formatVND(getPricePerSeat(type as DisplaySeatType))}`}</p>
           </div>
         ))}
       </div>
