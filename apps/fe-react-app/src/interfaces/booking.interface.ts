@@ -10,52 +10,19 @@ export type BookingSeatTypeEnum = "COUPLE" | "PATH" | "REGULAR" | "VIP";
 export type SeatTypeName = "SINGLE" | "DOUBLE" | "PATH" | "VIP";
 
 // User interface (simplified for booking)
-export interface BookingUser {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string;
-  loyalty_point: number;
-}
+export type BookingUser = components["schemas"]["UserResponse"];
 
 // Movie interface (simplified for booking)
-export interface BookingMovie {
-  id: number;
-  name: string;
-  poster: string;
-  duration: number;
-  age_restrict: number;
-  type: string;
-  version: string;
-}
+export type BookingMovie = components["schemas"]["MovieResponse"];
 
 // Cinema Room interface (simplified for booking)
-export interface BookingCinemaRoom {
-  id: number;
-  room_number: number;
-  type: string;
-  capacity: number;
-}
+export type BookingCinemaRoom = components["schemas"]["CinemaRoomResponse"];
 
 // Showtime interface
-export interface BookingShowtime {
-  id: number;
-  room_id: number;
-  movie_id: number;
-  show_date_time: Date;
-  end_date_time: Date;
-  status: "CANCELLED" | "COMPLETED" | "ONSCREEN" | "SCHEDULE";
-  // Populated fields
-  movie?: BookingMovie;
-  cinema_room?: BookingCinemaRoom;
-}
+export type BookingShowtime = components["schemas"]["ShowtimeResponse"];
 
 // Seat Type interface
-export interface BookingSeatType {
-  id: number;
-  price: number;
-  name: SeatTypeName;
-}
+export type BookingSeatType = components["schemas"]["SeatTypeResponse"];
 
 // Seat interface for booking
 export interface BookingSeat {
@@ -76,42 +43,13 @@ export interface BookingSeat {
 }
 
 // Promotion interface
-export interface BookingPromotion {
-  id: number;
-  title: string;
-  description: string;
-  discount_value: number;
-  min_purchase: number;
-  start_time: Date;
-  end_time: Date;
-  status: number; // tinyint
-  type: number; // tinyint
-  image: string;
-}
+export type BookingPromotion = components["schemas"]["PromotionResponse"];
 
 // Snack interface
-export interface BookingSnack {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  category: "DRINK" | "FOOD";
-  size: "SMALL" | "MEDIUM" | "LARGE";
-  flavor: string;
-  img: string;
-  status: "AVAILABLE" | "SOLD_OUT" | "UNAVAILABLE";
-}
+export type BookingSnack = components["schemas"]["SnackResponse"];
 
 // Combo interface
-export interface BookingCombo {
-  id: number;
-  name: string;
-  description: string;
-  img: string;
-  status: "AVAILABLE" | "SOLD_OUT" | "UNAVAILABLE";
-  snacks?: BookingSnack[]; // From combo_snack relationship
-  total_price?: number; // Calculated from snacks
-}
+export type BookingCombo = components["schemas"]["ComboResponse"];
 
 // Booking Seat relation
 export interface BookingSeatRelation {
@@ -143,59 +81,12 @@ export interface BookingComboRelation {
 }
 
 // Main Booking interface
-export interface Booking {
-  id: number;
-  user_id?: string;
-  booking_date_time?: Date;
-  showtime_id?: number;
-  promotion_id?: number;
-  loyalty_point_used?: number;
-  total_price?: number;
-  payment_method?: PaymentMethod;
-  payment_status?: PaymentStatus;
-  booking_status?: BookingStatus;
-  pay_os_code?: string;
-  staff_id?: string;
-
-  // Populated relationships
-  user?: BookingUser;
-  showtime?: BookingShowtime;
-  promotion?: BookingPromotion;
-  booking_seats?: BookingSeatRelation[];
-  booking_snacks?: BookingSnackRelation[];
-  booking_combos?: BookingComboRelation[];
-}
+export type Booking = components["schemas"]["BookingResponse"];
 
 // Request interfaces for API
-export interface BookingRequest {
-  user_id?: string;
-  showtime_id: number;
-  promotion_id?: number;
-  loyalty_point_used?: number;
-  payment_method: PaymentMethod;
-  staff_id?: string;
-  // Seat IDs to book
-  seat_ids: number[];
-  // Snacks to book
-  snacks?: Array<{
-    snack_id: number;
-    quantity: number;
-  }>;
-  // Combos to book
-  combos?: Array<{
-    combo_id: number;
-    quantity: number;
-  }>;
-}
+export type BookingRequest = components["schemas"]["BookingRequest"];
 
-export interface BookingUpdateRequest {
-  promotion_id?: number;
-  loyalty_point_used?: number;
-  payment_method?: PaymentMethod;
-  payment_status?: PaymentStatus;
-  booking_status?: BookingStatus;
-  pay_os_code?: string;
-}
+export type BookingUpdateRequest = components["schemas"]["BookingUpdate"];
 
 // UI-specific interfaces for booking process
 export interface BookingState {

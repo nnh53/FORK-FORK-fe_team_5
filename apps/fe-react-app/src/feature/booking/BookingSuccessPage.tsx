@@ -1,5 +1,5 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { useBooking, transformBookingResponse } from "@/services/bookingService";
+import { useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
 import type {
   ApiBooking,
@@ -72,7 +72,7 @@ const getBookingDataFromStorage = () => {
 // Helper function to transform API booking data
 
 const transformApiBookingData = (apiData: ApiBooking): Booking => {
-  return transformBookingResponse(apiData);
+  return apiData;
 };
 
 // Helper function to transform localStorage booking data
@@ -83,7 +83,7 @@ const transformLocalStorageBookingData = (
   const bookingResult: ApiBooking =
     savedBookingData.bookingResult ?? (savedBookingData as unknown as ApiBooking);
 
-  return transformBookingResponse(bookingResult);
+  return bookingResult;
 };
 
 // Helper component for loading state
@@ -183,30 +183,30 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({
             </div>
             <div>
               <p className="text-sm text-gray-500">Trạng thái</p>
-              <p className="font-semibold capitalize text-green-600">{booking.booking_status}</p>
+              <p className="font-semibold capitalize text-green-600">{booking.status}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Ghế ngồi</p>
 
-              <p className="font-semibold">{booking.booking_seats?.map((bs: BookingSeatRelation) => bs.seat?.name).join(", ") || "N/A"}</p>
+              <p className="font-semibold">{booking.seats?.map((s) => s.name).join(", ") || "N/A"}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Tổng tiền</p>
-              <p className="font-semibold text-red-600">{booking.total_price?.toLocaleString("vi-VN") || "0"} VNĐ</p>
+              <p className="font-semibold text-red-600">{booking.totalPrice?.toLocaleString("vi-VN") || "0"} VNĐ</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Phương thức thanh toán</p>
-              <p className="font-semibold capitalize">{booking.payment_method}</p>
+              <p className="font-semibold capitalize">{booking.paymentMethod}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Thời gian đặt</p>
-              <p className="font-semibold">{booking.booking_date_time ? new Date(booking.booking_date_time).toLocaleString("vi-VN") : "N/A"}</p>
+              <p className="font-semibold">{booking.bookingDate ? new Date(booking.bookingDate).toLocaleString("vi-VN") : "N/A"}</p>
             </div>
           </div>
         </div>
 
         {/* Movie & Showtime Info */}
-        {booking.showtime && (
+        {booking.showTime && (
           <div className="mb-6 rounded-lg border p-6">
             <h2 className="mb-4 text-xl font-semibold">Thông tin phim & suất chiếu</h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -221,7 +221,7 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({
               <div>
                 <p className="text-sm text-gray-500">Thời gian chiếu</p>
                 <p className="font-semibold">
-                  {booking.showtime.show_date_time ? new Date(booking.showtime.show_date_time).toLocaleString("vi-VN") : "N/A"}
+                  {booking.showTime?.showDateTime ? new Date(booking.showTime.showDateTime).toLocaleString("vi-VN") : "N/A"}
                 </p>
               </div>
               <div>
@@ -238,7 +238,7 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
               <p className="text-sm text-gray-500">Họ và tên</p>
-              <p className="font-semibold">{booking.user?.full_name || "N/A"}</p>
+              <p className="font-semibold">{booking.user?.fullName || "N/A"}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Số điện thoại</p>
@@ -252,13 +252,13 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({
         </div>
 
         {/* Combos and Snacks */}
-        {((booking.booking_combos && booking.booking_combos.length > 0) || (booking.booking_snacks && booking.booking_snacks.length > 0)) && (
+        {((booking.bookingCombos && booking.bookingCombos.length > 0) || (booking.bookingSnacks && booking.bookingSnacks.length > 0)) && (
           <div className="mb-6 rounded-lg border p-6">
             <h2 className="mb-4 text-xl font-semibold">Đồ ăn & Thức uống</h2>
 
             {/* Combos */}
 
-            {booking.booking_combos?.map((bookingCombo: BookingComboRelation, index: number) => {
+            {booking.bookingCombos?.map((bookingCombo, index) => {
               // Calculate combo price from snacks
               const comboPrice = bookingCombo.combo?.snacks?.reduce((total: number, snack: { price?: number }) => total + (snack.price || 0), 0) || 0;
               const totalPrice = comboPrice * (bookingCombo.quantity || 1);
@@ -274,18 +274,18 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({
 
             {/* Individual Snacks */}
 
-            {booking.booking_snacks?.map((bookingSnack: BookingSnackRelation, index: number) => (
+            {booking.bookingSnacks?.map((bookingSnack, index) => (
               <div key={`snack-${index}`} className="flex items-center justify-between py-2">
                 <span>{bookingSnack.snack?.name || "Snack"}</span>
                 <span>x{bookingSnack.quantity}</span>
-                <span className="font-semibold">{((bookingSnack.snack?.price || 0) * bookingSnack.quantity).toLocaleString("vi-VN")} VNĐ</span>
+                <span className="font-semibold">{((bookingSnack.snack?.price || 0) * (bookingSnack.quantity ?? 0)).toLocaleString("vi-VN")} VNĐ</span>
               </div>
             ))}
           </div>
         )}
 
         {/* Promotion & Loyalty Info */}
-        {(!!booking.promotion || (!!booking.loyalty_point_used && booking.loyalty_point_used > 0)) && (
+        {(!!booking.promotion || (!!booking.loyaltyPointsUsed && booking.loyaltyPointsUsed > 0)) && (
           <div className="mb-6 rounded-lg border p-6">
             <h2 className="mb-4 text-xl font-semibold">Khuyến mãi & Điểm thưởng</h2>
             <div className="space-y-4">
@@ -293,15 +293,15 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({
                 <div>
                   <p className="text-sm text-gray-500">Khuyến mãi áp dụng</p>
                   <p className="font-semibold text-green-600">{booking.promotion.title || "Khuyến mãi"}</p>
-                  {!!(booking.promotion.discount_value && booking.promotion.discount_value > 0) && (
-                    <p className="text-sm text-gray-600">Giảm {booking.promotion.discount_value.toLocaleString("vi-VN")} VNĐ</p>
+                  {!!(booking.promotion.discountValue && booking.promotion.discountValue > 0) && (
+                    <p className="text-sm text-gray-600">Giảm {booking.promotion.discountValue.toLocaleString("vi-VN")} VNĐ</p>
                   )}
                 </div>
               )}
-              {!!(booking.loyalty_point_used && booking.loyalty_point_used > 0) && (
+              {!!(booking.loyaltyPointsUsed && booking.loyaltyPointsUsed > 0) && (
                 <div>
                   <p className="text-sm text-gray-500">Điểm thưởng sử dụng</p>
-                  <p className="font-semibold text-blue-600">{booking.loyalty_point_used.toLocaleString("vi-VN")} điểm</p>
+                  <p className="font-semibold text-blue-600">{booking.loyaltyPointsUsed.toLocaleString("vi-VN")} điểm</p>
                 </div>
               )}
             </div>
@@ -378,8 +378,8 @@ const BookingSuccessPage: React.FC = () => {
   }, [bookingData, savedBookingData, isLoading]);
 
   // Fetch additional data based on booking showtime
-  const movieId = booking?.showtime?.movie_id || 0;
-  const roomId = booking?.showtime?.room_id || 0;
+  const movieId = booking?.showTime?.movieId || 0;
+  const roomId = booking?.showTime?.roomId || 0;
 
   const { data: movieData } = queryMovie(movieId);
   const { data: cinemaRoomData } = useCinemaRoom(roomId);
@@ -413,13 +413,6 @@ const BookingSuccessPage: React.FC = () => {
       };
     }
 
-    // Fallback to showtime room info
-    if (booking?.showtime?.cinema_room?.room_number) {
-      return {
-        room_number: booking.showtime.cinema_room.room_number,
-      };
-    }
-
     // Fallback to localStorage cinema name
     if (savedBookingData?.cinemaName) {
       return {
@@ -430,7 +423,7 @@ const BookingSuccessPage: React.FC = () => {
     return {
       room_number: `${roomId}` || "N/A",
     };
-  }, [cinemaRoomData, booking?.showtime, roomId, savedBookingData]);
+  }, [cinemaRoomData, booking?.showTime, roomId, savedBookingData]);
 
   // Show loading state - only show if we have a valid booking ID and are still loading
   if (isLoading && bookingIdNumber && !booking) {

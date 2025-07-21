@@ -1,11 +1,11 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
 import DiscountSection from "@/components/shared/DiscountSection.tsx";
 import { useAuth } from "@/hooks/useAuth";
-import type { Booking, PaymentMethod } from "@/interfaces/booking.interface.ts";
+import type { PaymentMethod, BookingRequest } from "@/interfaces/booking.interface.ts";
 import type { Member } from "@/interfaces/member.interface.ts";
 import type { Promotion } from "@/interfaces/promotion.interface.ts";
 import { ROUTES } from "@/routes/route.constants.ts";
-import { transformBookingToRequest, useCreateBooking } from "@/services/bookingService";
+import { useCreateBooking } from "@/services/bookingService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
 import type { Combo, ComboSnack } from "@/interfaces/combo.interface";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
@@ -336,51 +336,36 @@ const CheckoutPage: React.FC = () => {
         return;
       }
 
-      // Prepare internal booking data - simplified version for transformBookingToRequest
-      const internalBookingData: Partial<Booking> = {
-        user_id: userId || currentMember?.id, // Use actual user ID from auth
-        showtime_id: selection?.showtimeId ? parseInt(selection.showtimeId) : undefined,
-        promotion_id: selectedPromotion?.id || (voucherCode ? 1 : undefined),
-        loyalty_point_used: usePoints > 0 ? usePoints : undefined,
-        payment_method: paymentMethod,
-        staff_id: undefined, // For customer bookings
-        total_price: finalTotalCost,
-        booking_seats: bookingState.selectedSeats?.map((seat: { id: string }, index: number) => ({
-          id: index + 1, // Generate relation ID
-          booking_id: 0, // Will be set by backend
-          seat_id: parseInt(seat.id),
-          seat: undefined, // Not needed for creation
-        })),
-        booking_combos: Object.entries(selectedCombos)
+      const apiRequest: BookingRequest = {
+        userId: userId || currentMember?.id || "",
+        showtimeId: selection?.showtimeId ? parseInt(selection.showtimeId) : 0,
+        promotionId: selectedPromotion?.id || (voucherCode ? 1 : undefined),
+        loyaltyPointsUsed: usePoints > 0 ? usePoints : undefined,
+        paymentMethod: paymentMethod,
+        staffId: undefined,
+        totalPrice: finalTotalCost,
+        estimatedPrice: finalTotalCost,
+        seatIds: bookingState.selectedSeats?.map((seat: { id: string }) => parseInt(seat.id)) || [],
+        bookingCombos: Object.entries(selectedCombos)
           .filter(([comboId, quantity]) => {
-            // Only include combos with quantity > 0 and that are available
             const combo = combos.find((c) => c.id === parseInt(comboId));
             return quantity > 0 && combo && combo.status === "AVAILABLE";
           })
-          .map(([comboId, quantity], index) => ({
-            id: index + 1, // Generate relation ID
-            booking_id: 0, // Will be set by backend
-            combo_id: parseInt(comboId),
+          .map(([comboId, quantity]) => ({
+            comboId: parseInt(comboId),
             quantity,
-            combo: undefined, // Not needed for creation
           })),
-        booking_snacks: Object.entries(selectedSnacks)
+        bookingSnacks: Object.entries(selectedSnacks)
           .filter(([snackId, quantity]) => {
-            // Only include snacks with quantity > 0 and that are available
             const snack = snacks.find((s) => s.id === parseInt(snackId));
             return quantity > 0 && snack && snack.status === "AVAILABLE";
           })
-          .map(([snackId, quantity], index) => ({
-            id: index + 1, // Generate relation ID
-            booking_id: 0, // Will be set by backend
-            snack_id: parseInt(snackId),
+          .map(([snackId, quantity]) => ({
+            snackId: parseInt(snackId),
             quantity,
-            snack: undefined, // Not needed for creation
           })),
+        feUrl: window.location.origin,
       };
-
-      // Transform to API request format
-      const apiRequest = transformBookingToRequest(internalBookingData);
 
       const bookingResponse = await createBookingMutation.mutateAsync({
         body: apiRequest,
