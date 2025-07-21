@@ -28,16 +28,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import type { ApiBooking, BookingStatus, PaymentStatus } from "@/interfaces/booking.interface";
+import type { components } from "@/schema-from-be";
 import { useBookings, useBookingsByStatus, useUpdateBooking } from "@/services/bookingService";
 import { useSearchUser } from "@/services/userService";
-import type { components } from "@/schema-from-be";
-
-type ApiUserResponse = components["schemas"]["ApiResponseUserResponse"];
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CheckCircle, Edit, Eye, Filter, MoreHorizontal, RotateCcw, Search, X, Zap } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
+
+type ApiUserResponse = components["schemas"]["ApiResponseUserResponse"];
 
 // Types for filters and booking management
 interface BookingFilters {
@@ -697,21 +697,13 @@ const StaffBookingManagement: React.FC = () => {
   const [selectAll, setSelectAll] = useState(false);
 
   // API hooks with error handling
-  const {
-    data: allBookings,
-    isLoading: isLoadingAll,
-    error: errorAll,
-    refetch: refetchAll,
-  } = useBookings();
+  const { data: allBookings, isLoading: isLoadingAll, error: errorAll, refetch: refetchAll } = useBookings();
 
-  const { data: pendingBookings, isLoading: isLoadingPending, error: errorPending } =
-    useBookingsByStatus("PENDING");
+  const { data: pendingBookings, isLoading: isLoadingPending, error: errorPending } = useBookingsByStatus("PENDING");
 
-  const { data: successBookings, isLoading: isLoadingSuccess, error: errorSuccess } =
-    useBookingsByStatus("SUCCESS");
+  const { data: successBookings, isLoading: isLoadingSuccess, error: errorSuccess } = useBookingsByStatus("SUCCESS");
 
-  const { data: cancelledBookings, isLoading: isLoadingCancelled, error: errorCancelled } =
-    useBookingsByStatus("CANCELLED");
+  const { data: cancelledBookings, isLoading: isLoadingCancelled, error: errorCancelled } = useBookingsByStatus("CANCELLED");
 
   // User search for filtering - only search if searchUser has content
   const searchQuery = useSearchUser(searchUser);
@@ -750,14 +742,8 @@ const StaffBookingManagement: React.FC = () => {
             booking.user?.phone?.toLowerCase().includes(searchLower)
           );
         })
-        .filter((booking) =>
-          filters.userId ? booking.user?.id === filters.userId : true,
-        )
-        .filter((booking) =>
-          filters.paymentStatus && filters.paymentStatus !== "ALL"
-            ? booking.paymentStatus === filters.paymentStatus
-            : true,
-        )
+        .filter((booking) => (filters.userId ? booking.user?.id === filters.userId : true))
+        .filter((booking) => (filters.paymentStatus && filters.paymentStatus !== "ALL" ? booking.paymentStatus === filters.paymentStatus : true))
     : [];
 
   // Handle bulk selection functions
