@@ -1,4 +1,5 @@
 import type { Promotion } from "@/interfaces/promotion.interface";
+import { formatVND } from "@/utils/currency.utils";
 import React, { useEffect, useState } from "react";
 
 interface PaymentSummaryProps {
@@ -45,22 +46,22 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
     <div className="space-y-2 border-t pt-4">
       <div className="flex justify-between text-sm">
         <span className="text-gray-600">Tổng tiền vé:</span>
-        <span className="font-semibold">{ticketCost.toLocaleString("vi-VN")}VND</span>
+        <span className="font-semibold">{formatVND(ticketCost)}</span>
       </div>
       <div className="flex justify-between text-sm">
         <span className="text-gray-600">Tổng tiền combo:</span>
-        <span className="font-semibold">{comboCost.toLocaleString("vi-VN")}VND</span>
+        <span className="font-semibold">{formatVND(comboCost)}</span>
       </div>
       <div className="flex justify-between text-sm">
         <span className="text-gray-600">Tổng tiền snack:</span>
-        <span className="font-semibold">{snackCost.toLocaleString("vi-VN")}VND</span>
+        <span className="font-semibold">{formatVND(snackCost)}</span>
       </div>
 
       {/* Subtotal */}
       {totalDiscount > 0 && (
         <div className="flex justify-between border-t pt-2 text-sm">
           <span className="text-gray-600">Tạm tính:</span>
-          <span className="font-semibold">{subtotal.toLocaleString("vi-VN")}VND</span>
+          <span className="font-semibold">{formatVND(subtotal)}</span>
         </div>
       )}
 
@@ -68,14 +69,14 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
       {pointsDiscount > 0 && (
         <div className="flex justify-between text-sm text-green-600">
           <span>Giảm từ điểm tích lũy:</span>
-          <span>-{pointsDiscount.toLocaleString("vi-VN")}VND</span>
+          <span>-{formatVND(pointsDiscount)}</span>
         </div>
       )}
 
       {voucherDiscount > 0 && (
         <div className="flex justify-between text-sm text-green-600">
           <span>Giảm từ mã voucher:</span>
-          <span>-{voucherDiscount.toLocaleString("vi-VN")}VND</span>
+          <span>-{formatVND(voucherDiscount)}</span>
         </div>
       )}
 
@@ -83,13 +84,13 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
       {selectedPromotion && (
         <div className="flex justify-between text-sm text-green-600">
           <span>Giảm từ khuyến mãi:</span>
-          <span>{promotionDiscount > 0 ? `-${promotionDiscount.toLocaleString("vi-VN")}VND` : "0VND"}</span>
+          <span>{promotionDiscount > 0 ? `-${formatVND(promotionDiscount)}` : formatVND(0)}</span>
         </div>
       )}
 
       <div className="flex justify-between border-t pt-2 text-xl font-bold">
         <span>Tổng cộng:</span>
-        <span className="text-red-600">{totalCost.toLocaleString("vi-VN")}VND</span>
+        <span className="text-red-600">{formatVND(totalCost)}</span>
       </div>
       <div className="mt-4 text-center text-sm text-gray-500">
         Thời gian còn lại: <span className="text-lg font-bold">{formatTime(remainingTime)}</span>

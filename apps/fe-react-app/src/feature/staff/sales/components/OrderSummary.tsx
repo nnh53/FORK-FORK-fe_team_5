@@ -4,9 +4,10 @@ import type { Combo } from "@/interfaces/combo.interface";
 import type { Movie } from "@/interfaces/movies.interface";
 import type { Promotion } from "@/interfaces/promotion.interface";
 import type { Snack } from "@/interfaces/snacks.interface";
-import { calculateDiscount, formatCurrency } from "@/services/promotionService";
-import React from "react";
 import type { UIShowtime } from "@/interfaces/staff-sales.interface";
+import { calculateDiscount } from "@/services/promotionService";
+import { formatVND } from "@/utils/currency.utils";
+import React from "react";
 
 interface OrderSummaryProps {
   selectedMovie: Movie | null;
@@ -68,7 +69,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           <div>
             <h4 className="font-semibold">Ghế đã chọn</h4>
             <p className="text-sm">{getSeatDisplayNames().join(", ")}</p>
-            <p className="text-sm font-medium">{calculateSeatPrice().toLocaleString("vi-VN")} VNĐ</p>
+            <p className="text-sm font-medium">{formatVND(calculateSeatPrice())}</p>
           </div>
         )}
 
@@ -83,14 +84,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     {combo.name} x{quantity}
                   </span>
                   <span>
-                    {(
+                    {formatVND(
                       (combo.snacks?.reduce((total, comboSnack) => {
                         const snackPrice = comboSnack.snack?.price || 0;
                         const snackQuantity = comboSnack.quantity || 1;
                         return total + snackPrice * snackQuantity;
-                      }, 0) || 0) * quantity
-                    ).toLocaleString("vi-VN")}{" "}
-                    VNĐ
+                      }, 0) || 0) * quantity,
+                    )}
                   </span>
                 </div>
               ))}
@@ -109,7 +109,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     <span>
                       {snack.name} x{quantity}
                     </span>
-                    <span>{((snack.price ?? 0) * quantity).toLocaleString("vi-VN")} VNĐ</span>
+                    <span>{formatVND((snack.price ?? 0) * quantity)}</span>
                   </div>
                 ) : null;
               })}
@@ -127,7 +127,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         {usePoints > 0 && (
           <div>
             <h4 className="font-semibold">Giảm giá điểm</h4>
-            <p className="text-sm text-green-600">-{(usePoints * 1000).toLocaleString("vi-VN")} VNĐ</p>
+            <p className="text-sm text-green-600">-{formatVND(usePoints * 1000, 0, "VNĐ")}</p>
           </div>
         )}
 
@@ -137,7 +137,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <p className="text-sm">{selectedPromotion.title}</p>
             <p className="text-sm text-green-600">
               -
-              {formatCurrency(
+              {formatVND(
                 calculateDiscount(
                   selectedPromotion,
                   calculateSeatPrice() +
@@ -165,7 +165,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <div>
           <div className="flex items-center justify-between">
             <span className="text-lg font-semibold">Tổng cộng</span>
-            <span className="text-xl font-bold text-red-600">{calculateTotal().toLocaleString("vi-VN")} VNĐ</span>
+            <span className="text-xl font-bold text-red-600">{formatVND(calculateTotal(), 0, "VNĐ")}</span>
           </div>
         </div>
       </CardContent>

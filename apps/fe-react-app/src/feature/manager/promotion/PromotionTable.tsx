@@ -23,6 +23,7 @@ import {
   isValidPromotionStatus,
   isValidPromotionType,
 } from "@/services/promotionService";
+import { formatVND } from "@/utils/currency.utils";
 import { Image } from "lucide-react";
 import { forwardRef, useCallback, useImperativeHandle, useMemo } from "react";
 
@@ -59,10 +60,10 @@ const formatPromotionData = (promotions: Promotion[]) => {
       );
 
       // Process the discount value
-      const discountDisplay = pro.type === "PERCENTAGE" ? `${pro.discountValue}%` : `${pro.discountValue.toLocaleString()} VNĐ`;
+      const discountDisplay = pro.type === "PERCENTAGE" ? `${pro.discountValue}%` : formatVND(pro.discountValue);
 
       // Process the min purchase
-      const minPurchaseDisplay = `${pro.minPurchase.toLocaleString()} VNĐ`;
+      const minPurchaseDisplay = formatVND(pro.minPurchase);
 
       // Process the description (truncate if too long)
       const descriptionDisplay = pro.description.length > 50 ? `${pro.description.substring(0, 50)}...` : pro.description;

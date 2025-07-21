@@ -1,6 +1,7 @@
 import type { Promotion } from "@/interfaces/promotion.interface";
 import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
+import { formatVND } from "@/utils/currency.utils";
 type PromotionResponse = components["schemas"]["PromotionResponse"];
 
 // Type aliases for union types
@@ -145,10 +146,7 @@ export const getPromotionTypeLabel = (type: PromotionType): string => {
  * Format currency for display
  */
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(amount);
+  return formatVND(amount);
 };
 
 /**
