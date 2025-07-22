@@ -3,12 +3,6 @@ import LazySection from "@/components/shared/LazySection";
 import { lazy, Suspense } from "react";
 import "./styles/HomePage.css";
 
-// Lazy load heavy components
-const CarouselSection = lazy(() => import("@/feature/views/sections/CarouselSection"));
-const MovieSelection = lazy(() => import("../store/MovieSelection"));
-const SpotlightSection = lazy(() => import("@/feature/views/sections/SpotlightSection"));
-const TrendingSection = lazy(() => import("@/feature/views/sections/TrendingSection"));
-
 // Light components can be imported normally
 import { FAQ } from "@/feature/views/sections";
 import AdminTeamSection from "@/feature/views/sections/AdminTeamSection";
@@ -16,6 +10,12 @@ import CinemaExperience from "@/feature/views/sections/CinemaExperience";
 import { CTASection } from "@/feature/views/sections/cta-section";
 import { FeatureSection } from "@/feature/views/sections/feature-section";
 import { HeroSection } from "@/feature/views/sections/hero-section";
+
+// Lazy load heavy components
+const CarouselSection = lazy(() => import("@/feature/views/sections/CarouselSection"));
+const MovieSelection = lazy(() => import("../store/MovieSelection"));
+const SpotlightSection = lazy(() => import("@/feature/views/sections/SpotlightSection"));
+const TrendingSection = lazy(() => import("@/feature/views/sections/TrendingSection"));
 
 // Loading component for hero section
 const HeroSkeleton = () => (

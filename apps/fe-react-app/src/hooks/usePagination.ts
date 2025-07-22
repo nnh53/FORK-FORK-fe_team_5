@@ -183,7 +183,7 @@ export const useUrlPagination = (
   config: Omit<PaginationConfig, "initialPage" | "onPageChange">,
   searchParams: URLSearchParams,
   setSearchParams: (params: URLSearchParams) => void,
-  pageParam: string = "page",
+  pageParam = "page",
 ) => {
   const initialPage = parseInt(searchParams.get(pageParam) || "1", 10);
 

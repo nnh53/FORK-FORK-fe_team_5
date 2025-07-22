@@ -1,13 +1,12 @@
 // eslint-disable-next-line @nx/enforce-module-boundaries
 // import config from "@fcinema-workspace/fe-react-app";
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import config from "@fcinema-workspace/fe-react-app";
 import { nxE2EPreset } from "@nx/cypress/plugins/cypress-preset.js";
 import { defineConfig } from "cypress";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import config from "./vite.config.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const __filename = fileURLToPath(import.meta.url);
 
 export default defineConfig({
   e2e: {
@@ -22,7 +21,10 @@ export default defineConfig({
       ciBaseUrl: "http://localhost:5173",
     }),
     baseUrl: "http://localhost:5173",
+    specPattern: ["./test/src/**/*.cy.{js,jsx,ts,tsx}"],
+    supportFile: "./test/src/support/e2e.{js,jsx,ts,tsx}",
   },
+
   // component: nxComponentTestingPreset(__filename, {
   //   bundler: "vite",
   //   buildTarget: "@fcinema-workspace/fe-react-app:build",
@@ -35,7 +37,7 @@ export default defineConfig({
         ...config,
       },
     },
-    specPattern: ["../fe-react-app/src/**/*.cy.{js,jsx,ts,tsx}"],
-    fileServerFolder: "../fe-react-app/src/**/*.{jsx,tsx}",
+    specPattern: ["./src/**/*.cy.{js,jsx,ts,tsx}"],
+    supportFile: "./test/src/support/component.{js,jsx,ts,tsx}",
   },
 });

@@ -7,7 +7,7 @@ import { forwardRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/CarouselSection.css";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-empty-interface
 interface CarouselSectionProps {}
 
 const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) => {
@@ -102,7 +102,7 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
                       />
                     </div>
                   )}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                     <button
                       className="mb-2 w-full cursor-pointer text-center text-lg font-bold text-white transition-colors duration-200 hover:text-yellow-400"
                       onClick={() => navigate(`/movie/${movie.id}`)}

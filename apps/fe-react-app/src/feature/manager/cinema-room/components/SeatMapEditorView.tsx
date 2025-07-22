@@ -147,7 +147,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
     return renderItems;
   }, [seatMap]);
   // Function to get seat color based on seat type and status
-  const getSeatColor = (seat: Seat, isSelected: boolean = false): string => {
+  const getSeatColor = (seat: Seat, isSelected = false): string => {
     const baseClass = "border rounded flex items-center justify-center text-xs cursor-pointer hover:opacity-80 relative";
 
     if (isSelected) {
@@ -315,7 +315,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
                         {item.seat.status === "MAINTENANCE" && (
                           <Icon
                             icon="mdi:wrench"
-                            className="absolute right-0 top-0 h-3 w-3 text-orange-600"
+                            className="absolute top-0 right-0 h-3 w-3 text-orange-600"
                             style={{ transform: "translate(25%, -25%)" }}
                           />
                         )}
@@ -345,7 +345,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
                         {item.seat.status === "MAINTENANCE" && (
                           <Icon
                             icon="mdi:wrench"
-                            className="absolute right-0 top-0 h-3 w-3 text-orange-600"
+                            className="absolute top-0 right-0 h-3 w-3 text-orange-600"
                             style={{ transform: "translate(25%, -25%)" }}
                           />
                         )}
@@ -420,7 +420,7 @@ const SeatMapEditorView: React.FC<SeatMapEditorViewProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <div className="relative h-4 w-4 rounded border border-blue-300 bg-blue-100 opacity-50">
-              <Icon icon="mdi:wrench" className="absolute right-0 top-0 h-2 w-2 text-orange-600" style={{ transform: "translate(25%, -25%)" }} />
+              <Icon icon="mdi:wrench" className="absolute top-0 right-0 h-2 w-2 text-orange-600" style={{ transform: "translate(25%, -25%)" }} />
             </div>
             <span className="text-sm">Bảo trì ({seatStats.maintenance})</span>
           </div>

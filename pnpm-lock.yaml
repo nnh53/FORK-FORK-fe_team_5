@@ -346,12 +346,6 @@ importers:
         specifier: ^1.3.5
         version: 1.3.5
 
-  apps/fe-react-app-e2e:
-    dependencies:
-      '@fcinema-workspace/fe-react-app':
-        specifier: workspace:^
-        version: link:../fe-react-app
-
   apps/mockapi-express-app:
     dependencies:
       cors:

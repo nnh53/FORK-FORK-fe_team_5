@@ -104,7 +104,7 @@ export const colorWithOpacity = (color: string, opacity: number): string => {
 };
 
 // Helper function to convert any CSS color to rgba
-export const getRGBA = (cssColor: React.CSSProperties["color"], fallback: string = "rgba(180, 180, 180)"): string => {
+export const getRGBA = (cssColor: React.CSSProperties["color"], fallback = "rgba(180, 180, 180)"): string => {
   if (typeof window === "undefined") return fallback;
   if (!cssColor) return fallback;
 

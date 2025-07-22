@@ -1,4 +1,4 @@
-import { getGreeting } from "../support/app.po";
+import { getGreeting } from "../support/app.po.ts";
 
 describe("@newnx/fe-react-app-e2e", () => {
   beforeEach(() => cy.visit("/"));

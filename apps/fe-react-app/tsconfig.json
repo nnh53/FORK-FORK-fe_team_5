@@ -8,6 +8,12 @@
     },
     {
       "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.cypress.json"
     }
   ],
   "compilerOptions": {

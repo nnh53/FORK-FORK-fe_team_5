@@ -1,6 +1,9 @@
 // Booking interfaces based on database schema
 import type { SeatStatus, SeatTypeEnum } from "./seat.interface";
 
+// API Booking interfaces (from OpenAPI schema)
+import type { components } from "@/schema-from-be";
+
 // Enums from database - use internal names to avoid conflicts
 export type PaymentMethod = "CASH" | "ONLINE"; // Updated to match API
 export type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED"; // Updated to match API
@@ -121,10 +124,6 @@ export interface BookingState {
   loyaltyDiscount: number;
   totalCost: number;
 }
-
-
-// API Booking interfaces (from OpenAPI schema)
-import type { components } from "@/schema-from-be";
 
 // Booking Combo Response from API
 export type ApiBookingCombo = components["schemas"]["BookingComboResponse"];

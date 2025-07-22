@@ -3,7 +3,7 @@ import { queryReceiptTopMovies } from "@/services/receipService";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface TrendingMovieCard {
+interface TrendingMovieCardType {
   id: number;
   name: string;
   rank: number;
@@ -132,7 +132,7 @@ const TrendingSection = () => {
 };
 
 // Component cho movie card
-const TrendingMovieCard = ({ movie, onClick }: { movie: TrendingMovieCard; onClick: () => void }) => {
+const TrendingMovieCard = ({ movie, onClick }: { movie: TrendingMovieCardType; onClick: () => void }) => {
   // Format release date from schema fromDate field - now directly available
   const releaseDate = movie.fromDate
     ? new Date(movie.fromDate).toLocaleDateString("en-US", {
@@ -148,7 +148,7 @@ const TrendingMovieCard = ({ movie, onClick }: { movie: TrendingMovieCard; onCli
       onClick={onClick}
     >
       {/* Ranking Badge */}
-      <div className="absolute left-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs font-bold text-white">
+      <div className="absolute top-2 left-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-xs font-bold text-white">
         {movie.rank}
       </div>
 

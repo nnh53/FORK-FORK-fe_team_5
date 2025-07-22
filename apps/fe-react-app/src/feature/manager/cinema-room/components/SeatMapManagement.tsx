@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { Alert, AlertDescription } from "@/components/Shadcn/ui/alert";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
@@ -375,7 +376,7 @@ const SeatMapManagement: React.FC = () => {
     <div className="container mx-auto space-y-6 px-4 py-8">
       {/* Loading overlay for resetting */}
       {isResetting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
           <div className="flex items-center gap-3 rounded-lg bg-white p-6">
             <Icon icon="mdi:loading" className="h-6 w-6 animate-spin text-blue-600" />
             <span>Đang tạo sơ đồ ghế mới...</span>

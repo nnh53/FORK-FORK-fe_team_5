@@ -221,7 +221,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
   };
 
   // Function to get seat color based on seat type and status
-  const getSeatColor = (seat: Seat, isSelected: boolean = false): string => {
+  const getSeatColor = (seat: Seat, isSelected = false): string => {
     const state = getSeatState(seat);
     const baseClass = "border rounded flex items-center justify-center text-xs cursor-pointer hover:opacity-80 relative";
 
@@ -410,7 +410,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
                         {item.seat.status === "MAINTENANCE" && (
                           <Icon
                             icon="mdi:wrench"
-                            className="absolute right-0 top-0 h-3 w-3 text-orange-600"
+                            className="absolute top-0 right-0 h-3 w-3 text-orange-600"
                             style={{ transform: "translate(25%, -25%)" }}
                           />
                         )}
@@ -440,7 +440,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
                         {item.seat.status === "MAINTENANCE" && (
                           <Icon
                             icon="mdi:wrench"
-                            className="absolute right-0 top-0 h-3 w-3 text-orange-600"
+                            className="absolute top-0 right-0 h-3 w-3 text-orange-600"
                             style={{ transform: "translate(25%, -25%)" }}
                           />
                         )}

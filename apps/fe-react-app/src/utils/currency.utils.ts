@@ -9,7 +9,7 @@
  * formatVND(1000000.567, 2); // "1.000.000,57 VNĐ"
  * formatVND(-123456, 0, "đ"); // "-123.456 đ"
  */
-export function formatVND(amount: number, decimals: number = 0, currency: string = "VNĐ"): string {
+export function formatVND(amount: number, decimals = 0, currency = "VNĐ"): string {
   if (isNaN(amount)) return `0 ${currency}`;
 
   // Làm tròn số đến số chữ số thập phân yêu cầu

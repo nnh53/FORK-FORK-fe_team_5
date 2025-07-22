@@ -66,7 +66,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         URL.revokeObjectURL(currentUrl);
       };
     }
-    return () => {};
   }, [previewUrl]);
 
   // Xử lý file được chọn hoặc kéo thả
@@ -200,7 +199,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             ref={imageRef}
             src={displayImage}
             alt="Ảnh xem trước"
-            className={`h-full max-h-[${maxPreviewHeight}px] min-h-[120px] w-full min-w-[120px] max-w-[100%] object-contain transition-all duration-300 group-hover:scale-105`}
+            className={`h-full max-h-[${maxPreviewHeight}px] min-h-[120px] w-full max-w-[100%] min-w-[120px] object-contain transition-all duration-300 group-hover:scale-105`}
             style={{ objectFit: "contain", objectPosition: "center" }}
             onError={() => {
               handleClearImage();
@@ -299,7 +298,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           onDragOver={handleDrag}
           onDrop={handleDrop}
           onKeyDown={handleKeyDown}
-          className={` ${getPreviewContainerStyle()} bg-background focus:ring-ring dark:bg-background border-2 border-dashed transition-all duration-200 focus:outline-none focus:ring-2 ${dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary"} ${uploadError || externalError ? "border-destructive" : ""} `}
+          className={` ${getPreviewContainerStyle()} bg-background focus:ring-ring dark:bg-background border-2 border-dashed transition-all duration-200 focus:ring-2 focus:outline-none ${dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary"} ${uploadError || externalError ? "border-destructive" : ""} `}
           disabled={isLoading}
         >
           {renderImageContent()}

@@ -52,6 +52,7 @@ export default function CinemaRoomDetail() {
   //AC:06
   const handleGoBack = () => {
     if (modified) {
+      // eslint-disable-next-line no-restricted-globals
       if (confirm("You have unsaved changes. Are you sure you want to go back without saving?")) {
         navigate("/admin/cinema-room");
       }

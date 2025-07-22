@@ -62,9 +62,8 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
         {/* Vùng cuộn phim với click and drag */}
         <div
           ref={scrollRef}
-          className="scrollbar-hide flex cursor-grab select-none snap-x snap-mandatory gap-6 space-x-4 overflow-x-auto scroll-smooth px-12 py-6"
+          className="scrollbar-hide flex cursor-grab snap-x snap-mandatory gap-6 space-x-4 overflow-x-auto scroll-smooth px-12 py-6 select-none"
           onMouseDown={handleMouseDown}
-          onKeyDown={() => {}} // Empty handler for accessibility
         >
           {movies.map((movie) => (
             <div key={movie.id} className="inline-flex flex-none snap-start">

@@ -168,7 +168,6 @@ export const MyInfo: React.FC = () => {
               id="email"
               label="Email"
               value={userInfo.email}
-              onChange={() => {}}
               disabled={true}
               type="email"
               placeholder="Email không thể thay đổi"

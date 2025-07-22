@@ -19,12 +19,12 @@ export const CustomTable = <T extends object>({ tableColumns, tableData, action 
         <Table className="table-zebra table w-full table-fixed">
           {/* <!-- Table Head --> */}
           <TableHeader>
-            <TableRow className="text-lg uppercase text-neutral-600">
+            <TableRow className="text-lg text-neutral-600 uppercase">
               {tableColumns &&
                 tableColumns.map((column) => (
                   <TableHead
                     key={column.header}
-                    className={`border-base-300 h-auto whitespace-normal break-words border ${column.width ? column.width : ""}`}
+                    className={`border-base-300 h-auto border break-words whitespace-normal ${column.width ? column.width : ""}`}
                   >
                     {column.header}
                   </TableHead>
@@ -47,7 +47,7 @@ export const CustomTable = <T extends object>({ tableColumns, tableData, action 
                               }
                             : undefined
                         }
-                        className="text-base-content border-base-300 whitespace-pre-wrap break-words border font-medium"
+                        className="text-base-content border-base-300 border font-medium break-words whitespace-pre-wrap"
                       >
                         {(data as any)[column.accessorKey]}
                       </TableCell>

@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "out-tsc/cypress",
+    "outDir": "dist/cypress",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "target": "es5",
@@ -19,9 +19,9 @@
     "**/*.cy.js",
     "**/*.cy.jsx",
     "**/*.d.ts",
-    "vite.config.ts",
-    "vite.config.ts"
+    "vite.config.js",
+    "vite.config.js"
   ],
-  "exclude": ["out-tsc", "test-output", "eslint.config.js", "eslint.config.cjs", "eslint.config.mjs"],
+  "exclude": ["test-output", "eslint.config.js", "eslint.config.cjs", "eslint.config.mjs"],
   "references": []
 }
