@@ -1,0 +1,14 @@
+{
+  "name": "@fcinema-workspace/fe-react-app-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@fcinema-workspace/fe-react-app": "workspace:^"
+  },
+  "nx": {
+    "implicitDependencies": [
+      "@fcinema-workspace/fe-react-app"
+    ]
+  }
+}

@@ -1,14 +1,7 @@
 {
   // "files": [],
   "include": ["src/**/*.ts", "../../apps/fe-react-app/src/interfaces/**/*.ts"],
-  "references": [
-    // {
-    //   "path": "./tsconfig.app.json",
-    // },
-    {
-      "path": "../../apps/fe-react-app/tsconfig.json"
-    }
-  ],
+  "references": [],
   "compilerOptions": {
     "outDir": "dist",
     "types": ["node"],

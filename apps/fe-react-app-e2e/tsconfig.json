@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "out-tsc/cypress",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "es5",
+    "lib": ["es5", "dom"],
+    "types": ["cypress", "node", "@testing-library/dom", "@testing-library/react"],
+    "sourceMap": true
+  },
+  "include": [
+    "cypress.config.mjs",
+    "cypress.config.js",
+    "**/*.ts",
+    "**/*.js",
+    "**/*.cy.ts",
+    "**/*.cy.tsx",
+    "**/*.cy.js",
+    "**/*.cy.jsx",
+    "**/*.d.ts",
+    "vite.config.ts",
+    "vite.config.ts"
+  ],
+  "exclude": ["out-tsc", "test-output", "eslint.config.js", "eslint.config.cjs", "eslint.config.mjs"],
+  "references": []
+}

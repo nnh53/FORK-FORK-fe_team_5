@@ -1,15 +1,16 @@
 {
+  // "extends": "../../tsconfig.base.json",
   "files": [],
+  "include": [],
   "references": [
     {
       "path": "./tsconfig.app.json"
     },
     {
-      "path": "./tsconfig.node.json"
+      "path": "./tsconfig.spec.json"
     }
   ],
   "compilerOptions": {
-    "composite": true,
     "baseUrl": ".",
     "noUncheckedIndexedAccess": true,
     "paths": {

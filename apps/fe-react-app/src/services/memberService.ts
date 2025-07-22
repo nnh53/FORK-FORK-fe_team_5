@@ -26,7 +26,7 @@ const transformUserToMember = (user: UserResponse): Member => {
 /**
  * Hook for searching users/members by email or phone
  */
-export const useSearchMember = (searchInput: string, enabled: boolean = true) => {
+export const useSearchMember = (searchInput: string, enabled = true) => {
   return $api.useQuery(
     "get",
     "/users/search",
