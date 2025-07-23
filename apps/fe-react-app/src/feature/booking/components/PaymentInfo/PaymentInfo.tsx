@@ -38,9 +38,9 @@ const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats = [] }) =
   };
 
   return (
-  <div className="space-y-4">
+    <div className="space-y-4">
       <h3 className="border-l-4 border-red-600 pl-3 text-lg font-bold">THÔNG TIN THANH TOÁN</h3>
-      <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>
           <span className="font-semibold">Họ tên:</span> {user.fullName}
         </div>
@@ -56,7 +56,7 @@ const PaymentInfo: React.FC<PaymentInfoProps> = ({ user, selectedSeats = [] }) =
           <div key={type} className="flex items-center justify-between border-t pt-2">
             <div>
               <p className="font-semibold capitalize">{`Ghế ${type === "standard" ? "thường" : type}`}</p>
-              <p className="text-xs text-gray-500">{seats.join(", ")}</p>
+              <p className="text-sm text-gray-500">{seats.join(", ")}</p>
             </div>
             <p className="font-semibold">{`${seats.length} x ${formatVND(getPricePerSeat(type as DisplaySeatType))}`}</p>
           </div>
