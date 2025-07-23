@@ -1,13 +1,14 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { DialogFooter } from "@/components/Shadcn/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { ROLES } from "@/interfaces/roles.interface";
 import type { USER_STATUS, User, UserRequest, UserUpdate } from "@/interfaces/users.interface";
 import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 interface MemberFormProps {
@@ -29,7 +30,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
   // Store initial values for comparison when updating
   const [initialValues, setInitialValues] = useState<MemberFormData | null>(null);
 
-  const { control, handleSubmit, reset } = useForm<MemberFormData>({
+  const form = useForm<MemberFormData>({
     defaultValues: member
       ? {
           fullName: member.fullName ?? "",
@@ -73,10 +74,10 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
         status: member.status as USER_STATUS,
       };
 
-      reset(values);
+      form.reset(values);
       setInitialValues(values);
     }
-  }, [member, reset]);
+  }, [member, form]);
 
   const handleFormSubmit = (data: MemberFormData) => {
     if (!member && data.password !== data.confirmPassword) {
@@ -146,34 +147,29 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {/* Họ và tên */}
-        <div className="space-y-2">
-          <label htmlFor="fullName" className="text-sm font-medium">
-            Họ và tên
-          </label>
-          <Controller
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Họ và tên */}
+          <FormField
+            control={form.control}
             name="fullName"
-            control={control}
             rules={{ required: "Vui lòng nhập họ tên" }}
             render={({ field, fieldState }) => (
-              <div>
-                <Input id="fullName" placeholder="Họ và tên" {...field} />
-                {fieldState.error && <p className="mt-1 text-xs text-red-500">{fieldState.error.message}</p>}
-              </div>
+              <FormItem>
+                <FormLabel>Họ và tên</FormLabel>
+                <FormControl>
+                  <Input id="fullName" placeholder="Họ và tên" {...field} />
+                </FormControl>
+                {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+              </FormItem>
             )}
           />
-        </div>
 
-        {/* Email */}
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email {member && <span className="text-muted-foreground text-xs">(không thể thay đổi)</span>}
-          </label>
-          <Controller
+          {/* Email */}
+          <FormField
+            control={form.control}
             name="email"
-            control={control}
             rules={{
               required: !member ? "Vui lòng nhập email" : false,
               pattern: {
@@ -182,177 +178,186 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
               },
             }}
             render={({ field, fieldState }) => (
-              <div>
-                <Input
-                  id="email"
-                  placeholder="Email"
-                  type="email"
-                  {...field}
-                  readOnly={!!member}
-                  className={member ? "bg-muted cursor-not-allowed" : ""}
-                />
-                {fieldState.error && <p className="mt-1 text-xs text-red-500">{fieldState.error.message}</p>}
-              </div>
+              <FormItem>
+                <FormLabel>Email {member && <span className="text-muted-foreground text-xs">(không thể thay đổi)</span>}</FormLabel>
+                <FormControl>
+                  <Input
+                    id="email"
+                    placeholder="Email"
+                    type="email"
+                    {...field}
+                    readOnly={!!member}
+                    className={member ? "bg-muted cursor-not-allowed" : ""}
+                  />
+                </FormControl>
+                {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+              </FormItem>
             )}
           />
-        </div>
 
-        {/* Ngày sinh */}
-        <div className="space-y-2">
-          <label htmlFor="dateOfBirth" className="text-sm font-medium">
-            Ngày sinh
-          </label>
-          <Controller
+          {/* Ngày sinh */}
+          <FormField
+            control={form.control}
             name="dateOfBirth"
-            control={control}
             render={({ field }) => (
-              <DatePicker
-                date={field.value ? new Date(field.value) : undefined}
-                setDate={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
-              />
+              <FormItem>
+                <FormLabel>Ngày sinh</FormLabel>
+                <FormControl>
+                  <DatePicker
+                    date={field.value ? new Date(field.value) : undefined}
+                    setDate={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                  />
+                </FormControl>
+              </FormItem>
             )}
           />
-        </div>
 
-        {/* Giới tính - chỉ hiển thị khi đang cập nhật (edit) */}
-        {member && (
-          <div className="space-y-2">
-            <label htmlFor="gender" className="text-sm font-medium">
-              Giới tính
-            </label>
-            <Controller
+          {/* Giới tính - chỉ hiển thị khi đang cập nhật (edit) */}
+          {member && (
+            <FormField
+              control={form.control}
               name="gender"
-              control={control}
               render={({ field }) => (
-                <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Chọn giới tính" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MALE">Nam</SelectItem>
-                    <SelectItem value="FEMALE">Nữ</SelectItem>
-                    <SelectItem value="OTHER">Khác</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormItem>
+                  <FormLabel>Giới tính</FormLabel>
+                  <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Chọn giới tính" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="MALE">Nam</SelectItem>
+                      <SelectItem value="FEMALE">Nữ</SelectItem>
+                      <SelectItem value="OTHER">Khác</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
               )}
             />
-          </div>
-        )}
+          )}
 
-        {/* Trạng thái - chỉ hiển thị khi đang cập nhật (edit) */}
-        {member && (
-          <div className="space-y-2">
-            <label htmlFor="status" className="text-sm font-medium">
-              Trạng thái
-            </label>
-            <Controller
+          {/* Trạng thái - chỉ hiển thị khi đang cập nhật (edit) */}
+          {member && (
+            <FormField
+              control={form.control}
               name="status"
-              control={control}
               render={({ field }) => (
-                <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Chọn trạng thái" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ACTIVE">Đã xác minh</SelectItem>
-                    <SelectItem value="BAN">Bị cấm</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormItem>
+                  <FormLabel>Trạng thái</FormLabel>
+                  <Select defaultValue={field.value} value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Chọn trạng thái" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="ACTIVE">Đã xác minh</SelectItem>
+                      <SelectItem value="BAN">Bị cấm</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
               )}
             />
-          </div>
-        )}
+          )}
 
-        {/* Số điện thoại */}
-        <div className="space-y-2">
-          <label htmlFor="phone" className="text-sm font-medium">
-            Số điện thoại
-          </label>
-          <Controller name="phone" control={control} render={({ field }) => <Input id="phone" placeholder="Số điện thoại" {...field} />} />
-        </div>
+          {/* Số điện thoại */}
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Số điện thoại</FormLabel>
+                <FormControl>
+                  <Input id="phone" placeholder="Số điện thoại" {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-        {/* Địa chỉ - chỉ hiển thị khi đang cập nhật (edit) */}
-        {member && (
-          <div className="space-y-2">
-            <label htmlFor="address" className="text-sm font-medium">
-              Địa chỉ
-            </label>
-            <Controller name="address" control={control} render={({ field }) => <Input id="address" placeholder="Địa chỉ" {...field} />} />
-          </div>
-        )}
-
-        {/* Mật khẩu */}
-        <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium">
-            Mật khẩu {member ? "(để trống nếu không thay đổi)" : ""}
-          </label>
-          <div className="relative flex">
-            <Controller
-              name="password"
-              control={control}
-              rules={!member ? { required: "Vui lòng nhập mật khẩu" } : {}}
-              render={({ field, fieldState }) => (
-                <div className="relative w-full">
-                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mật khẩu" className="pr-10" {...field} />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                  {fieldState.error && <p className="mt-1 text-xs text-red-500">{fieldState.error.message}</p>}
-                </div>
+          {/* Địa chỉ - chỉ hiển thị khi đang cập nhật (edit) */}
+          {member && (
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Địa chỉ</FormLabel>
+                  <FormControl>
+                    <Input id="address" placeholder="Địa chỉ" {...field} />
+                  </FormControl>
+                </FormItem>
               )}
             />
-          </div>
-        </div>
+          )}
 
-        {/* Xác nhận mật khẩu */}
-        {!member && (
-          <div className="space-y-2">
-            <label htmlFor="confirmPassword" className="text-sm font-medium">
-              Xác nhận mật khẩu
-            </label>
-            <div className="relative flex">
-              <Controller
-                name="confirmPassword"
-                control={control}
-                rules={{ required: "Vui lòng xác nhận mật khẩu" }}
-                render={({ field, fieldState }) => (
+          {/* Mật khẩu */}
+          <FormField
+            control={form.control}
+            name="password"
+            rules={!member ? { required: "Vui lòng nhập mật khẩu" } : {}}
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel>Mật khẩu {member ? "(để trống nếu không thay đổi)" : ""}</FormLabel>
+                <FormControl>
                   <div className="relative w-full">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Xác nhận mật khẩu"
-                      className="pr-10"
-                      {...field}
-                    />
+                    <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mật khẩu" className="pr-10" {...field} />
                     <button
                       type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
-                    {fieldState.error && <p className="mt-1 text-xs text-red-500">{fieldState.error.message}</p>}
                   </div>
-                )}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+                </FormControl>
+                {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+              </FormItem>
+            )}
+          />
 
-      <DialogFooter>
-        <Button variant="outline" onClick={onCancel}>
-          Hủy
-        </Button>
-        <Button type="submit" onClick={handleSubmit(handleFormSubmit)}>
-          {member ? "Cập nhật" : "Thêm"} Thành viên
-        </Button>
-      </DialogFooter>
-    </div>
+          {/* Xác nhận mật khẩu */}
+          {!member && (
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              rules={{ required: "Vui lòng xác nhận mật khẩu" }}
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Xác nhận mật khẩu</FormLabel>
+                  <FormControl>
+                    <div className="relative w-full">
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Xác nhận mật khẩu"
+                        className="pr-10"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </FormControl>
+                  {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel} type="button">
+            Hủy
+          </Button>
+          <Button type="submit">{member ? "Cập nhật" : "Thêm"} Thành viên</Button>
+        </DialogFooter>
+      </form>
+    </Form>
   );
 };
 
