@@ -26,6 +26,7 @@
 
     /* tự thêm */
     "importHelpers": true,
+    // "noUncheckedIndexedAccess": true,
     "paths": {
       "@/*": ["./src/*"],
       "@/assets/*": ["./src/assets/*"],

@@ -5,6 +5,7 @@
   "type": "module",
   "main": "./vite.config.js",
   "scripts": {
+    "build": "nx typecheck @fcinema-workspace/fe-react-app && nx build @fcinema-workspace/fe-react-app",
     "dev": "vite",
     "generate-schema": "pnpm exec openapi-typescript https://fcinema-spring-ujhbb.ondigitalocean.app/movie_theater/v3/api-docs -o ./schema-from-be.d.ts",
     "lint": "eslint .",

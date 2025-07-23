@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useBookingsByDateRange } from "@/services/bookingService";
+import { calculateComboPrice, transformComboResponse, useCombos } from "@/services/comboService";
 import { queryReceiptTopMovies } from "@/services/receipService";
 import { transformSnackResponse, useSnacks } from "@/services/snackService";
 import { eachDayOfInterval, format, startOfMonth } from "date-fns";
@@ -22,10 +23,7 @@ export default function AdminDashboard() {
   // Only consider successful bookings for revenue and statistics
   const successfulBookings = bookings.filter((b) => b.status === "SUCCESS");
 
-  const totalRevenue = successfulBookings.reduce(
-    (sum, b) => sum + (b.totalPrice ?? 0),
-    0,
-  );
+  const totalRevenue = successfulBookings.reduce((sum, b) => sum + (b.totalPrice ?? 0), 0);
 
   const totalBookings = successfulBookings.length;
 
@@ -61,10 +59,7 @@ export default function AdminDashboard() {
   const days = eachDayOfInterval({ start: startOfMonth(today), end: today });
   const revenueMap = new Map(days.map((d) => [format(d, "yyyy-MM-dd"), 0]));
   successfulBookings.forEach((b) => {
-    const date = format(
-      b.bookingDate ? new Date(b.bookingDate) : new Date(),
-      "yyyy-MM-dd",
-    );
+    const date = format(b.bookingDate ? new Date(b.bookingDate) : new Date(), "yyyy-MM-dd");
     revenueMap.set(date, (revenueMap.get(date) || 0) + (b.totalPrice ?? 0));
   });
   const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
