@@ -50,7 +50,7 @@ ci:
     - pnpm install --frozen-lockfile
     - NX_HEAD=$CI_COMMIT_SHA
     - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
-    - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx run-many -t lint test build -p fe-react-app --parallel=90% --verbose
+    - doppler run --token=${DOPPLER_TOKEN} -- pnpm exec nx run-many -t typecheck build lint test -p fe-react-app --parallel=90% --verbose
   artifacts:
     paths:
       - apps/fe-react-app/dist/**/*.*
