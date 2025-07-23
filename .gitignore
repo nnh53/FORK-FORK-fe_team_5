@@ -5,6 +5,7 @@
 *.env.*
 
 *.tsbuildinfo.*
+.tsbuildinfo
 
 .cursor/mcp.json
 

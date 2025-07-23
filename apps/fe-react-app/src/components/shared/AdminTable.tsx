@@ -17,7 +17,7 @@ interface TableColumns {
 }
 
 // Use a more permissive type for T to allow string indexing
-interface AdminTableProps<T extends { id?: number; [key: string]: unknown }> {
+interface AdminTableProps<T extends { id: number; [key: string]: unknown }> {
   tableColumn: (TableColumns & { sortProps?: SortProps })[];
   tableData: T[];
   handleViewClick?: (id: number) => void;
@@ -25,7 +25,7 @@ interface AdminTableProps<T extends { id?: number; [key: string]: unknown }> {
   handleDeleteClick?: (id: number) => void;
 }
 
-export const AdminTable = <T extends { id?: number; [key: string]: unknown }>({
+export const AdminTable = <T extends { id: number; [key: string]: unknown }>({
   tableColumn,
   tableData,
   handleViewClick,
@@ -49,7 +49,7 @@ export const AdminTable = <T extends { id?: number; [key: string]: unknown }>({
         <TableHeader>
           <TableRow>
             {tableColumn.map((column) => (
-              <TableHead key={column.header} className={`h-auto whitespace-normal break-words text-center ${column.width ?? ""}`}>
+              <TableHead key={column.header} className={`h-auto text-center break-words whitespace-normal ${column.width ?? ""}`}>
                 {column.sortProps ? (
                   <div className="flex items-center justify-center">
                     <SortButton variant="ghost" {...column.sortProps} label={column.header} className="px-2" />
@@ -66,7 +66,7 @@ export const AdminTable = <T extends { id?: number; [key: string]: unknown }>({
           {tableData.map((data, index) => (
             <TableRow key={`row_${data.id ?? index}`}>
               {tableColumn.map((column) => (
-                <TableCell key={`${column.accessorKey}_${data.id ?? index}`} className="whitespace-pre-wrap break-words text-center">
+                <TableCell key={`${column.accessorKey}_${data.id ?? index}`} className="text-center break-words whitespace-pre-wrap">
                   {column.accessorKey === "status" ? (
                     <span className={`rounded px-2 py-1 text-xs font-medium ${colorPicker(data[column.accessorKey] as string)}`}>
                       {data[column.accessorKey] as string}

@@ -173,6 +173,9 @@ export const MyInfo: React.FC = () => {
               placeholder="Email không thể thay đổi"
               description="Email không thể thay đổi"
               icon={<Mail className="h-4 w-4" />}
+              onChange={function (value: string): void {
+                throw new Error("Function not implemented.");
+              }}
             />
 
             {/* Phone */}

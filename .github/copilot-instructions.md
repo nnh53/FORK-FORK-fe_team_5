@@ -1,97 +1,51 @@
-# FCinema Project - AI Coding Agent Instructions
+# FCinema – AI Agent Guide
 
-## Architecture Overview
+> TL;DR: This Nx + pnpm monorepo hosts a single React-Vite frontend (`apps/fe-react-app`). The app talks to a Spring-Boot backend via auto-generated React-Query clients. Use **pnpm** commands (never npm/yarn) and Nx targets.
 
-This is an **Nx monorepo** with **pnpm** package manager containing a cinema booking application:
+## Big Picture (read once)
 
-- **`apps/fe-react-app/`** - Main React frontend (Vite + TypeScript)
-- **Real API** - Spring Boot backend at `https://fcinema-spring-ujhbb.ondigitalocean.app/movie_theater`
+1. **Frontend location** – all product code lives under `apps/fe-react-app/src`. Features are grouped in `feature/<domain>` (auth, booking, manager, …).
+2. **Networking** – `src/utils/api.ts` exports `$api` (openapi-react-query). Domain-specific hooks in `src/services/**` wrap `$api` for components.
+3. **Auth** – `AuthProvider` (cookie persistence) + `useAuth()` + `RoleRoute` enforce `ADMIN | STAFF | MEMBER` access rules.
+4. **UI stack** – Tailwind + **Shadcn/ui**. Customised primitives reside in `src/components/Shadcn/` and `src/components/shared/`.
+5. **Type safety** – the backend OpenAPI schema generates `schema-from-be.d.ts`; regenerate with `pnpm --filter fe-react-app generate-schema`.
 
-## Key Development Patterns
-
-### API Strategy
-
-- Use **OpenAPI-generated types** from `schema-from-be.d.ts` (generated via `pnpm --filter fe-react-app generate-schema`)
-- API client: `src/utils/api.ts` exports `$api` using `openapi-react-query`
-- Service layer: `src/services/` contains domain-specific API hooks (e.g., `movieService.ts`)
-
-### Authentication & Authorization
-
-- **Role-based access control** with `ADMIN`, `STAFF`, `MEMBER` roles
-- Auth state managed via `AuthProvider` context with cookie persistence
-- Route protection: `RoleRoute` component for role-based routing
-- Auth utilities: `src/utils/auth.utils.ts` and `src/utils/cookie.utils.ts`
-
-### UI Component Architecture
-
-- **Shadcn/ui** components in `src/components/Shadcn/` (configured via `components.json`)
-- **Shadcn/ui** + **Tailwind CSS** for styling
-- **Feature-based structure**: `src/feature/` contains domain modules (auth, booking, manager, etc.)
-- Shared components: `src/components/shared/`
-
-### Feature Organization
-
-Each feature module follows this pattern:
-
-```
-src/feature/[domain]/
-├── components/          # Feature-specific components
-├── [Domain]Page.tsx     # Main page component
-└── hooks/               # Domain-specific hooks
-```
-
-## Essential Commands
-
-### Development
+## Daily Commands
 
 ```bash
-# Start frontend
-pnpm --filter fe-react-app dev
+# Start dev server with hot reload
+pnpm nx dev fe-react-app
 
-# Generate OpenAPI types
-pnpm --filter fe-react-app generate-schema
+# Typecheck / Build / Lint via Nx cache
+pnpm nx typecheck fe-react-app
+pnpm nx build fe-react-app
+pnpm nx lint fe-react-app
+
+# Vitest tests
+pnpm nx vitest fe-react-app
 ```
 
-### Build & Test
+## Gotchas & Conventions
 
-```bash
-# Build app
-pnpm --filter fe-react-app build
+- Use the `@/` import alias instead of long relative paths (configured in `tsconfig.json` & `vite.config.js`).
+- Keep **feature** code UI-only; put data access in **services**.
+- Components = PascalCase; utilities = camelCase.
+- When adding a Shadcn component, edit `components.json` then run `pnpm shadcn-ui add`.
+- Regenerate OpenAPI types after _any_ backend contract change or CI will fail.
+- Never call `fetch` directly – always go through `$api` or a service hook to keep React Query cache coherent.
+- Protected pages must be wrapped by `RoleRoute`. Example: `src/feature/auth/RoleRoute.tsx`.
 
-# Linting
-pnpm --filter fe-react-app lint
-```
+## Nx Tips
 
-## Critical Configuration Files
+- Visualise the dependency graph: `pnpm nx graph` (or `--focus fe-react-app`).
+- Prefer `pnpm nx <target> fe-react-app` over package.json scripts for deterministic, cached runs.
+- CI leverages Nx remote cache (see `nx.json`).
 
-- **`apps/fe-react-app/components.json`** - Shadcn/ui configuration with path aliases
-- **`apps/fe-react-app/schema-from-be.d.ts`** - Auto-generated OpenAPI types
-- **`nx.json`** - Nx workspace configuration with S3 caching
+## External Services
 
-## Development Workflow
+- Backend: `https://fcinema-spring-ujhbb.ondigitalocean.app/movie_theater`.
+- Cloudflare R2 handles asset uploads (`src/utils/cloudflare.utils.ts`).
 
-2. **Type Safety**: Run `pnpm --filter fe-react-app generate-schema` after backend changes
-3. **Feature Development**: Create new features in `src/feature/[domain]/` structure
-4. **Component Usage**: Import UI components from `@/components/Shadcn/ui/`
-5. **State Management**: Use React Query hooks from service layer
+---
 
-## Project-Specific Conventions
-
-- **File naming**: PascalCase for components, camelCase for utilities
-- **Import aliases**: `@/` points to `src/`, configured in `tsconfig.json`
-- **Styling**: Prefer Shadcn/ui components + Tailwind utilities
-- **API patterns**: Create service files with React Query hooks for each domain
-- **Auth patterns**: Use `useAuth()` hook and `RoleRoute` for protection
-
-## Integration Points
-
-- **Backend Integration**: OpenAPI-first approach with generated TypeScript types
-- **Authentication**: Cookie-based auth with role-based routing
-- **Build System**: Nx with TypeScript strict mode and ESLint
-
-## Common Pitfalls
-
-- Regenerate types after backend schema changes
-- Use `@/` imports instead of relative paths
-- Follow role-based routing patterns for protected pages
-- Ensure auth context is properly wrapped around route components
+_Update this file when workflows or folder structures change._

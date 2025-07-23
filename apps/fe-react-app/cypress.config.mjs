@@ -1,6 +1,3 @@
-// eslint-disable-next-line @nx/enforce-module-boundaries
-// import config from "@fcinema-workspace/fe-react-app";
-// eslint-disable-next-line @nx/enforce-module-boundaries
 import { nxE2EPreset } from "@nx/cypress/plugins/cypress-preset.js";
 import { defineConfig } from "cypress";
 import { dirname } from "node:path";

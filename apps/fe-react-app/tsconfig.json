@@ -1,28 +1,26 @@
 {
   // "extends": "../../tsconfig.base.json",
   "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    },
-    {
-      "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "./tsconfig.cypress.json"
-    }
-  ],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
   "compilerOptions": {
-    "baseUrl": ".",
-    "noUncheckedIndexedAccess": true,
-    "paths": {
-      "@/*": ["./src/*"],
-      "@/assets/*": ["./src/assets/*"],
-      "@/schema-from-be": ["./schema-from-be.d.ts"]
-    }
+    // "composite": true,
+    // "declaration": true, // tạo file .d.ts
+    // "allowImportingTsExtensions": true,
+    // "declarationMap": true,
+    // // "emitDeclarationOnly": true, // chỉ tạo file .d.ts chứ ko tạo file .js
+    // "noEmit": true,
+    // "importHelpers": true,
+    // "isolatedModules": true,
+    // "noEmitOnError": true,
+    // "skipLibCheck": true,
+    // "strict": true,
+    // "baseUrl": "./",
+    // "noUncheckedIndexedAccess": true,
+    // // "noUncheckedSideEffectImports": i dont know
+    // "paths": {
+    //   "@/*": ["./src/*"],
+    //   "@/assets/*": ["./src/assets/*"],
+    //   "@/schema-from-be": ["./schema-from-be.d.ts"]
+    // }
   }
 }
