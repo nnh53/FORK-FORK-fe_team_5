@@ -16,11 +16,11 @@ export const siteConfig = {
   nav: {
     links: [
       { id: 1, name: "Home", href: "#home" },
-      { id: 2, name: "Movies", href: "#movies" },
-      { id: 3, name: "Spotlight", href: "#spotlight" },
-      { id: 4, name: "Features", href: "#features" },
-      { id: 5, name: "FAQ", href: "#faq" },
-    ],
+        { id: 2, name: "Movies", href: "#movies" },
+        { id: 3, name: "Spotlight", href: "#spotlight" },
+        { id: 4, name: "Features", href: "#features" },
+        { id: 5, name: "FAQ", href: "#faq" },
+      ],
   },
   featureSection: {
     title: "Công Nghệ. Phong Cách. Trải nghiệm.",

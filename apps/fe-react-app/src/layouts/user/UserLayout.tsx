@@ -10,7 +10,7 @@ interface UserLayoutProps {
 
 const UserLayout = ({ children }: UserLayoutProps) => {
   return (
-    <div className="flex min-h-screen flex-col bg-amber-50">
+    <div>
       <Header />
       <main className={`flex-grow pt-20`}>
         <PageTransition>{children || <Outlet />}</PageTransition>

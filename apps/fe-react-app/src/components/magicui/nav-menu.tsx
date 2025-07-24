@@ -3,6 +3,7 @@
 import { siteConfig } from "@/config/config";
 import { motion } from "motion/react";
 import React, { useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface NavItem {
   name: string;
@@ -18,6 +19,11 @@ export function NavMenu() {
   const [isReady, setIsReady] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [isManualScroll, setIsManualScroll] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check if we're on homepage
+  const isHomePage = location.pathname === "/" || location.pathname === "/home";
 
   React.useEffect(() => {
     // Initialize with first nav item
@@ -32,8 +38,8 @@ export function NavMenu() {
 
   React.useEffect(() => {
     const handleScroll = () => {
-      // Skip scroll handling during manual click scrolling
-      if (isManualScroll) return;
+      // Skip scroll handling during manual click scrolling or if not on homepage
+      if (isManualScroll || !isHomePage) return;
 
       const sections = navs.map((item) => item.href.substring(1));
 
@@ -66,41 +72,51 @@ export function NavMenu() {
     window.addEventListener("scroll", handleScroll);
     handleScroll(); // Initial check
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isManualScroll]);
+  }, [isManualScroll, isHomePage]);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
     e.preventDefault();
 
     const targetId = item.href.substring(1);
-    const element = document.getElementById(targetId);
 
-    if (element) {
-      // Set manual scroll flag
-      setIsManualScroll(true);
+    if (isHomePage) {
+      // If on homepage, scroll to section
+      const element = document.getElementById(targetId);
 
-      // Immediately update nav state
-      setActiveSection(targetId);
-      const navItem = e.currentTarget.parentElement;
-      if (navItem) {
-        const rect = navItem.getBoundingClientRect();
-        setLeft(navItem.offsetLeft);
-        setWidth(rect.width);
+      if (element) {
+        // Set manual scroll flag
+        setIsManualScroll(true);
+
+        // Immediately update nav state
+        setActiveSection(targetId);
+        const navItem = e.currentTarget.parentElement;
+        if (navItem) {
+          const rect = navItem.getBoundingClientRect();
+          setLeft(navItem.offsetLeft);
+          setWidth(rect.width);
+        }
+
+        // Calculate exact scroll position
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - 100; // 100px offset
+
+        // Smooth scroll to exact position
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+
+        // Reset manual scroll flag after animation completes
+        setTimeout(() => {
+          setIsManualScroll(false);
+        }, 500); // Adjust timing to match scroll animation duration
       }
-
-      // Calculate exact scroll position
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - 100; // 100px offset
-
-      // Smooth scroll to exact position
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
+    } else {
+      // If on other page, navigate to homepage with section info
+      navigate("/home", {
+        replace: false,
+        state: { scrollToSection: targetId },
       });
-
-      // Reset manual scroll flag after animation completes
-      setTimeout(() => {
-        setIsManualScroll(false);
-      }, 500); // Adjust timing to match scroll animation duration
     }
   };
 
@@ -111,7 +127,7 @@ export function NavMenu() {
           <li
             key={item.name}
             className={`z-10 flex h-full cursor-pointer items-center justify-center px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-              activeSection === item.href.substring(1) ? "text-primary" : "text-primary/60 hover:text-primary"
+              isHomePage && activeSection === item.href.substring(1) ? "text-primary" : "text-primary/60 hover:text-primary"
             } tracking-tight`}
           >
             <a href={item.href} onClick={(e) => handleClick(e, item)}>

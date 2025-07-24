@@ -1,6 +1,7 @@
 import ClickSpark from "@/components/Reactbits/reactbit-animations/ClickSpark/ClickSpark";
 import LazySection from "@/components/shared/LazySection";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import "./styles/HomePage.css";
 
 // Light components can be imported normally
@@ -28,6 +29,24 @@ const HeroSkeleton = () => (
 );
 
 const HomePage = () => {
+  const location = useLocation();
+
+  // Handle scrolling to section when navigated from other pages
+  useEffect(() => {
+    const scrollToSection = location.state?.scrollToSection;
+    if (scrollToSection) {
+      // Use setTimeout to ensure DOM is ready and sections are rendered
+      const timer = setTimeout(() => {
+        const element = document.getElementById(scrollToSection);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 500); // Increased timeout to ensure lazy-loaded sections are ready
+
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
+
   return (
     <div>
       <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>

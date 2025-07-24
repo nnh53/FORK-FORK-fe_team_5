@@ -9,7 +9,7 @@ import { cn } from "@/utils/utils";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion, useScroll } from "motion/react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const INITIAL_WIDTH = "70rem";
 const MAX_WIDTH = "800px";
@@ -56,9 +56,17 @@ export function Navbar() {
   const [hasScrolled, setHasScrolled] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check if we're on homepage
+  const isHomePage = location.pathname === "/" || location.pathname === "/home";
 
   useEffect(() => {
     const handleScroll = () => {
+      // Only track active section if we're on homepage
+      if (!isHomePage) return;
+
       const sections = siteConfig.nav.links.map((item) => item.href.substring(1));
 
       for (const section of sections) {
@@ -77,7 +85,7 @@ export function Navbar() {
     handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isHomePage]);
 
   useEffect(() => {
     const unsubscribe = scrollY.on("change", (latest) => {
@@ -88,6 +96,26 @@ export function Navbar() {
 
   const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
   const handleOverlayClick = () => setIsDrawerOpen(false);
+
+  // Handle navigation to sections
+  const handleSectionNavigation = (href: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    const sectionId = href.substring(1);
+
+    if (isHomePage) {
+      // If on homepage, just scroll to section
+      const element = document.getElementById(sectionId);
+      element?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // If on other page, navigate to homepage with section info
+      navigate("/home", {
+        replace: false,
+        state: { scrollToSection: sectionId },
+      });
+    }
+
+    setIsDrawerOpen(false);
+  };
 
   return (
     <header className={cn("sticky z-50 mx-4 flex justify-center transition-all duration-300 md:mx-0", hasScrolled ? "top-6" : "top-4 mx-0")}>
@@ -163,14 +191,9 @@ export function Navbar() {
                       <motion.li key={item.id} className="border-border border-b p-2.5 last:border-b-0" variants={drawerMenuVariants}>
                         <Link
                           to={item.href}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const element = document.getElementById(item.href.substring(1));
-                            element?.scrollIntoView({ behavior: "smooth" });
-                            setIsDrawerOpen(false);
-                          }}
+                          onClick={(e) => handleSectionNavigation(item.href, e)}
                           className={`hover:text-primary/80 underline-offset-4 transition-colors ${
-                            activeSection === item.href.substring(1) ? "text-primary font-medium" : "text-primary/60"
+                            isHomePage && activeSection === item.href.substring(1) ? "text-primary font-medium" : "text-primary/60"
                           }`}
                         >
                           {item.name}
