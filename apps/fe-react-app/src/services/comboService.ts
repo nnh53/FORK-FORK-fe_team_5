@@ -47,83 +47,24 @@ export const useUpdateCombo = () => {
 };
 
 /**
+ * Hook for updating combo snacks
+ */
+export const useUpdateComboSnacks = () => {
+  return $api.useMutation("put", "/combos/{id}");
+};
+
+/**
+ * Hook for updating combo price
+ */
+export const useUpdateComboPrice = () => {
+  return $api.useMutation("put", "/combos/{id}");
+};
+
+/**
  * Hook for deleting a combo
  */
 export const useDeleteCombo = () => {
   return $api.useMutation("delete", "/combos/{id}");
-};
-
-// ==================== COMBO-SNACK API HOOKS ====================
-
-/**
- * Hook for getting all combo-snacks
- */
-export const useComboSnacks = () => {
-  return $api.useQuery("get", "/combo-snacks", {});
-};
-
-/**
- * Hook for getting a combo-snack by id
- */
-export const useComboSnack = (id: number) => {
-  return $api.useQuery("get", "/combo-snacks/{id}", {
-    params: { path: { id } },
-  });
-};
-
-/**
- * Hook for creating a new combo-snack
- */
-export const useCreateComboSnack = () => {
-  return $api.useMutation("post", "/combo-snacks");
-};
-
-/**
- * Hook for updating a combo-snack
- */
-export const useUpdateComboSnack = () => {
-  return $api.useMutation("put", "/combo-snacks/{id}");
-};
-
-/**
- * Hook for deleting a combo-snack
- */
-export const useDeleteComboSnack = () => {
-  return $api.useMutation("delete", "/combo-snacks/{id}");
-};
-
-/**
- * Hook for getting all combo-snacks by snack id
- */
-export const useComboSnacksBySnackId = (snackId: number) => {
-  return $api.useQuery("get", "/combo-snacks/snack/{snackId}", {
-    params: { path: { snackId } },
-  });
-};
-
-/**
- * Hook for getting all combo-snacks by combo id
- */
-export const useComboSnacksByComboId = (comboId: number) => {
-  return $api.useQuery("get", "/combo-snacks/combo/{comboId}", {
-    params: { path: { comboId } },
-  });
-};
-
-/**
- * Hook for getting a combo-snack by combo and snack ids
- */
-export const useComboSnackByComboAndSnack = (comboId: number, snackId: number) => {
-  return $api.useQuery("get", "/combo-snacks/combo/{comboId}/snack/{snackId}", {
-    params: { path: { comboId, snackId } },
-  });
-};
-
-/**
- * Hook for deleting a combo-snack by combo and snack ids
- */
-export const useDeleteComboSnackByComboAndSnack = () => {
-  return $api.useMutation("delete", "/combo-snacks/combo/{comboId}/snack/{snackId}");
 };
 
 // ==================== TRANSFORM FUNCTIONS ====================
@@ -136,44 +77,23 @@ export const transformComboResponse = (comboResponse: ComboResponse): Combo => {
 
   let transformedSnacks: ComboSnack[] = [];
 
-  if (comboResponse.snacks && Array.isArray(comboResponse.snacks)) {
-    transformedSnacks = comboResponse.snacks.map((snackData) => {
-      return {
-        id: Number(snackData.id ?? 0),
-        // Quantity information isn't provided by the `combos` endpoint.
-        // Default to 1 so price calculations don't result in 0.
-        quantity: 1,
-        snackSizeId: undefined,
-        discountPercentage: undefined,
-        combo: {
-          id: Number(comboResponse.id),
-          name: String(comboResponse.name ?? ""),
-          description: String(comboResponse.description ?? ""),
-          status: comboResponse.status as ComboStatus,
-          img: String(comboResponse.img ?? ""),
-          snacks: [],
-        },
-        snack: {
-          id: Number(snackData.id),
-          category: snackData.category as "DRINK" | "FOOD",
-          name: String(snackData.name),
-          size: snackData.size as "SMALL" | "MEDIUM" | "LARGE",
-          flavor: String(snackData.flavor ?? ""),
-          price: Number(snackData.price),
-          description: String(snackData.description ?? ""),
-          img: String(snackData.img ?? ""),
-          status: snackData.status as "AVAILABLE" | "UNAVAILABLE",
-        },
-      };
-    });
+  if (comboResponse.comboSnacks && Array.isArray(comboResponse.comboSnacks)) {
+    transformedSnacks = comboResponse.comboSnacks.map((comboSnack) => ({
+      id: comboSnack.id,
+      quantity: comboSnack.quantity,
+      combo: comboSnack.combo as unknown as Combo,
+      snack: comboSnack.snack || createFallbackSnack(),
+    }));
   }
 
   return {
-    id: Number(comboResponse.id),
-    name: String(comboResponse.name ?? ""),
-    description: String(comboResponse.description ?? ""),
-    status: comboResponse.status as ComboStatus,
-    img: String(comboResponse.img ?? ""),
+    id: comboResponse.id,
+    name: comboResponse.name || "",
+    description: comboResponse.description || "",
+    status: (comboResponse.status as ComboStatus) || "AVAILABLE",
+    img: comboResponse.img || "",
+    price: comboResponse.price,
+    discount: comboResponse.discount,
     snacks: transformedSnacks,
   };
 };
@@ -210,16 +130,17 @@ export const transformComboSnackResponse = (comboSnackResponse: ComboSnackRespon
 
   let snackData: Snack;
   if (comboSnackResponse.snack && typeof comboSnackResponse.snack === "object") {
+    const snackObj = comboSnackResponse.snack as Record<string, any>;
     snackData = {
-      id: Number(comboSnackResponse.snack.id),
-      category: comboSnackResponse.snack.category as "DRINK" | "FOOD",
-      name: String(comboSnackResponse.snack.name),
-      size: comboSnackResponse.snack.size as "SMALL" | "MEDIUM" | "LARGE",
-      flavor: String(comboSnackResponse.snack.flavor ?? ""),
-      price: Number(comboSnackResponse.snack.price),
-      description: String(comboSnackResponse.snack.description ?? ""),
-      img: String(comboSnackResponse.snack.img ?? ""),
-      status: comboSnackResponse.snack.status as "AVAILABLE" | "UNAVAILABLE",
+      id: Number(snackObj.id || 0),
+      category: (snackObj.category || "FOOD") as "DRINK" | "FOOD",
+      name: String(snackObj.name || ""),
+      size: (snackObj.size || "MEDIUM") as "SMALL" | "MEDIUM" | "LARGE",
+      flavor: String(snackObj.flavor || ""),
+      price: Number(snackObj.price || 0),
+      description: String(snackObj.description || ""),
+      img: String(snackObj.img || ""),
+      status: (snackObj.status || "AVAILABLE") as "AVAILABLE" | "UNAVAILABLE",
     };
   } else {
     console.warn("Missing snack data in combo-snack response, using fallback", comboSnackResponse);
@@ -228,13 +149,16 @@ export const transformComboSnackResponse = (comboSnackResponse: ComboSnackRespon
 
   let comboData: Combo;
   if (comboSnackResponse.combo && typeof comboSnackResponse.combo === "object") {
+    const comboObj = comboSnackResponse.combo as Record<string, any>;
     comboData = {
-      id: Number(comboSnackResponse.combo.id),
-      name: String(comboSnackResponse.combo.name ?? ""),
-      description: String(comboSnackResponse.combo.description ?? ""),
-      status: comboSnackResponse.combo.status as ComboStatus,
-      img: String(comboSnackResponse.combo.img ?? ""),
+      id: Number(comboObj.id || 0),
+      name: String(comboObj.name || ""),
+      description: String(comboObj.description || ""),
+      status: (comboObj.status || "AVAILABLE") as ComboStatus,
+      img: String(comboObj.img || ""),
       snacks: [],
+      price: Number(comboObj.price || 0),
+      discount: Number(comboObj.discount || 0),
     };
   } else {
     comboData = {
@@ -244,14 +168,14 @@ export const transformComboSnackResponse = (comboSnackResponse: ComboSnackRespon
       status: "AVAILABLE",
       img: "",
       snacks: [],
+      price: 0,
+      discount: 0,
     };
   }
 
   return {
     id: Number(comboSnackResponse.id),
     quantity: Number(comboSnackResponse.quantity || 1),
-    snackSizeId: comboSnackResponse.snackSizeId,
-    discountPercentage: comboSnackResponse.discountPercentage,
     combo: comboData,
     snack: snackData,
   };
@@ -273,6 +197,25 @@ export const transformComboToRequest = (combo: Combo | ComboForm) => {
     description: combo.description,
     status: combo.status,
     img: combo.img,
+    price: combo.price,
+    discount: combo.discount,
+    snacks: combo.snacks
+      ? combo.snacks.map((s) => {
+          if ("snack" in s && s.snack) {
+            return {
+              snackId: typeof s.snack.id === "number" ? s.snack.id : 0,
+              quantity: s.quantity ?? 1,
+            };
+          } else if ("snackId" in s) {
+            return {
+              snackId: typeof s.snackId === "number" ? s.snackId : 0,
+              quantity: s.quantity ?? 1,
+            };
+          }
+          // Fallback (should not happen in practice)
+          return { snackId: 0, quantity: 1 };
+        })
+      : [],
   };
 };
 
@@ -280,10 +223,7 @@ export const transformComboToRequest = (combo: Combo | ComboForm) => {
  * Transform a request to add snacks to a combo
  */
 export const transformAddSnacksToComboRequest = (snacks: Array<{ snackId: number; quantity: number }>) => {
-  return snacks.map((snack) => ({
-    snackId: snack.snackId,
-    quantity: snack.quantity,
-  }));
+  return snacks;
 };
 
 /**
@@ -322,78 +262,38 @@ export const getComboStatusLabel = (status: ComboStatus): string => {
 };
 
 /**
- * Calculate the total price of a combo based on its snacks
+ * Calculate the total price of a combo based on its price and discount
  */
 export const calculateComboPrice = (combo: Combo): number => {
-  if (!combo.snacks || combo.snacks.length === 0) return 0;
+  if (!combo.price) return 0;
 
-  console.log(
-    `Calculating price for combo ${combo.id} with ${combo.snacks.length} snacks:`,
-    (combo.snacks as ComboSnack[]).map((s) => ({
-      id: s.snack?.id,
-      name: s.snack?.name,
-      price: s.snack?.price,
-      quantity: s.quantity,
-    })),
-  );
+  const price = combo.price || 0;
+  const discount = combo.discount || 0;
 
-  return combo.snacks.reduce((total, comboSnack) => {
-    const basePrice = comboSnack.snack?.price ?? 0;
-    const quantity = comboSnack.quantity || 1;
-    const discountPercentage = comboSnack.discountPercentage ?? 0;
-    const discountedPrice = basePrice * (1 - discountPercentage / 100);
-    const itemTotal = discountedPrice * quantity;
-
-    console.log(
-      `Combo ${combo.id} - Snack ${comboSnack.snack?.name}: price=${basePrice}, quantity=${quantity}, discount=${discountPercentage}%, itemTotal=${itemTotal}`,
-    );
-
-    return total + itemTotal;
-  }, 0);
+  return price - discount;
 };
 
 /**
- * Calculate the total price of a combo based on provided combo-snacks data
- */
-export const calculateComboPriceWithQuantity = (comboSnacks: ComboSnack[]): number => {
-  if (!comboSnacks || comboSnacks.length === 0) return 0;
-
-  console.log(
-    `Calculating price with ${comboSnacks.length} snacks:`,
-    (comboSnacks as ComboSnack[]).map((s) => ({
-      id: s.snack?.id,
-      name: s.snack?.name,
-      price: s.snack?.price,
-      quantity: s.quantity,
-    })),
-  );
-
-  return comboSnacks.reduce((total, comboSnack) => {
-    const basePrice = comboSnack.snack?.price ?? 0;
-    const quantity = comboSnack.quantity || 1;
-    const discountPercentage = comboSnack.discountPercentage ?? 0;
-    const discountedPrice = basePrice * (1 - discountPercentage / 100);
-    const itemTotal = discountedPrice * quantity;
-
-    console.log(`Snack ${comboSnack.snack?.name}: price=${basePrice}, quantity=${quantity}, discount=${discountPercentage}%, itemTotal=${itemTotal}`);
-
-    return total + itemTotal;
-  }, 0);
-};
-
-/**
- * Custom hook to fetch combo-snacks and calculate the total price
+ * Custom hook to fetch combo price
  */
 export const useComboPrice = (comboId: number) => {
-  const { data, isLoading, error } = useComboSnacksByComboId(comboId);
+  const { data, isLoading, error } = useCombos();
 
-  let resultData: ComboSnackResponse[] = [];
+  let combo = null;
+
   if (data?.result) {
-    resultData = Array.isArray(data.result) ? data.result : [data.result];
+    if (Array.isArray(data.result)) {
+      combo = data.result.find((c: any) => c.id === comboId);
+    } else if (typeof data.result === "object") {
+      const resultObj = data.result as Record<string, any>;
+      if ("id" in resultObj && resultObj.id === comboId) {
+        combo = resultObj;
+      }
+    }
   }
 
-  const comboSnacks = data?.result ? transformComboSnacksResponse(resultData) : [];
-  const totalPrice = calculateComboPriceWithQuantity(comboSnacks);
+  const totalPrice = combo ? (combo.price || 0) - (combo.discount || 0) : 0;
+
   return {
     totalPrice,
     isLoading,
@@ -406,63 +306,4 @@ export const useComboPrice = (comboId: number) => {
  */
 export const formatPrice = (price: number): string => {
   return formatVND(price);
-};
-
-/**
- * Hàm để tải dữ liệu combo-snacks cho một danh sách combo
- */
-export const loadCombosWithAccurateQuantity = async (combos: Combo[]): Promise<Combo[]> => {
-  try {
-    const updatedCombosPromises = combos.map((combo) => fetchAndUpdateComboSnacksQuantity(combo));
-    const updatedCombos = await Promise.all(updatedCombosPromises);
-    console.log("Loaded all combos with accurate quantities:", updatedCombos);
-    return updatedCombos;
-  } catch (error) {
-    console.error("Error loading combos with accurate quantities:", error);
-    return combos;
-  }
-};
-
-/**
- * Helper function to fetch and update combo with accurate quantity information
- */
-export const fetchAndUpdateComboSnacksQuantity = async (combo: Combo): Promise<Combo> => {
-  try {
-    const comboId = combo.id;
-    const response = await fetch(`/api/combo-snacks/combo/${comboId}`);
-    const responseData = await response.json();
-
-    if (responseData?.result) {
-      const comboSnacksData = Array.isArray(responseData.result) ? responseData.result : [responseData.result];
-      const comboSnacks = transformComboSnacksResponse(comboSnacksData);
-
-      const snackQuantityMap = new Map<number, number>();
-      comboSnacks.forEach((cs) => {
-        const id = cs.snack?.id;
-        if (typeof id === "number") {
-          snackQuantityMap.set(id, cs.quantity ?? 1);
-        }
-      });
-
-      const updatedSnacks = combo.snacks.map((comboSnack) => {
-        const snackId = comboSnack.snack?.id;
-        if (typeof snackId === "number" && snackQuantityMap.has(snackId)) {
-          return {
-            ...comboSnack,
-            quantity: snackQuantityMap.get(snackId) ?? 1,
-          };
-        }
-        return comboSnack;
-      });
-
-      return {
-        ...combo,
-        snacks: updatedSnacks,
-      };
-    }
-  } catch (error) {
-    console.error("Error fetching combo-snacks:", error);
-  }
-
-  return combo;
 };

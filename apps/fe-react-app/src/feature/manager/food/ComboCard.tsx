@@ -2,7 +2,7 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Combo } from "@/interfaces/combo.interface";
-import { formatPrice, getComboStatusLabel, useComboPrice, type ComboStatus } from "@/services/comboService";
+import { formatPrice, getComboStatusLabel, type ComboStatus } from "@/services/comboService";
 import { cn } from "@/utils/utils";
 import { Edit, Eye, Trash, Utensils } from "lucide-react";
 
@@ -15,16 +15,13 @@ interface ComboCardProps {
 }
 
 const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDetails, viewMode = "grid" }) => {
-  const { totalPrice, isLoading, error } = useComboPrice(combo.id ?? 0);
-
   const getDisplayPrice = () => {
-    if (isLoading) {
-      return "Đang tải...";
+    if (!combo.price) {
+      return "Chưa cập nhật";
     }
-    if (error) {
-      return "Lỗi";
-    }
-    return formatPrice(totalPrice);
+
+    const finalPrice = (combo.price || 0) - (combo.discount || 0);
+    return formatPrice(finalPrice);
   };
 
   const StatusBadge = () => {

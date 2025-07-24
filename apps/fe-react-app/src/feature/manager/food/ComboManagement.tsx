@@ -20,17 +20,13 @@ import {
   comboStatusOptions,
   createFallbackSnack,
   transformComboResponse,
-  transformComboSnackToRequest,
-  transformComboSnacksResponse,
   transformComboToRequest,
   useAddSnacksToCombo,
-  useComboSnacksByComboId,
   useCombos,
   useCreateCombo,
   useDeleteCombo,
-  useDeleteComboSnackByComboAndSnack,
+  useRemoveSnacksFromCombo,
   useUpdateCombo,
-  useUpdateComboSnack,
 } from "@/services/comboService";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -75,10 +71,8 @@ const ComboManagement: React.FC = () => {
   const createComboMutation = useCreateCombo();
   const updateComboMutation = useUpdateCombo();
   const deleteComboMutation = useDeleteCombo();
-  const updateComboSnackMutation = useUpdateComboSnack();
   const addSnacksToComboMutation = useAddSnacksToCombo();
-  const deleteComboSnackByComboAndSnackMutation = useDeleteComboSnackByComboAndSnack();
-  const comboSnacksQuery = useComboSnacksByComboId(selectedComboIdForDetails ?? 0);
+  const removeSnacksFromComboMutation = useRemoveSnacksFromCombo();
 
   // Sử dụng useMutationHandler để xử lý mutation
   useMutationHandler(
@@ -114,20 +108,15 @@ const ComboManagement: React.FC = () => {
     combosQuery.refetch,
   );
 
-  useMutationHandler(addSnacksToComboMutation, "Đã thêm thực phẩm vào combo", "Lỗi khi thêm thực phẩm vào combo", undefined, [
-    "get",
-    "/combo-snacks/combo/{comboId}",
-  ]);
+  useMutationHandler(addSnacksToComboMutation, "Đã thêm thực phẩm vào combo", "Lỗi khi thêm thực phẩm vào combo", undefined, combosQuery.refetch);
 
-  useMutationHandler(updateComboSnackMutation, "Đã cập nhật thực phẩm trong combo", "Lỗi khi cập nhật thực phẩm trong combo", undefined, [
-    "get",
-    "/combo-snacks/combo/{comboId}",
-  ]);
-
-  useMutationHandler(deleteComboSnackByComboAndSnackMutation, "Đã xóa thực phẩm khỏi combo", "Lỗi khi xóa thực phẩm khỏi combo", undefined, [
-    "get",
-    "/combo-snacks/combo/{comboId}",
-  ]);
+  useMutationHandler(
+    removeSnacksFromComboMutation,
+    "Đã xóa thực phẩm khỏi combo",
+    "Lỗi khi xóa thực phẩm khỏi combo",
+    undefined,
+    combosQuery.refetch,
+  );
 
   // Xử lý dữ liệu combos từ API
   useEffect(() => {
@@ -139,30 +128,16 @@ const ComboManagement: React.FC = () => {
     }
   }, [combosQuery.data]);
 
-  // Xử lý cập nhật chi tiết combo
+  // Xử lý cập nhật chi tiết combo khi combos thay đổi
   useEffect(() => {
-    if (!selectedComboIdForDetails || !comboSnacksQuery.data?.result || !detailsCombo) return;
+    if (!detailsCombo || !selectedComboIdForDetails) return;
 
-    const comboSnacksData = Array.isArray(comboSnacksQuery.data.result) ? comboSnacksQuery.data.result : [comboSnacksQuery.data.result];
-    const comboSnacks = transformComboSnacksResponse(comboSnacksData);
+    const combo = combos.find((c) => c.id === selectedComboIdForDetails);
+    if (!combo) return;
 
-    const updatedSnacks = detailsCombo.snacks.map((snack) => {
-      const updatedSnack = comboSnacks.find((cs) => cs.snack?.id === snack.snack?.id);
-      return updatedSnack
-        ? {
-            ...snack,
-            id: updatedSnack.id,
-            quantity: updatedSnack.quantity,
-            snackSizeId: updatedSnack.snackSizeId,
-            discountPercentage: updatedSnack.discountPercentage,
-          }
-        : snack;
-    });
-
-    if (JSON.stringify(detailsCombo.snacks) !== JSON.stringify(updatedSnacks)) {
-      setDetailsCombo({ ...detailsCombo, snacks: updatedSnacks });
-    }
-  }, [comboSnacksQuery.data, selectedComboIdForDetails, detailsCombo]);
+    // Cập nhật chi tiết combo khi dữ liệu gốc thay đổi
+    setDetailsCombo(combo);
+  }, [combos, selectedComboIdForDetails, detailsCombo]);
 
   // Cập nhật UI khi dữ liệu comboSnacks thay đổi hoặc combo được refetch
   useEffect(() => {
@@ -274,13 +249,34 @@ const ComboManagement: React.FC = () => {
   const handleFormSubmit = useCallback(
     (data: ComboFormData) => {
       if (selectedCombo) {
+        // Explicitly cast the combo data to ensure type safety
+        const updatedCombo: Combo = {
+          ...selectedCombo,
+          ...data,
+          snacks: data.snacks.map((s) => ({
+            id: typeof s.id === "number" ? s.id : undefined,
+            quantity: s.quantity || 1,
+            snack: s.snack,
+          })),
+        };
+
         updateComboMutation.mutate({
           params: { path: { id: selectedCombo.id ?? 0 } },
-          body: transformComboToRequest({ ...selectedCombo, ...data }),
+          body: transformComboToRequest(updatedCombo),
         });
       } else {
+        // Explicitly cast the new combo data to ensure type safety
+        const newCombo: Combo = {
+          ...data,
+          snacks: data.snacks.map((s) => ({
+            id: typeof s.id === "number" ? s.id : undefined,
+            quantity: s.quantity || 1,
+            snack: s.snack,
+          })),
+        };
+
         createComboMutation.mutate({
-          body: transformComboToRequest(data),
+          body: transformComboToRequest(newCombo),
         });
       }
     },
@@ -296,18 +292,23 @@ const ComboManagement: React.FC = () => {
         return;
       }
 
+      // Optimistically update UI
       setDetailsCombo((prev) => (prev ? { ...prev, snacks: prev.snacks.filter((s) => s.id !== comboSnackId) } : null));
-      deleteComboSnackByComboAndSnackMutation.mutate({
-        params: { path: { comboId: detailsCombo.id ?? 0, snackId: comboSnackToDelete.snack.id } },
+
+      // Call API to update the combo with the snack removed
+      removeSnacksFromComboMutation.mutate({
+        params: { path: { comboId: detailsCombo.id ?? 0 } },
+        body: [comboSnackToDelete.snack.id],
       });
     },
-    [detailsCombo, deleteComboSnackByComboAndSnackMutation],
+    [detailsCombo, removeSnacksFromComboMutation],
   );
 
   const handleUpdateSnack = useCallback(
     (comboSnack: ComboSnack) => {
       if (!detailsCombo) return;
 
+      // Optimistically update UI
       setDetailsCombo((prev) =>
         prev
           ? {
@@ -317,30 +318,40 @@ const ComboManagement: React.FC = () => {
           : null,
       );
 
-      const requestBody = transformComboSnackToRequest(comboSnack);
-      updateComboSnackMutation.mutate({
-        params: { path: { id: comboSnack.id ?? 0 } },
-        body: requestBody,
+      // Update the combo with updated snack quantities
+      updateComboMutation.mutate({
+        params: { path: { id: detailsCombo.id ?? 0 } },
+        body: {
+          status: detailsCombo.status,
+          snacks: [
+            {
+              snackId: comboSnack.snack?.id ?? 0,
+              quantity: comboSnack.quantity ?? 1,
+            },
+          ],
+        },
       });
     },
-    [detailsCombo, updateComboSnackMutation],
+    [detailsCombo, updateComboMutation],
   );
 
   const handleAddSnack = useCallback(
     (newComboSnack: Partial<ComboSnack>) => {
       if (!detailsCombo || !newComboSnack.snack?.id) return;
 
+      // Create a temporary snack for optimistic UI update
       const tempId = -Date.now();
       const tempComboSnack: ComboSnack = {
         id: tempId,
         combo: detailsCombo,
         snack: newComboSnack.snack,
         quantity: newComboSnack.quantity ?? 1,
-        snackSizeId: newComboSnack.snackSizeId ?? undefined,
-        discountPercentage: newComboSnack.discountPercentage ?? 0,
       };
 
+      // Update UI optimistically
       setDetailsCombo((prev) => (prev ? { ...prev, snacks: [...prev.snacks, tempComboSnack] } : prev));
+
+      // Add snack to combo via API
       addSnacksToComboMutation.mutate({
         params: { path: { comboId: detailsCombo.id ?? 0 } },
         body: [{ snackId: newComboSnack.snack.id, quantity: newComboSnack.quantity ?? 1 }],

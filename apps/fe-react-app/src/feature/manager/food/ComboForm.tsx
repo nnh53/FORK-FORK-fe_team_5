@@ -25,6 +25,8 @@ const formSchema = z.object({
   name: z.string().min(1, "Tên combo là bắt buộc"),
   description: z.string().min(1, "Mô tả là bắt buộc"),
   status: z.enum(["AVAILABLE", "UNAVAILABLE"], { required_error: "Trạng thái là bắt buộc" }),
+  price: z.number().min(0, "Giá không được âm"),
+  discount: z.number().min(0, "Giảm giá không được âm"),
 });
 
 const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
@@ -35,6 +37,8 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
       name: "",
       description: "",
       status: "AVAILABLE",
+      price: 0,
+      discount: 0,
     },
   });
 
@@ -48,6 +52,8 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
           name: combo.name,
           description: combo.description,
           status: combo.status as "AVAILABLE" | "UNAVAILABLE" | undefined,
+          price: combo.price || 0,
+          discount: combo.discount || 0,
         });
       }, 0);
     } else {
@@ -56,6 +62,8 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
         name: "",
         description: "",
         status: "AVAILABLE",
+        price: 0,
+        discount: 0,
       });
     }
   }, [combo, form]);
@@ -140,6 +148,48 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
                       </FormItem>
                     )}
                   />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Giá (VND)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Nhập giá combo"
+                              {...field}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                              value={field.value}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="discount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Giảm giá (VND)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Nhập giảm giá"
+                              {...field}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                              value={field.value}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <FormField
                     control={form.control}

@@ -6,7 +6,7 @@ import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from "@
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { type Combo, type ComboSnack } from "@/interfaces/combo.interface";
 import { type Snack } from "@/interfaces/snacks.interface";
-import { calculateComboPrice, getComboStatusLabel, type ComboStatus } from "@/services/comboService";
+import { getComboStatusLabel, type ComboStatus } from "@/services/comboService";
 import { formatVND } from "@/utils/currency.utils";
 import { Icon } from "@iconify/react";
 import { Edit, ShoppingBag, Utensils, X } from "lucide-react";
@@ -46,7 +46,7 @@ const SnackGrid = ({ snacks }: { snacks: ComboSnack[] }) => {
           // Chỉ sử dụng fallback nếu thực sự không có dữ liệu snack
           const snackData = comboSnack.snack && Object.keys(comboSnack.snack).length > 0 ? comboSnack.snack : createFallbackSnack();
           return (
-            <CarouselItem key={comboSnack.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+            <CarouselItem key={comboSnack.id} className="basis-full sm:basis-1/2 md:basis-1/2 lg:basis-1/3">
               <div className="p-1">
                 <SnackCard snack={snackData} viewMode="grid" />
               </div>
@@ -72,7 +72,6 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
     setDisplayCombo({ ...combo });
   }, [combo, combo.snacks]); // Thêm combo.snacks vào dependency để cập nhật khi snacks thay đổi
 
-  const totalPrice = calculateComboPrice(displayCombo);
   const statusLabel = getComboStatusLabel(displayCombo.status as ComboStatus);
 
   const handleEditSnacks = () => {
@@ -134,7 +133,7 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
               <h3 className="text-lg font-semibold">Danh sách thực phẩm trong combo ({displayCombo.snacks?.length || 0})</h3>
             </div>
             <div className="flex items-center gap-2">
-              <div className="text-primary font-medium">Tổng giá: {formatVND(totalPrice)}</div>
+              <div className="text-primary font-medium">Tổng giá: {formatVND((displayCombo.price || 0) - (displayCombo.discount || 0))}</div>
               {onAddSnack && onUpdateSnack && (
                 <Button variant="outline" size="sm" onClick={handleEditSnacks}>
                   <Edit className="mr-1 h-4 w-4" />

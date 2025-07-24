@@ -28,8 +28,6 @@ interface ComboDetailFormProps {
 const comboSnackFormSchema = z.object({
   snackId: z.number({ required_error: "Vui lòng chọn thực phẩm" }),
   quantity: z.number().min(1, "Số lượng tối thiểu là 1"),
-  snackSizeId: z.number().nullable(),
-  discountPercentage: z.number().min(0, "Giảm giá không được âm").max(100, "Giảm giá tối đa 100%").nullable(),
 });
 
 const SnackInfo: React.FC<{ snack: Snack }> = ({ snack }) => (
@@ -106,13 +104,13 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
 
   const form = useForm<z.infer<typeof comboSnackFormSchema>>({
     resolver: zodResolver(comboSnackFormSchema),
-    defaultValues: { snackId: 0, quantity: 1, snackSizeId: null, discountPercentage: 0 },
+    defaultValues: { snackId: 0, quantity: 1 },
   });
 
   const handleAddNewSnack = () => {
     setIsAddingSnack(true);
     setSelectedComboSnack(null);
-    form.reset({ snackId: 0, quantity: 1, snackSizeId: null, discountPercentage: 0 });
+    form.reset({ snackId: 0, quantity: 1 });
   };
 
   const handleEditSnack = (comboSnack: ComboSnack) => {
@@ -121,8 +119,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
     form.reset({
       snackId: comboSnack.snack?.id || 0,
       quantity: comboSnack.quantity || 1,
-      snackSizeId: comboSnack.snackSizeId,
-      discountPercentage: comboSnack.discountPercentage,
     });
   };
 
@@ -136,8 +132,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       const updatedComboSnack: ComboSnack = {
         ...selectedComboSnack,
         quantity: values.quantity,
-        snackSizeId: values.snackSizeId ?? undefined,
-        discountPercentage: values.discountPercentage ?? undefined,
       };
       onUpdateSnack(updatedComboSnack);
     } else if (onAddSnack) {
@@ -145,8 +139,6 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
       if (selectedSnack) {
         const newComboSnack: Partial<ComboSnack> = {
           quantity: values.quantity,
-          snackSizeId: values.snackSizeId ?? undefined,
-          discountPercentage: values.discountPercentage ?? undefined,
           snack: selectedSnack,
           combo,
         };
@@ -240,7 +232,7 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
                                       />
                                     </div>
                                     <select
-                                      className="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                      className="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                                       value={selectedCategory}
                                       onChange={(e) => {
                                         setSelectedCategory(e.target.value);
