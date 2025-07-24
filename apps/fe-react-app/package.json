@@ -5,12 +5,12 @@
   "type": "module",
   "main": "./vite.config.js",
   "scripts": {
+    "cy:component": "cypress open --component",
+    "cy:e2e": "cypress open --e2e",
+    "cy:open": "cypress open ",
     "generate-schema": "pnpm exec openapi-typescript https://fcinema-spring-ujhbb.ondigitalocean.app/movie_theater/v3/api-docs -o ./schema-from-be.d.ts",
     "preview": "pnpm exec nx run @fcinema-workspace/fe-react-app:build && vite preview",
-    "test:ui": "vitest --ui",
-    "cy:open": "cypress open ",
-    "cy:component": "cypress open --component",
-    "cy:e2e": "cypress open --e2e"
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

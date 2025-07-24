@@ -109,7 +109,7 @@ const Login: React.FC = () => {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mật khẩu</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <PasswordInput id="password" placeholder="Nhập mật khẩu" {...field} />
                 </FormControl>
