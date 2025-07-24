@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 // ***********************************************************
 // This example support/component.ts is processed and
 // loaded automatically before your test files.
@@ -14,7 +15,7 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import "./commands";
+import "./commands.ts";
 
 import { mount } from "cypress/react";
 
@@ -23,15 +24,18 @@ import { mount } from "cypress/react";
 // Alternatively, can be defined in cypress/support/component.d.ts
 // with a <reference path="./component" /> at the top of your spec.
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace cypress {
+  namespace Cypress {
     interface Chainable {
       mount: typeof mount;
     }
   }
 }
 
-Cypress.Commands.add("mount", mount);
+Cypress.Commands.add("mount", (component, options) => {
+  // Wrap any parent components needed
+  // ie: return mount(<MyProvider>{component}</MyProvider>, options)
+  return mount(component, options);
+});
 
 // Example use:
-// cy.mount(<MyComponent />)
+// cy.mount(<LoginDTO />)

@@ -59,7 +59,7 @@
     "src/**/*.spec.jsx",
     "src/**/*.d.ts",
     "cypress.config.mjs",
-    "cypress.config.js",
+    "cypress.config.mjs",
     "test/**/*",
     "*.cy.*",
     "**/*.cy.ts",

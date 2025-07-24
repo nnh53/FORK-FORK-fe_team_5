@@ -18,8 +18,8 @@ export default defineConfig({
       ciBaseUrl: "http://localhost:5173",
     }),
     baseUrl: "http://localhost:5173",
-    specPattern: ["./test/src/**/*.cy.{js,jsx,ts,tsx}"],
-    supportFile: "./test/src/support/e2e.{js,jsx,ts,tsx}",
+    specPattern: ["./test/src/e2e/*.cy.{ts,tsx}"],
+    supportFile: "./test/src/support/e2e.{ts,tsx}",
   },
 
   // component: nxComponentTestingPreset(__filename, {
@@ -30,11 +30,11 @@ export default defineConfig({
     devServer: {
       framework: "react",
       bundler: "vite",
-      viteConfig: {
-        ...config,
-      },
+      // viteConfig: {
+      //   ...config,
+      // },
     },
-    specPattern: ["./src/**/*.cy.{js,jsx,ts,tsx}"],
-    supportFile: "./test/src/support/component.{js,jsx,ts,tsx}",
+    specPattern: ["./src/**/*.cy.{ts,tsx}"],
+    // supportFile: "./test/src/support/component.{js,jsx,ts,tsx}",
   },
 });
