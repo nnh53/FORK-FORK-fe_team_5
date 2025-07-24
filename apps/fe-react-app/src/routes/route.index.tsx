@@ -21,6 +21,7 @@ import MemberManagement from "@/feature/manager/member/MemberManagement.tsx";
 import MovieManagement from "@/feature/manager/movie/MovieManagement";
 import { MovieCategoryManagement } from "@/feature/manager/movie/settings";
 import { PromotionManagement } from "@/feature/manager/promotion/PromotionManagement";
+import SeatTypeAdminPage from "@/feature/manager/SeatTypeAdminPage";
 import { ShowtimeManagement } from "@/feature/manager/show-time";
 import SpotlightManagement from "@/feature/manager/spotlight/SpotlightManagement";
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
@@ -121,6 +122,7 @@ export const AppRoutes = () => (
           <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />
           <Route path="cinema-room/add" element={<CinemaRoomAdd />} />
           <Route path="cinema-room/edit/:id" element={<CinemaRoomEdit />} />
+          <Route path="seat-types" element={<SeatTypeAdminPage />} />
           <Route path="promotion" element={<PromotionManagement />} />
           <Route path="members" element={<MemberManagement />} />
           <Route path="showtime" element={<ShowtimeManagement />} />

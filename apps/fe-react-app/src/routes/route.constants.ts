@@ -56,6 +56,7 @@ export const ROUTES = {
     CINEMA_ROOM_EDIT: "/admin/cinema-room/edit/:id",
     SHOWTIME: "/admin/showtime",
     SEAT: "/admin/seat",
+    SEAT_TYPES: "/admin/seat-types",
     TICKET: "/admin/ticket",
     PROMOTION: "/admin/promotion",
     MEMBERS: "/admin/members",

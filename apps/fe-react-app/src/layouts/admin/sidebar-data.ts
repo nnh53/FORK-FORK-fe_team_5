@@ -1,4 +1,5 @@
 import {
+  Armchair,
   Building,
   CalendarClock,
   Clapperboard,
@@ -56,8 +57,20 @@ export const sidebarData = {
     },
     {
       title: "Cinema Rooms",
-      url: "/admin/cinema-room",
+      url: "#",
       icon: Building,
+      items: [
+        {
+          title: "Rooms",
+          url: "/admin/cinema-room",
+          icon: Building,
+        },
+        {
+          title: "Seat Types",
+          url: "/admin/seat-types",
+          icon: Armchair,
+        },
+      ],
     },
     {
       title: "Showtimes",
