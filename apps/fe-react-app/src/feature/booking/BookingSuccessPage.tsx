@@ -171,7 +171,7 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, 
             </div>
             <div>
               <p className="text-sm text-gray-500">Trạng thái</p>
-              <p className="font-semibold capitalize text-green-600">{booking.status}</p>
+              <p className="font-semibold text-green-600 capitalize">{booking.status}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Ghế ngồi</p>
@@ -247,8 +247,8 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, 
             {/* Combos */}
 
             {booking.bookingCombos?.map((bookingCombo, index) => {
-              // Calculate combo price from snacks
-              const comboPrice = bookingCombo.combo?.snacks?.reduce((total: number, snack: { price?: number }) => total + (snack.price || 0), 0) || 0;
+              // Use combo price directly from API
+              const comboPrice = bookingCombo.combo?.price || 0;
               const totalPrice = comboPrice * (bookingCombo.quantity || 1);
 
               return (

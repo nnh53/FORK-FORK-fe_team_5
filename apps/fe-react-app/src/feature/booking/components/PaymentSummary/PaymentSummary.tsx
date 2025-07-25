@@ -44,18 +44,26 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
 
   return (
     <div className="space-y-2 border-t pt-4">
-      <div className="flex justify-between text-sm">
-        <span className="text-gray-600">Tổng tiền vé:</span>
-        <span className="font-semibold">{formatVND(ticketCost)}</span>
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className="text-gray-600">Tổng tiền combo:</span>
-        <span className="font-semibold">{formatVND(comboCost)}</span>
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className="text-gray-600">Tổng tiền snack:</span>
-        <span className="font-semibold">{formatVND(snackCost)}</span>
-      </div>
+      {ticketCost > 0 && (
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Tổng tiền vé:</span>
+          <span className="font-semibold">{formatVND(ticketCost)}</span>
+        </div>
+      )}
+
+      {comboCost > 0 && (
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Tổng tiền combo:</span>
+          <span className="font-semibold">{formatVND(comboCost)}</span>
+        </div>
+      )}
+
+      {snackCost > 0 && (
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Tổng tiền snack:</span>
+          <span className="font-semibold">{formatVND(snackCost)}</span>
+        </div>
+      )}
 
       {/* Subtotal */}
       {totalDiscount > 0 && (

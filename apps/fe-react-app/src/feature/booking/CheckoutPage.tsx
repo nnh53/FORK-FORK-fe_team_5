@@ -1,13 +1,14 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
 import DiscountSection from "@/components/shared/DiscountSection.tsx";
 import { useAuth } from "@/hooks/useAuth";
-import type { PaymentMethod, BookingRequest } from "@/interfaces/booking.interface.ts";
+import type { BookingRequest, PaymentMethod } from "@/interfaces/booking.interface.ts";
+import type { Combo } from "@/interfaces/combo.interface";
 import type { Member } from "@/interfaces/member.interface.ts";
 import type { Promotion } from "@/interfaces/promotion.interface.ts";
 import { ROUTES } from "@/routes/route.constants.ts";
 import { useCreateBooking } from "@/services/bookingService";
+import { useCinemaRoom } from "@/services/cinemaRoomService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
-import type { Combo, ComboSnack } from "@/interfaces/combo.interface";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import { useGetUserById } from "@/services/userService";
@@ -23,58 +24,26 @@ import PaymentSummary from "./components/PaymentSummary/PaymentSummary.tsx";
 import PromotionSelection from "./components/PromotionSelection/PromotionSelection.tsx";
 import SnackList from "./components/SnackList/SnackList.tsx";
 
-// Helper function to calculate combo price
+// Interface for selected seat with price information from BookingPage
+interface SelectedSeatWithPrice {
+  id: string;
+  row: string;
+  number: number;
+  name: string;
+  type: "standard" | "vip" | "double";
+  price: number;
+  status: "selected";
+}
 
+// Helper function to get combo price - now uses direct price from API
 const calculateComboPrice = (combo: Combo): number => {
-  let comboPrice = 0;
-
-  if (combo.snacks && Array.isArray(combo.snacks) && combo.snacks.length > 0) {
-
-    comboPrice = combo.snacks.reduce((snackTotal: number, comboSnack: ComboSnack) => {
-      const snackPrice = comboSnack.snack?.price || 0;
-      // Use the actual quantity from ComboSnack, or default to 1 if it's 0 or undefined
-      let snackQuantity = comboSnack.quantity;
-
-      // Fallback logic: if quantity is 0 or undefined, use default quantities based on snack type
-      if (!snackQuantity || snackQuantity === 0) {
-        // Default quantity is 1 for all items in combo
-        snackQuantity = 1;
-      }
-
-      return snackTotal + snackPrice * snackQuantity;
-    }, 0);
+  // Use the price directly from the combo API response
+  console.log("Calculating price for combo:", combo.name, "with ID:", combo.id);
+  if (combo.price && combo.price > 0) {
+    return combo.price;
   }
 
-  // Fallback: if combo price is still 0, use a reasonable default based on combo name
-  if (comboPrice === 0) {
-    // Estimate price based on number of snacks and their average price
-    if (combo.snacks && combo.snacks.length > 0) {
-      // Calculate average snack price and multiply by number of snacks
-
-      const avgSnackPrice =
-        combo.snacks.reduce((sum: number, cs: ComboSnack) => sum + (cs.snack?.price || 0), 0) /
-        combo.snacks.length;
-      comboPrice = avgSnackPrice * combo.snacks.length;
-    }
-
-    // If still 0, use default based on combo name
-    if (comboPrice === 0 && combo.name) {
-      const comboNameLower = combo.name.toLowerCase();
-      if (comboNameLower.includes("couple") || comboNameLower.includes("đôi")) {
-        comboPrice = 120000; // Default price for couple combo
-      } else if (comboNameLower.includes("family") || comboNameLower.includes("gia đình")) {
-        comboPrice = 200000; // Default price for family combo
-      } else if (comboNameLower.includes("sweet") || comboNameLower.includes("ngọt")) {
-        comboPrice = 80000; // Default price for sweet combo
-      } else {
-        comboPrice = 100000; // Default combo price
-      }
-    }
-
-    console.warn(`Using fallback price calculation for combo ${combo.name}: ${comboPrice} VND`);
-  }
-
-  return comboPrice;
+  return 0;
 };
 
 const CheckoutPage: React.FC = () => {
@@ -215,7 +184,47 @@ const CheckoutPage: React.FC = () => {
     }
   }, [location.state]);
 
-  const { movie, selection, cinemaName, selectedSeats, totalCost: ticketCost } = bookingState;
+  const { movie, selection, cinemaName, selectedSeats } = bookingState;
+
+  // Get room information for calculating room fee
+  const roomId = selection?.roomId ? parseInt(selection.roomId) : 0;
+  const { data: roomData } = useCinemaRoom(roomId);
+
+  // Calculate ticket cost from selected seats + room fee
+  const ticketCost = useMemo(() => {
+    if (!selectedSeats || selectedSeats.length === 0) return 0;
+
+    console.log("Debug selectedSeats structure:", selectedSeats);
+
+    // Calculate seat prices
+    const seatsCost = selectedSeats.reduce((total: number, seat: SelectedSeatWithPrice) => {
+      console.log("Debug seat object:", seat);
+      console.log("seat.price:", seat.price);
+      console.log("seat.type:", seat.type);
+
+      // Use the price property that was added in BookingPage
+      const seatPrice = seat.price || 0;
+      console.log("Final seatPrice used:", seatPrice);
+
+      return total + seatPrice;
+    }, 0);
+
+    // Add room fee
+    const roomFee = roomData?.result?.fee || 0;
+    const totalFee = roomFee * (selectedSeats.length || 0); // Room fee per seat
+
+    console.log("Ticket cost calculation:", {
+      selectedSeatsCount: selectedSeats.length,
+      seatsCost,
+      roomFee,
+      seatCount: selectedSeats.length,
+      totalFee,
+      finalTicketCost: seatsCost + totalFee
+    });
+
+    return seatsCost + totalFee;
+  }, [selectedSeats, roomData]);
+
   // State quản lý số lượng combo đã chọn
 
   const handleQuantityChange = (comboId: number, quantity: number) => {
@@ -479,7 +488,7 @@ const CheckoutPage: React.FC = () => {
           {" "}
           {/* Cột trái: Thông tin và lựa chọn */}
           <div className="space-y-8 rounded-lg bg-white p-6 shadow-md lg:col-span-2">
-            <PaymentInfo user={currentUser} selectedSeats={selectedSeats} />{" "}
+            <PaymentInfo user={currentUser} selectedSeats={selectedSeats} roomFee={roomData?.result?.fee || 0} />{" "}
             <ComboList combos={uiCombos} selectedCombos={selectedCombos} onQuantityChange={handleQuantityChange} />
             <SnackList snacks={snacks} selectedSnacks={selectedSnacks} onQuantityChange={handleSnackQuantityChange} />
             {/* Promotion Selection */}

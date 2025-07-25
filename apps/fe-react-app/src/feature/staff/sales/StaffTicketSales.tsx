@@ -211,26 +211,19 @@ const StaffTicketSales: React.FC = () => {
     }
   }, [selectedMovie]);
 
-  const convertShowtime = useCallback(
-    async (apiShowtime: components["schemas"]["ShowtimeResponse"]) => {
-      const seatsResponse = await fetchClient.GET("/seats/showtime/{showtimeId}", {
-        params: { path: { showtimeId: apiShowtime.id ?? 0 } },
-      });
-      const seats = Array.isArray(seatsResponse.data?.result)
-        ? (seatsResponse.data.result as components["schemas"]["SeatResponse"][])
-        : [];
-      const availableSeats = seats.filter((seat) => seat.status === "AVAILABLE").length;
-      return convertApiShowtimeToUI(apiShowtime, availableSeats);
-    },
-    [],
-  );
+  const convertShowtime = useCallback(async (apiShowtime: components["schemas"]["ShowtimeResponse"]) => {
+    const seatsResponse = await fetchClient.GET("/seats/showtime/{showtimeId}", {
+      params: { path: { showtimeId: apiShowtime.id ?? 0 } },
+    });
+    const seats = Array.isArray(seatsResponse.data?.result) ? (seatsResponse.data.result as components["schemas"]["SeatResponse"][]) : [];
+    const availableSeats = seats.filter((seat) => seat.status === "AVAILABLE").length;
+    return convertApiShowtimeToUI(apiShowtime, availableSeats);
+  }, []);
 
   const loadShowtimes = useCallback(async () => {
     if (showtimesQuery.data?.result && selectedMovieId !== null) {
       try {
-        const convertedShowtimes = await Promise.all(
-          showtimesQuery.data.result.map((apiShowtime) => convertShowtime(apiShowtime)),
-        );
+        const convertedShowtimes = await Promise.all(showtimesQuery.data.result.map((apiShowtime) => convertShowtime(apiShowtime)));
         setShowtimes(convertedShowtimes);
       } catch (error) {
         console.error("Error converting showtimes:", error);
@@ -338,13 +331,8 @@ const StaffTicketSales: React.FC = () => {
 
     // Calculate combo cost from selected combos array
     const comboCost = selectedCombos.reduce((sum, { combo, quantity }) => {
-      // Calculate combo price from snacks
-      const comboPrice =
-        combo.snacks?.reduce((total, comboSnack) => {
-          const snackPrice = comboSnack.snack?.price || 0;
-          const snackQuantity = comboSnack.quantity || 1;
-          return total + snackPrice * snackQuantity;
-        }, 0) || 0;
+      // Use combo price directly from API
+      const comboPrice = combo.price || 0;
 
       return sum + comboPrice * quantity;
     }, 0);

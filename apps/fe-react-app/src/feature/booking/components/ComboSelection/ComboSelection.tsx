@@ -23,14 +23,8 @@ const ComboSelection: React.FC<ComboSelectionProps> = ({ combos, selectedCombos,
   };
 
   const calculateComboPrice = (combo: Combo) => {
-    // Calculate price from snacks
-    if (!combo.snacks || combo.snacks.length === 0) return 0;
-
-    return combo.snacks.reduce((total, comboSnack) => {
-      const snackPrice = comboSnack.snack?.price || 0;
-      const quantity = comboSnack.quantity || 1;
-      return total + snackPrice * quantity;
-    }, 0);
+    // Use combo price directly from API
+    return combo.price ?? 0;
   };
 
   if (loading) {

@@ -1,5 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
 import { transformSeatsToSeatMap, useSeatsByShowtimeId } from "@/services/bookingService.ts";
+import { useCinemaRoom } from "@/services/cinemaRoomService";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import BookingSeatMap from "./components/BookingSeatMap/BookingSeatMap.tsx";
@@ -12,6 +13,7 @@ interface BookingSelectedSeat {
   number: number;
   name: string; // Display name for the seat
   type: "standard" | "vip" | "double"; // BookingSummary expects legacy types
+  price: number; // Add price information from API
   status: "selected";
 }
 
@@ -67,6 +69,9 @@ const BookingPage: React.FC = () => {
   const roomId = selection?.roomId ? parseInt(selection.roomId) : 0;
   const { data: seatsData, isLoading: seatsLoading } = useSeatsByShowtimeId(showtimeId);
 
+  // Get room information for calculating room fee
+  const { data: roomData } = useCinemaRoom(roomId);
+
   // Transform API seat data to SeatMap format
   const seatMap = useMemo(() => {
     if (!seatsData?.result) return null;
@@ -98,16 +103,18 @@ const BookingPage: React.FC = () => {
           number: parseInt(seat.name.match(/\d+/)?.[0] || "0"),
           name: seat.name, // Display name for the seat
           type: legacyType,
+          price: seat.type?.price || 0, // Add price information from API
           status: "selected" as const,
         };
       });
   }, [seatMap, selectedSeatIds]);
 
-  // Calculate total cost based on selected seats (using actual API pricing)
+  // Calculate total cost based on selected seats (using actual API pricing + room fee)
   const totalCost = useMemo(() => {
     if (!seatMap) return 0;
 
-    const cost = seatMap.gridData
+    // Calculate seat prices
+    const seatsCost = seatMap.gridData
       .filter((seat) => selectedSeatIds.includes(seat.id))
       .reduce((total, seat) => {
         const price = seat.type?.price || 0;
@@ -118,8 +125,20 @@ const BookingPage: React.FC = () => {
         return total + price;
       }, 0);
 
-    return cost;
-  }, [seatMap, selectedSeatIds]);
+    // Add room fee per seat
+    const roomFee = roomData?.result?.fee || 0;
+    const totalRoomFee = roomFee * selectedSeatIds.length;
+
+    console.log("BookingPage totalCost calculation:", {
+      seatsCost,
+      roomFee,
+      selectedSeatsCount: selectedSeatIds.length,
+      totalRoomFee,
+      finalTotal: seatsCost + totalRoomFee,
+    });
+
+    return seatsCost + totalRoomFee;
+  }, [seatMap, selectedSeatIds, roomData]);
 
   // Handle seat selection
   const handleSeatSelect = useCallback((seatId: number) => {

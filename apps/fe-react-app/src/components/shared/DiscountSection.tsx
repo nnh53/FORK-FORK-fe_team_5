@@ -4,11 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui
 import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
 import type { Member } from "@/interfaces/member.interface";
-import type { VoucherValidationResult } from "@/interfaces/voucher.interface";
 import { memberService } from "@/services/memberService";
-import { voucherService } from "@/services/voucherService";
 import { formatVND } from "@/utils/currency.utils";
-import { Check, Coins, Gift, Loader2, Ticket, X } from "lucide-react";
+import { Coins, Gift, Loader2, X } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
@@ -45,9 +43,6 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
   const [searchValue, setSearchValue] = useState(""); // Can be phone or email
   const [member, setMember] = useState<Member | null>(null);
   const [pointsToUse, setPointsToUse] = useState(0);
-  const [voucherCode, setVoucherCode] = useState("");
-  const [voucherValidation, setVoucherValidation] = useState<VoucherValidationResult | null>(null);
-  const [isValidatingVoucher, setIsValidatingVoucher] = useState(false);
   const [isLoadingMember, setIsLoadingMember] = useState(false);
 
   // Auto load member from current user in auto mode
@@ -105,49 +100,6 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
     const validPoints = Math.min(Math.max(0, value), maxPointsCanUse);
     setPointsToUse(validPoints);
     onPointsChange(validPoints, validPoints * 1000);
-  };
-
-  const handleVoucherValidation = async () => {
-    if (!voucherCode.trim()) {
-      setVoucherValidation(null);
-      onVoucherChange("", 0);
-      return;
-    }
-
-    try {
-      setIsValidatingVoucher(true);
-      const result = await voucherService.validateVoucher(
-        voucherCode.trim(),
-        orderAmount - pointsDiscount, // Apply points discount first
-        movieId,
-      );
-
-      setVoucherValidation(result);
-
-      if (result.isValid) {
-        onVoucherChange(voucherCode.trim(), result.discount);
-        toast.success(`Áp dụng mã giảm giá thành công! Giảm ${formatVND(result.discount)}`);
-      } else {
-        onVoucherChange("", 0);
-        toast.error(result.message);
-      }
-    } catch {
-      setVoucherValidation({
-        isValid: false,
-        discount: 0,
-        message: "Có lỗi khi kiểm tra mã giảm giá",
-      });
-      onVoucherChange("", 0);
-      toast.error("Có lỗi khi kiểm tra mã giảm giá");
-    } finally {
-      setIsValidatingVoucher(false);
-    }
-  };
-
-  const clearVoucher = () => {
-    setVoucherCode("");
-    setVoucherValidation(null);
-    onVoucherChange("", 0);
   };
 
   const clearPoints = () => {
@@ -252,60 +204,13 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
           </div>
         )}
 
-        {/* Voucher Section */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-sm font-medium">
-            <Ticket className="h-4 w-4 text-purple-500" />
-            Mã giảm giá
-          </Label>
-
-          <div className="space-y-2">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Nhập mã giảm giá..."
-                value={voucherCode}
-                onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                onKeyPress={(e) => e.key === "Enter" && handleVoucherValidation()}
-                className="flex-1"
-                disabled={isValidatingVoucher}
-              />
-              <Button onClick={handleVoucherValidation} disabled={!voucherCode.trim() || isValidatingVoucher} size="sm" className="min-w-[80px]">
-                {isValidatingVoucher ? <Loader2 className="h-4 w-4 animate-spin" /> : "Áp dụng"}
-              </Button>
-              {voucherValidation?.isValid && (
-                <Button variant="ghost" size="sm" onClick={clearVoucher}>
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-
-            {/* Voucher validation result */}
-            {voucherValidation && (
-              <div
-                className={`flex items-center gap-2 rounded p-2 text-xs ${
-                  voucherValidation.isValid ? "border border-green-200 bg-green-50 text-green-700" : "border border-red-200 bg-red-50 text-red-700"
-                }`}
-              >
-                {voucherValidation.isValid ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                <span>{voucherValidation.message}</span>
-                {voucherValidation.isValid && voucherValidation.discount > 0 && (
-                  <span className="font-medium">(-{formatVND(voucherValidation.discount)})</span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Total discount summary */}
-        {(pointsDiscount > 0 || (voucherValidation?.isValid && voucherValidation.discount > 0)) && (
+        {pointsDiscount > 0 && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-3">
             <div className="text-sm font-medium text-green-700">Tổng giảm giá:</div>
             <div className="space-y-1 text-xs text-green-600">
               {pointsDiscount > 0 && <div>• Điểm tích lũy: -{formatVND(pointsDiscount)}</div>}
-              {voucherValidation?.isValid && voucherValidation.discount > 0 && <div>• Mã giảm giá: -{formatVND(voucherValidation.discount)}</div>}
-              <div className="border-t border-green-200 pt-1 font-medium text-green-700">
-                Tổng cộng: -{formatVND(pointsDiscount + (voucherValidation?.discount || 0))}
-              </div>
+              <div className="border-t border-green-200 pt-1 font-medium text-green-700">Tổng cộng: -{formatVND(pointsDiscount)}</div>
             </div>
           </div>
         )}

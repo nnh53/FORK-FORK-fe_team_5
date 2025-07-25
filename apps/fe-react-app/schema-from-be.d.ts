@@ -1105,6 +1105,10 @@ export interface components {
             status?: string;
             img?: string;
             snacks?: components["schemas"]["SnackFromComboRequest"][];
+            /** Format: float */
+            price?: number;
+            /** Format: float */
+            discount?: number;
         };
         SnackFromComboRequest: {
             /** Format: int32 */
@@ -1125,7 +1129,19 @@ export interface components {
             description?: string;
             status?: string;
             img?: string;
-            snacks?: components["schemas"]["SnackResponse"][];
+            /** Format: float */
+            price?: number;
+            /** Format: float */
+            discount?: number;
+            comboSnacks?: components["schemas"]["ComboSnackResponse"][];
+        };
+        ComboSnackResponse: {
+            /** Format: int32 */
+            id?: number;
+            /** Format: int32 */
+            quantity?: number;
+            combo?: unknown;
+            snack?: components["schemas"]["SnackResponse"];
         };
         ComboSnackRequest: {
             /** Format: int32 */
@@ -1140,18 +1156,6 @@ export interface components {
             code?: number;
             message?: string;
             result?: components["schemas"]["ComboSnackResponse"];
-        };
-        ComboSnackResponse: {
-            /** Format: int32 */
-            id?: number;
-            /** Format: int32 */
-            quantity?: number;
-            /** Format: int32 */
-            snackSizeId?: number;
-            /** Format: float */
-            discountPercentage?: number;
-            combo?: components["schemas"]["ComboResponse"];
-            snack?: components["schemas"]["SnackResponse"];
         };
         CinemaRoomUpdateRequest: {
             name?: string;

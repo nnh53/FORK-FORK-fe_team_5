@@ -78,22 +78,43 @@ export const transformComboResponse = (comboResponse: ComboResponse): Combo => {
   let transformedSnacks: ComboSnack[] = [];
 
   if (comboResponse.comboSnacks && Array.isArray(comboResponse.comboSnacks)) {
-    transformedSnacks = comboResponse.comboSnacks.map((comboSnack) => ({
-      id: comboSnack.id,
-      quantity: comboSnack.quantity,
-      combo: comboSnack.combo as unknown as Combo,
-      snack: comboSnack.snack || createFallbackSnack(),
-    }));
+    transformedSnacks = comboResponse.comboSnacks.map((comboSnackData) => {
+      return {
+        id: Number(comboSnackData.id ?? 0),
+        quantity: Number(comboSnackData.quantity ?? 1),
+        combo: {
+          id: Number(comboResponse.id),
+          name: String(comboResponse.name ?? ""),
+          description: String(comboResponse.description ?? ""),
+          status: comboResponse.status as ComboStatus,
+          img: String(comboResponse.img ?? ""),
+          price: Number(comboResponse.price ?? 0),
+          discount: Number(comboResponse.discount ?? 0),
+          snacks: [], // Will be populated later to avoid circular reference
+        },
+        snack: {
+          id: Number(comboSnackData.snack?.id ?? 0),
+          category: (comboSnackData.snack?.category as "DRINK" | "FOOD") ?? "FOOD",
+          name: String(comboSnackData.snack?.name ?? ""),
+          size: (comboSnackData.snack?.size as "SMALL" | "MEDIUM" | "LARGE") ?? "MEDIUM",
+          flavor: String(comboSnackData.snack?.flavor ?? ""),
+          price: Number(comboSnackData.snack?.price ?? 0),
+          description: String(comboSnackData.snack?.description ?? ""),
+          img: String(comboSnackData.snack?.img ?? ""),
+          status: (comboSnackData.snack?.status as "AVAILABLE" | "UNAVAILABLE") ?? "AVAILABLE",
+        },
+      };
+    });
   }
 
   return {
-    id: comboResponse.id,
-    name: comboResponse.name || "",
-    description: comboResponse.description || "",
-    status: (comboResponse.status as ComboStatus) || "AVAILABLE",
-    img: comboResponse.img || "",
-    price: comboResponse.price,
-    discount: comboResponse.discount,
+    id: Number(comboResponse.id),
+    name: String(comboResponse.name ?? ""),
+    description: String(comboResponse.description ?? ""),
+    status: comboResponse.status as ComboStatus,
+    img: String(comboResponse.img ?? ""),
+    price: Number(comboResponse.price ?? 0),
+    discount: Number(comboResponse.discount ?? 0),
     snacks: transformedSnacks,
   };
 };
@@ -130,17 +151,16 @@ export const transformComboSnackResponse = (comboSnackResponse: ComboSnackRespon
 
   let snackData: Snack;
   if (comboSnackResponse.snack && typeof comboSnackResponse.snack === "object") {
-    const snackObj = comboSnackResponse.snack as Record<string, any>;
     snackData = {
-      id: Number(snackObj.id || 0),
-      category: (snackObj.category || "FOOD") as "DRINK" | "FOOD",
-      name: String(snackObj.name || ""),
-      size: (snackObj.size || "MEDIUM") as "SMALL" | "MEDIUM" | "LARGE",
-      flavor: String(snackObj.flavor || ""),
-      price: Number(snackObj.price || 0),
-      description: String(snackObj.description || ""),
-      img: String(snackObj.img || ""),
-      status: (snackObj.status || "AVAILABLE") as "AVAILABLE" | "UNAVAILABLE",
+      id: Number(comboSnackResponse.snack.id),
+      category: comboSnackResponse.snack.category as "DRINK" | "FOOD",
+      name: String(comboSnackResponse.snack.name),
+      size: comboSnackResponse.snack.size as "SMALL" | "MEDIUM" | "LARGE",
+      flavor: String(comboSnackResponse.snack.flavor ?? ""),
+      price: Number(comboSnackResponse.snack.price),
+      description: String(comboSnackResponse.snack.description ?? ""),
+      img: String(comboSnackResponse.snack.img ?? ""),
+      status: comboSnackResponse.snack.status as "AVAILABLE" | "UNAVAILABLE",
     };
   } else {
     console.warn("Missing snack data in combo-snack response, using fallback", comboSnackResponse);
@@ -149,16 +169,16 @@ export const transformComboSnackResponse = (comboSnackResponse: ComboSnackRespon
 
   let comboData: Combo;
   if (comboSnackResponse.combo && typeof comboSnackResponse.combo === "object") {
-    const comboObj = comboSnackResponse.combo as Record<string, any>;
+    const combo = comboSnackResponse.combo as Record<string, unknown>; // Type assertion to bypass strict typing
     comboData = {
-      id: Number(comboObj.id || 0),
-      name: String(comboObj.name || ""),
-      description: String(comboObj.description || ""),
-      status: (comboObj.status || "AVAILABLE") as ComboStatus,
-      img: String(comboObj.img || ""),
+      id: Number(combo.id ?? 0),
+      name: String(combo.name ?? ""),
+      description: String(combo.description ?? ""),
+      status: (combo.status as ComboStatus) ?? "AVAILABLE",
+      img: String(combo.img ?? ""),
+      price: Number(combo.price ?? 0),
+      discount: Number(combo.discount ?? 0),
       snacks: [],
-      price: Number(comboObj.price || 0),
-      discount: Number(comboObj.discount || 0),
     };
   } else {
     comboData = {
@@ -167,9 +187,9 @@ export const transformComboSnackResponse = (comboSnackResponse: ComboSnackRespon
       description: "",
       status: "AVAILABLE",
       img: "",
-      snacks: [],
       price: 0,
       discount: 0,
+      snacks: [],
     };
   }
 
@@ -262,19 +282,43 @@ export const getComboStatusLabel = (status: ComboStatus): string => {
 };
 
 /**
- * Calculate the total price of a combo based on its price and discount
+ * Calculate the total price of a combo based on its snacks
  */
 export const calculateComboPrice = (combo: Combo): number => {
-  if (!combo.price) return 0;
-
-  const price = combo.price || 0;
-  const discount = combo.discount || 0;
-
-  return price - discount;
+  // Use combo price directly from API
+  console.log(`Using direct price for combo ${combo.id}: ${combo.price}`);
+  return combo.price ?? 0;
 };
 
 /**
- * Custom hook to fetch combo price
+ * Calculate the total price of a combo based on provided combo-snacks data
+ */
+export const calculateComboPriceWithQuantity = (comboSnacks: ComboSnack[]): number => {
+  if (!comboSnacks || comboSnacks.length === 0) return 0;
+
+  console.log(
+    `Calculating price with ${comboSnacks.length} snacks:`,
+    (comboSnacks as ComboSnack[]).map((s) => ({
+      id: s.snack?.id,
+      name: s.snack?.name,
+      price: s.snack?.price,
+      quantity: s.quantity,
+    })),
+  );
+
+  return comboSnacks.reduce((total, comboSnack) => {
+    const basePrice = comboSnack.snack?.price ?? 0;
+    const quantity = comboSnack.quantity || 1;
+    const itemTotal = basePrice * quantity;
+
+    console.log(`Snack ${comboSnack.snack?.name}: price=${basePrice}, quantity=${quantity}, itemTotal=${itemTotal}`);
+
+    return total + itemTotal;
+  }, 0);
+};
+
+/**
+ * Custom hook to fetch combo-snacks and calculate the total price
  */
 export const useComboPrice = (comboId: number) => {
   const { data, isLoading, error } = useCombos();
