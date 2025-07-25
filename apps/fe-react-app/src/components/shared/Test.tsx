@@ -18,11 +18,6 @@ function BlurHeader() {
           <span className="font-semibold">Cinemagic</span>
         </div>
         <Search aria-label="Search" className="col-start-7 mx-auto h-6 w-6 cursor-pointer" />
-        <nav className="col-span-3 col-start-8 flex items-center justify-center gap-10 text-sm font-medium uppercase">
-          <a href="#">HOME</a>
-          <a href="#">MOVIE</a>
-          <a href="#">TV SHOW</a>
-        </nav>
         <Grid3x3 className="col-start-12 h-6 w-6 cursor-pointer justify-self-end pr-8" />
       </div>
     </header>
@@ -34,6 +29,7 @@ export function Test() {
     <div className="relative h-screen w-full overflow-hidden text-white">
       <BlurHeader />
       <div className="relative h-[calc(100vh-64px)] w-full">
+        {/* movie.banner */}
         <img src={OppenheimerBackdrop} alt="Oppenheimer backdrop" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.45),transparent)]" />
         <div className="relative z-10 grid h-full grid-cols-12 px-8">
@@ -69,11 +65,14 @@ export function Test() {
           </div>
           <div className="col-span-3 col-start-9 pt-[35vh]">
             <p className="leading-6 text-[#E0E0E0]">
-              Christopher Nolan : <span className="text-[#FFD400]">Director</span>
+              {/* movie.studio */}
+              Christopher Nolan : <span className="text-[#FFD400]">Studio</span>
               <br />
-              Cillian Murphy, Emily Blunt, Matt Damon : <span className="text-[#FFD400]">Stars</span>
+              {/* movie.actors */}
+              Cillian Murphy, Emily Blunt, Matt Damon : <span className="text-[#FFD400]">Actors</span>
             </p>
             <p className="mt-4 max-w-[32ch] text-sm text-[#E0E0E0]">
+              {/* movie.description */}
               The story of American scientist, J. Robert Oppenheimer, and his role in the development of the atomic bomb.
             </p>
           </div>
