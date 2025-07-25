@@ -1,6 +1,5 @@
 import type { Promotion } from "@/interfaces/promotion.interface";
 import { formatVND } from "@/utils/currency.utils";
-import React, { useEffect, useState } from "react";
 
 interface PaymentSummaryProps {
   ticketCost: number;
@@ -13,8 +12,6 @@ interface PaymentSummaryProps {
   totalCost: number;
 }
 
-const HOLD_TIME_SECONDS = 8 * 60; // 8 phút
-
 const PaymentSummary: React.FC<PaymentSummaryProps> = ({
   ticketCost,
   comboCost,
@@ -25,20 +22,6 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
   selectedPromotion = null,
   totalCost,
 }) => {
-  const [remainingTime, setRemainingTime] = useState(HOLD_TIME_SECONDS);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setRemainingTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
-  };
-
   const subtotal = ticketCost + comboCost + snackCost;
   const totalDiscount = pointsDiscount + voucherDiscount + promotionDiscount;
 
@@ -99,9 +82,6 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
       <div className="flex justify-between border-t pt-2 text-xl font-bold">
         <span>Tổng cộng:</span>
         <span className="text-red-600">{formatVND(totalCost)}</span>
-      </div>
-      <div className="mt-4 text-center text-sm text-gray-500">
-        Thời gian còn lại: <span className="text-lg font-bold">{formatTime(remainingTime)}</span>
       </div>
     </div>
   );
