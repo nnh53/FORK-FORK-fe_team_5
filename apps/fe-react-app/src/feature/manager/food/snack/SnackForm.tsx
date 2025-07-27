@@ -36,40 +36,50 @@ const formSchema = z.object({
 const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      img: "",
-      name: "",
-      category: undefined,
-      size: undefined,
-      flavor: "",
-      description: "",
-      price: 0,
-      status: "AVAILABLE",
-    },
+    defaultValues: snack
+      ? {
+          img: snack.img || "",
+          name: snack.name || "",
+          category: snack.category as "DRINK" | "FOOD",
+          size: snack.size as "SMALL" | "MEDIUM" | "LARGE",
+          flavor: snack.flavor || "",
+          description: snack.description || "",
+          price: snack.price || 0,
+          status: snack.status as "AVAILABLE" | "UNAVAILABLE",
+        }
+      : {
+          img: "",
+          name: "",
+          category: "FOOD", // Giá trị mặc định thay vì undefined
+          size: "MEDIUM", // Giá trị mặc định thay vì undefined
+          flavor: "",
+          description: "",
+          price: 0,
+          status: "AVAILABLE",
+        },
   });
 
   const isMobile = useMediaQuery("(max-width: 768px)"); // Kiểm tra màn hình dưới 768px
 
+  // Reset form khi snack thay đổi
   useEffect(() => {
     if (snack) {
-      setTimeout(() => {
-        form.reset({
-          img: snack.img,
-          name: snack.name,
-          category: snack.category as "DRINK" | "FOOD",
-          size: snack.size as "SMALL" | "MEDIUM" | "LARGE",
-          flavor: snack.flavor,
-          description: snack.description,
-          price: snack.price,
-          status: snack.status as "AVAILABLE" | "UNAVAILABLE",
-        });
-      }, 0);
+      form.reset({
+        img: snack.img || "",
+        name: snack.name || "",
+        category: snack.category as "DRINK" | "FOOD",
+        size: snack.size as "SMALL" | "MEDIUM" | "LARGE",
+        flavor: snack.flavor || "",
+        description: snack.description || "",
+        price: snack.price || 0,
+        status: snack.status as "AVAILABLE" | "UNAVAILABLE",
+      });
     } else {
       form.reset({
         img: "",
         name: "",
-        category: undefined,
-        size: undefined,
+        category: "FOOD", // Giá trị mặc định thay vì undefined
+        size: "MEDIUM", // Giá trị mặc định thay vì undefined
         flavor: "",
         description: "",
         price: 0,
@@ -261,7 +271,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                                 onChange={(e) => field.onChange(Number(e.target.value))}
                                 className="h-11 pr-12"
                               />
-                              <span className="text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2 transform font-medium">₫</span>
+                              <span className="text-muted-foreground absolute top-1/2 right-4 -translate-y-1/2 transform font-medium">₫</span>
                             </div>
                           </FormControl>
                           <FormMessage />

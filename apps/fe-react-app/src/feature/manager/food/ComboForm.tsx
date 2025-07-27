@@ -32,30 +32,38 @@ const formSchema = z.object({
 const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      img: "",
-      name: "",
-      description: "",
-      status: "AVAILABLE",
-      price: 0,
-      discount: 0,
-    },
+    defaultValues: combo
+      ? {
+          img: combo.img || "",
+          name: combo.name || "",
+          description: combo.description || "",
+          status: combo.status as "AVAILABLE" | "UNAVAILABLE",
+          price: combo.price || 0,
+          discount: combo.discount || 0,
+        }
+      : {
+          img: "",
+          name: "",
+          description: "",
+          status: "AVAILABLE",
+          price: 0,
+          discount: 0,
+        },
   });
 
   const isMobile = useMediaQuery("(max-width: 768px)"); // Kiểm tra màn hình dưới 768px
 
+  // Reset form khi combo thay đổi
   useEffect(() => {
     if (combo) {
-      setTimeout(() => {
-        form.reset({
-          img: combo.img,
-          name: combo.name,
-          description: combo.description,
-          status: combo.status as "AVAILABLE" | "UNAVAILABLE" | undefined,
-          price: combo.price || 0,
-          discount: combo.discount || 0,
-        });
-      }, 0);
+      form.reset({
+        img: combo.img || "",
+        name: combo.name || "",
+        description: combo.description || "",
+        status: combo.status as "AVAILABLE" | "UNAVAILABLE",
+        price: combo.price || 0,
+        discount: combo.discount || 0,
+      });
     } else {
       form.reset({
         img: "",
