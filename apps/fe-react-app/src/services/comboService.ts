@@ -318,6 +318,56 @@ export const calculateComboPriceWithQuantity = (comboSnacks: ComboSnack[]): numb
 };
 
 /**
+ * Calculate final combo price (base price - discount)
+ * Returns 0 if discount is greater than base price or if there are no snacks
+ */
+export const calculateFinalComboPrice = (combo: Combo): number => {
+  if (!combo?.snacks?.length) return 0;
+
+  const basePrice = calculateComboPrice(combo);
+  const discount = combo.discount || 0;
+
+  // Prevent negative prices
+  return Math.max(0, basePrice - discount);
+};
+
+/**
+ * Update a combo's price based on its snacks
+ * Returns a new combo object with updated price
+ */
+export const updateComboPriceFromSnacks = (combo: Combo): Combo => {
+  if (!combo) return combo;
+
+  const basePrice = calculateComboPrice(combo);
+
+  return {
+    ...combo,
+    price: basePrice,
+  };
+};
+
+/**
+ * Validate that combo discount doesn't exceed the total price of snacks
+ * Returns true if valid, false otherwise
+ */
+export const isValidComboDiscount = (combo: Combo): boolean => {
+  if (!combo?.snacks?.length) return combo?.discount === 0;
+
+  const basePrice = calculateComboPrice(combo);
+  const discount = combo.discount || 0;
+
+  return discount <= basePrice;
+};
+
+/**
+ * Hook to update a combo's price based on its snacks whenever snacks change
+ */
+export const useAutoComboPrice = (combo: Combo): Combo => {
+  if (!combo) return combo;
+  return updateComboPriceFromSnacks(combo);
+};
+
+/**
  * Custom hook to fetch combo-snacks and calculate the total price
  */
 export const useComboPrice = (comboId: number) => {
@@ -327,16 +377,19 @@ export const useComboPrice = (comboId: number) => {
 
   if (data?.result) {
     if (Array.isArray(data.result)) {
-      combo = data.result.find((c: any) => c.id === comboId);
+      combo = data.result.find((c) => c.id === comboId);
     } else if (typeof data.result === "object") {
-      const resultObj = data.result as Record<string, any>;
+      const resultObj = data.result as Record<string, unknown>;
       if ("id" in resultObj && resultObj.id === comboId) {
         combo = resultObj;
       }
     }
   }
 
-  const totalPrice = combo ? (combo.price || 0) - (combo.discount || 0) : 0;
+  // Đảm bảo các giá trị là số trước khi thực hiện phép tính
+  const price = combo && "price" in combo ? Number(combo.price) || 0 : 0;
+  const discount = combo && "discount" in combo ? Number(combo.discount) || 0 : 0;
+  const totalPrice = price - discount;
 
   return {
     totalPrice,

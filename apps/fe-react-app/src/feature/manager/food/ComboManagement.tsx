@@ -17,6 +17,8 @@ import { SearchBar, type SearchOption } from "@/components/shared/SearchBar";
 import { useMutationHandler } from "@/hooks/useMutationHandler";
 import type { Combo, ComboForm as ComboFormData, ComboSnack } from "@/interfaces/combo.interface";
 import {
+  calculateComboPrice,
+  calculateComboPriceWithQuantity,
   comboStatusOptions,
   createFallbackSnack,
   transformComboResponse,
@@ -105,16 +107,6 @@ const ComboManagement: React.FC = () => {
       setDeleteDialogOpen(false);
       setComboToDelete(null);
     },
-    combosQuery.refetch,
-  );
-
-  useMutationHandler(addSnacksToComboMutation, "Đã thêm thực phẩm vào combo", "Lỗi khi thêm thực phẩm vào combo", undefined, combosQuery.refetch);
-
-  useMutationHandler(
-    removeSnacksFromComboMutation,
-    "Đã xóa thực phẩm khỏi combo",
-    "Lỗi khi xóa thực phẩm khỏi combo",
-    undefined,
     combosQuery.refetch,
   );
 
@@ -249,7 +241,7 @@ const ComboManagement: React.FC = () => {
   const handleFormSubmit = useCallback(
     (data: ComboFormData) => {
       if (selectedCombo) {
-        // Explicitly cast the combo data to ensure type safety
+        // Tính toán giá dựa trên snacks
         const updatedCombo: Combo = {
           ...selectedCombo,
           ...data,
@@ -260,12 +252,37 @@ const ComboManagement: React.FC = () => {
           })),
         };
 
+        // Tính lại giá tự động từ snacks
+        const basePrice = calculateComboPriceWithQuantity(updatedCombo.snacks);
+        const discount = updatedCombo.discount || 0;
+
+        // Kiểm tra discount có hợp lệ không
+        if (discount > basePrice) {
+          toast.error("Giảm giá không được lớn hơn giá combo", { id: "invalid-discount" });
+          return;
+        }
+
+        // Cập nhật giá trước khi gửi request
+        updatedCombo.price = basePrice;
+
+        // Gửi update combo
         updateComboMutation.mutate({
           params: { path: { id: selectedCombo.id ?? 0 } },
           body: transformComboToRequest(updatedCombo),
         });
+
+        // Đảm bảo giá được cập nhật chính xác
+        setTimeout(() => {
+          updateComboMutation.mutate({
+            params: { path: { id: selectedCombo.id ?? 0 } },
+            body: {
+              status: updatedCombo.status,
+              price: basePrice,
+            },
+          });
+        }, 300);
       } else {
-        // Explicitly cast the new combo data to ensure type safety
+        // Tạo combo mới
         const newCombo: Combo = {
           ...data,
           snacks: data.snacks.map((s) => ({
@@ -275,6 +292,20 @@ const ComboManagement: React.FC = () => {
           })),
         };
 
+        // Tính giá tự động từ snacks
+        const basePrice = calculateComboPriceWithQuantity(newCombo.snacks);
+        const discount = newCombo.discount || 0;
+
+        // Kiểm tra discount có hợp lệ không
+        if (newCombo.snacks.length > 0 && discount > basePrice) {
+          toast.error("Giảm giá không được lớn hơn giá combo", { id: "invalid-discount" });
+          return;
+        }
+
+        // Áp dụng giá đã tính toán
+        newCombo.price = basePrice;
+
+        // Tạo combo mới
         createComboMutation.mutate({
           body: transformComboToRequest(newCombo),
         });
@@ -292,16 +323,58 @@ const ComboManagement: React.FC = () => {
         return;
       }
 
-      // Optimistically update UI
-      setDetailsCombo((prev) => (prev ? { ...prev, snacks: prev.snacks.filter((s) => s.id !== comboSnackId) } : null));
+      // Optimistically update UI with updated price
+      setDetailsCombo((prev) => {
+        if (!prev) return null;
 
-      // Call API to update the combo with the snack removed
-      removeSnacksFromComboMutation.mutate({
-        params: { path: { comboId: detailsCombo.id ?? 0 } },
-        body: [comboSnackToDelete.snack.id],
+        const updatedSnacks = prev.snacks.filter((s) => s.id !== comboSnackId);
+
+        // Tính lại giá combo dựa trên các snacks còn lại
+        const basePrice = calculateComboPrice({ ...prev, snacks: updatedSnacks });
+
+        return {
+          ...prev,
+          snacks: updatedSnacks,
+          price: basePrice,
+        };
       });
+
+      // Xóa snack khỏi combo
+      removeSnacksFromComboMutation.mutate(
+        {
+          params: { path: { comboId: detailsCombo.id ?? 0 } },
+          body: [comboSnackToDelete.snack.id],
+        },
+        {
+          onSuccess: () => {
+            // Sau khi xóa, cập nhật lại giá combo
+            const updatedSnacks = detailsCombo.snacks.filter((s) => s.id !== comboSnackId);
+            const basePrice = calculateComboPriceWithQuantity(updatedSnacks);
+
+            // Cập nhật giá combo trên server
+            updateComboMutation.mutate(
+              {
+                params: { path: { id: detailsCombo.id ?? 0 } },
+                body: {
+                  status: detailsCombo.status,
+                  price: basePrice,
+                },
+              },
+              {
+                onSuccess: () => {
+                  toast.success("Xóa món và cập nhật giá combo thành công");
+                  combosQuery.refetch();
+                },
+              },
+            );
+          },
+          onError: () => {
+            toast.error("Lỗi khi xóa thực phẩm khỏi combo");
+          },
+        },
+      );
     },
-    [detailsCombo, removeSnacksFromComboMutation],
+    [detailsCombo, removeSnacksFromComboMutation, updateComboMutation, combosQuery],
   );
 
   const handleUpdateSnack = useCallback(
@@ -309,30 +382,80 @@ const ComboManagement: React.FC = () => {
       if (!detailsCombo) return;
 
       // Optimistically update UI
-      setDetailsCombo((prev) =>
-        prev
-          ? {
-              ...prev,
-              snacks: prev.snacks.map((s) => (s.id === comboSnack.id ? { ...comboSnack } : s)),
-            }
-          : null,
-      );
+      setDetailsCombo((prev) => {
+        if (!prev) return null;
 
-      // Update the combo with updated snack quantities
-      updateComboMutation.mutate({
-        params: { path: { id: detailsCombo.id ?? 0 } },
-        body: {
-          status: detailsCombo.status,
-          snacks: [
-            {
-              snackId: comboSnack.snack?.id ?? 0,
-              quantity: comboSnack.quantity ?? 1,
-            },
-          ],
-        },
+        const updatedSnacks = prev.snacks.map((s) => (s.id === comboSnack.id ? { ...comboSnack } : s));
+
+        // Tính lại giá combo dựa trên tất cả snacks
+        const basePrice = calculateComboPriceWithQuantity(updatedSnacks);
+
+        return {
+          ...prev,
+          snacks: updatedSnacks,
+          price: basePrice,
+        };
       });
+
+      // Chuẩn bị tất cả snacks hiện tại để PUT lên server
+      const allSnacks = detailsCombo.snacks.map((s) => {
+        if (s.id === comboSnack.id) {
+          // Đây là snack đang được cập nhật
+          return {
+            snackId: comboSnack.snack?.id ?? 0,
+            quantity: comboSnack.quantity ?? 1,
+          };
+        } else {
+          // Các snacks khác giữ nguyên
+          return {
+            snackId: s.snack?.id ?? 0,
+            quantity: s.quantity ?? 1,
+          };
+        }
+      });
+
+      // Tính lại giá dựa trên tất cả snacks
+      const updatedCombo = {
+        ...detailsCombo,
+        snacks: detailsCombo.snacks.map((s) => (s.id === comboSnack.id ? comboSnack : s)),
+      };
+      const basePrice = calculateComboPriceWithQuantity(updatedCombo.snacks);
+
+      // Đầu tiên cập nhật combo với danh sách snacks
+      updateComboMutation.mutate(
+        {
+          params: { path: { id: detailsCombo.id ?? 0 } },
+          body: {
+            ...transformComboToRequest(detailsCombo),
+            snacks: allSnacks,
+          },
+        },
+        {
+          onSuccess: () => {
+            // Sau đó, đảm bảo giá được cập nhật chính xác
+            updateComboMutation.mutate(
+              {
+                params: { path: { id: detailsCombo.id ?? 0 } },
+                body: {
+                  status: detailsCombo.status,
+                  price: basePrice,
+                },
+              },
+              {
+                onSuccess: () => {
+                  console.log(basePrice);
+                  combosQuery.refetch();
+                },
+              },
+            );
+          },
+          onError: () => {
+            toast.error("Lỗi khi cập nhật số lượng");
+          },
+        },
+      );
     },
-    [detailsCombo, updateComboMutation],
+    [detailsCombo, updateComboMutation, combosQuery],
   );
 
   const handleAddSnack = useCallback(
@@ -348,16 +471,65 @@ const ComboManagement: React.FC = () => {
         quantity: newComboSnack.quantity ?? 1,
       };
 
-      // Update UI optimistically
-      setDetailsCombo((prev) => (prev ? { ...prev, snacks: [...prev.snacks, tempComboSnack] } : prev));
+      // Update UI optimistically with updated price
+      setDetailsCombo((prev) => {
+        if (!prev) return null;
 
-      // Add snack to combo via API
-      addSnacksToComboMutation.mutate({
-        params: { path: { comboId: detailsCombo.id ?? 0 } },
-        body: [{ snackId: newComboSnack.snack.id, quantity: newComboSnack.quantity ?? 1 }],
+        const updatedSnacks = [...prev.snacks, tempComboSnack];
+
+        // Tính lại giá combo dựa trên tất cả snacks
+        const basePrice = calculateComboPriceWithQuantity(updatedSnacks);
+
+        return {
+          ...prev,
+          snacks: updatedSnacks,
+          price: basePrice,
+        };
       });
+
+      // Thêm snack vào combo bằng API
+      addSnacksToComboMutation.mutate(
+        {
+          params: { path: { comboId: detailsCombo.id ?? 0 } },
+          body: [
+            {
+              snackId: newComboSnack.snack.id,
+              quantity: newComboSnack.quantity ?? 1,
+            },
+          ],
+        },
+        {
+          onSuccess: () => {
+            // Tính lại giá dựa trên tất cả snacks
+            const updatedCombo = {
+              ...detailsCombo,
+              snacks: [...detailsCombo.snacks, tempComboSnack],
+            };
+            const basePrice = calculateComboPriceWithQuantity(updatedCombo.snacks);
+
+            // Cập nhật giá combo trên server
+            updateComboMutation.mutate(
+              {
+                params: { path: { id: detailsCombo.id ?? 0 } },
+                body: {
+                  status: detailsCombo.status,
+                  price: basePrice,
+                },
+              },
+              {
+                onSuccess: () => {
+                  combosQuery.refetch();
+                },
+              },
+            );
+          },
+          onError: () => {
+            toast.error("Lỗi khi thêm thực phẩm vào combo");
+          },
+        },
+      );
     },
-    [detailsCombo, addSnacksToComboMutation],
+    [detailsCombo, addSnacksToComboMutation, updateComboMutation, combosQuery],
   );
 
   // Reset pagination khi filter thay đổi
