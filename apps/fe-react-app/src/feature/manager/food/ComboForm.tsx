@@ -156,15 +156,10 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Giá (VND)</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Nhập giá combo"
-                              {...field}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
-                              value={field.value}
-                            />
-                          </FormControl>
+                          <div className="flex items-center gap-2">
+                            <Input type="number" readOnly disabled className="bg-gray-50" {...field} value={field.value} />
+                            <div className="text-muted-foreground text-sm">(Tự động tính dựa trên giá thực phẩm)</div>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}

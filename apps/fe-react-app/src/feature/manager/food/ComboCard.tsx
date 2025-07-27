@@ -16,11 +16,11 @@ interface ComboCardProps {
 
 const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDetails, viewMode = "grid" }) => {
   const getDisplayPrice = () => {
-    if (!combo.price) {
+    if (!combo.price && combo.price !== 0) {
       return "Chưa cập nhật";
     }
 
-    const finalPrice = (combo.price || 0) - (combo.discount || 0);
+    const finalPrice = Math.max(0, (combo.price || 0) - (combo.discount || 0));
     return formatPrice(finalPrice);
   };
 
