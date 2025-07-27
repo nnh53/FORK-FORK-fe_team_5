@@ -86,13 +86,13 @@ const MovieCarouselItem = ({ movie }: MovieCarouselItemProps) => {
           {/* Action Buttons */}
           <div className="mt-6 flex gap-3">
             <button
-              className="h-11 w-38 rounded bg-[#FFD400] px-4 text-sm font-medium text-[#0C0B0E] transition-colors hover:bg-[#E6C000]"
+              className="h-11 w-38 cursor-none rounded bg-[#FFD400] px-4 text-sm font-medium text-[#0C0B0E] transition-colors hover:bg-[#E6C000]"
               onClick={() => navigate(`/movie/${movie.id}`)}
             >
               Book Tickets
             </button>
             <button
-              className="h-11 w-38 rounded border border-[#FFD400] px-4 text-sm font-medium text-[#FFD400] transition-colors hover:bg-[#FFD400] hover:text-[#0C0B0E]"
+              className="h-11 w-38 cursor-none rounded border border-[#FFD400] px-4 text-sm font-medium text-[#FFD400] transition-colors hover:bg-[#FFD400] hover:text-[#0C0B0E]"
               onClick={() => navigate(`/movie/${movie.id}`)}
             >
               More

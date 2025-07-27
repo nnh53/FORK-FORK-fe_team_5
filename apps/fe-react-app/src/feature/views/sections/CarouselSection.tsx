@@ -1,5 +1,6 @@
 import type { CarouselApi } from "@/components/Shadcn/ui/carousel";
 import { Carousel, CarouselContent, CarouselNext, CarouselPrevious } from "@/components/Shadcn/ui/carousel";
+import { Pointer } from "@/components/magicui/pointer";
 import { queryMoviesForCarousel, transformMoviesResponse } from "@/services/movieService";
 import Autoplay from "embla-carousel-autoplay";
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -78,9 +79,13 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
   }
 
   return (
-    <section className="relative h-screen w-full overflow-hidden text-white" ref={ref} id="home">
+    <section className="relative h-screen w-full cursor-none overflow-hidden text-white" ref={ref} id="home">
+      <Pointer>
+        <div className="text-2xl">🐉</div>
+      </Pointer>
+
       <Carousel
-        className="h-full w-full"
+        className="h-full w-full cursor-none"
         opts={{
           loop: true,
         }}
@@ -94,8 +99,8 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
         </CarouselContent>
 
         {/* Navigation Arrows */}
-        <CarouselPrevious className="left-8 z-20 border-white/20 bg-black/50 text-white hover:bg-black/70" />
-        <CarouselNext className="right-8 z-20 border-white/20 bg-black/50 text-white hover:bg-black/70" />
+        <CarouselPrevious className="left-8 z-20 cursor-none border-white/20 bg-black/50 text-white hover:bg-black/70" />
+        <CarouselNext className="right-8 z-20 cursor-none border-white/20 bg-black/50 text-white hover:bg-black/70" />
       </Carousel>
 
       {/* Fixed Dot Navigation */}

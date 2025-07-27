@@ -19,7 +19,7 @@ const CarouselDotNavigation = ({ totalMovies, currentIndex, onDotClick }: Carous
           <button
             key={i}
             onClick={() => onDotClick(i)}
-            className={`size-3 rounded-full transition-all duration-300 hover:scale-125 ${
+            className={`size-3 rounded-full transition-all duration-300 hover:scale-125 cursor-none ${
               i === currentIndex ? "bg-white shadow-lg" : "bg-white/40 hover:bg-white/60"
             }`}
             aria-label={`Go to slide ${i + 1}`}
