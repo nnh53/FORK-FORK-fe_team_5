@@ -24,7 +24,7 @@ export default defineConfig({
   // component: nxComponentTestingPreset(__filename, {
   //   bundler: "vite",
   //   buildTarget: "@fcinema-workspace/fe-react-app:build",
-  // }),
+  // })
   component: {
     devServer: {
       framework: "react",
@@ -33,7 +33,6 @@ export default defineConfig({
       //   ...config,
       // },
     },
-    specPattern: ["./cypress/components/*.cy.{js,jsx,ts,tsx}"],
-    // supportFile: "./test/src/support/component.{js,jsx,ts,tsx}",
+    specPattern: ["./cypress/component/*.cy.{js,jsx,ts,tsx}"],
   },
 });
