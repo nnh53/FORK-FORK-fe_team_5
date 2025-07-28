@@ -7,7 +7,7 @@ import { Textarea } from "@/components/Shadcn/ui/textarea";
 import ImageUpload from "@/components/shared/ImageUpload";
 import { useMediaQuery } from "@/hooks/use-media-query"; // Import hook
 import { type Combo, type ComboForm as ComboFormType } from "@/interfaces/combo.interface";
-import { comboStatusOptions } from "@/services/comboService";
+import { calculateComboPriceWithQuantity, comboStatusOptions, formatPrice } from "@/services/comboService";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { ImageIcon } from "lucide-react";
 import React, { useState } from "react";
@@ -180,15 +180,21 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="flex items-center gap-1">Giá tổng (VND)</Label>
+                        <Label className="flex items-center gap-1">Giá tổng (VNĐ)</Label>
                         <div className="flex items-center gap-2">
-                          <Field as={Input} name="price" type="number" readOnly disabled className="bg-gray-50" />
-                          <div className="text-muted-foreground text-sm">(Tự động tính dựa trên giá thực phẩm)</div>
+                          <Input
+                            value={formatPrice(calculateComboPriceWithQuantity(values.snacks || []))}
+                            readOnly
+                            disabled
+                            className="bg-gray-50 font-medium"
+                          />
+                          <div className="text-muted-foreground text-xs">
+                            <div className="text-muted-foreground text-xs">Tổng giá của tất cả thực phẩm trong combo</div>
+                          </div>
                         </div>
-                        <ErrorMessage name="price" component="div" className="text-destructive text-sm" />
                       </div>
 
-                      <FormField name="discount" label="Giảm giá (VND)" type="number" placeholder="Nhập giảm giá" required />
+                      <FormField name="discount" label="Giảm giá (VNĐ)" type="number" placeholder="Nhập giảm giá" required />
                     </div>
 
                     <SelectField

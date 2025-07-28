@@ -2,7 +2,7 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import type { Combo } from "@/interfaces/combo.interface";
-import { formatPrice, getComboStatusLabel, type ComboStatus } from "@/services/comboService";
+import { calculateComboPriceWithQuantity, formatPrice, getComboStatusLabel, type ComboStatus } from "@/services/comboService";
 import { cn } from "@/utils/utils";
 import { Edit, Eye, Trash, Utensils } from "lucide-react";
 
@@ -20,10 +20,26 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
       return "Chưa cập nhật";
     }
 
-    const finalPrice = Math.max(0, (combo.price || 0) - (combo.discount || 0));
-    return formatPrice(finalPrice);
-  };
+    // Khi có giảm giá và có snacks, hiển thị cả giá gốc (tổng giá snack) và giá sau giảm (từ database)
+    if (combo.discount && combo.discount > 0 && combo.snacks && combo.snacks.length > 0) {
+      // Tính lại giá gốc bằng tổng giá snack thay vì cộng giảm giá
+      const originalPrice = calculateComboPriceWithQuantity(combo.snacks);
+      const finalPrice = combo.price || 0; // Giá trong database đã trừ giảm giá
 
+      // Chỉ hiển thị giá gốc nếu nó lớn hơn giá sau giảm giá
+      if (originalPrice > finalPrice) {
+        return (
+          <div className="flex flex-col items-end">
+            <div className="text-primary text-lg font-bold">{formatPrice(finalPrice)}</div>
+            <div className="text-xs text-gray-500 line-through">{formatPrice(originalPrice)}</div>
+          </div>
+        );
+      }
+    }
+
+    // Khi không có giảm giá hoặc không có snack, hiển thị giá trực tiếp từ database
+    return formatPrice(combo.price || 0);
+  };
   const StatusBadge = () => {
     const statusLabel = getComboStatusLabel(combo.status as ComboStatus);
     const isAvailable = combo.status === "AVAILABLE";
@@ -111,7 +127,7 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
               </div>
             </div>
             <div className="text-right">
-              <div className="text-primary text-lg font-bold">{getDisplayPrice()}</div>
+              {typeof getDisplayPrice() === "string" ? <div className="text-primary text-lg font-bold">{getDisplayPrice()}</div> : getDisplayPrice()}
             </div>
           </div>
         </CardHeader>
@@ -138,7 +154,18 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
             </div>
             <div className="text-gray-600 md:block">{combo.snacks?.length || 0} món</div>
           </div>
-          <div className="text-primary col-span-2 font-semibold md:col-span-4 lg:col-span-2">{getDisplayPrice()}</div>
+          <div className="text-primary col-span-2 font-semibold md:col-span-4 lg:col-span-2">
+            {typeof getDisplayPrice() === "string" ? (
+              getDisplayPrice()
+            ) : (
+              <div className="flex flex-col">
+                <span>{formatPrice(combo.price || 0)}</span>
+                {combo.discount && combo.discount > 0 && combo.snacks && combo.snacks.length > 0 && (
+                  <span className="text-xs text-gray-500 line-through">{formatPrice(calculateComboPriceWithQuantity(combo.snacks))}</span>
+                )}
+              </div>
+            )}
+          </div>
           <div className="col-span-6 line-clamp-1 hidden text-gray-600 lg:col-span-4 lg:block">{combo.description || "Không có mô tả"}</div>
           <div className="col-span-7 flex justify-end gap-1 md:col-span-5 lg:col-span-3">
             <ActionButtons />

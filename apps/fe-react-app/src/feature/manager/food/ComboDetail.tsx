@@ -133,7 +133,7 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
               <h3 className="text-lg font-semibold">Danh sách thực phẩm trong combo ({displayCombo.snacks?.length || 0})</h3>
             </div>
             <div className="flex items-center gap-2">
-              <div className="text-primary font-medium">Giá combo: {formatVND((displayCombo.price || 0) - (displayCombo.discount || 0))}</div>
+              <div className="text-primary font-medium">Giá combo: {formatVND(displayCombo.price || 0)}</div>
               {onAddSnack && onUpdateSnack && (
                 <Button variant="outline" size="sm" onClick={handleEditSnacks}>
                   <Edit className="mr-1 h-4 w-4" />

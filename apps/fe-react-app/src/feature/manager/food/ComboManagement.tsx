@@ -54,6 +54,18 @@ const filterByStatus = (combo: Combo, status: string): boolean => {
   return combo.status === status;
 };
 
+// Hàm filter theo khoảng giá
+const filterByPriceRange = (combo: Combo, range: { from: number | undefined; to: number | undefined }): boolean => {
+  const price = combo.price ?? 0;
+  return !((range.from !== undefined && price < range.from) || (range.to !== undefined && price > range.to));
+};
+
+// Hàm filter theo khoảng giảm giá (giảm giá trên giá tiền, không phải %)
+const filterByDiscountRange = (combo: Combo, range: { from: number | undefined; to: number | undefined }): boolean => {
+  const discount = combo.discount ?? 0;
+  return !((range.from !== undefined && discount < range.from) || (range.to !== undefined && discount > range.to));
+};
+
 const ComboManagement: React.FC = () => {
   const [combos, setCombos] = useState<Combo[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -162,8 +174,22 @@ const ComboManagement: React.FC = () => {
   const filteredCombos = useMemo(
     () =>
       combos.filter((combo) => {
+        // Lọc theo tìm kiếm toàn cục
         if (!filterByGlobalSearch(combo, searchTerm)) return false;
-        return filterCriteria.every((filter) => (filter.field === "status" ? filterByStatus(combo, filter.value as string) : true));
+
+        // Lọc theo từng tiêu chí
+        return filterCriteria.every((filter) => {
+          switch (filter.field) {
+            case "status":
+              return filterByStatus(combo, filter.value as string);
+            case "price":
+              return filterByPriceRange(combo, filter.value as { from: number | undefined; to: number | undefined });
+            case "discount":
+              return filterByDiscountRange(combo, filter.value as { from: number | undefined; to: number | undefined });
+            default:
+              return true;
+          }
+        });
       }),
     [combos, searchTerm, filterCriteria],
   );
@@ -185,6 +211,30 @@ const ComboManagement: React.FC = () => {
         value: "status",
         type: "select" as const,
         selectOptions: comboStatusOptions,
+      },
+      {
+        label: "Giá",
+        value: "price",
+        type: "numberRange" as const,
+        numberRangeConfig: {
+          fromPlaceholder: "Từ giá",
+          toPlaceholder: "Đến giá",
+          min: 0,
+          step: 1000,
+          suffix: "đ",
+        },
+      },
+      {
+        label: "Giảm giá",
+        value: "discount",
+        type: "numberRange" as const,
+        numberRangeConfig: {
+          fromPlaceholder: "Từ",
+          toPlaceholder: "Đến",
+          min: 0,
+          step: 1000,
+          suffix: "đ",
+        },
       },
     ],
     [],
@@ -263,24 +313,14 @@ const ComboManagement: React.FC = () => {
         }
 
         // Cập nhật giá trước khi gửi request
-        updatedCombo.price = basePrice;
+        // Lưu giá sau khi trừ giảm giá (tổng giá snack - giảm giá) lên database
+        updatedCombo.price = Math.max(0, basePrice - discount);
 
         // Gửi update combo
         updateComboMutation.mutate({
           params: { path: { id: selectedCombo.id ?? 0 } },
           body: transformComboToRequest(updatedCombo),
         });
-
-        // Đảm bảo giá được cập nhật chính xác
-        setTimeout(() => {
-          updateComboMutation.mutate({
-            params: { path: { id: selectedCombo.id ?? 0 } },
-            body: {
-              status: updatedCombo.status,
-              price: basePrice,
-            },
-          });
-        }, 300);
       } else {
         // Tạo combo mới
         const newCombo: Combo = {
@@ -302,8 +342,8 @@ const ComboManagement: React.FC = () => {
           return;
         }
 
-        // Áp dụng giá đã tính toán
-        newCombo.price = basePrice;
+        // Áp dụng giá đã tính toán - lưu giá sau khi trừ giảm giá (tổng giá snack - giảm giá) lên database
+        newCombo.price = Math.max(0, basePrice - discount);
 
         // Tạo combo mới
         createComboMutation.mutate({
@@ -350,14 +390,15 @@ const ComboManagement: React.FC = () => {
             // Sau khi xóa, cập nhật lại giá combo
             const updatedSnacks = detailsCombo.snacks.filter((s) => s.id !== comboSnackId);
             const basePrice = calculateComboPriceWithQuantity(updatedSnacks);
+            const discount = detailsCombo.discount || 0;
 
-            // Cập nhật giá combo trên server
+            // Cập nhật giá combo trên server - lưu giá sau khi trừ giảm giá (tổng giá snack - giảm giá)
             updateComboMutation.mutate(
               {
                 params: { path: { id: detailsCombo.id ?? 0 } },
                 body: {
                   status: detailsCombo.status,
-                  price: basePrice,
+                  price: Math.max(0, basePrice - discount),
                 },
               },
               {
@@ -420,6 +461,7 @@ const ComboManagement: React.FC = () => {
         snacks: detailsCombo.snacks.map((s) => (s.id === comboSnack.id ? comboSnack : s)),
       };
       const basePrice = calculateComboPriceWithQuantity(updatedCombo.snacks);
+      const discount = detailsCombo.discount || 0;
 
       // Đầu tiên cập nhật combo với danh sách snacks
       updateComboMutation.mutate(
@@ -432,13 +474,13 @@ const ComboManagement: React.FC = () => {
         },
         {
           onSuccess: () => {
-            // Sau đó, đảm bảo giá được cập nhật chính xác
+            // Sau đó, đảm bảo giá được cập nhật chính xác (lưu giá sau khi trừ giảm giá)
             updateComboMutation.mutate(
               {
                 params: { path: { id: detailsCombo.id ?? 0 } },
                 body: {
                   status: detailsCombo.status,
-                  price: basePrice,
+                  price: Math.max(0, basePrice - discount),
                 },
               },
               {
@@ -506,14 +548,15 @@ const ComboManagement: React.FC = () => {
               snacks: [...detailsCombo.snacks, tempComboSnack],
             };
             const basePrice = calculateComboPriceWithQuantity(updatedCombo.snacks);
+            const discount = detailsCombo.discount || 0;
 
-            // Cập nhật giá combo trên server
+            // Cập nhật giá combo trên server (lưu giá sau khi trừ giảm giá)
             updateComboMutation.mutate(
               {
                 params: { path: { id: detailsCombo.id ?? 0 } },
                 body: {
                   status: detailsCombo.status,
-                  price: basePrice,
+                  price: Math.max(0, basePrice - discount),
                 },
               },
               {

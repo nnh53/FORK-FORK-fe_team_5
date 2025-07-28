@@ -91,34 +91,37 @@ const ComboTable = forwardRef<{ resetPagination: () => void }, ComboTableProps>(
           <h2 className="text-xl font-semibold">Danh sách combo ({combos.length})</h2>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col items-center gap-3 sm:flex-row">
           {/* Sort Controls */}
           <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-1">
             <span className="px-2 text-sm font-medium">Sắp xếp:</span>
             <SortButton {...getSortProps("name")} label="Tên" />
+            <SortButton {...getSortProps("price")} label="Giá" />
+            <SortButton {...getSortProps("discount")} label="Giảm giá" />
           </div>
+          <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-1">
+            {/* Page Size Selector */}
+            <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(Number(value))}>
+              <SelectTrigger className="w-16">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="4">4</SelectItem>
+                <SelectItem value="8">8</SelectItem>
+                <SelectItem value="12">12</SelectItem>
+                <SelectItem value="16">16</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Page Size Selector */}
-          <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(Number(value))}>
-            <SelectTrigger className="w-16">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="4">4</SelectItem>
-              <SelectItem value="8">8</SelectItem>
-              <SelectItem value="12">12</SelectItem>
-              <SelectItem value="16">16</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* View Mode Toggle */}
-          <div className="flex items-center rounded-lg border">
-            <Button variant={viewMode === "grid" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("grid")} className="rounded-r-none">
-              <Grid3X3 className="h-4 w-4" />
-            </Button>
-            <Button variant={viewMode === "list" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("list")} className="rounded-l-none">
-              <List className="h-4 w-4" />
-            </Button>
+            {/* View Mode Toggle */}
+            <div className="flex items-center rounded-lg border">
+              <Button variant={viewMode === "grid" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("grid")} className="rounded-r-none">
+                <Grid3X3 className="h-4 w-4" />
+              </Button>
+              <Button variant={viewMode === "list" ? "default" : "ghost"} size="sm" onClick={() => setViewMode("list")} className="rounded-l-none">
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
