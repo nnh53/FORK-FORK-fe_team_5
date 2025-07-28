@@ -95,7 +95,7 @@ const Login: React.FC = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="Nhập email của bạn" {...field} />
+                  <Input type="email" placeholder="Nhập email của bạn" {...field} name="email" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -109,7 +109,7 @@ const Login: React.FC = () => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <PasswordInput id="password" placeholder="Nhập mật khẩu" {...field} />
+                  <PasswordInput id="password" placeholder="Nhập mật khẩu" {...field} name="password" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
