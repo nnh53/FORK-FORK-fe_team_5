@@ -236,12 +236,19 @@ const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => 
           <FormField
             control={form.control}
             name="phone"
+            rules={{
+              pattern: {
+                value: /^\d{9,11}$/,
+                message: "Số điện thoại phải từ 9-11 chữ số",
+              },
+            }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Số điện thoại</FormLabel>
                 <FormControl>
                   <Input placeholder="Số điện thoại" {...field} />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -290,7 +297,30 @@ const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => 
           <FormField
             control={form.control}
             name="password"
-            rules={!staff ? { required: "Vui lòng nhập mật khẩu" } : {}}
+            rules={
+              !staff
+                ? {
+                    required: "Vui lòng nhập mật khẩu",
+                    minLength: {
+                      value: 8,
+                      message: "Mật khẩu phải có ít nhất 8 ký tự",
+                    },
+                    maxLength: {
+                      value: 20,
+                      message: "Mật khẩu không được quá 20 ký tự",
+                    },
+                  }
+                : {
+                    minLength: {
+                      value: 8,
+                      message: "Mật khẩu phải có ít nhất 8 ký tự",
+                    },
+                    maxLength: {
+                      value: 20,
+                      message: "Mật khẩu không được quá 20 ký tự",
+                    },
+                  }
+            }
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mật khẩu {staff ? "(để trống nếu không thay đổi)" : ""}</FormLabel>
