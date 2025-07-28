@@ -10,6 +10,7 @@ interface SortButtonProps extends Omit<React.ComponentProps<typeof Button>, "onC
   onChange?: (direction: SortDirection) => void;
   direction?: SortDirection;
   label?: string;
+  field?: string; // Added field prop for identifying which column to sort
   children?: React.ReactNode;
 }
 

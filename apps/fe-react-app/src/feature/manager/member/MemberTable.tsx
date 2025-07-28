@@ -17,7 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { SortButton } from "@/components/shared/SortButton";
 import { usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
-import type { MEMBERSHIP_LEVEL, User } from "@/interfaces/users.interface";
+import type { User } from "@/interfaces/users.interface";
 import { formatUserDate } from "@/services/userService";
 import { getUserStatusDisplay } from "@/utils/color.utils";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
@@ -64,24 +64,17 @@ const getGenderBadgeClass = (gender: string): string => {
   }
 };
 
-// Extended User interface to include membership data
-interface UserWithMembership extends User {
-  membershipLevel?: MEMBERSHIP_LEVEL;
-  totalSpent?: number;
-  loyalty_point?: number;
-  loyaltyPoint?: number;
-}
-
+// Member table props
 interface MemberTableProps {
-  members: UserWithMembership[];
-  onEdit: (member: UserWithMembership) => void;
-  onDelete: (member: UserWithMembership) => void;
-  onView?: (member: UserWithMembership) => void;
+  members: User[];
+  onEdit: (member: User) => void;
+  onDelete: (member: User) => void;
+  onView?: (member: User) => void;
 }
 
 // Sửa MemberTable component để có thể forward ref và expose resetPagination
 const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps>(({ members, onEdit, onDelete, onView }, ref) => {
-  const { sortedData } = useSortable<UserWithMembership>(members);
+  const { sortedData, getSortProps } = useSortable<User>(members);
 
   // Pagination configuration
   const pagination = usePagination({
@@ -98,12 +91,9 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
 
   // Get current page data
   const currentPageData = useMemo(() => {
-    // Sắp xếp theo ID (giả định ID mới nhất sẽ lớn nhất)
-    const sortedByDate = [...sortedData].sort((a, b) => {
-      return String(b.id).localeCompare(String(a.id));
-    });
-
-    return sortedByDate.slice(pagination.startIndex, pagination.endIndex + 1);
+    // Chỉ lấy dữ liệu cho trang hiện tại mà không sắp xếp lại
+    // Điều này giữ nguyên thứ tự sắp xếp từ sortedData
+    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
   }, [sortedData, pagination.startIndex, pagination.endIndex]);
 
   return (
@@ -114,16 +104,16 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
             <TableRow className="bg-gray-50">
               <TableHead className="w-16 text-center">STT</TableHead>
               <TableHead>
-                <SortButton>Họ tên</SortButton>
+                <SortButton {...getSortProps("fullName")}>Họ tên</SortButton>
               </TableHead>
               <TableHead>
-                <SortButton>Email</SortButton>
+                <SortButton {...getSortProps("email")}>Email</SortButton>
               </TableHead>
               <TableHead>
-                <SortButton>Ngày sinh</SortButton>
+                <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
               </TableHead>
               <TableHead>
-                <SortButton>Điểm tích lũy</SortButton>
+                <SortButton {...getSortProps("loyaltyPoint")}>Điểm tích lũy</SortButton>
               </TableHead>
               <TableHead className="w-24 text-center">Số điện thoại</TableHead>
               <TableHead className="w-24 text-center">Địa chỉ</TableHead>
@@ -222,10 +212,10 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                 />
               </PaginationItem>
 
-              {pagination.visiblePages.map((page, i) => {
+              {pagination.visiblePages.map((page) => {
                 if (page === "ellipsis") {
                   return (
-                    <PaginationItem key={`ellipsis-page-${i}`}>
+                    <PaginationItem key={`ellipsis-${pagination.currentPage}`}>
                       <PaginationEllipsis />
                     </PaginationItem>
                   );
