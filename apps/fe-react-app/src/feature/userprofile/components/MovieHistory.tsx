@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import type { components } from "@/schema-from-be";
@@ -104,14 +104,10 @@ export const MovieHistory: React.FC = () => {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <Film className="text-primary h-6 w-6" />
-          <h1 className="text-3xl font-bold">Lịch sử giao dịch</h1>
-        </div>
         <Card>
           <CardContent className="flex items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Đang tải lịch sử giao dịch...</span>
+            <span className="ml-2">Đang tải lịch sử xem phim...</span>
           </CardContent>
         </Card>
       </div>
@@ -122,14 +118,10 @@ export const MovieHistory: React.FC = () => {
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <Film className="text-primary h-6 w-6" />
-          <h1 className="text-3xl font-bold">Lịch sử giao dịch</h1>
-        </div>
         <Card>
           <CardContent className="flex items-center justify-center p-8">
             <div className="text-center">
-              <p className="mb-2 text-red-500">Không thể tải lịch sử giao dịch</p>
+              <p className="mb-2 text-red-500">Không thể tải lịch sử xem phim</p>
               <p className="text-muted-foreground text-sm">Vui lòng thử lại sau</p>
             </div>
           </CardContent>
@@ -143,7 +135,7 @@ export const MovieHistory: React.FC = () => {
       {/* Header */}
       <div className="flex items-center gap-2">
         <Film className="text-primary h-6 w-6" />
-        <h1 className="text-3xl font-bold">Lịch sử giao dịch</h1>
+        <h1 className="text-3xl font-bold">Lịch sử xem phim</h1>
       </div>
 
       {/* Movie History List */}
@@ -151,11 +143,7 @@ export const MovieHistory: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Film className="h-5 w-5" />
-                Lịch sử xem phim
-              </CardTitle>
-              <CardDescription>Danh sách các phim bạn đã xem tại FCinema</CardDescription>
+              <CardTitle className="flex items-center gap-2">Danh sách các phim bạn đã xem tại FCinema</CardTitle>
             </div>
             <div className="flex items-center gap-2">
               <label htmlFor="status-filter" className="text-sm font-medium">

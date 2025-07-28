@@ -1,7 +1,7 @@
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/Shadcn/ui/dialog";
-import { Clock, MapPin, MoreHorizontal, Star, Users } from "lucide-react";
+import { Clock, MapPin, MoreHorizontal, Users } from "lucide-react";
 
 // Movie detail props interface
 export interface MovieDetailProps {
@@ -11,7 +11,7 @@ export interface MovieDetailProps {
   room: string;
   movieSlot: string;
   seats: (string | undefined)[];
-  points: number;
+  points: number; // Keep this in the interface for compatibility
   poster: string;
   status: string;
 }
@@ -66,10 +66,6 @@ export const MovieHistoryDetail: React.FC<{ movie: MovieDetailProps }> = ({ movi
             <div className="flex items-center gap-2">
               <Users className="text-muted-foreground h-4 w-4" />
               <span className="text-sm">Ghế: {movie.seats.filter(Boolean).join(", ")}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm">Điểm: {movie.points}</span>
             </div>
           </div>
 

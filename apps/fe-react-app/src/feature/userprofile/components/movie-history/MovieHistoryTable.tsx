@@ -1,6 +1,6 @@
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
-import { Clock, Film, MapPin, Star, Users } from "lucide-react";
+import { Clock, Film, MapPin, Users } from "lucide-react";
 import type { MovieDetailProps } from "./MovieHistoryDetail";
 import { MovieHistoryDetail } from "./MovieHistoryDetail";
 
@@ -35,7 +35,6 @@ export const MovieHistoryTable: React.FC<MovieHistoryTableProps> = ({ movieHisto
           <TableHead className="hidden lg:table-cell">Rạp chiếu</TableHead>
           <TableHead className="hidden md:table-cell">Suất chiếu</TableHead>
           <TableHead className="hidden lg:table-cell">Ghế</TableHead>
-          <TableHead className="hidden md:table-cell">Điểm</TableHead>
           <TableHead>Trạng thái</TableHead>
           <TableHead className="w-[50px]"></TableHead>
         </TableRow>
@@ -43,10 +42,10 @@ export const MovieHistoryTable: React.FC<MovieHistoryTableProps> = ({ movieHisto
       <TableBody>
         {movieHistory.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={8} className="py-8 text-center">
+            <TableCell colSpan={7} className="py-8 text-center">
               <div className="text-muted-foreground">
                 <Film className="mx-auto mb-2 h-12 w-12 opacity-50" />
-                <p>Chưa có lịch sử giao dịch nào</p>
+                <p>Chưa có lịch sử xem phim nào</p>
                 <p className="text-sm">Hãy đặt vé xem phim để xem lịch sử tại đây</p>
               </div>
             </TableCell>
@@ -84,12 +83,6 @@ export const MovieHistoryTable: React.FC<MovieHistoryTableProps> = ({ movieHisto
                 <div className="flex items-center gap-2">
                   <Users className="text-muted-foreground h-4 w-4" />
                   <span className="text-sm">{movie.seats.join(", ")}</span>
-                </div>
-              </TableCell>
-              <TableCell className="hidden md:table-cell">
-                <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 text-yellow-500" />
-                  <span className="font-medium">{movie.points}</span>
                 </div>
               </TableCell>
               <TableCell>{getStatusBadge(movie.status)}</TableCell>
