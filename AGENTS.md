@@ -14,17 +14,18 @@
 
 ```bash
 # Start dev server with hot reload
-pnpm nx dev fe-react-app
+pnpm nx dev fe-react-app --skip-nx-cache
 
 # Typecheck / Build / Lint via Nx cache
-pnpm nx typecheck fe-react-app
-pnpm nx build fe-react-app
-pnpm nx lint fe-react-app
+pnpm nx typecheck fe-react-app --skip-nx-cache
+pnpm nx build fe-react-app --skip-nx-cache
+pnpm nx lint fe-react-app --skip-nx-cache
 
 # Vitest tests
-pnpm nx vitest fe-react-app
+pnpm nx vitest fe-react-app --skip-nx-cache
 ```
 
+Alway run in --skip-nx-cache mode
 Alway run typecheck build lint successfully before give the user the respond
 
 ## Gotchas & Conventions
