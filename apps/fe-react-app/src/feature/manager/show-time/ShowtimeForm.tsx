@@ -340,6 +340,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
               selectedDate={showDate}
               movies={movies}
               selectedMovieId={movieId}
+              roomName={rooms.find((r) => r.id?.toString() === roomId)?.name}
             />
 
             {/* Time Pickers using Input type="time" */}
