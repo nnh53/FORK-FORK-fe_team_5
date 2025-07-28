@@ -24,9 +24,8 @@ export const useImageUploadAndUpdate = () => {
 
         setUploadedImageId(uploadResult.result);
 
-        // Step 2: Immediately update user with new avatar
+        // Step 2: Immediately update user with new avatar (partial update)
         const updatedUserData = {
-          ...currentUserData,
           avatar: uploadResult.result,
         };
 
