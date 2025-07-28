@@ -60,7 +60,9 @@
     "Showtimes",
     "sonar",
     "sonarjs",
-    "sonner"
+    "sonner",
+    "vite",
+    "Vitest"
   ],
   "chat.mcp.serverSampling": {
     "fe_team_5/.cursor/mcp.json: nx-mcp": {

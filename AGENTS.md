@@ -7,7 +7,7 @@
 1. **Frontend location** – all product code lives under `apps/fe-react-app/src`. Features are grouped in `feature/<domain>` (auth, booking, manager, …).
 2. **Networking** – `src/utils/api.ts` exports `$api` (openapi-react-query). Domain-specific hooks in `src/services/**` wrap `$api` for components.
 3. **Auth** – `AuthProvider` (cookie persistence) + `useAuth()` + `RoleRoute` enforce `ADMIN | STAFF | MEMBER` access rules.
-4. **UI stack** – Tailwind + **Shadcn/ui**. Customised primitives reside in `src/components/Shadcn/` and `src/components/shared/`.
+4. **UI stack** – Tailwind + **Shadcn/ui**. Customized primitives reside in `src/components/Shadcn/` and `src/components/shared/`.
 5. **Type safety** – the backend OpenAPI schema generates `schema-from-be.d.ts`; regenerate with `pnpm --filter fe-react-app generate-schema`.
 
 ## Daily Commands
@@ -25,6 +25,8 @@ pnpm nx lint fe-react-app
 pnpm nx vitest fe-react-app
 ```
 
+Alway run typecheck build lint successfully before give the user the respond
+
 ## Gotchas & Conventions
 
 - Use the `@/` import alias instead of long relative paths (configured in `tsconfig.json` & `vite.config.js`).
@@ -37,7 +39,7 @@ pnpm nx vitest fe-react-app
 
 ## Nx Tips
 
-- Visualise the dependency graph: `pnpm nx graph` (or `--focus fe-react-app`).
+- Visualize the dependency graph: `pnpm nx graph` (or `--focus fe-react-app`).
 - Prefer `pnpm nx <target> fe-react-app` over package.json scripts for deterministic, cached runs.
 - CI leverages Nx remote cache (see `nx.json`).
 

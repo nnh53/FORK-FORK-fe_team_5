@@ -9,8 +9,3 @@ onlyBuiltDependencies:
   - esbuild
   - nx
   - sharp
-
-packageExtensions:
-  vite:
-    dependencies:
-      vite: "^6.0.0"
