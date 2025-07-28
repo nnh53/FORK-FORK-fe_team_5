@@ -67,8 +67,8 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
     defaultValues: {
       movieId: initialData?.movieId.toString() || "",
       roomId: initialData?.roomId?.toString() || "",
-      showDate: initialData ? new Date(initialData.showDateTime) : new Date(),
-      startTime: initialData ? formatTimeForInput(new Date(initialData.showDateTime)) : "0",
+      showDate: initialData ? new Date(initialData.showDateTime) : undefined,
+      startTime: initialData ? formatTimeForInput(new Date(initialData.showDateTime)) : "",
       endTime: initialData ? formatTimeForInput(new Date(initialData.endDateTime)) : "",
       manualEndTime: Boolean(initialData),
     },
@@ -286,6 +286,13 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
               />
             </div>
 
+            <ShowtimeTimeline
+              roomId={roomId}
+              selectedDate={showDate}
+              movies={movies}
+              selectedMovieId={movieId}
+            />
+
             {/* Date Picker using Calendar like Register.tsx */}
             <FormField
               control={form.control}
@@ -322,8 +329,6 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                 </FormItem>
               )}
             />
-
-            <ShowtimeTimeline roomId={roomId} selectedDate={showDate} movies={movies} selectedMovieId={movieId} />
 
             {/* Time Pickers using Input type="time" */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
