@@ -11,7 +11,6 @@ type AccordionItemProps = {
   children: React.ReactNode;
   className?: string;
 } & Accordion.AccordionItemProps;
-
 const AccordionItem = forwardRef<HTMLDivElement, AccordionItemProps>(({ children, className, ...props }, forwardedRef) => (
   <Accordion.Item className={cn("mt-px overflow-hidden focus-within:relative focus-within:z-10", className)} {...props} ref={forwardedRef}>
     {children}

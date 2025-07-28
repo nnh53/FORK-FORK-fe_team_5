@@ -33,7 +33,6 @@ export const useUsers = () => {
  * Hook for getting a user by ID
  */
 export const useGetUserById = (userId: string) => {
-  console.log(`userId: =${userId}=`);
 
   if (userId === "") {
     console.log("userid bị méo tồn tại");

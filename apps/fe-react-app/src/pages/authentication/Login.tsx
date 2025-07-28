@@ -59,9 +59,7 @@ const Login: React.FC = () => {
 
       toast.success("Đăng nhập thành công!");
       form.reset();
-      setTimeout(() => {
-        navigate(RoleRouteToEachPage(authData?.roles as ROLE_TYPE));
-      }, 2000);
+      navigate(RoleRouteToEachPage(authData?.roles as ROLE_TYPE));
     } else if (loginQuery.isError) {
       toast.error((loginQuery.error as CustomAPIResponse).message ?? "Có lỗi xảy ra. Vui lòng thử lại.");
     }

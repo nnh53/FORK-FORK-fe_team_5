@@ -1,7 +1,6 @@
 import { RoleRouteToEachPage } from "@/feature/auth/RoleRoute";
 import { useAuth } from "@/hooks/useAuth";
 import type { ROLE_TYPE } from "@/interfaces/roles.interface";
-import { ROUTES } from "@/routes/route.constants";
 import { getCookie, parseRoles } from "@/utils/cookie.utils";
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
@@ -29,8 +28,6 @@ const AuthPageProtector: React.FC = () => {
       }
     }
 
-    // Fallback to account page
-    return <Navigate to={ROUTES.ACCOUNT} replace />;
   }
 
   // If not authenticated, allow access to auth pages

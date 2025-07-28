@@ -7,5 +7,4 @@ export const ROLES = {
   MEMBER: "MEMBER" as const,
 } as const;
 
-// Array of all roles for validation
-export const ALL_ROLES: ROLE_TYPE[] = ["ADMIN", "STAFF", "MEMBER"];
+
