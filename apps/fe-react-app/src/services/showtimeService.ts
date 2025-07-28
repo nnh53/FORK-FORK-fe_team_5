@@ -20,20 +20,10 @@ export const queryShowtimesByMovie = (movieId: number) => {
   });
 };
 
-import type { UseQueryOptions } from "@tanstack/react-query";
-
-export const queryShowtimesByRoom = (
-  roomId: number,
-  options?: Omit<UseQueryOptions<any, any, any, any>, "queryKey" | "queryFn">,
-) => {
-  return $api.useQuery(
-    "get",
-    "/showtimes/room/{roomId}",
-    {
-      params: { path: { roomId } },
-    },
-    options,
-  );
+export const queryShowtimesByRoom = (roomId: number) => {
+  return $api.useQuery("get", "/showtimes/room/{roomId}", {
+    params: { path: { roomId } },
+  });
 };
 
 export const queryShowtimeSeats = (showtimeId: number) => {
