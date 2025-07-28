@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Filter, type FilterCriteria } from "./Filter";
+import { Filter, type FilterCriteria } from "../../src/components/shared/Filter";
 
 const simpleFilterOptions = [
   {

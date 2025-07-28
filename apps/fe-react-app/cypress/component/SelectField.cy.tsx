@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { SelectField } from "./SelectField";
+import { SelectField } from "../../src/components/shared/forms/SelectField";
 
 describe("SelectField", () => {
   const mockOptions = [

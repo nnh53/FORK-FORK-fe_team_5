@@ -34,7 +34,7 @@
 
     "types": ["node", "@nx/react/typings/cssmodule.d.ts", "@nx/react/typings/image.d.ts", "vite/client"]
   },
-  "include": ["src"],
+  "include": ["src", "cypress/component/SearchBar.cy.tsx", "cypress/component/Filter.cy.tsx", "cypress/component/SelectField.cy.tsx"],
   "exclude": [
     "dist",
     "vite.config.ts",
