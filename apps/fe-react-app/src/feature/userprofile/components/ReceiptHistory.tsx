@@ -6,7 +6,7 @@ import { queryReceipts } from "@/services/receipService";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
 import { format, subDays } from "date-fns";
 import { Loader2, Receipt as ReceiptIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReceiptDetailProps } from "./receipt-history/ReceiptHistoryDetail";
 import { ReceiptHistoryTable } from "./receipt-history/ReceiptHistoryTable";
 
@@ -17,22 +17,29 @@ const ReceiptHistory: React.FC = () => {
   const { user } = useAuth();
   const userId = user?.id || getUserIdFromCookie();
 
-  // Receipt API mutation
-  const receiptMutation = queryReceipts();
+  // Receipt API mutation - Sử dụng useRef để đảm bảo tính ổn định, không gây re-renders
+  const receiptMutationRef = useRef(queryReceipts());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [apiReceipts, setApiReceipts] = useState<Receipt[]>([]);
 
-  // Load receipts on component mount
-  useEffect(() => {
-    const fetchReceipts = async () => {
-      if (!userId) return;
+  // Sử dụng useRef để theo dõi việc đã fetch hay chưa, tránh fetch nhiều lần
+  const hasFetchedRef = useRef(false);
 
+  // Load receipts on component mount - Chỉ chạy đúng 1 lần
+  useEffect(() => {
+    // Nếu không có userId hoặc đã fetch rồi thì không fetch nữa
+    if (!userId || hasFetchedRef.current) return;
+
+    // Track if component is mounted
+    let isMounted = true;
+
+    const fetchReceipts = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        // Default filter to last 90 days
+        // Default filter to last 90 days - Tính toán một lần
         const today = new Date();
         const ninetyDaysAgo = subDays(today, 90);
 
@@ -42,26 +49,43 @@ const ReceiptHistory: React.FC = () => {
           toDate: format(today, "yyyy-MM-dd"),
         };
 
+        console.log("[ReceiptHistory] Calling API exactly once");
+
         // Call API
-        const response = await receiptMutation.mutateAsync({
+        const response = await receiptMutationRef.current.mutateAsync({
           body: filterRequest,
         });
 
-        if (response?.result) {
-          setApiReceipts(response.result);
-        } else {
-          setApiReceipts([]);
+        // Đánh dấu là đã fetch
+        hasFetchedRef.current = true;
+
+        // Chỉ update state nếu component vẫn mounted
+        if (isMounted) {
+          if (response?.result) {
+            setApiReceipts(response.result);
+          } else {
+            setApiReceipts([]);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch receipts:", err);
-        setError(err instanceof Error ? err : new Error("Failed to fetch receipts"));
+        if (isMounted) {
+          setError(err instanceof Error ? err : new Error("Failed to fetch receipts"));
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchReceipts();
-  }, [userId, receiptMutation]);
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [userId]); // Chỉ phụ thuộc vào userId
 
   // Transform API data to display format
   const receiptHistory = useMemo(() => {
