@@ -1,6 +1,8 @@
+import { Badge } from "@/components/Shadcn/ui/badge";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { Movie } from "@/interfaces/movies.interface";
 import { queryShowtimesByRoom, transformShowtimesResponse } from "@/services/showtimeService";
+import { getShowtimeStatusColor } from "@/utils/color.utils";
 import { format } from "date-fns";
 import { useMemo } from "react";
 
@@ -36,10 +38,24 @@ export function ShowtimeTimeline({ roomId, selectedDate, movies, selectedMovieId
       {showtimes.length === 0 ? (
         <p className="text-muted-foreground text-sm">Không có lịch chiếu</p>
       ) : (
-        <ul className="space-y-1 text-sm">
+        <ul className="space-y-2 text-sm">
           {showtimes.map((st) => (
-            <li key={st.id} className={st.movieId.toString() === selectedMovieId ? "font-medium" : ""}>
-              {format(new Date(st.showDateTime), "HH:mm")} - {format(new Date(st.endDateTime), "HH:mm")} : {getMovieName(st.movieId)}
+            <li
+              key={st.id}
+              className="flex items-center justify-between rounded-md border p-2"
+            >
+              <div className={st.movieId.toString() === selectedMovieId ? "font-medium" : ""}>
+                <p>{getMovieName(st.movieId)}</p>
+                <p className="text-muted-foreground text-xs">
+                  {format(new Date(st.showDateTime), "dd/MM/yyyy HH:mm")} - {format(new Date(st.endDateTime), "HH:mm")}
+                </p>
+              </div>
+              <Badge
+                variant="outline"
+                className={getShowtimeStatusColor(st.status)}
+              >
+                {st.status}
+              </Badge>
             </li>
           ))}
         </ul>

@@ -140,6 +140,19 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
     [form],
   );
 
+  const handleRoomChange = useCallback(
+    (newRoomId: string) => {
+      form.setValue("roomId", newRoomId, { shouldValidate: true });
+      form.setValue("movieId", "", { shouldValidate: true });
+      form.setValue("showDate", undefined as unknown as Date, { shouldValidate: true });
+      form.setValue("startTime", "", { shouldValidate: true });
+      form.setValue("endTime", "", { shouldValidate: true });
+      form.setValue("manualEndTime", false, { shouldValidate: true });
+      setConflictError("");
+    },
+    [form],
+  );
+
   const handleFieldChange = useCallback(
     (field: keyof FormData, value: string | boolean | Date) => {
       form.setValue(field, value, { shouldValidate: true });
@@ -227,7 +240,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <FormField
                 control={form.control}
                 name="roomId"
@@ -236,7 +249,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                     <FormLabel>
                       Chọn phòng chiếu <span className="text-red-500">*</span>
                     </FormLabel>
-                    <Select value={field.value} onValueChange={(value) => handleFieldChange("roomId", value)}>
+                    <Select value={field.value} onValueChange={handleRoomChange}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Chọn phòng chiếu" />
@@ -284,6 +297,42 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="showDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>
+                      Ngày chiếu <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            disabled={!movieId}
+                            className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                          >
+                            {field.value ? format(field.value, "dd/MM/yyyy") : <span>Chọn ngày chiếu</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(date) => handleFieldChange("showDate", date || new Date())}
+                          disabled={(date) => date < new Date() || date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <ShowtimeTimeline
@@ -291,43 +340,6 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
               selectedDate={showDate}
               movies={movies}
               selectedMovieId={movieId}
-            />
-
-            {/* Date Picker using Calendar like Register.tsx */}
-            <FormField
-              control={form.control}
-              name="showDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>
-                    Ngày chiếu <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          disabled={!movieId}
-                          className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
-                        >
-                          {field.value ? format(field.value, "dd/MM/yyyy") : <span>Chọn ngày chiếu</span>}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={(date) => handleFieldChange("showDate", date || new Date())}
-                        disabled={(date) => date < new Date() || date < new Date(new Date().setHours(0, 0, 0, 0))}
-                        captionLayout="dropdown"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
             />
 
             {/* Time Pickers using Input type="time" */}
