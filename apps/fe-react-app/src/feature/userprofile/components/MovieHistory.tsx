@@ -1,102 +1,18 @@
-import { Badge } from "@/components/Shadcn/ui/badge";
-import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/Shadcn/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { useAuth } from "@/hooks/useAuth";
 import type { components } from "@/schema-from-be";
 import { queryBookingsByUserId } from "@/services/bookingService";
 import { useCinemaRooms } from "@/services/cinemaRoomService";
 import { queryMovies } from "@/services/movieService";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
-import { Clock, Film, Loader2, MapPin, MoreHorizontal, Star, Users } from "lucide-react";
+import { Film, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { MovieHistoryTable } from "./movie-history/MovieHistoryTable";
+
 type BookingResponse = components["schemas"]["BookingResponse"];
 type CinemaRoomResponse = components["schemas"]["CinemaRoomResponse"];
 type MovieResponse = components["schemas"]["MovieResponse"];
-
-// Movie detail dialog component
-interface MovieDetailDialogProps {
-  movie: {
-    id: string;
-    receiptId: string;
-    movieName: string;
-    room: string;
-    movieSlot: string;
-    seats: (string | undefined)[];
-    points: number;
-    poster: string;
-    status: string;
-  };
-}
-
-const MovieDetailDialog = ({ movie }: MovieDetailDialogProps) => {
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      confirmed: { label: "Đã xác nhận", variant: "default" as const },
-      paid: { label: "Đã thanh toán", variant: "secondary" as const },
-      cancelled: { label: "Đã hủy", variant: "destructive" as const },
-      refunded: { label: "Đã hoàn tiền", variant: "outline" as const },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || {
-      label: status,
-      variant: "default" as const,
-    };
-
-    return <Badge variant={config.variant}>{config.label}</Badge>;
-  };
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Chi tiết giao dịch</DialogTitle>
-          <DialogDescription>Thông tin chi tiết về vé đã đặt</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <img src={movie.poster} alt={movie.movieName} className="h-20 w-16 rounded object-cover" />
-            <div>
-              <h3 className="font-medium">{movie.movieName}</h3>
-              <p className="text-muted-foreground text-sm">Mã: {movie.receiptId}</p>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <MapPin className="text-muted-foreground h-4 w-4" />
-              <span className="text-sm">{movie.room}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="text-muted-foreground h-4 w-4" />
-              <span className="text-sm">{movie.movieSlot}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="text-muted-foreground h-4 w-4" />
-              <span className="text-sm">Ghế: {movie.seats.filter(Boolean).join(", ")}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm">Điểm: {movie.points}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Trạng thái:</span>
-            {getStatusBadge(movie.status)}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 export const MovieHistory: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -184,23 +100,6 @@ export const MovieHistory: React.FC = () => {
       .sort((a, b) => b.movieTime.getTime() - a.movieTime.getTime());
   }, [bookingsData, statusFilter, moviesData, cinemaRoomsData]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "SUCCESS":
-        return (
-          <Badge variant="default" className="bg-green-500">
-            Hoàn thành
-          </Badge>
-        );
-      case "CANCELLED":
-        return <Badge variant="destructive">Đã hủy</Badge>;
-      case "PENDING":
-        return <Badge variant="outline">Đang xử lý</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
   // Loading state
   if (isLoading) {
     return (
@@ -277,80 +176,7 @@ export const MovieHistory: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="hidden md:table-cell">Mã hóa đơn</TableHead>
-                <TableHead>Phim</TableHead>
-                <TableHead className="hidden lg:table-cell">Rạp chiếu</TableHead>
-                <TableHead className="hidden md:table-cell">Suất chiếu</TableHead>
-                <TableHead className="hidden lg:table-cell">Ghế</TableHead>
-                <TableHead className="hidden md:table-cell">Điểm</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {movieHistory.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="py-8 text-center">
-                    <div className="text-muted-foreground">
-                      <Film className="mx-auto mb-2 h-12 w-12 opacity-50" />
-                      <p>Chưa có lịch sử giao dịch nào</p>
-                      <p className="text-sm">Hãy đặt vé xem phim để xem lịch sử tại đây</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                movieHistory.map((movie) => (
-                  <TableRow key={movie.id}>
-                    <TableCell className="hidden font-medium md:table-cell">{movie.receiptId}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <img src={movie.poster} alt={movie.movieName} className="h-16 w-12 rounded object-cover" />
-                        <div className="space-y-1">
-                          <p className="font-medium">{movie.movieName}</p>
-                          <div className="text-muted-foreground space-y-1 text-sm md:hidden">
-                            <p>#{movie.receiptId}</p>
-                            <p>{movie.room}</p>
-                            <p>{movie.movieSlot}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="text-muted-foreground h-4 w-4" />
-                        <span className="text-sm">{movie.room}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <div className="flex items-center gap-2">
-                        <Clock className="text-muted-foreground h-4 w-4" />
-                        <span className="text-sm">{movie.movieSlot}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <div className="flex items-center gap-2">
-                        <Users className="text-muted-foreground h-4 w-4" />
-                        <span className="text-sm">{movie.seats.join(", ")}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-yellow-500" />
-                        <span className="font-medium">{movie.points}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(movie.status)}</TableCell>
-                    <TableCell>
-                      <MovieDetailDialog movie={movie} />
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <MovieHistoryTable movieHistory={movieHistory} />
         </CardContent>
       </Card>
     </div>
