@@ -20,7 +20,12 @@ export const queryShowtimesByMovie = (movieId: number) => {
   });
 };
 
-export const queryShowtimesByRoom = (roomId: number, options?: Parameters<typeof $api.useQuery>[3]) => {
+import type { UseQueryOptions } from "@tanstack/react-query";
+
+export const queryShowtimesByRoom = (
+  roomId: number,
+  options?: Omit<UseQueryOptions<any, any, any, any>, "queryKey" | "queryFn">,
+) => {
   return $api.useQuery(
     "get",
     "/showtimes/room/{roomId}",
