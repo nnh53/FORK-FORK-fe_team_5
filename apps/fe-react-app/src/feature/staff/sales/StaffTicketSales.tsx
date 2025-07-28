@@ -180,6 +180,12 @@ const StaffTicketSales: React.FC = () => {
     phone: "",
     email: "",
   });
+  // State for unknown customer
+  const [useUnknownCustomer, setUseUnknownCustomer] = useState(false);
+
+  // Constants for unknown customer
+  const UNKNOWN_CUSTOMER_ID = "11111111-1111-1111-1111-111111111111";
+
   // State for payment
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [usePoints, setUsePoints] = useState(0);
@@ -361,6 +367,7 @@ const StaffTicketSales: React.FC = () => {
     setMemberPhone("");
     setMemberInfo(null);
     setUsePoints(0);
+    setUseUnknownCustomer(false);
     setStep("movie");
   };
 
@@ -371,7 +378,8 @@ const StaffTicketSales: React.FC = () => {
       return false;
     }
 
-    if (!customerInfo.name || !customerInfo.phone) {
+    // Skip customer info validation if using unknown customer
+    if (!useUnknownCustomer && (!customerInfo.name || !customerInfo.phone)) {
       toast.error("Vui lòng nhập thông tin khách hàng");
       return false;
     }
@@ -387,8 +395,17 @@ const StaffTicketSales: React.FC = () => {
   // Helper function to create booking data
   const createBookingData = () => {
     const totalPrice = calculateTotal();
+
+    // Determine user ID based on customer type
+    let userId: string;
+    if (useUnknownCustomer) {
+      userId = UNKNOWN_CUSTOMER_ID;
+    } else {
+      userId = memberInfo?.id || `guest_${Date.now()}`;
+    }
+
     return {
-      userId: memberInfo?.id || `guest_${Date.now()}`,
+      userId,
       showtimeId: selectedShowtime ? parseInt(selectedShowtime.id) : 1,
       promotionId: selectedPromotion?.id,
       seatIds: selectedSeatIds,
@@ -436,6 +453,8 @@ const StaffTicketSales: React.FC = () => {
         selectionInfo: selectedShowtime,
         cinemaName: `Phòng ${selectedShowtime?.cinemaRoomId}`,
         paymentMethod: paymentMethod,
+        isStaffBooking: true, // Mark as staff booking
+        staffInfo: user?.fullName || "Unknown Staff",
         savedAt: new Date().toISOString(),
       };
 
@@ -458,6 +477,35 @@ const StaffTicketSales: React.FC = () => {
     }
   };
 
+  // Helper function to extract error message from API response
+  const getErrorMessage = (error: unknown, defaultMessage = "Đặt vé thất bại. Vui lòng thử lại!"): string => {
+    let errorMessage = defaultMessage;
+
+    if (error && typeof error === "object") {
+      // Check if error has a response (axios-like error structure)
+      if ("response" in error && error.response && typeof error.response === "object") {
+        const response = error.response as { data?: { message?: string } };
+        if (response.data?.message) {
+          errorMessage = response.data.message;
+        }
+      }
+      // Check if error has a message property directly
+      else if ("message" in error && typeof error.message === "string") {
+        errorMessage = error.message;
+      }
+      // Check if error has an error property with message (openapi-fetch specific)
+      else if ("error" in error && error.error && typeof error.error === "object" && "message" in error.error) {
+        errorMessage = error.error.message as string;
+      }
+      // Check for openapi-fetch error format with data
+      else if ("data" in error && error.data && typeof error.data === "object" && "message" in error.data) {
+        errorMessage = (error.data as { message: string }).message;
+      }
+    }
+
+    return errorMessage;
+  };
+
   const handleCreateBooking = async () => {
     // Validate booking requirements before proceeding
     const isValid = validateBookingRequirements();
@@ -474,10 +522,19 @@ const StaffTicketSales: React.FC = () => {
     } else {
       // For online payment, proceed with booking creation directly
       try {
+        setLoading(true);
         await handleOnlinePayment(bookingData);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error processing online booking:", error);
-        toast.error("Đặt vé thất bại. Vui lòng thử lại!");
+
+        // Extract error message from backend response
+        const errorMessage = getErrorMessage(error);
+        toast.error(errorMessage);
+
+        // Clear booking data on failure
+        setPendingBookingData(null);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -532,6 +589,8 @@ const StaffTicketSales: React.FC = () => {
         totalAmount: calculateTotal(),
         confirmedAt: new Date().toISOString(),
       },
+      isStaffBooking: true, // Mark as staff booking
+      staffInfo: user?.fullName || "Unknown Staff",
       savedAt: new Date().toISOString(),
     };
   };
@@ -595,9 +654,15 @@ const StaffTicketSales: React.FC = () => {
         } else {
           throw new Error("Booking creation failed: No result returned");
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error processing cash payment:", error);
-        toast.error("Thanh toán tiền mặt thất bại. Vui lòng thử lại!");
+
+        // Extract error message from backend response
+        const errorMessage = getErrorMessage(error, "Thanh toán tiền mặt thất bại. Vui lòng thử lại!");
+        toast.error(errorMessage);
+
+        // Clear booking data on failure
+        setPendingBookingData(null);
       } finally {
         setLoading(false);
         setShowCashPaymentDialog(false);
@@ -624,6 +689,26 @@ const StaffTicketSales: React.FC = () => {
 
   const handleCustomerInfoChange = (field: string, value: string) => {
     setCustomerInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Handle unknown customer toggle
+  const handleUnknownCustomerToggle = (useUnknown: boolean) => {
+    setUseUnknownCustomer(useUnknown);
+
+    if (useUnknown) {
+      // Set default values for unknown customer
+      setCustomerInfo({
+        name: "Khách vãng lai",
+        phone: "",
+        email: "unknown@cinema.local",
+      });
+      setMemberPhone("");
+      setMemberInfo(null);
+      setUsePoints(0); // Can't use points for unknown customer
+    } else {
+      // Clear values when switching back
+      setCustomerInfo({ name: "", phone: "", email: "" });
+    }
   };
 
   // Handle promotion selection
@@ -733,9 +818,11 @@ const StaffTicketSales: React.FC = () => {
               customerInfo={customerInfo}
               memberPhone={memberPhone}
               memberInfo={memberInfo}
+              useUnknownCustomer={useUnknownCustomer}
               onCustomerInfoChange={handleCustomerInfoChange}
               onMemberPhoneChange={setMemberPhone}
               onSearchMember={searchMember}
+              onUnknownCustomerToggle={handleUnknownCustomerToggle}
               onBack={() => setStepTo("snacks")}
               onNext={() => setStepTo("payment")}
             />

@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/Shadcn/ui/sidebar";
-import { IconCalendar, IconCheckbox, IconHome, IconLifebuoy, IconSend, IconTicket } from "@tabler/icons-react";
+import { IconCalendar, IconHome, IconLifebuoy, IconSend, IconTicket } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { NavUser } from "./nav-user";
 
@@ -35,11 +35,6 @@ const data = {
       title: "Quản lý Booking",
       url: "/staff/booking",
       icon: IconCalendar,
-    },
-    {
-      title: "Check-in & Đổi điểm",
-      url: "/staff/checkin",
-      icon: IconCheckbox,
     },
   ],
   navSecondary: [
