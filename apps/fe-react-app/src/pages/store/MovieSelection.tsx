@@ -256,7 +256,7 @@ function MovieSelection() {
   };
 
   return (
-    <div>
+    <div id="movies">
       {/* Movie Search Section */}
       <div className="mx-auto max-w-4xl px-4 py-8">
         <div className="mb-6 text-center">

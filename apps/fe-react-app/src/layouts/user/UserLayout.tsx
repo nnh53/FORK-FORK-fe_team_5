@@ -12,7 +12,7 @@ const UserLayout = ({ children }: UserLayoutProps) => {
   return (
     <div>
       <Header />
-      <main className={`flex-grow pt-20`}>
+      <main>
         <PageTransition>{children || <Outlet />}</PageTransition>
       </main>
       <Footer />
