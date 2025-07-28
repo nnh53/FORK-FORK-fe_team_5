@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/Shadcn/ui/avatar";
+import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Input } from "@/components/Shadcn/ui/input";
@@ -9,7 +10,7 @@ import { CITIES, GENDERS, type UserFormData } from "@/constants/profile";
 import { useImageUploadAndUpdate } from "@/hooks/useImageUploadAndUpdate";
 import { useUpdateUserData, useUserData } from "@/hooks/userProfile";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
-import { Calendar, Camera, Mail, MapPin, Phone, User } from "lucide-react";
+import { Calendar, Camera, Gem, Mail, MapPin, Phone, User } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -122,26 +123,40 @@ export const MyInfo: React.FC = () => {
           <CardDescription>Cập nhật ảnh đại diện của bạn</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-6">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={userInfo.img} />
-              <AvatarFallback>
-                <User className="h-12 w-12" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-2">
-              <Button variant="outline" className="relative" disabled={isUploadingAndUpdating}>
-                <Camera className="mr-2 h-4 w-4" />
-                {isUploadingAndUpdating ? "Đang tải lên và cập nhật..." : "Thay đổi ảnh"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="absolute inset-0 cursor-pointer opacity-0"
-                  disabled={isUploadingAndUpdating}
-                />
-              </Button>
-              <p className="text-muted-foreground text-sm">JPG, PNG. Tối đa 4MB (sẽ được nén thành WebP và tự động cập nhật)</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={userInfo.img} />
+                <AvatarFallback>
+                  <User className="h-12 w-12" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-2">
+                <Button variant="outline" className="relative" disabled={isUploadingAndUpdating}>
+                  <Camera className="mr-2 h-4 w-4" />
+                  {isUploadingAndUpdating ? "Đang tải lên và cập nhật..." : "Thay đổi ảnh"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="absolute inset-0 cursor-pointer opacity-0"
+                    disabled={isUploadingAndUpdating}
+                  />
+                </Button>
+                <p className="text-muted-foreground text-sm">JPG, PNG. Tối đa 4MB (sẽ được nén thành WebP và tự động cập nhật)</p>
+              </div>
+            </div>
+
+            {/* Loyalty Points Display */}
+            <div className="p-4">
+              <div className="flex flex-col items-center space-y-2">
+                <Badge variant="secondary" className="px-3 py-1">
+                  <Gem className="text-primary mr-1 h-4 w-4" />
+                  Điểm thành viên
+                </Badge>
+                <div className="text-primary text-3xl font-bold">{userInfo.loyaltyPoint || 0}</div>
+                <p className="text-muted-foreground text-xs">Điểm tích lũy của bạn</p>
+              </div>
             </div>
           </div>
         </CardContent>

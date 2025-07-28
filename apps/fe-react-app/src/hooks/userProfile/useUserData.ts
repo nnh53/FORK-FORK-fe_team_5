@@ -26,6 +26,7 @@ export const useUserData = (userId: string | null) => {
         address: userData.result.address ?? "",
         img: userData.result.avatar ?? "", // This should now have the new avatar
         avatar: userData.result.avatar ?? "", // Include avatar field
+        loyaltyPoint: userData.result.loyaltyPoint ?? 0, // Include loyalty point
       });
 
       console.log("🔍 useUserData - User info updated with avatar:", userData.result.avatar);

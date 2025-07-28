@@ -33,6 +33,7 @@ export const useUsers = () => {
  * Hook for getting a user by ID
  */
 export const useGetUserById = (userId: string) => {
+  console.log(`userId: =${userId}=`);
 
   if (userId === "") {
     console.log("userid bị méo tồn tại");
@@ -91,18 +92,13 @@ export const useSearchUser = (searchInput: string) => {
         query: { input: searchInput },
       },
     }),
-    [searchInput]
+    [searchInput],
   );
 
-  return $api.useQuery(
-    "get",
-    "/users/search",
-    params,
-    {
-      enabled: searchInput.trim().length > 2,
-      staleTime: 5 * 60 * 1000,
-    }
-  );
+  return $api.useQuery("get", "/users/search", params, {
+    enabled: searchInput.trim().length > 2,
+    staleTime: 5 * 60 * 1000,
+  });
 };
 
 // ==================== TRANSFORM FUNCTIONS ====================
@@ -179,6 +175,7 @@ export const transformUserResponse = (userResponse: UserResponse): User => {
     status: userResponse.status ?? "ACTIVE",
     dateOfBirth: userResponse.dateOfBirth,
     gender: userResponse.gender,
+    loyaltyPoint: userResponse.loyaltyPoint ?? 0,
   };
 };
 

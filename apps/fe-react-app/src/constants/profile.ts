@@ -10,6 +10,7 @@ export interface UserFormData {
   address: string;
   img: string;
   avatar?: string; // For Cloudflare image ID
+  loyaltyPoint?: number; // Added loyalty point field
 }
 
 // Initial data
@@ -24,6 +25,7 @@ export const INITIAL_USER_DATA: UserFormData = {
   address: "",
   img: "",
   avatar: "",
+  loyaltyPoint: 0,
 };
 
 // Options
