@@ -20,10 +20,15 @@ export const queryShowtimesByMovie = (movieId: number) => {
   });
 };
 
-export const queryShowtimesByRoom = (roomId: number) => {
-  return $api.useQuery("get", "/showtimes/room/{roomId}", {
-    params: { path: { roomId } },
-  });
+export const queryShowtimesByRoom = (roomId: number, options?: Parameters<typeof $api.useQuery>[3]) => {
+  return $api.useQuery(
+    "get",
+    "/showtimes/room/{roomId}",
+    {
+      params: { path: { roomId } },
+    },
+    options,
+  );
 };
 
 export const queryShowtimeSeats = (showtimeId: number) => {
