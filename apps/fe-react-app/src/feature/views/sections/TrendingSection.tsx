@@ -1,3 +1,5 @@
+import { LineShadowText } from "@/components/magicui/line-shadow-text";
+import { ShimmerButton } from "@/components/magicui/shimmer-button";
 import { queryMoviesForTrending } from "@/services/movieService";
 import { queryReceiptTopMovies } from "@/services/receipService";
 import { Image } from "@unpic/react";
@@ -135,7 +137,14 @@ const TrendingSection = () => {
           {/* Left: Movie Ranking List */}
           <div className="space-y-6">
             <div className="text-left">
-              <h2 className="mb-2 text-4xl font-bold text-white">TOP MOVIES</h2>
+              <h2 className="mb-2 text-4xl font-bold text-white">
+                <LineShadowText className="italic" shadowColor="white">
+                  TOP
+                </LineShadowText>{" "}
+                <LineShadowText className="italic" shadowColor="white">
+                  MOVIES
+                </LineShadowText>
+              </h2>
               <p className="text-lg text-gray-300">Được bình chọn nhiều nhất</p>
             </div>
 
@@ -162,16 +171,16 @@ const TrendingSection = () => {
           <div className="flex items-center justify-center">
             <div className="space-y-6 text-center">
               <div className="space-y-4">
-                <h3 className="text-6xl font-bold text-white"></h3>
+                <h3 className="text-6xl font-bold text-white"> </h3>
                 <p className="text-xl tracking-wider text-orange-400">BY F-Cinema</p>
 
                 {/* Book Now Button */}
-                <button
+                <ShimmerButton
                   onClick={handleBookNow}
-                  className="inline-flex transform items-center justify-center rounded-lg bg-orange-500 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-colors duration-300 hover:scale-105 hover:bg-orange-600 hover:shadow-xl"
+                  className="inline-flex transform items-center justify-center rounded-lg bg-orange-500 px-8 py-3 text-lg font-semibold text-white shadow-2xl shadow-lg transition-colors duration-300 hover:scale-105 hover:bg-orange-600 hover:shadow-xl"
                 >
                   Book Ngay
-                </button>
+                </ShimmerButton>
               </div>
             </div>
           </div>

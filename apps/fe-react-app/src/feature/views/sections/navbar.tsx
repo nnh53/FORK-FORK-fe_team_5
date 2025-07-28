@@ -118,7 +118,7 @@ export function Navbar() {
   };
 
   return (
-    <header className={cn("sticky z-50 mx-4 flex justify-center transition-all duration-300 md:mx-0", hasScrolled ? "top-6" : "top-4 mx-0")}>
+    <header className={cn("sticky z-50 mx-4 flex justify-center transition-all duration-300 md:mx-0", hasScrolled ? "top-6" : "top-0 mx-0")}>
       <motion.div
         initial={{ width: INITIAL_WIDTH }}
         animate={{ width: hasScrolled ? MAX_WIDTH : INITIAL_WIDTH }}

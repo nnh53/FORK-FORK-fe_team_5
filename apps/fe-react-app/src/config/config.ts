@@ -16,11 +16,11 @@ export const siteConfig = {
   nav: {
     links: [
       { id: 1, name: "Home", href: "#home" },
-        { id: 2, name: "Movies", href: "#movies" },
-        { id: 3, name: "Spotlight", href: "#spotlight" },
-        { id: 4, name: "Features", href: "#features" },
-        { id: 5, name: "FAQ", href: "#faq" },
-      ],
+      { id: 2, name: "Movies", href: "#movies" },
+      { id: 3, name: "Spotlight", href: "#spotlight" },
+      { id: 4, name: "Features", href: "#features" },
+      { id: 5, name: "FAQ", href: "#faq" },
+    ],
   },
   featureSection: {
     title: "Công Nghệ. Phong Cách. Trải nghiệm.",
@@ -158,7 +158,10 @@ export const siteConfig = {
     cards: [
       { id: 1, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/a3a4e359-2ba6-47fb-aef4-c5b141789868-cuong.webp" },
       { id: 2, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/714dbf1c-a580-4586-96c8-f22e894541d9-hoang.webp" },
-      { id: 3, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/0658ccab-ff6b-4eab-8eac-0890c4f93c3a-phat.webp" },
+      {
+        id: 3,
+        img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/0fae00ec-2101-4b76-bbf7-d1c95e1631ea-66409e92-578e-4d81-a64f-385e0883ad31.webp",
+      },
       { id: 4, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/bc051d33-b955-4e44-a19a-350b65c48d9b-tan.webp" },
       { id: 5, img: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/567afc59-c987-45ac-90fd-7911d5f4381f-bao.webp" },
     ],
