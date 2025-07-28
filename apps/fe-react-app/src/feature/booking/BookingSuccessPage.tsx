@@ -1,5 +1,6 @@
 import { Button } from "@/components/Shadcn/ui/button";
 import type { ApiBooking, Booking } from "@/interfaces/booking.interface";
+import { ROUTES } from "@/routes/route.constants";
 import { useBooking } from "@/services/bookingService";
 import { useCinemaRoom } from "@/services/cinemaRoomService";
 import { queryMovie } from "@/services/movieService.ts";
@@ -20,6 +21,8 @@ interface StoredBookingData {
   paymentMethod?: string;
   costs?: { finalTotalCost?: number };
   cinemaName?: string;
+  isStaffBooking?: boolean;
+  staffInfo?: string;
 }
 
 // Helper function to get booking ID from localStorage
@@ -148,9 +151,11 @@ interface BookingSuccessContentProps {
   booking: Booking;
   movieInfo: { name: string; duration: number } | null;
   cinemaRoomInfo: { room_number: string } | null;
+  isStaffBooking?: boolean;
+  staffInfo?: string;
 }
 
-const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, movieInfo, cinemaRoomInfo }) => (
+const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, movieInfo, cinemaRoomInfo, isStaffBooking, staffInfo }) => (
   <div>
     <div className="mx-auto max-w-4xl p-8">
       <div className="rounded-lg bg-white p-8 shadow-lg">
@@ -298,14 +303,31 @@ const BookingSuccessContent: React.FC<BookingSuccessContentProps> = ({ booking, 
 
         {/* Actions */}
         <div className="flex flex-col justify-center gap-4 sm:flex-row">
-          <Link to="/">
-            <Button variant="outline" className="w-full sm:w-auto">
-              Về trang chủ
-            </Button>
-          </Link>
-          <Link to="/account">
-            <Button className="w-full sm:w-auto">Xem lịch sử đặt vé</Button>
-          </Link>
+          {isStaffBooking ? (
+            // Staff booking actions
+            <>
+              <Link to={ROUTES.STAFF.TICKET_SALES}>
+                <Button className="w-full sm:w-auto">Tạo đơn mới</Button>
+              </Link>
+              <Link to="/staff">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  Về trang staff
+                </Button>
+              </Link>
+            </>
+          ) : (
+            // Regular customer booking actions
+            <>
+              <Link to="/">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  Về trang chủ
+                </Button>
+              </Link>
+              <Link to="/account">
+                <Button className="w-full sm:w-auto">Xem lịch sử đặt vé</Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -411,7 +433,7 @@ const BookingSuccessPage: React.FC = () => {
     return {
       room_number: `${roomId}` || "N/A",
     };
-  }, [cinemaRoomData, booking?.showTime, roomId, savedBookingData]);
+  }, [cinemaRoomData, roomId, savedBookingData]);
 
   // Show loading state - only show if we have a valid booking ID and are still loading
   if (isLoading && bookingIdNumber && !booking) {
@@ -438,7 +460,15 @@ const BookingSuccessPage: React.FC = () => {
     return null; // This should never happen due to the checks above
   }
 
-  return <BookingSuccessContent booking={booking} movieInfo={movieInfo} cinemaRoomInfo={cinemaRoomInfo} />;
+  return (
+    <BookingSuccessContent
+      booking={booking}
+      movieInfo={movieInfo}
+      cinemaRoomInfo={cinemaRoomInfo}
+      isStaffBooking={savedBookingData?.isStaffBooking}
+      staffInfo={savedBookingData?.staffInfo}
+    />
+  );
 };
 
 export default BookingSuccessPage;
