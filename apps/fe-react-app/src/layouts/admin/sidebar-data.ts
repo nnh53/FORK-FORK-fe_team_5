@@ -1,3 +1,4 @@
+import { ROUTES } from "@/routes/route.constants";
 import {
   Armchair,
   Building,
@@ -10,7 +11,6 @@ import {
   LayoutDashboard,
   Monitor,
   Package,
-  Settings,
   SquareStack,
   // Star,
   Tag,
@@ -30,7 +30,7 @@ export const sidebarData = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/admin/dashboard",
+      url: ROUTES.ADMIN.DASHBOARD,
       icon: LayoutDashboard,
     },
     {
@@ -40,17 +40,17 @@ export const sidebarData = {
       items: [
         {
           title: "List",
-          url: "/admin/movie",
+          url: ROUTES.ADMIN.MOVIE,
           icon: Clapperboard,
         },
         {
           title: "Spotlight",
-          url: "/admin/spotlight",
+          url: ROUTES.ADMIN.SPOTLIGHT,
           icon: Monitor,
         },
         {
           title: "Genres",
-          url: "/admin/genres",
+          url: ROUTES.ADMIN.GENRES,
           icon: SquareStack,
         },
       ],
@@ -62,12 +62,12 @@ export const sidebarData = {
       items: [
         {
           title: "Rooms",
-          url: "/admin/cinema-room",
+          url: ROUTES.ADMIN.CINEMA_ROOM,
           icon: Building,
         },
         {
           title: "Seat Types",
-          url: "/admin/seat-types",
+          url: ROUTES.ADMIN.SEAT_TYPES,
           icon: Armchair,
         },
       ],
@@ -78,20 +78,20 @@ export const sidebarData = {
       icon: CalendarClock,
       items: [
         {
-          title: "List",
-          url: "/admin/showtime",
+          title: "Showtimes List",
+          url: ROUTES.ADMIN.SHOWTIME,
           icon: ClockPlus,
         },
         {
-          title: "Showtime in mov",
-          url: "#",
+          title: "Showtime Table",
+          url: ROUTES.ADMIN.SHOWTIME_TABLE,
           icon: FileClock,
         },
       ],
     },
     {
       title: "Bookings",
-      url: "/admin/booking",
+      url: ROUTES.ADMIN.BOOKING,
       icon: Ticket,
     },
     {
@@ -101,12 +101,12 @@ export const sidebarData = {
       items: [
         {
           title: "Members",
-          url: "/admin/members",
+          url: ROUTES.ADMIN.MEMBERS,
           icon: Users,
         },
         {
           title: "Staff",
-          url: "/admin/staffs",
+          url: ROUTES.ADMIN.STAFFS,
           icon: UserCheck,
         },
       ],
@@ -118,25 +118,20 @@ export const sidebarData = {
       items: [
         {
           title: "Combos",
-          url: "/admin/combo",
+          url: ROUTES.ADMIN.COMBO,
           icon: Package,
         },
         {
           title: "Snacks",
-          url: "/admin/snacks",
+          url: ROUTES.ADMIN.SNACKS,
           icon: Cookie,
         },
       ],
     },
     {
       title: "Promotions",
-      url: "/admin/promotion",
+      url: ROUTES.ADMIN.PROMOTION,
       icon: Tag,
-    },
-    {
-      title: "Settings",
-      url: "/admin/settings",
-      icon: Settings,
     },
   ],
 };

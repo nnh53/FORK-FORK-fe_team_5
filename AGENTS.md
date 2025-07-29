@@ -14,17 +14,18 @@
 
 ```bash
 # Start dev server with hot reload
-pnpm nx dev fe-react-app
+pnpm exec nx run dev fe-react-app --disableNxCache --disableRemoteCache --verbose --outputStyle=static
 
 # Typecheck / Build / Lint via Nx cache
-pnpm nx typecheck fe-react-app
-pnpm nx build fe-react-app
-pnpm nx lint fe-react-app
+pnpm exec nx run @fcinema-workspace/fe-react-app:typecheck --disableNxCache --disableRemoteCache --verbose --outputStyle=static
+pnpm exec nx run @fcinema-workspace/fe-react-app:build --disableNxCache --disableRemoteCache --verbose --outputStyle=static
+pnpm exec nx run @fcinema-workspace/fe-react-app:lint --disableNxCache --disableRemoteCache --verbose --outputStyle=static
 
 # Vitest tests
-pnpm nx vitest fe-react-app
+pnpm exec nx run @fcinema-workspace/fe-react-app:vitest --disableNxCache --disableRemoteCache --verbose --outputStyle=static
 ```
 
+Alway run in --disableNxCache --disableRemoteCache --verbose --outputStyle=static mode
 Alway run typecheck build lint successfully before give the user the respond
 
 ## Gotchas & Conventions
