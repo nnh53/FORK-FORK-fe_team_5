@@ -25,11 +25,13 @@ pnpm exec nx run @fcinema-workspace/fe-react-app:lint --disableNxCache --disable
 pnpm exec nx run @fcinema-workspace/fe-react-app:vitest --disableNxCache --disableRemoteCache --verbose --outputStyle=static
 ```
 
+Before running any command, ensure you had run `CI=true pnpm install` to sync dependencies.
 Alway run in --disableNxCache --disableRemoteCache --verbose --outputStyle=static mode
 Alway run typecheck build lint successfully before give the user the respond
 
 ## Gotchas & Conventions
 
+- Don't need to manually do useMemo because the source code is already bundled by babel-plugin-react-compiler
 - Use the `@/` import alias instead of long relative paths (configured in `tsconfig.json` & `vite.config.js`).
 - Keep **feature** code UI-only; put data access in **services**.
 - Components = PascalCase; utilities = camelCase.
