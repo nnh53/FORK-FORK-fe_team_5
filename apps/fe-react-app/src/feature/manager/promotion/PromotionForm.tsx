@@ -62,7 +62,7 @@ const initialValues: Omit<Promotion, "id"> = {
 
 // Helper function to format date for form
 const formatDateForForm = (date: string): string => {
-  return new Date(date).toISOString().slice(0, 16);
+  return new Date(date).toICTISOString().slice(0, 16);
 };
 
 // Component to render form field with error handling
@@ -195,8 +195,8 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
         // Update the date values from our datetime pickers
         const finalValues = {
           ...values,
-          startTime: startDate ? startDate.toISOString() : "",
-          endTime: endDate ? endDate.toISOString() : "",
+          startTime: startDate ? startDate.toICTISOString() : "",
+          endTime: endDate ? endDate.toICTISOString() : "",
         };
         onSubmit(finalValues, helpers);
       }}
@@ -298,7 +298,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                           errors={errors}
                           touched={touched}
                         />
-                        <div className="text-muted-foreground absolute right-7 top-7">VNĐ</div>
+                        <div className="text-muted-foreground absolute top-7 right-7">VNĐ</div>
                       </div>
 
                       <div className="relative">
@@ -313,7 +313,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                           errors={errors}
                           touched={touched}
                         />
-                        <div className="text-muted-foreground absolute right-7 top-7">{values.type === "PERCENTAGE" ? "%" : "VNĐ"}</div>
+                        <div className="text-muted-foreground absolute top-7 right-7">{values.type === "PERCENTAGE" ? "%" : "VNĐ"}</div>
                       </div>
                     </div>
 
@@ -331,7 +331,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                           setDate={(date: Date | undefined) => {
                             setStartDate(date);
                             if (date) {
-                              setFieldValue("startTime", date.toISOString());
+                              setFieldValue("startTime", date.toICTISOString());
                             }
                           }}
                           error={!!errors.startTime && touched.startTime}
@@ -351,7 +351,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                           setDate={(date: Date | undefined) => {
                             setEndDate(date);
                             if (date) {
-                              setFieldValue("endTime", date.toISOString());
+                              setFieldValue("endTime", date.toICTISOString());
                             }
                           }}
                           error={!!errors.endTime && touched.endTime}

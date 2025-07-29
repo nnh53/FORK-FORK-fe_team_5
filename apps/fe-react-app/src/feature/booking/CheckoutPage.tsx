@@ -219,7 +219,7 @@ const CheckoutPage: React.FC = () => {
       roomFee,
       seatCount: selectedSeats.length,
       totalFee,
-      finalTicketCost: seatsCost + totalFee
+      finalTicketCost: seatsCost + totalFee,
     });
 
     return seatsCost + totalFee;
@@ -404,7 +404,7 @@ const CheckoutPage: React.FC = () => {
           finalTotalCost,
         },
         // Timestamp for reference
-        savedAt: new Date().toISOString(),
+        savedAt: new Date().toICTISOString(),
       };
 
       localStorage.setItem("bookingSuccessData", JSON.stringify(bookingDataForStorage));

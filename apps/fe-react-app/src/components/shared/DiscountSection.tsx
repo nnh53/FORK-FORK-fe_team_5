@@ -57,8 +57,8 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
         currentPoints: currentUser.loyalty_point || 0,
         membershipLevel: "Silver", // Default level
         totalSpent: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toICTISOString(),
+        updatedAt: new Date().toICTISOString(),
       };
       setMember(autoMember);
       onMemberChange?.(autoMember);

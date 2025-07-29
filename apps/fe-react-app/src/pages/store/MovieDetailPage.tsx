@@ -21,7 +21,7 @@ const convertToOldShowtimeFormat = (newShowtime: NewShowtime): OldShowtime => {
     id: newShowtime.id.toString(),
     movieId: newShowtime.movieId,
     cinemaRoomId: newShowtime.roomId?.toString() ?? "1",
-    date: showDate.toISOString().split("T")[0], // Format: YYYY-MM-DD
+    date: showDate.toICTISOString().split("T")[0], // Format: YYYY-MM-DD
     startTime: showDate.toTimeString().split(" ")[0].slice(0, 5), // Format: HH:MM
     endTime: endDate.toTimeString().split(" ")[0].slice(0, 5), // Format: HH:MM
     format: "2D", // Default format since it's not in new format
@@ -63,7 +63,7 @@ const MovieDetailPage: React.FC = () => {
     if (oldFormatShowtimes.length > 0) {
       // Filter out past showtimes
       const now = new Date();
-      const today = now.toISOString().split("T")[0]; // YYYY-MM-DD format
+      const today = now.toICTISOString().split("T")[0]; // YYYY-MM-DD format
       const currentTime = now.getHours() * 60 + now.getMinutes(); // minutes since midnight
 
       const futureShowtimes = oldFormatShowtimes.filter((showtime) => {

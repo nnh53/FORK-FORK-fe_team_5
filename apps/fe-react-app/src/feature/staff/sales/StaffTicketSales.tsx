@@ -455,7 +455,7 @@ const StaffTicketSales: React.FC = () => {
         paymentMethod: paymentMethod,
         isStaffBooking: true, // Mark as staff booking
         staffInfo: user?.fullName || "Unknown Staff",
-        savedAt: new Date().toISOString(),
+        savedAt: new Date().toICTISOString(),
       };
 
       localStorage.setItem("bookingSuccessData", JSON.stringify(bookingDataForStorage));
@@ -587,11 +587,11 @@ const StaffTicketSales: React.FC = () => {
         receivedAmount,
         changeAmount,
         totalAmount: calculateTotal(),
-        confirmedAt: new Date().toISOString(),
+        confirmedAt: new Date().toICTISOString(),
       },
       isStaffBooking: true, // Mark as staff booking
       staffInfo: user?.fullName || "Unknown Staff",
-      savedAt: new Date().toISOString(),
+      savedAt: new Date().toICTISOString(),
     };
   };
 

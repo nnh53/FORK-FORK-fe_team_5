@@ -22,7 +22,7 @@ export function ShowtimeTimeline({ roomId, selectedDate, movies, selectedMovieId
   const showtimes = useMemo(() => {
     if (!data?.result || !selectedDate) return [];
     const all = transformShowtimesResponse(data.result);
-    const dateStr = selectedDate.toISOString().split("T")[0];
+    const dateStr = selectedDate.toICTISOString().split("T")[0];
     return all.filter((st) => st.showDateTime.split("T")[0] === dateStr);
   }, [data?.result, selectedDate]);
 
