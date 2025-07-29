@@ -225,17 +225,18 @@ const MemberManagement = () => {
   ];
 
   // Xử lý dữ liệu từ API và chuyển đổi thành members
-  const members = usersQuery.data?.result
-    ? (Array.isArray(usersQuery.data.result)
-        ? usersQuery.data.result.map(transformUserResponse)
-        : [transformUserResponse(usersQuery.data.result)]
-      ).filter((user) => user.role === ROLES.MEMBER)
-    : [];
+  let members: User[] = [];
+  if (usersQuery.data?.result) {
+    const raw = Array.isArray(usersQuery.data.result)
+      ? usersQuery.data.result
+      : [usersQuery.data.result];
+    members = raw.map(transformUserResponse).filter((user) => user.role === ROLES.MEMBER);
+  }
 
   // Lọc members theo các tiêu chí
-  const filteredMembers = !members
-    ? []
-    : applyMemberFilters(members, filterCriteria, searchTerm);
+  const filteredMembers = members.length
+    ? applyMemberFilters(members, filterCriteria, searchTerm)
+    : [];
 
   const handleViewDetail = (member: User) => {
     setMemberToView(member);

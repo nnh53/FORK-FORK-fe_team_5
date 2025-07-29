@@ -136,7 +136,6 @@ export const PromotionTable = forwardRef<{ resetPagination: () => void }, Promot
           sortProps: getSortProps(fieldKey),
         };
       });
-    });
 
     return (
       <div className="space-y-4">

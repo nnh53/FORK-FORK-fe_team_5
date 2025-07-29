@@ -28,11 +28,12 @@ const TrendingSection = () => {
   const moviesQuery = queryMoviesForTrending();
 
   // Combine trending stats with movie details
-  const topMoviesWithDetails = !trendingQuery.data?.result || !moviesQuery.data?.result
-    ? []
-    : trendingQuery.data.result.slice(0, 5)
+  const trendingResults = trendingQuery.data?.result ?? [];
+  const movieResults = moviesQuery.data?.result ?? [];
+
+  const topMoviesWithDetails = trendingResults.slice(0, 5)
         .map((trendingMovie, index) => {
-          const movieDetail = moviesQuery.data.result.find((movie) => movie.id === trendingMovie.movieId);
+          const movieDetail = movieResults.find((movie) => movie.id === trendingMovie.movieId);
           return {
             id: trendingMovie.movieId || 0,
             name: trendingMovie.movieName || "",

@@ -24,6 +24,9 @@ import PaymentSummary from "./components/PaymentSummary/PaymentSummary.tsx";
 import PromotionSelection from "./components/PromotionSelection/PromotionSelection.tsx";
 import SnackList from "./components/SnackList/SnackList.tsx";
 
+/* eslint-disable sonarjs/no-nested-conditional */
+/* eslint-disable sonarjs/cognitive-complexity */
+
 // Interface for selected seat with price information from BookingPage
 interface SelectedSeatWithPrice {
   id: string;
@@ -104,50 +107,53 @@ const CheckoutPage: React.FC = () => {
   }, [promotionsData?.message]);
 
   // Transform API data to internal format - show all combos (available and unavailable)
-  const combos = !combosData?.result
-    ? []
-    : Array.isArray(combosData.result)
+  let combos: Combo[] = [];
+  if (combosData?.result) {
+    combos = Array.isArray(combosData.result)
       ? combosData.result.map(transformComboResponse)
       : [transformComboResponse(combosData.result)];
+  }
 
   // Transform snacks data
-  const snacks = !snacksData?.result
-    ? []
-    : Array.isArray(snacksData.result)
-      ? transformSnacksResponse(snacksData.result)
-      : (() => {
-          const singleSnack = snacksData.result as {
-            id?: number;
-            category?: string;
-            name?: string;
-            size?: string;
-            flavor?: string;
-            price?: number;
-            description?: string;
-            img?: string;
-            status?: string;
-          };
-          return [
-            {
-              id: Number(singleSnack.id),
-              category: singleSnack.category as "DRINK" | "FOOD",
-              name: String(singleSnack.name),
-              size: singleSnack.size as "SMALL" | "MEDIUM" | "LARGE",
-              flavor: String(singleSnack.flavor ?? ""),
-              price: Number(singleSnack.price),
-              description: String(singleSnack.description ?? ""),
-              img: String(singleSnack.img ?? ""),
-              status: singleSnack.status as "AVAILABLE" | "UNAVAILABLE",
-            },
-          ];
-        })();
+  let snacks: ReturnType<typeof transformSnacksResponse> = [];
+  if (snacksData?.result) {
+    if (Array.isArray(snacksData.result)) {
+      snacks = transformSnacksResponse(snacksData.result);
+    } else {
+      const singleSnack = snacksData.result as {
+        id?: number;
+        category?: string;
+        name?: string;
+        size?: string;
+        flavor?: string;
+        price?: number;
+        description?: string;
+        img?: string;
+        status?: string;
+      };
+      snacks = [
+        {
+          id: Number(singleSnack.id),
+          category: singleSnack.category as "DRINK" | "FOOD",
+          name: String(singleSnack.name),
+          size: singleSnack.size as "SMALL" | "MEDIUM" | "LARGE",
+          flavor: String(singleSnack.flavor ?? ""),
+          price: Number(singleSnack.price),
+          description: String(singleSnack.description ?? ""),
+          img: String(singleSnack.img ?? ""),
+          status: singleSnack.status as "AVAILABLE" | "UNAVAILABLE",
+        },
+      ];
+    }
+  }
 
   // Transform promotions data
-  const promotions = !promotionsData?.result
-    ? []
-    : Array.isArray(promotionsData.result)
+  let promotions: Promotion[] = [];
+  if (promotionsData?.result) {
+    promotions = Array.isArray(promotionsData.result)
       ? transformPromotionsResponse(promotionsData.result)
       : transformPromotionsResponse([promotionsData.result]);
+  }
 
   // Always prioritize localStorage for consistent state
   const [bookingState, setBookingState] = useState(() => {

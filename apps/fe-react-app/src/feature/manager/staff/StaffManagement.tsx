@@ -95,11 +95,15 @@ const StaffManagement: React.FC = () => {
   const deleteUserMutation = useDeleteUser();
 
   // Tính toán staffs từ usersQuery.data
-  const staffs = usersQuery.data?.result
-    ? (Array.isArray(usersQuery.data.result)
-        ? usersQuery.data.result.map(transformUserResponse).filter((user) => user.role === ROLES.STAFF)
-        : [transformUserResponse(usersQuery.data.result)].filter((user) => user.role === ROLES.STAFF)) as StaffUser[]
-    : [];
+  let staffs: StaffUser[] = [];
+  if (usersQuery.data?.result) {
+    const raw = Array.isArray(usersQuery.data.result)
+      ? usersQuery.data.result
+      : [usersQuery.data.result];
+    staffs = raw
+      .map(transformUserResponse)
+      .filter((user) => user.role === ROLES.STAFF) as StaffUser[];
+  }
 
   // Lọc staffs theo tiêu chí và tìm kiếm
   const filteredStaffs = applyFilters(staffs, filterCriteria, searchTerm);

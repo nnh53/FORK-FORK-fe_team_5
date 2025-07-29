@@ -372,11 +372,12 @@ const BookingSuccessPage: React.FC = () => {
   }, [bookingData?.result]);
 
   // Transform API response to internal format - use ONLY fresh API data, fallback to localStorage
-  const booking = bookingData?.result
-    ? transformApiBookingData(bookingData.result)
-    : savedBookingData && (isLoading || !bookingData)
-      ? transformLocalStorageBookingData(savedBookingData)
-      : null;
+  let booking: ReturnType<typeof transformApiBookingData> | null = null;
+  if (bookingData?.result) {
+    booking = transformApiBookingData(bookingData.result);
+  } else if (savedBookingData && (isLoading || !bookingData)) {
+    booking = transformLocalStorageBookingData(savedBookingData);
+  }
 
   // Fetch additional data based on booking showtime
   const movieId = booking?.showTime?.movieId || 0;

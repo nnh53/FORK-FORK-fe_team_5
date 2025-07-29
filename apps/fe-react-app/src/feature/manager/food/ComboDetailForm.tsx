@@ -91,11 +91,12 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
   const [snackSearchTerm, setSnackSearchTerm] = useState("");
 
   const { data: snacksData } = useSnacks();
-  const snacks: Snack[] = !snacksData?.result
-    ? []
-    : Array.isArray(snacksData.result)
+  let snacks: Snack[] = [];
+  if (snacksData?.result) {
+    snacks = Array.isArray(snacksData.result)
       ? transformSnacksResponse(snacksData.result)
       : transformSnacksResponse([snacksData.result]);
+  }
 
   useEffect(() => {
     if (combo.snacks) setComboSnacks(combo.snacks);
