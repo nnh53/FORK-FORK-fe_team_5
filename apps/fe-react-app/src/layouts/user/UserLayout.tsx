@@ -10,7 +10,7 @@ interface UserLayoutProps {
 
 const UserLayout = ({ children }: UserLayoutProps) => {
   return (
-    <div>
+    <div className="bg-[var(--color-base-100)]">
       <Header />
       <main>
         <PageTransition>{children || <Outlet />}</PageTransition>

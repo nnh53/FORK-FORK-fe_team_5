@@ -21,8 +21,8 @@ interface FocusRect {
 const TrueFocus: React.FC<TrueFocusProps> = ({
   sentence = "True Focus",
   blurAmount = 5,
-  borderColor = "green",
-  glowColor = "rgba(0, 255, 0, 0.6)",
+  borderColor = "#e7000b",
+  glowColor = "rgba(231, 0, 11, 0.6)",
   animationDuration = 0.5,
   onSelect,
 }) => {
