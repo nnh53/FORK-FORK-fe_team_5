@@ -9,8 +9,8 @@ import { SHOWTIME_STATUS } from "@/constants/status";
 import type { Showtime } from "@/interfaces/showtime.interface";
 import { Calendar, Plus } from "lucide-react";
 import { useState } from "react";
-import { ShowtimeForm } from "./ShowtimeForm";
 import { ShowtimeCalendar } from "./ShowtimeCalendar";
+import { ShowtimeForm } from "./ShowtimeForm";
 
 const searchOptions = [
   { value: "movieName", label: "Tên phim" },
@@ -44,7 +44,6 @@ export function ShowtimeManagement() {
   const handleCreateNew = () => {
     setState({ mode: "create" });
   };
-
 
   const handleSuccess = () => {
     setState({ mode: "list" });

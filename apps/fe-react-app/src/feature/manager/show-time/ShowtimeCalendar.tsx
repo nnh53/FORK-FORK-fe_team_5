@@ -1,17 +1,18 @@
-import FullCalendar from "@fullcalendar/react";
-import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
-import type { EventInput } from "@fullcalendar/core";
 import { Calendar as DatePicker } from "@/components/Shadcn/ui/calendar";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { FilterCriteria } from "@/components/shared/Filter";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import type { Movie } from "@/interfaces/movies.interface";
 import type { Showtime } from "@/interfaces/showtime.interface";
 import { transformCinemaRoomsResponse, useCinemaRooms } from "@/services/cinemaRoomService";
 import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { queryShowtimes, transformShowtimesResponse } from "@/services/showtimeService";
-import { useMemo, useState, useRef, useEffect } from "react";
+import type { EventInput } from "@fullcalendar/core";
+import FullCalendar from "@fullcalendar/react";
+import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+const getMovieName = (id: number, moviesList: Movie[]) => moviesList.find((m) => m.id === id)?.name || `Movie ${id}`;
 interface ShowtimeCalendarProps {
   readonly searchTerm?: string;
   readonly filterCriteria?: FilterCriteria[];
@@ -37,16 +38,14 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
     return showtimesData?.result ? transformShowtimesResponse(showtimesData.result) : [];
   }, [showtimesData?.result]);
 
-  const getMovieName = (id: number) => movies.find((m) => m.id === id)?.name || `Movie ${id}`;
-
   const filteredShowtimes = useMemo(() => {
-    const dateStr = selectedDate.toISOString().split("T")[0];
+    const dateStr = selectedDate.toICTISOString().split("T")[0];
     let result = showtimes.filter((st) => st.showDateTime.startsWith(dateStr));
 
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
       result = result.filter((st) => {
-        const movieName = getMovieName(st.movieId).toLowerCase();
+        const movieName = getMovieName(st.movieId, movies).toLowerCase();
         const showtimeDate = new Date(st.showDateTime).toLocaleDateString("vi-VN");
         return movieName.includes(lower) || showtimeDate.includes(lower);
       });
@@ -67,13 +66,18 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
   }, [showtimes, selectedDate, searchTerm, filterCriteria, movies]);
 
   const events: EventInput[] = useMemo(() => {
-    return filteredShowtimes.map((st) => ({
+    console.log("Filtered Showtimes:", filteredShowtimes);
+
+    const result = filteredShowtimes.map((st) => ({
       id: st.id.toString(),
       resourceId: st.roomId.toString(),
-      title: getMovieName(st.movieId),
+      title: getMovieName(st.movieId, movies),
       start: st.showDateTime,
       end: st.endDateTime,
     }));
+    console.log("Events:", result);
+    // debugger;
+    return result;
   }, [filteredShowtimes, movies]);
 
   const resources = useMemo(() => {
@@ -85,7 +89,9 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
     if (calendarApi) {
       calendarApi.gotoDate(selectedDate);
     }
-  }, [selectedDate]);
+    console.log("Selected Date Changed:", selectedDate);
+    console.log("Events:", events);
+  }, [events, selectedDate]);
 
   if (roomsLoading || moviesLoading || showtimesLoading) {
     return <LoadingSpinner />;
@@ -99,7 +105,6 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
         plugins={[resourceTimeGridPlugin]}
         initialView="resourceTimeGridDay"
         initialDate={selectedDate}
-        headerToolbar={false}
         resources={resources}
         events={events}
         height="auto"
