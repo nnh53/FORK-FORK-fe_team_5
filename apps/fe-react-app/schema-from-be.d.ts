@@ -20,6 +20,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{userId}/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["changePassword"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spotlights/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSpotlight"];
+        put: operations["updateSpotlight"];
+        post?: never;
+        delete: operations["deleteSpotlight"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/snacks/{id}": {
         parameters: {
             query?: never;
@@ -224,6 +256,22 @@ export interface paths {
         get: operations["getUsers"];
         put?: never;
         post: operations["createUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spotlights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAllSpotlights"];
+        put?: never;
+        post: operations["createSpotlight"];
         delete?: never;
         options?: never;
         head?: never;
@@ -592,6 +640,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/spotlights/ordered": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAllSpotlightsOrderByOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/showtimes/room/{roomId}": {
         parameters: {
             query?: never;
@@ -893,6 +957,70 @@ export interface components {
             message?: string;
             result?: unknown;
         };
+        ChangePasswordRequest: {
+            oldPassword: string;
+            newPassword: string;
+        };
+        SpotlightUpdateRequest: {
+            /** Format: int32 */
+            movieId?: number;
+            /** Format: int32 */
+            order?: number;
+        };
+        ApiResponseSpotlightResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["SpotlightResponse"];
+        };
+        MovieCategoryResponse: {
+            /** Format: int32 */
+            id?: number;
+            name?: string;
+            description?: string;
+        };
+        MovieResponse: {
+            /** Format: int32 */
+            id?: number;
+            name?: string;
+            /** Format: int32 */
+            ageRestrict?: number;
+            fromDate?: string;
+            toDate?: string;
+            actor?: string;
+            studio?: string;
+            director?: string;
+            /** Format: int32 */
+            duration?: number;
+            trailer?: string;
+            categories?: components["schemas"]["MovieCategoryResponse"][];
+            description?: string;
+            status?: string;
+            poster?: string;
+            showtimes?: components["schemas"]["ShowtimeResponse"][];
+            banner?: string;
+        };
+        ShowtimeResponse: {
+            /** Format: int32 */
+            id?: number;
+            /** Format: int32 */
+            movieId?: number;
+            /** Format: date-time */
+            showDateTime?: string;
+            /** Format: int32 */
+            roomId?: number;
+            roomName?: string;
+            /** Format: date-time */
+            endDateTime?: string;
+            status?: string;
+        };
+        SpotlightResponse: {
+            /** Format: int32 */
+            id?: number;
+            movie?: components["schemas"]["MovieResponse"];
+            /** Format: int32 */
+            order?: number;
+        };
         SnackRequest: {
             category?: string;
             name?: string;
@@ -935,20 +1063,6 @@ export interface components {
             code?: number;
             message?: string;
             result?: components["schemas"]["ShowtimeResponse"];
-        };
-        ShowtimeResponse: {
-            /** Format: int32 */
-            id?: number;
-            /** Format: int32 */
-            movieId?: number;
-            /** Format: date-time */
-            showDateTime?: string;
-            /** Format: int32 */
-            roomId?: number;
-            roomName?: string;
-            /** Format: date-time */
-            endDateTime?: string;
-            status?: string;
         };
         SeatRequest: {
             type?: string;
@@ -1061,33 +1175,6 @@ export interface components {
             code?: number;
             message?: string;
             result?: components["schemas"]["MovieResponse"];
-        };
-        MovieCategoryResponse: {
-            /** Format: int32 */
-            id?: number;
-            name?: string;
-            description?: string;
-        };
-        MovieResponse: {
-            /** Format: int32 */
-            id?: number;
-            name?: string;
-            /** Format: int32 */
-            ageRestrict?: number;
-            fromDate?: string;
-            toDate?: string;
-            actor?: string;
-            studio?: string;
-            director?: string;
-            /** Format: int32 */
-            duration?: number;
-            trailer?: string;
-            categories?: components["schemas"]["MovieCategoryResponse"][];
-            description?: string;
-            status?: string;
-            poster?: string;
-            showtimes?: components["schemas"]["ShowtimeResponse"][];
-            banner?: string;
         };
         MovieCategoryRequest: {
             name?: string;
@@ -1232,6 +1319,18 @@ export interface components {
             loyaltyPoint?: number;
             /** @enum {string} */
             gender?: "MALE" | "FEMALE" | "OTHER";
+        };
+        SpotlightRequest: {
+            /** Format: int32 */
+            movieId: number;
+            /** Format: int32 */
+            order: number;
+        };
+        ApiResponseListSpotlightResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["SpotlightResponse"][];
         };
         ShowtimeRequest: {
             /** Format: int32 */
@@ -1707,6 +1806,102 @@ export interface operations {
             header?: never;
             path: {
                 userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    getSpotlight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseSpotlightResponse"];
+                };
+            };
+        };
+    };
+    updateSpotlight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpotlightUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseSpotlightResponse"];
+                };
+            };
+        };
+    };
+    deleteSpotlight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
             };
             cookie?: never;
         };
@@ -2515,6 +2710,50 @@ export interface operations {
             };
         };
     };
+    getAllSpotlights: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListSpotlightResponse"];
+                };
+            };
+        };
+    };
+    createSpotlight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpotlightRequest"][];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListSpotlightResponse"];
+                };
+            };
+        };
+    };
     getAllSnacks: {
         parameters: {
             query?: never;
@@ -3270,6 +3509,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseUserResponse"];
+                };
+            };
+        };
+    };
+    getAllSpotlightsOrderByOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListSpotlightResponse"];
                 };
             };
         };
