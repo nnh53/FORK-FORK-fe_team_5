@@ -43,6 +43,7 @@ import ForgotPassword from "@/pages/authentication/ForgotPassword";
 import Login from "@/pages/authentication/Login";
 import Register from "@/pages/authentication/Register";
 
+import { ShowtimeTable } from "@/feature/manager/show-time/ShowtimeTable";
 import TrendingSection from "@/feature/views/sections/TrendingSection";
 import { InternalServerError } from "@/pages/error/InternalServerError";
 import { NotFoundError } from "@/pages/error/NotFoundError";
@@ -126,6 +127,7 @@ export const AppRoutes = () => (
           <Route path="promotion" element={<PromotionManagement />} />
           <Route path="members" element={<MemberManagement />} />
           <Route path="showtime" element={<ShowtimeManagement />} />
+          <Route path="showtime-table" element={<ShowtimeTable />} />
           <Route path="staffs" element={<StaffManagement />} />
           <Route path="combo" element={<ComboManagement />} />
           <Route path="snacks" element={<SnackManagement />} />

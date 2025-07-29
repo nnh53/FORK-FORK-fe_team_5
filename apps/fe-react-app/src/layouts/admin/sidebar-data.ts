@@ -78,13 +78,13 @@ export const sidebarData = {
       icon: CalendarClock,
       items: [
         {
-          title: "List",
+          title: "Showtimes List",
           url: ROUTES.ADMIN.SHOWTIME,
           icon: ClockPlus,
         },
         {
-          title: "Showtime in mov",
-          url: "#",
+          title: "Showtime Table",
+          url: ROUTES.ADMIN.SHOWTIME_TABLE,
           icon: FileClock,
         },
       ],
