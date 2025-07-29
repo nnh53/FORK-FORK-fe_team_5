@@ -69,6 +69,7 @@ const AuthSection = ({ className = "header-actions", loginText = "Login", logout
   // Use real user data or fallback to cookie data
   const displayName = userDetails?.result?.fullName || fullName || "User";
   const displayEmail = userDetails?.result?.email || "user@fcinema.com";
+  const displayAvatar = userDetails?.result?.avatar || "https://ui.shadcn.com/avatars/shadcn.jpg"; // Fallback avatar URL
   const initials = displayName
     .split(" ")
     .map((n: string) => n[0])
@@ -83,7 +84,7 @@ const AuthSection = ({ className = "header-actions", loginText = "Login", logout
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-auto justify-start px-3 py-2">
               <Avatar className="mr-2 h-8 w-8 rounded-lg p-0">
-                <AvatarImage src="https://ui.shadcn.com/avatars/shadcn.jpg" alt={displayName} />
+                <AvatarImage src={displayAvatar} alt={displayName} />
                 <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col items-start text-left">
@@ -96,7 +97,7 @@ const AuthSection = ({ className = "header-actions", loginText = "Login", logout
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src="https://ui.shadcn.com/avatars/shadcn.jpg" alt={displayName} />
+                  <AvatarImage src={displayAvatar} alt={displayName} />
                   <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

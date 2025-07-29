@@ -38,6 +38,7 @@ const AuthAvatar = () => {
 
   const userId = getCookie("user_id");
   const { data: userDetails } = useGetUserById(userId ?? "");
+  const avatarUrl = userDetails?.result?.avatar || "https://ui.shadcn.com/avatars/shadcn.jpg";
 
   const handleLogout = () => {
     authLogout();
@@ -87,7 +88,7 @@ const AuthAvatar = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="https://ui.shadcn.com/avatars/shadcn.jpg" alt={displayName} />
+            <AvatarImage src={avatarUrl} alt={displayName} />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
@@ -96,7 +97,7 @@ const AuthAvatar = () => {
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src="https://ui.shadcn.com/avatars/shadcn.jpg" alt={displayName} />
+              <AvatarImage src={avatarUrl} alt={displayName} />
               <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">

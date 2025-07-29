@@ -1,4 +1,4 @@
-import { IconDotsVertical, IconHome, IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
+import { IconDotsVertical, IconHome, IconLogout, IconUserCircle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/Shadcn/ui/avatar";
@@ -36,13 +36,14 @@ export function NavUser() {
     navigate("/");
   };
 
-   const handleNavigateAccount = () => {
-     navigate("/account");
-   };
+  const handleNavigateAccount = () => {
+    navigate("/account");
+  };
 
   // Use real user data or fallback to cookie data
   const displayName = userDetails?.result?.fullName || fullName || "User";
   const displayEmail = userDetails?.result?.email || "user@fcinema.com";
+  const displayAvatar = userDetails?.result?.avatar || "https://ui.shadcn.com/avatars/shadcn.jpg";
   const initials = displayName
     .split(" ")
     .map((n: string) => n[0])
@@ -57,7 +58,7 @@ export function NavUser() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <Avatar className="h-8 w-8 rounded-lg p-0">
-                <AvatarImage src="https://ui.shadcn.com/avatars/shadcn.jpg" alt={displayName} />
+                <AvatarImage src={displayAvatar} alt={displayName} />
                 <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -76,7 +77,7 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg p-0">
-                  <AvatarImage src="https://ui.shadcn.com/avatars/shadcn.jpg" alt={displayName} />
+                  <AvatarImage src={displayAvatar} alt={displayName} />
                   <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

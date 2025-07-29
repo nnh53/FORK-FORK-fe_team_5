@@ -13,13 +13,8 @@ import { IconCalendar, IconHome, IconLifebuoy, IconSend, IconTicket } from "@tab
 import { Link } from "react-router-dom";
 import { NavUser } from "./nav-user";
 
-// This is sample data for staff sidebar.
-const data = {
-  user: {
-    name: "Staff User",
-    email: "staff@fcinema.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+// Navigation data for staff sidebar.
+const staffNavData = {
   navMain: [
     {
       title: "Dashboard",
@@ -70,7 +65,7 @@ export function StaffSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {data.navMain.map((item) => (
+            {staffNavData.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <Link to={item.url} className="font-medium">
