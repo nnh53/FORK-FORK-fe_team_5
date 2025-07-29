@@ -57,13 +57,13 @@ export const ROUTES = {
     SHOWTIME: "/admin/showtime",
     SEAT: "/admin/seat",
     SEAT_TYPES: "/admin/seat-types",
-    TICKET: "/admin/ticket",
+    BOOKING: "/admin/booking",
     PROMOTION: "/admin/promotion",
     MEMBERS: "/admin/members",
     COMBO: "/admin/combo",
     SNACKS: "/admin/snacks",
     STAFFS: "/admin/staffs",
-    SETTINGS: "/admin/settings",
+
     HELP: "/admin/help",
     SEARCH: "/admin/search",
     TRENDING: "/admin/trending",
@@ -100,48 +100,3 @@ export const ROUTES = {
   HELP: "/help",
   SEARCH: "/search",
 } as const;
-
-// Helper functions for dynamic routes
-export const createMovieDetailRoute = (movieId: string | number) => `/movie/${movieId}`;
-
-export const createCinemaRoomDetailRoute = (roomId: string | number) => `/admin/cinema-room/${roomId}`;
-
-export const createCinemaRoomEditRoute = (id: string | number) => `/admin/cinema-room/edit/${id}`;
-
-// Navigation helpers
-export const isAuthRoute = (pathname: string) => pathname.startsWith("/auth");
-export const isAdminRoute = (pathname: string) => pathname.startsWith("/admin");
-export const isStaffRoute = (pathname: string) => pathname.startsWith("/staff");
-export const isAccountRoute = (pathname: string) => pathname.startsWith("/account");
-
-// Route groups for easier management
-export const PUBLIC_ROUTES = [ROUTES.HOME, ROUTES.BOOKING, ROUTES.CHECKOUT, ROUTES.MOVIE_DETAIL] as const;
-
-export const AUTH_ROUTES = [ROUTES.AUTH.LOGIN, ROUTES.AUTH.REGISTER, ROUTES.AUTH.FORGOT_PASSWORD] as const;
-
-export const ADMIN_ROUTES = [
-  ROUTES.ADMIN.DASHBOARD,
-  ROUTES.ADMIN.MOVIE,
-  ROUTES.ADMIN.TRENDING,
-  ROUTES.ADMIN.GENRES,
-  ROUTES.ADMIN.CINEMA_ROOM,
-  ROUTES.ADMIN.SHOWTIME,
-  ROUTES.ADMIN.SEAT,
-  ROUTES.ADMIN.TICKET,
-  ROUTES.ADMIN.PROMOTION,
-  ROUTES.ADMIN.MEMBERS,
-  ROUTES.ADMIN.SNACKS,
-  ROUTES.ADMIN.STAFFS,
-  ROUTES.ADMIN.SETTINGS,
-  ROUTES.ADMIN.HELP,
-  ROUTES.ADMIN.SEARCH,
-] as const;
-
-export const UTILITY_ROUTES = [
-  ROUTES.LOADING,
-  ROUTES.UNAUTHORIZED,
-  ROUTES.ERROR,
-  ROUTES.INTERNAL_SERVER_ERROR,
-  ROUTES.TEST,
-  ROUTES.LOG_VIA_REG,
-] as const;
