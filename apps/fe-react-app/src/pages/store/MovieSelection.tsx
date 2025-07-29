@@ -259,18 +259,16 @@ function MovieSelection() {
     <div id="movies">
       {/* Movie Search Section */}
       <div className="mx-auto max-w-4xl px-4 py-8">
-        <div className="mb-6 text-center">
-          <h2 className="text-brown-500 mb-2 text-3xl font-bold">Tìm Kiếm Phim</h2>
-        </div>
+        <div className="mb-6 text-center"></div>
         <MovieSearch onMovieSelect={handleMovieSearchSelect} placeholder="Nhập tên phim để tìm kiếm..." className="mx-auto max-w-md" />
       </div>
       {/* Tabs Section (TrueFocus) */}
-      <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mx-auto max-w-7xl py-8">
         <TrueFocus
           sentence="NOW UPCOMING ALL"
           blurAmount={2}
-          borderColor="var(--primary)"
-          glowColor="var(--primary)"
+          borderColor="var(--color-red-600, #e7000b)"
+          glowColor="var(--color-red-600, #e7000b)"
           animationDuration={0.3}
           onSelect={(index) => setActiveTab(TAB_KEYS[index])}
         />
