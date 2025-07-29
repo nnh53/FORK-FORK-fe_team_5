@@ -54,7 +54,8 @@ import TermOfService from "@/pages/static/rule/TermOfService";
 import MovieDetailPage from "@/pages/store/MovieDetailPage";
 import MovieSelection from "@/pages/store/MovieSelection";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
-import { ROUTES } from "./route.constants";
+import { ROUTES } from "@/routes/route.constants";
+import { getRelativePath } from "@/routes/route.utils";
 
 // Main App Routes following React Router best practices
 export const AppRoutes = () => (
@@ -71,7 +72,7 @@ export const AppRoutes = () => (
     </Route>
 
     {/* User Routes - All routes that use UserLayout */}
-    <Route path="/" element={<UserLayout />}>
+    <Route path={ROUTES.ROOT} element={<UserLayout />}> 
       {/* Root redirect */}
       <Route index element={<Navigate to={ROUTES.HOME} replace />} />
       {/* Public Routes */}
@@ -98,7 +99,7 @@ export const AppRoutes = () => (
     {/* Admin Routes - Protected for ADMIN role */}
     <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
       <Route
-        path="/"
+        path={ROUTES.ROOT}
         element={
           <PageTransition>
             <Outlet />
@@ -107,31 +108,79 @@ export const AppRoutes = () => (
       >
         <Route path={ROUTES.ADMIN.ROOT} element={<AdminLayout />}>
           <Route index element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
           <Route
-            path="booking"
+            path={getRelativePath(ROUTES.ADMIN.DASHBOARD, ROUTES.ADMIN.ROOT)}
+            element={<AdminDashboard />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.BOOKING, ROUTES.ADMIN.ROOT)}
             element={
               <div className="p-6">
                 <h1 className="text-2xl font-bold">Booking Management</h1>
               </div>
             }
           />
-          <Route path="movie" element={<MovieManagement />} />
-          <Route path="genres" element={<MovieCategoryManagement />} />
-          <Route path="cinema-room" element={<CinemaRoomManagement />} />
-          <Route path="cinema-room/:roomId" element={<CinemaRoomDetail />} />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.MOVIE, ROUTES.ADMIN.ROOT)}
+            element={<MovieManagement />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.GENRES, ROUTES.ADMIN.ROOT)}
+            element={<MovieCategoryManagement />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM, ROUTES.ADMIN.ROOT)}
+            element={<CinemaRoomManagement />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM_DETAIL, ROUTES.ADMIN.ROOT)}
+            element={<CinemaRoomDetail />}
+          />
           <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />
-          <Route path="cinema-room/add" element={<CinemaRoomAdd />} />
-          <Route path="cinema-room/edit/:id" element={<CinemaRoomEdit />} />
-          <Route path="seat-types" element={<SeatTypeAdminPage />} />
-          <Route path="promotion" element={<PromotionManagement />} />
-          <Route path="members" element={<MemberManagement />} />
-          <Route path="showtime" element={<ShowtimeManagement />} />
-          <Route path="showtime-table" element={<ShowtimeTable />} />
-          <Route path="staffs" element={<StaffManagement />} />
-          <Route path="combo" element={<ComboManagement />} />
-          <Route path="snacks" element={<SnackManagement />} />
-          <Route path="spotlight" element={<SpotlightManagement />} />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM_ADD, ROUTES.ADMIN.ROOT)}
+            element={<CinemaRoomAdd />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM_EDIT, ROUTES.ADMIN.ROOT)}
+            element={<CinemaRoomEdit />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.SEAT_TYPES, ROUTES.ADMIN.ROOT)}
+            element={<SeatTypeAdminPage />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.PROMOTION, ROUTES.ADMIN.ROOT)}
+            element={<PromotionManagement />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.MEMBERS, ROUTES.ADMIN.ROOT)}
+            element={<MemberManagement />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.SHOWTIME, ROUTES.ADMIN.ROOT)}
+            element={<ShowtimeManagement />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.SHOWTIME_TABLE, ROUTES.ADMIN.ROOT)}
+            element={<ShowtimeTable />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.STAFFS, ROUTES.ADMIN.ROOT)}
+            element={<StaffManagement />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.COMBO, ROUTES.ADMIN.ROOT)}
+            element={<ComboManagement />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.SNACKS, ROUTES.ADMIN.ROOT)}
+            element={<SnackManagement />}
+          />
+          <Route
+            path={getRelativePath(ROUTES.ADMIN.SPOTLIGHT, ROUTES.ADMIN.ROOT)}
+            element={<SpotlightManagement />}
+          />
         </Route>
       </Route>
     </Route>
@@ -141,7 +190,7 @@ export const AppRoutes = () => (
       <Route path={ROUTES.STAFF.ROOT} element={<StaffLayout />}>
         <Route index element={<Navigate to={ROUTES.STAFF.DASHBOARD} replace />} />
         <Route
-          path="dashboard"
+          path={getRelativePath(ROUTES.STAFF.DASHBOARD, ROUTES.STAFF.ROOT)}
           element={
             <div className="p-4">
               <h1 className="text-2xl font-bold">Staff Dashboard</h1>
@@ -149,8 +198,14 @@ export const AppRoutes = () => (
             </div>
           }
         />
-        <Route path="booking" element={<StaffBookingManagement />} />
-        <Route path="sales" element={<StaffTicketSales />} />
+        <Route
+          path={getRelativePath(ROUTES.STAFF.BOOKING, ROUTES.STAFF.ROOT)}
+          element={<StaffBookingManagement />}
+        />
+        <Route
+          path={getRelativePath(ROUTES.STAFF.TICKET_SALES, ROUTES.STAFF.ROOT)}
+          element={<StaffTicketSales />}
+        />
       </Route>
     </Route>
     {/* Legacy Management Routes - Protected for ADMIN/STAFF */}
