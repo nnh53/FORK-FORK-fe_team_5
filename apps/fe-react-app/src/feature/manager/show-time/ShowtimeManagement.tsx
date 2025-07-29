@@ -8,9 +8,9 @@ import { SearchBar } from "@/components/shared/SearchBar";
 import { SHOWTIME_STATUS } from "@/constants/status";
 import type { Showtime } from "@/interfaces/showtime.interface";
 import { Calendar, Plus } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { ShowtimeForm } from "./ShowtimeForm";
-import { ShowtimeList } from "./ShowtimeList";
+import { ShowtimeCalendar } from "./ShowtimeCalendar";
 
 const searchOptions = [
   { value: "movieName", label: "Tên phim" },
@@ -40,15 +40,11 @@ export function ShowtimeManagement() {
   const [state, setState] = useState<ShowtimeManagementState>({ mode: "list" });
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria[]>([]);
-  const tableRef = useRef<{ resetPagination: () => void }>(null);
 
   const handleCreateNew = () => {
     setState({ mode: "create" });
   };
 
-  const handleEditShowtime = (showtime: Showtime) => {
-    setState({ mode: "edit", selectedShowtime: showtime });
-  };
 
   const handleSuccess = () => {
     setState({ mode: "list" });
@@ -111,29 +107,20 @@ export function ShowtimeManagement() {
               searchOptions={searchOptions}
               onSearchChange={(value) => {
                 setSearchTerm(value);
-                if (tableRef.current) tableRef.current.resetPagination();
               }}
               placeholder="Tìm kiếm theo tên phim hoặc ngày chiếu..."
               className="flex-1"
-              resetPagination={() => tableRef.current?.resetPagination()}
             />
             {/* Filter */}
             <Filter
               filterOptions={filterOptions}
               onFilterChange={(criteria) => {
                 setFilterCriteria(criteria);
-                if (tableRef.current) tableRef.current.resetPagination();
               }}
               className="flex-1"
             />
           </div>
-          <ShowtimeList
-            onEditShowtime={handleEditShowtime}
-            onCreateNew={handleCreateNew}
-            searchTerm={searchTerm}
-            filterCriteria={filterCriteria}
-            ref={tableRef}
-          />
+          <ShowtimeCalendar searchTerm={searchTerm} filterCriteria={filterCriteria} />
         </CardContent>
       </Card>
     </div>
