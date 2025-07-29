@@ -58,7 +58,7 @@ const MovieList: React.FC<MovieListProps> = ({ movies, cardsPerRow = 4, onMovieB
 
   if (horizontal) {
     return (
-      <div className="relative mx-auto w-4/5">
+      <div className="w-vw[100%] relative mx-auto">
         {/* Vùng cuộn phim với click and drag */}
         <div
           ref={scrollRef}

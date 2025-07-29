@@ -64,10 +64,12 @@ const MovieCarouselItem = ({ movie }: MovieCarouselItemProps) => {
       <div className="relative z-20 grid h-full grid-cols-12 px-8">
         <div className={`${isMobile ? "col-span-12" : "col-span-5 col-start-2"} self-start pt-[35vh]`}>
           {/* Movie Title */}
-          <h1 className="text-[clamp(3rem,6vw,6rem)] leading-none font-semibold">{movie.name || "Untitled Movie"}</h1>
+          <h1 className="text-[clamp(3rem,6vw,6rem)] leading-none font-semibold text-white drop-shadow-[2px_2px_8px_rgba(0,0,0,0.8)]">
+            {movie.name || "Untitled Movie"}
+          </h1>
 
           {/* Movie Info */}
-          <div className="mt-4 flex flex-wrap items-center gap-x-2 text-[15px] text-[#E0E0E0]">
+          <div className="mt-4 flex flex-wrap items-center gap-x-2 text-[15px] text-[#E0E0E0] drop-shadow-[1px_1px_4px_rgba(0,0,0,0.8)]">
             <span>{formatCategories(movie.categories)}</span>
             <span className="mx-2">•</span>
             <Calendar className="h-4 w-4" />
@@ -86,13 +88,13 @@ const MovieCarouselItem = ({ movie }: MovieCarouselItemProps) => {
           {/* Action Buttons */}
           <div className="mt-6 flex gap-3">
             <button
-              className="h-11 w-38 cursor-none rounded bg-[#FFD400] px-4 text-sm font-medium text-[#0C0B0E] transition-colors hover:bg-[#E6C000]"
+              className="h-11 w-38 rounded bg-[#d10009] px-4 text-sm font-medium text-white drop-shadow-[2px_2px_6px_rgba(0,0,0,0.7)] transition-all duration-300 hover:scale-105 hover:bg-[#b5000a] hover:shadow-lg"
               onClick={() => navigate(`/movie/${movie.id}`)}
             >
               Book Tickets
             </button>
             <button
-              className="h-11 w-38 cursor-none rounded border border-[#FFD400] px-4 text-sm font-medium text-[#FFD400] transition-colors hover:bg-[#FFD400] hover:text-[#0C0B0E]"
+              className="h-11 w-38 rounded border-2 border-[#d10009] bg-black/20 px-4 text-sm font-medium text-[#ff1a1a] drop-shadow-[2px_2px_6px_rgba(0,0,0,0.7)] transition-all duration-300 hover:scale-105 hover:bg-[#d10009] hover:text-white hover:shadow-lg"
               onClick={() => navigate(`/movie/${movie.id}`)}
             >
               More
@@ -103,31 +105,33 @@ const MovieCarouselItem = ({ movie }: MovieCarouselItemProps) => {
         {/* Movie Details - Only on Desktop */}
         {!isMobile && (
           <div className="col-span-3 col-start-9 pt-[35vh]">
-            <p className="leading-6 text-[#E0E0E0]">
+            <p className="leading-6 text-[#E0E0E0] drop-shadow-[1px_1px_4px_rgba(0,0,0,0.8)]">
               {/* Director/Studio */}
               {movie.director && (
                 <>
-                  {movie.director} : <span className="text-[#FFD400]">Director</span>
+                  {movie.director} : <span className="text-[#e7000b] drop-shadow-[1px_1px_4px_rgba(0,0,0,0.9)]">Director</span>
                   <br />
                 </>
               )}
               {/* Studio */}
               {movie.studio && (
                 <>
-                  {movie.studio} : <span className="text-[#FFD400]">Studio</span>
+                  {movie.studio} : <span className="text-[#e7000b] drop-shadow-[1px_1px_4px_rgba(0,0,0,0.9)]">Studio</span>
                   <br />
                 </>
               )}
               {/* Actors */}
               {movie.actor && (
                 <>
-                  {movie.actor} : <span className="text-[#FFD400]">Actors</span>
+                  {movie.actor} : <span className="text-[#e7000b] drop-shadow-[1px_1px_4px_rgba(0,0,0,0.9)]">Actors</span>
                 </>
               )}
             </p>
 
             {/* Description */}
-            {movie.description && <p className="mt-4 max-w-[32ch] text-sm text-[#E0E0E0]">{movie.description}</p>}
+            {movie.description && (
+              <p className="mt-4 max-w-[32ch] text-sm text-[#E0E0E0] drop-shadow-[1px_1px_4px_rgba(0,0,0,0.8)]">{movie.description}</p>
+            )}
           </div>
         )}
       </div>
