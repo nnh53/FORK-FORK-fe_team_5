@@ -71,7 +71,7 @@ const MemberDetail = ({ member, open, onClose }: MemberDetailProps) => {
   }
 
   return (
-    <>
+    <div>
       {isMobile ? (
         <Sheet open={open} onOpenChange={onClose}>
           <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-xl">
@@ -339,7 +339,7 @@ const MemberDetail = ({ member, open, onClose }: MemberDetailProps) => {
           </DialogContent>
         </Dialog>
       )}
-    </>
+    </div>
   );
 };
 
