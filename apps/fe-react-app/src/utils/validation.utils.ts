@@ -56,33 +56,6 @@ export const MyInfoSchema: Yup.ObjectSchema<MyInfoFormData> = Yup.object().shape
   img: Yup.mixed<string | Blob>().optional(),
 });
 
-export function formatDateTime(isoString: string): string[] {
-  // Return a placeholder if the input string is empty or null
-  if (!isoString) {
-    return [];
-  }
-
-  const date = new Date(isoString);
-
-  if (isNaN(date.getTime())) {
-    return [];
-  }
-
-  const formattedDate = new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
-
-  const formattedTime = new Intl.DateTimeFormat("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(date);
-
-  return [formattedDate.toString(), formattedTime.toString()];
-}
-
 export const promotionValidationSchema = Yup.object({
   image: Yup.mixed().nullable(),
   title: Yup.string().min(3, "Tiêu đề phải có ít nhất 3 ký tự").max(100, "Tiêu đề không quá 100 ký tự").required("Tiêu đề là bắt buộc"),

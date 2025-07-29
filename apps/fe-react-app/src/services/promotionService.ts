@@ -85,8 +85,8 @@ export const transformPromotionToRequest = (promotion: Partial<Promotion>) => {
     type: promotion.type ?? "",
     minPurchase: promotion.minPurchase ?? 0,
     discountValue: promotion.discountValue ?? 0,
-    startTime: promotion.startTime ?? new Date().toISOString(),
-    endTime: promotion.endTime ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 30 days
+    startTime: promotion.startTime ?? new Date().toICTISOString(),
+    endTime: promotion.endTime ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toICTISOString(), // Default to 30 days
     description: promotion.description ?? "",
     status: promotion.status ?? "INACTIVE",
   };

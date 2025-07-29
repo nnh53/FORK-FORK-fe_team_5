@@ -200,7 +200,7 @@ const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => 
                 <FormControl>
                   <DatePicker
                     date={field.value ? new Date(field.value) : undefined}
-                    setDate={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                    setDate={(date) => field.onChange(date ? date.toICTISOString().split("T")[0] : "")}
                   />
                 </FormControl>
               </FormItem>

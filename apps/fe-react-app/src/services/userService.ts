@@ -140,7 +140,7 @@ export const transformRegisterRequest = (data: {
     email: data.email,
     password: data.password,
     role: data.role ?? ROLES.MEMBER,
-    dateOfBirth: data.dateOfBirth instanceof Date ? data.dateOfBirth.toISOString().split("T")[0] : data.dateOfBirth,
+    dateOfBirth: data.dateOfBirth instanceof Date ? data.dateOfBirth.toICTISOString().split("T")[0] : data.dateOfBirth,
     phone: data.phone,
   };
 };

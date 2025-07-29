@@ -102,7 +102,7 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
       result = result.filter((showtime) => {
         if (!dateFilter.startDate && !dateFilter.endDate) return true;
 
-        const showtimeDate = new Date(showtime.showDateTime).toISOString().split("T")[0];
+        const showtimeDate = new Date(showtime.showDateTime).toICTISOString().split("T")[0];
 
         if (dateFilter.startDate && dateFilter.endDate) {
           return showtimeDate >= dateFilter.startDate && showtimeDate <= dateFilter.endDate;

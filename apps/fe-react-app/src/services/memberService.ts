@@ -16,8 +16,8 @@ const transformUserToMember = (user: UserResponse): Member => {
     currentPoints: user.loyaltyPoint || 0,
     membershipLevel: "Silver", // Default level since API doesn't provide this
     totalSpent: 0, // Default since API doesn't provide this
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date().toICTISOString(),
+    updatedAt: new Date().toICTISOString(),
   };
 };
 
