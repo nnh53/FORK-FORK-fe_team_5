@@ -21,7 +21,7 @@ import type { User } from "@/interfaces/users.interface";
 import { formatUserDate } from "@/services/userService";
 import { getUserStatusDisplay } from "@/utils/color.utils";
 import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
-import { forwardRef, useImperativeHandle, useMemo } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 
 // Thêm hàm để định dạng thời gian
 const formatDateTime = (dateString?: string) => {
@@ -90,11 +90,7 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
   }));
 
   // Get current page data
-  const currentPageData = useMemo(() => {
-    // Chỉ lấy dữ liệu cho trang hiện tại mà không sắp xếp lại
-    // Điều này giữ nguyên thứ tự sắp xếp từ sortedData
-    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
-  }, [sortedData, pagination.startIndex, pagination.endIndex]);
+  const currentPageData = sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
 
   return (
     <div className="space-y-4">

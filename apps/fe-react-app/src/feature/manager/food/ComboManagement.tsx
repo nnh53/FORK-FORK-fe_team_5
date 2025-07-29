@@ -31,7 +31,7 @@ import {
   useUpdateCombo,
 } from "@/services/comboService";
 import { Plus } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import ComboDetail from "./ComboDetail";
 import ComboForm from "./ComboForm";
@@ -171,41 +171,31 @@ const ComboManagement: React.FC = () => {
   }, [combos, selectedComboIdForDetails, detailsCombo]);
 
   // Memoized filtered combos
-  const filteredCombos = useMemo(
-    () =>
-      combos.filter((combo) => {
-        // Lọc theo tìm kiếm toàn cục
-        if (!filterByGlobalSearch(combo, searchTerm)) return false;
+  const filteredCombos = combos.filter((combo) => {
+    if (!filterByGlobalSearch(combo, searchTerm)) return false;
 
-        // Lọc theo từng tiêu chí
-        return filterCriteria.every((filter) => {
-          switch (filter.field) {
-            case "status":
-              return filterByStatus(combo, filter.value as string);
-            case "price":
-              return filterByPriceRange(combo, filter.value as { from: number | undefined; to: number | undefined });
-            case "discount":
-              return filterByDiscountRange(combo, filter.value as { from: number | undefined; to: number | undefined });
-            default:
-              return true;
-          }
-        });
-      }),
-    [combos, searchTerm, filterCriteria],
-  );
+    return filterCriteria.every((filter) => {
+      switch (filter.field) {
+        case "status":
+          return filterByStatus(combo, filter.value as string);
+        case "price":
+          return filterByPriceRange(combo, filter.value as { from: number | undefined; to: number | undefined });
+        case "discount":
+          return filterByDiscountRange(combo, filter.value as { from: number | undefined; to: number | undefined });
+        default:
+          return true;
+      }
+    });
+  });
 
   // Memoized search and filter options
-  const searchOptions: SearchOption[] = useMemo(
-    () => [
-      { value: "id", label: "ID" },
-      { value: "name", label: "Tên" },
-      { value: "description", label: "Mô tả" },
-    ],
-    [],
-  );
+  const searchOptions: SearchOption[] = [
+    { value: "id", label: "ID" },
+    { value: "name", label: "Tên" },
+    { value: "description", label: "Mô tả" },
+  ];
 
-  const filterOptions = useMemo(
-    () => [
+  const filterOptions = [
       {
         label: "Trạng thái",
         value: "status",
@@ -236,9 +226,31 @@ const ComboManagement: React.FC = () => {
           suffix: "đ",
         },
       },
-    ],
-    [],
-  );
+      {
+        label: "Giá",
+        value: "price",
+        type: "numberRange" as const,
+        numberRangeConfig: {
+          fromPlaceholder: "Từ giá",
+          toPlaceholder: "Đến giá",
+          min: 0,
+          step: 1000,
+          suffix: "đ",
+        },
+      },
+      {
+        label: "Giảm giá",
+        value: "discount",
+        type: "numberRange" as const,
+        numberRangeConfig: {
+          fromPlaceholder: "Từ",
+          toPlaceholder: "Đến",
+          min: 0,
+          step: 1000,
+          suffix: "đ",
+        },
+      },
+    ];
 
   const handleAdd = useCallback(() => {
     setSelectedCombo(undefined);

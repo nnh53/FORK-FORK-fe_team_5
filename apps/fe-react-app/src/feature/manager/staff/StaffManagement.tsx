@@ -28,7 +28,7 @@ import {
   useUsers,
 } from "@/services/userService";
 import { Plus } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StaffForm from "./StaffForm";
 import StaffTable from "./StaffTable";
 
@@ -95,19 +95,14 @@ const StaffManagement: React.FC = () => {
   const deleteUserMutation = useDeleteUser();
 
   // Tính toán staffs từ usersQuery.data
-  const staffs = useMemo(() => {
-    if (usersQuery.data?.result) {
-      const users = Array.isArray(usersQuery.data.result)
+  const staffs = usersQuery.data?.result
+    ? (Array.isArray(usersQuery.data.result)
         ? usersQuery.data.result.map(transformUserResponse).filter((user) => user.role === ROLES.STAFF)
-        : [transformUserResponse(usersQuery.data.result)].filter((user) => user.role === ROLES.STAFF);
-      // Type assertion - chỉ những User có role = STAFF mới được filter vào đây
-      return users as StaffUser[];
-    }
-    return [];
-  }, [usersQuery.data]);
+        : [transformUserResponse(usersQuery.data.result)].filter((user) => user.role === ROLES.STAFF)) as StaffUser[]
+    : [];
 
   // Lọc staffs theo tiêu chí và tìm kiếm
-  const filteredStaffs = useMemo(() => applyFilters(staffs, filterCriteria, searchTerm), [staffs, searchTerm, filterCriteria]);
+  const filteredStaffs = applyFilters(staffs, filterCriteria, searchTerm);
 
   // Sử dụng hook chung useMutationHandler để xử lý các mutation
   useMutationHandler(

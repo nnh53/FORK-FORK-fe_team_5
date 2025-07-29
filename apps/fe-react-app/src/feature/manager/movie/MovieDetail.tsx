@@ -46,10 +46,9 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
   const categoriesQuery = queryMovieCategories();
 
   // Transform API response to MovieCategory interface
-  const categories: MovieCategory[] = React.useMemo(() => {
-    if (!categoriesQuery.data?.result) return [];
-    return transformMovieCategoriesResponse(categoriesQuery.data.result);
-  }, [categoriesQuery.data?.result]);
+  const categories: MovieCategory[] = categoriesQuery.data?.result
+    ? transformMovieCategoriesResponse(categoriesQuery.data.result)
+    : [];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

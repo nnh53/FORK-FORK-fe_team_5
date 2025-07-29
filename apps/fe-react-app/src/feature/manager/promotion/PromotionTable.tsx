@@ -25,7 +25,7 @@ import {
 } from "@/services/promotionService";
 import { formatVND } from "@/utils/currency.utils";
 import { Image } from "lucide-react";
-import { forwardRef, useCallback, useImperativeHandle, useMemo } from "react";
+import { forwardRef, useCallback, useImperativeHandle } from "react";
 
 interface PromotionTableProps {
   promotions: Promotion[];
@@ -111,15 +111,12 @@ export const PromotionTable = forwardRef<{ resetPagination: () => void }, Promot
     const formattedData = useCallback(() => formatPromotionData(sortedData), [sortedData]);
 
     // Get current page data
-    const currentPageData = useMemo(() => {
-      return formattedData()
-        .slice(pagination.startIndex, pagination.endIndex + 1)
-        .reverse();
-    }, [formattedData, pagination.startIndex, pagination.endIndex]);
+    const currentPageData = formattedData()
+      .slice(pagination.startIndex, pagination.endIndex + 1)
+      .reverse();
 
     // Modify columns to include sort buttons
-    const columnsWithSorting = useMemo(() => {
-      return columns.map((column) => {
+    const columnsWithSorting = columns.map((column) => {
         // Skip adding sort buttons to non-sortable columns or columns that don't represent data fields
         if (
           column.accessorKey === "image" ||
@@ -139,7 +136,7 @@ export const PromotionTable = forwardRef<{ resetPagination: () => void }, Promot
           sortProps: getSortProps(fieldKey),
         };
       });
-    }, [columns, getSortProps]);
+    });
 
     return (
       <div className="space-y-4">

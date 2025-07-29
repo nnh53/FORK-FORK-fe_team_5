@@ -20,7 +20,7 @@ import { showtimeFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { AlertTriangle, CalendarIcon, Clock, Home } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -77,10 +77,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
   const watchedValues = form.watch();
   const { movieId, showDate, startTime, manualEndTime, roomId } = watchedValues;
 
-  // Memoize selected movie to prevent unnecessary recalculations
-  const selectedMovie = useMemo(() => {
-    return movies.find((m) => m.id?.toString() === movieId) || null;
-  }, [movies, movieId]);
+  const selectedMovie = movies.find((m) => m.id?.toString() === movieId) || null;
 
   // Transform API data to our interfaces
   useEffect(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, Filter as FilterIcon, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
@@ -62,9 +62,7 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
   // Kiểm tra nếu options được phân nhóm
   const isGrouped = groupMode && filterOptions.length > 0 && "name" in filterOptions[0];
 
-  const filterGroups = useMemo(() => {
-    return isGrouped ? (filterOptions as FilterGroup[]) : [];
-  }, [isGrouped, filterOptions]);
+  const filterGroups = isGrouped ? (filterOptions as FilterGroup[]) : [];
 
   const flatOptions = isGrouped ? filterGroups.flatMap((group) => group.options) : (filterOptions as FilterOption[]);
 

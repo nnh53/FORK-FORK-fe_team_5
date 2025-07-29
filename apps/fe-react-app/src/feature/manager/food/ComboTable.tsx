@@ -18,7 +18,7 @@ import { getPageInfo, usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { Combo } from "@/interfaces/combo.interface";
 import { Grid3X3, List } from "lucide-react";
-import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import ComboCard from "./ComboCard";
 
 interface ComboTableProps {
@@ -51,9 +51,7 @@ const ComboTable = forwardRef<{ resetPagination: () => void }, ComboTableProps>(
   }));
 
   // Get current page data
-  const currentPageData = useMemo(() => {
-    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
-  }, [sortedData, pagination.startIndex, pagination.endIndex]);
+  const currentPageData = sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
 
   // Render pagination items
   const renderPaginationItems = () => {

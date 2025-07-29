@@ -28,7 +28,7 @@ import {
   useUsers,
 } from "@/services/userService";
 import { Plus } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import MemberDetail from "./MemberDetail";
 import MemberForm from "./MemberForm";
 import MemberTable from "./MemberTable";
@@ -225,21 +225,17 @@ const MemberManagement = () => {
   ];
 
   // Xử lý dữ liệu từ API và chuyển đổi thành members
-  const members = useMemo(() => {
-    if (usersQuery.data?.result) {
-      const transformedUsers = Array.isArray(usersQuery.data.result)
+  const members = usersQuery.data?.result
+    ? (Array.isArray(usersQuery.data.result)
         ? usersQuery.data.result.map(transformUserResponse)
-        : [transformUserResponse(usersQuery.data.result)];
-      return transformedUsers.filter((user) => user.role === ROLES.MEMBER);
-    }
-    return [];
-  }, [usersQuery.data]);
+        : [transformUserResponse(usersQuery.data.result)]
+      ).filter((user) => user.role === ROLES.MEMBER)
+    : [];
 
   // Lọc members theo các tiêu chí
-  const filteredMembers = useMemo(() => {
-    if (!members) return [];
-    return applyMemberFilters(members, filterCriteria, searchTerm);
-  }, [members, searchTerm, filterCriteria]);
+  const filteredMembers = !members
+    ? []
+    : applyMemberFilters(members, filterCriteria, searchTerm);
 
   const handleViewDetail = (member: User) => {
     setMemberToView(member);

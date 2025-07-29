@@ -11,7 +11,7 @@ import type { User } from "@/interfaces/users.interface";
 import { formatUserDate } from "@/services/userService";
 import { getUserStatusDisplay } from "@/utils/color.utils";
 import { Calendar, Mail, MapPin, Phone, User as UserIcon } from "lucide-react";
-import { useMemo } from "react";
+import React from "react";
 interface UserWithLoyaltyPoint extends User {
   loyaltyPoint?: number;
 }
@@ -59,10 +59,7 @@ const formatDateTime = (dateString?: string) => {
 };
 
 const MemberDetail = ({ member, open, onClose }: MemberDetailProps) => {
-  const statusDisplay = useMemo(() => {
-    if (!member) return { label: "", className: "" };
-    return getUserStatusDisplay(member.status ?? "ACTIVE");
-  }, [member]);
+  const statusDisplay = !member ? { label: "", className: "" } : getUserStatusDisplay(member.status ?? "ACTIVE");
 
   const isMobile = useMediaQuery("(max-width: 700px)"); // Kiểm tra màn hình dưới 700px
 

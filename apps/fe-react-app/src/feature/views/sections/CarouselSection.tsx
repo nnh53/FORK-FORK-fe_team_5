@@ -3,7 +3,7 @@ import { Carousel, CarouselContent, CarouselNext, CarouselPrevious } from "@/com
 import { Pointer } from "@/components/magicui/pointer";
 import { queryMoviesForCarousel, transformMoviesResponse } from "@/services/movieService";
 import Autoplay from "embla-carousel-autoplay";
-import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 import CarouselDotNavigation from "../components/CarouselDotNavigation";
 import CarouselError from "../components/CarouselError";
 import CarouselLoading from "../components/CarouselLoading";
@@ -29,14 +29,13 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
   const { data: moviesData, isLoading, error } = queryMoviesForCarousel();
 
   // Transform and get latest 5 movies
-  const latestMovies = useMemo(() => {
-    if (!moviesData?.result) return [];
-
-    const transformedMovies = transformMoviesResponse(moviesData.result);
-    // Sort by id descending and take first 5
-    const sortedMovies = [...transformedMovies].sort((a, b) => (b.id || 0) - (a.id || 0));
-    return sortedMovies.slice(0, 5);
-  }, [moviesData]);
+  const latestMovies = !moviesData?.result
+    ? []
+    : (() => {
+        const transformedMovies = transformMoviesResponse(moviesData.result);
+        const sortedMovies = [...transformedMovies].sort((a, b) => (b.id || 0) - (a.id || 0));
+        return sortedMovies.slice(0, 5);
+      })();
 
   // Handle dot click
   const handleDotClick = useCallback(

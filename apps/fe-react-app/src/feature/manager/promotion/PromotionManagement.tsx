@@ -28,7 +28,7 @@ import {
 } from "@/services/promotionService";
 import { Icon } from "@iconify/react";
 import { type FormikHelpers } from "formik";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { PromotionDetail } from "./PromotionDetail";
 import { PromotionForm } from "./PromotionForm";
 import { PromotionTable } from "./PromotionTable";
@@ -122,10 +122,7 @@ export const PromotionManagement: React.FC = () => {
   const updatePromotion = useUpdatePromotion();
   const deletePromotion = useDeletePromotion();
 
-  // Sử dụng useMemo để tránh tạo lại mảng promotions trong mỗi lần render
-  const promotions = useMemo(() => {
-    return promotionsData?.result ? transformPromotionsResponse(promotionsData.result) : [];
-  }, [promotionsData]);
+  const promotions = promotionsData?.result ? transformPromotionsResponse(promotionsData.result) : [];
 
   // Sử dụng hook chung useMutationHandler để xử lý các mutation
   useMutationHandler(
@@ -247,10 +244,7 @@ export const PromotionManagement: React.FC = () => {
     { value: "description", label: "Mô tả" },
   ];
 
-  // Tính toán filteredPromotions bằng useMemo
-  const filteredPromotions = useMemo(() => {
-    return applyFilters(promotions, filterCriteria, searchTerm);
-  }, [promotions, filterCriteria, searchTerm]);
+  const filteredPromotions = applyFilters(promotions, filterCriteria, searchTerm);
 
   const promotionColumn: TableColumns[] = [
     { header: "ID", accessorKey: "id", width: "w-[4%]" },

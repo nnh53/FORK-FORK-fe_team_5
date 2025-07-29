@@ -27,7 +27,7 @@ import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { queryDeleteShowtime, queryShowtimes, transformShowtimesResponse } from "@/services/showtimeService";
 import { getShowtimeStatusColor } from "@/utils/color.utils";
 import { Building, Calendar, Clock, Edit, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { toast } from "sonner";
 
 interface ShowtimeListProps {
@@ -76,9 +76,7 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
       }
     }, [roomsData]);
 
-    const showtimes = useMemo(() => {
-      return showtimesData?.result ? transformShowtimesResponse(showtimesData.result) : [];
-    }, [showtimesData?.result]);
+    const showtimes = showtimesData?.result ? transformShowtimesResponse(showtimesData.result) : [];
 
     // Helper function to match filter criteria
     const matchesCriteria = (showtime: Showtime, criteria: FilterCriteria): boolean => {
@@ -89,7 +87,7 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
     };
 
     // Apply search and filter logic
-    const filteredShowtimes = useMemo(() => {
+    const filteredShowtimes = (() => {
       let result = showtimes;
 
       // Helper functions for this scope
@@ -134,7 +132,7 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
       }
 
       return result;
-    }, [showtimes, dateFilter, searchTerm, filterCriteria, movies]);
+    })();
 
     const isLoading = showtimesLoading || moviesLoading || roomsLoading;
 

@@ -4,7 +4,6 @@ import type { Movie } from "@/interfaces/movies.interface";
 import { queryShowtimesByRoom, transformShowtimesResponse } from "@/services/showtimeService";
 import { getShowtimeStatusColor } from "@/utils/color.utils";
 import { format } from "date-fns";
-import { useMemo } from "react";
 
 interface ShowtimeTimelineProps {
   readonly roomId?: string;
@@ -19,12 +18,13 @@ export function ShowtimeTimeline({ roomId, selectedDate, movies, selectedMovieId
     enabled: !!roomId,
   });
 
-  const showtimes = useMemo(() => {
-    if (!data?.result || !selectedDate) return [];
-    const all = transformShowtimesResponse(data.result);
-    const dateStr = selectedDate.toISOString().split("T")[0];
-    return all.filter((st) => st.showDateTime.split("T")[0] === dateStr);
-  }, [data?.result, selectedDate]);
+  const showtimes = !data?.result || !selectedDate
+    ? []
+    : (() => {
+        const all = transformShowtimesResponse(data.result);
+        const dateStr = selectedDate.toISOString().split("T")[0];
+        return all.filter((st) => st.showDateTime.split("T")[0] === dateStr);
+      })();
 
   const getMovieName = (id: number) => movies.find((m) => m.id === id)?.name || `Movie ${id}`;
 

@@ -20,7 +20,7 @@ import type { StaffUser } from "@/interfaces/staff.interface";
 import { formatUserDate } from "@/services/userService";
 import { getUserStatusDisplay } from "@/utils/color.utils";
 import { Edit, Trash } from "lucide-react";
-import { forwardRef, useImperativeHandle, useMemo } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 
 interface StaffTableProps {
   staffs: StaffUser[];
@@ -87,9 +87,7 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
   }));
 
   // Get current page data
-  const currentPageData = useMemo(() => {
-    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1).reverse();
-  }, [sortedData, pagination.startIndex, pagination.endIndex]);
+  const currentPageData = sortedData.slice(pagination.startIndex, pagination.endIndex + 1).reverse();
 
   return (
     <div className="space-y-4">

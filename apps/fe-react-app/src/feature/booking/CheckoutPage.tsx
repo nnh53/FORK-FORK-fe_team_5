@@ -13,7 +13,7 @@ import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import { useGetUserById } from "@/services/userService";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import BookingSummary from "./components/BookingSummary/BookingSummary.tsx";
@@ -104,59 +104,50 @@ const CheckoutPage: React.FC = () => {
   }, [promotionsData?.message]);
 
   // Transform API data to internal format - show all combos (available and unavailable)
-  const combos = useMemo(() => {
-    if (!combosData?.result) return [];
-    if (Array.isArray(combosData.result)) {
-      return combosData.result.map(transformComboResponse);
-    } else {
-      return [transformComboResponse(combosData.result)];
-    }
-    // Don't filter by status - show all combos
-  }, [combosData]);
+  const combos = !combosData?.result
+    ? []
+    : Array.isArray(combosData.result)
+      ? combosData.result.map(transformComboResponse)
+      : [transformComboResponse(combosData.result)];
 
   // Transform snacks data
-  const snacks = useMemo(() => {
-    if (!snacksData?.result) return [];
-    if (Array.isArray(snacksData.result)) {
-      return transformSnacksResponse(snacksData.result);
-    } else {
-      // Handle single snack result
-      const singleSnack = snacksData.result as {
-        id?: number;
-        category?: string;
-        name?: string;
-        size?: string;
-        flavor?: string;
-        price?: number;
-        description?: string;
-        img?: string;
-        status?: string;
-      };
-      return [
-        {
-          id: Number(singleSnack.id),
-          category: singleSnack.category as "DRINK" | "FOOD",
-          name: String(singleSnack.name),
-          size: singleSnack.size as "SMALL" | "MEDIUM" | "LARGE",
-          flavor: String(singleSnack.flavor ?? ""),
-          price: Number(singleSnack.price),
-          description: String(singleSnack.description ?? ""),
-          img: String(singleSnack.img ?? ""),
-          status: singleSnack.status as "AVAILABLE" | "UNAVAILABLE",
-        },
-      ];
-    }
-  }, [snacksData]);
+  const snacks = !snacksData?.result
+    ? []
+    : Array.isArray(snacksData.result)
+      ? transformSnacksResponse(snacksData.result)
+      : (() => {
+          const singleSnack = snacksData.result as {
+            id?: number;
+            category?: string;
+            name?: string;
+            size?: string;
+            flavor?: string;
+            price?: number;
+            description?: string;
+            img?: string;
+            status?: string;
+          };
+          return [
+            {
+              id: Number(singleSnack.id),
+              category: singleSnack.category as "DRINK" | "FOOD",
+              name: String(singleSnack.name),
+              size: singleSnack.size as "SMALL" | "MEDIUM" | "LARGE",
+              flavor: String(singleSnack.flavor ?? ""),
+              price: Number(singleSnack.price),
+              description: String(singleSnack.description ?? ""),
+              img: String(singleSnack.img ?? ""),
+              status: singleSnack.status as "AVAILABLE" | "UNAVAILABLE",
+            },
+          ];
+        })();
 
   // Transform promotions data
-  const promotions = useMemo(() => {
-    if (!promotionsData?.result) return [];
-    if (Array.isArray(promotionsData.result)) {
-      return transformPromotionsResponse(promotionsData.result);
-    } else {
-      return transformPromotionsResponse([promotionsData.result]);
-    }
-  }, [promotionsData]);
+  const promotions = !promotionsData?.result
+    ? []
+    : Array.isArray(promotionsData.result)
+      ? transformPromotionsResponse(promotionsData.result)
+      : transformPromotionsResponse([promotionsData.result]);
 
   // Always prioritize localStorage for consistent state
   const [bookingState, setBookingState] = useState(() => {
@@ -191,7 +182,7 @@ const CheckoutPage: React.FC = () => {
   const { data: roomData } = useCinemaRoom(roomId);
 
   // Calculate ticket cost from selected seats + room fee
-  const ticketCost = useMemo(() => {
+  const ticketCost = (() => {
     if (!selectedSeats || selectedSeats.length === 0) return 0;
 
     console.log("Debug selectedSeats structure:", selectedSeats);
@@ -223,7 +214,7 @@ const CheckoutPage: React.FC = () => {
     });
 
     return seatsCost + totalFee;
-  }, [selectedSeats, roomData]);
+  })();
 
   // State quản lý số lượng combo đã chọn
 
