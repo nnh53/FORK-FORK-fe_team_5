@@ -20,7 +20,7 @@ import { useSortable } from "@/hooks/useSortable";
 import type { Snack } from "@/interfaces/snacks.interface";
 import { Icon } from "@iconify/react";
 import { Grid3X3, List } from "lucide-react";
-import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import SnackCard from "./SnackCard";
 
 interface SnackTableProps {
@@ -52,10 +52,10 @@ const SnackTable = forwardRef<{ resetPagination: () => void }, SnackTableProps>(
   }));
 
   // Get current page data
-  const currentPageData = useMemo(() => {
+  const currentPageData = (() => {
     const reversedData = [...sortedData];
     return reversedData.slice(pagination.startIndex, pagination.endIndex + 1);
-  }, [sortedData, pagination.startIndex, pagination.endIndex]);
+  })();
 
   // Render pagination items
   const renderPaginationItems = () => {

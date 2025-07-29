@@ -40,23 +40,20 @@ export default function MovieCategoryManagement() {
   const deleteCategoryMutation = queryDeleteMovieCategory();
 
   // Transform API response to MovieCategory interface
-  const categories: MovieCategory[] = React.useMemo(() => {
-    if (!categoriesQuery.data?.result) return [];
-    return transformMovieCategoriesResponse(categoriesQuery.data.result);
-  }, [categoriesQuery.data?.result]);
+  const categories: MovieCategory[] = categoriesQuery.data?.result
+    ? transformMovieCategoriesResponse(categoriesQuery.data.result)
+    : [];
 
   // Filtered categories based on search
-  const filteredCategories = React.useMemo(() => {
-    if (!searchTerm) return categories;
-
-    return categories.filter((category) => {
-      return (
-        category.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        category.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        String(category.id).includes(searchTerm)
-      );
-    });
-  }, [categories, searchTerm]);
+  const filteredCategories = !searchTerm
+    ? categories
+    : categories.filter((category) => {
+        return (
+          category.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          category.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          String(category.id).includes(searchTerm)
+        );
+      });
 
   const handleCreate = () => {
     setSelectedCategory(undefined);

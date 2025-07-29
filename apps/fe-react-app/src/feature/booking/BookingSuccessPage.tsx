@@ -6,7 +6,7 @@ import { useCinemaRoom } from "@/services/cinemaRoomService";
 import { queryMovie } from "@/services/movieService.ts";
 import { formatVND } from "@/utils/currency.utils";
 import { CheckCircle } from "lucide-react";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -372,20 +372,12 @@ const BookingSuccessPage: React.FC = () => {
   }, [bookingData?.result]);
 
   // Transform API response to internal format - use ONLY fresh API data, fallback to localStorage
-  const booking = useMemo(() => {
-    if (bookingData?.result) {
-      console.log("Using fresh API data for booking:", bookingData.result);
-      return transformApiBookingData(bookingData.result);
-    }
-
-    // Fallback to localStorage data while API is loading
-    if (savedBookingData && (isLoading || !bookingData)) {
-      console.log("Using localStorage data as fallback while API loads:", savedBookingData);
-      return transformLocalStorageBookingData(savedBookingData);
-    }
-
-    return null;
-  }, [bookingData, savedBookingData, isLoading]);
+  let booking: ReturnType<typeof transformApiBookingData> | null = null;
+  if (bookingData?.result) {
+    booking = transformApiBookingData(bookingData.result);
+  } else if (savedBookingData && (isLoading || !bookingData)) {
+    booking = transformLocalStorageBookingData(savedBookingData);
+  }
 
   // Fetch additional data based on booking showtime
   const movieId = booking?.showTime?.movieId || 0;
@@ -395,7 +387,7 @@ const BookingSuccessPage: React.FC = () => {
   const { data: cinemaRoomData } = useCinemaRoom(roomId);
 
   // Transform movie and cinema room data with localStorage fallback
-  const movieInfo = useMemo(() => {
+  const movieInfo = (() => {
     // Use API data first
     if (movieData?.result) {
       return {
@@ -413,9 +405,9 @@ const BookingSuccessPage: React.FC = () => {
     }
 
     return null;
-  }, [movieData, savedBookingData]);
+  })();
 
-  const cinemaRoomInfo = useMemo(() => {
+  const cinemaRoomInfo = (() => {
     // Use API data first
     if (cinemaRoomData?.result) {
       return {
@@ -433,7 +425,7 @@ const BookingSuccessPage: React.FC = () => {
     return {
       room_number: `${roomId}` || "N/A",
     };
-  }, [cinemaRoomData, roomId, savedBookingData]);
+  })();
 
   // Show loading state - only show if we have a valid booking ID and are still loading
   if (isLoading && bookingIdNumber && !booking) {

@@ -17,7 +17,7 @@ import {
   useUpdateSnack,
 } from "@/services/snackService";
 import { Plus } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import SnackForm from "./SnackForm";
 import SnackTable from "./SnackTable";
@@ -272,10 +272,10 @@ const SnackManagement: React.FC = () => {
   };
 
   // Lọc snacks theo các tiêu chí
-  const filteredSnacks = useMemo(() => {
+  const filteredSnacks = (() => {
     const snacks = snacksQuery.data?.result ? transformSnacksResponse(snacksQuery.data.result) : [];
     return applyFilters(snacks, filterCriteria, searchTerm);
-  }, [snacksQuery.data, searchTerm, filterCriteria]);
+  })();
 
   if (snacksQuery.isLoading) {
     return <LoadingSpinner name="thực phẩm" />;

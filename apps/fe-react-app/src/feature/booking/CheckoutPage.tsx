@@ -13,7 +13,7 @@ import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@
 import { transformSnacksResponse, useSnacks } from "@/services/snackService";
 import { useGetUserById } from "@/services/userService";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import BookingSummary from "./components/BookingSummary/BookingSummary.tsx";
@@ -23,6 +23,9 @@ import PaymentMethodSelector from "./components/PaymentMethodSelector/PaymentMet
 import PaymentSummary from "./components/PaymentSummary/PaymentSummary.tsx";
 import PromotionSelection from "./components/PromotionSelection/PromotionSelection.tsx";
 import SnackList from "./components/SnackList/SnackList.tsx";
+
+/* eslint-disable sonarjs/no-nested-conditional */
+/* eslint-disable sonarjs/cognitive-complexity */
 
 // Interface for selected seat with price information from BookingPage
 interface SelectedSeatWithPrice {
@@ -104,23 +107,19 @@ const CheckoutPage: React.FC = () => {
   }, [promotionsData?.message]);
 
   // Transform API data to internal format - show all combos (available and unavailable)
-  const combos = useMemo(() => {
-    if (!combosData?.result) return [];
-    if (Array.isArray(combosData.result)) {
-      return combosData.result.map(transformComboResponse);
-    } else {
-      return [transformComboResponse(combosData.result)];
-    }
-    // Don't filter by status - show all combos
-  }, [combosData]);
+  let combos: Combo[] = [];
+  if (combosData?.result) {
+    combos = Array.isArray(combosData.result)
+      ? combosData.result.map(transformComboResponse)
+      : [transformComboResponse(combosData.result)];
+  }
 
   // Transform snacks data
-  const snacks = useMemo(() => {
-    if (!snacksData?.result) return [];
+  let snacks: ReturnType<typeof transformSnacksResponse> = [];
+  if (snacksData?.result) {
     if (Array.isArray(snacksData.result)) {
-      return transformSnacksResponse(snacksData.result);
+      snacks = transformSnacksResponse(snacksData.result);
     } else {
-      // Handle single snack result
       const singleSnack = snacksData.result as {
         id?: number;
         category?: string;
@@ -132,7 +131,7 @@ const CheckoutPage: React.FC = () => {
         img?: string;
         status?: string;
       };
-      return [
+      snacks = [
         {
           id: Number(singleSnack.id),
           category: singleSnack.category as "DRINK" | "FOOD",
@@ -146,17 +145,15 @@ const CheckoutPage: React.FC = () => {
         },
       ];
     }
-  }, [snacksData]);
+  }
 
   // Transform promotions data
-  const promotions = useMemo(() => {
-    if (!promotionsData?.result) return [];
-    if (Array.isArray(promotionsData.result)) {
-      return transformPromotionsResponse(promotionsData.result);
-    } else {
-      return transformPromotionsResponse([promotionsData.result]);
-    }
-  }, [promotionsData]);
+  let promotions: Promotion[] = [];
+  if (promotionsData?.result) {
+    promotions = Array.isArray(promotionsData.result)
+      ? transformPromotionsResponse(promotionsData.result)
+      : transformPromotionsResponse([promotionsData.result]);
+  }
 
   // Always prioritize localStorage for consistent state
   const [bookingState, setBookingState] = useState(() => {
@@ -191,7 +188,7 @@ const CheckoutPage: React.FC = () => {
   const { data: roomData } = useCinemaRoom(roomId);
 
   // Calculate ticket cost from selected seats + room fee
-  const ticketCost = useMemo(() => {
+  const ticketCost = (() => {
     if (!selectedSeats || selectedSeats.length === 0) return 0;
 
     console.log("Debug selectedSeats structure:", selectedSeats);
@@ -223,7 +220,7 @@ const CheckoutPage: React.FC = () => {
     });
 
     return seatsCost + totalFee;
-  }, [selectedSeats, roomData]);
+  })();
 
   // State quản lý số lượng combo đã chọn
 

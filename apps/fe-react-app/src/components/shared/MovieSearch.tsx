@@ -6,7 +6,7 @@ import type { Movie } from "@/interfaces/movies.interface";
 import type { components } from "@/schema-from-be";
 import { queryMovieSearch, transformMovieResponse } from "@/services/movieService";
 import { Calendar, Clock, Search, X } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 type MovieResponse = components["schemas"]["MovieResponse"];
 
 interface MovieSearchProps {
@@ -23,22 +23,18 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
   // Fetch all movies using React Query with queryMovieSearch for separation
   const { data: moviesData, isLoading } = queryMovieSearch();
 
-  // Use useMemo instead of useEffect for filtering
-  const filteredMovies = useMemo(() => {
-    if (!moviesData?.result || searchTerm.length < 2) {
-      return [];
-    }
-
-    return moviesData.result
-      .map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
-      .filter(
-        (movie: Movie) =>
-          movie.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          movie.director?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          movie.actor?.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-      .slice(0, 8); // Limit to 8 results
-  }, [searchTerm, moviesData]);
+  // Filter movies from search term
+  const filteredMovies = !moviesData?.result || searchTerm.length < 2
+    ? []
+    : moviesData.result
+        .map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
+        .filter(
+          (movie: Movie) =>
+            movie.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            movie.director?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            movie.actor?.toLowerCase().includes(searchTerm.toLowerCase()),
+        )
+        .slice(0, 8);
 
   // Update showDropdown based on filtered results
   const shouldShowDropdown = searchTerm.length >= 2 && (isLoading || filteredMovies.length > 0);

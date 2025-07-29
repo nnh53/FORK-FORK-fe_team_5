@@ -3,7 +3,7 @@ import { ShimmerButton } from "@/components/magicui/shimmer-button";
 import { queryMoviesForTrending } from "@/services/movieService";
 import { queryReceiptTopMovies } from "@/services/receipService";
 import { Image } from "@unpic/react";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface TrendingMovieWithDetails {
@@ -28,31 +28,27 @@ const TrendingSection = () => {
   const moviesQuery = queryMoviesForTrending();
 
   // Combine trending stats with movie details
-  const topMoviesWithDetails = useMemo(() => {
-    if (!trendingQuery.data?.result || !moviesQuery.data?.result) return [];
+  const trendingResults = trendingQuery.data?.result ?? [];
+  const movieResults = moviesQuery.data?.result ?? [];
 
-    const trendingData = trendingQuery.data.result.slice(0, 5);
-    const allMovies = moviesQuery.data.result;
-
-    return trendingData
-      .map((trendingMovie, index) => {
-        const movieDetail = allMovies.find((movie) => movie.id === trendingMovie.movieId);
-
-        return {
-          id: trendingMovie.movieId || 0,
-          name: trendingMovie.movieName || "",
-          rank: index + 1,
-          ticketCount: trendingMovie.ticketCount || 0,
-          totalRevenue: trendingMovie.totalRevenue || 0,
-          poster: movieDetail?.poster,
-          banner: movieDetail?.banner,
-          categories: movieDetail?.categories?.map((c) => c.name).filter((name): name is string => Boolean(name)) || [], // Fix categories type
-          duration: movieDetail?.duration,
-          fromDate: movieDetail?.fromDate,
-        };
-      })
-      .filter((movie) => movie.id > 0);
-  }, [trendingQuery.data, moviesQuery.data]);
+  const topMoviesWithDetails = trendingResults.slice(0, 5)
+        .map((trendingMovie, index) => {
+          const movieDetail = movieResults.find((movie) => movie.id === trendingMovie.movieId);
+          return {
+            id: trendingMovie.movieId || 0,
+            name: trendingMovie.movieName || "",
+            rank: index + 1,
+            ticketCount: trendingMovie.ticketCount || 0,
+            totalRevenue: trendingMovie.totalRevenue || 0,
+            poster: movieDetail?.poster,
+            banner: movieDetail?.banner,
+            categories:
+              movieDetail?.categories?.map((c) => c.name).filter((name): name is string => Boolean(name)) || [],
+            duration: movieDetail?.duration,
+            fromDate: movieDetail?.fromDate,
+          };
+        })
+        .filter((movie) => movie.id > 0);
 
   // Set default selected movie
   React.useEffect(() => {
@@ -68,7 +64,7 @@ const TrendingSection = () => {
   const backgroundBanner = selectedMovie?.banner || "";
 
   // Create display list with placeholders
-  const displayMovies = useMemo(() => {
+  const displayMovies = (() => {
     const movies = [...topMoviesWithDetails];
     while (movies.length < 5) {
       movies.push({
@@ -77,7 +73,7 @@ const TrendingSection = () => {
       } as any);
     }
     return movies;
-  }, [topMoviesWithDetails]);
+  })();
 
   const handleMovieClick = (movieId: number) => {
     setSelectedMovieId(movieId);

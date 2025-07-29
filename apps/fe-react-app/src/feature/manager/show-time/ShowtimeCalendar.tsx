@@ -10,7 +10,7 @@ import type { Showtime } from "@/interfaces/showtime.interface";
 import { transformCinemaRoomsResponse, useCinemaRooms } from "@/services/cinemaRoomService";
 import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { queryShowtimes, transformShowtimesResponse } from "@/services/showtimeService";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 interface ShowtimeCalendarProps {
   readonly searchTerm?: string;
@@ -24,21 +24,15 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
   const { data: moviesData, isLoading: moviesLoading } = queryMovies();
   const { data: showtimesData, isLoading: showtimesLoading } = queryShowtimes();
 
-  const rooms = useMemo<CinemaRoom[]>(() => {
-    return roomsData?.result ? transformCinemaRoomsResponse(roomsData.result) : [];
-  }, [roomsData?.result]);
+  const rooms: CinemaRoom[] = roomsData?.result ? transformCinemaRoomsResponse(roomsData.result) : [];
 
-  const movies = useMemo<Movie[]>(() => {
-    return moviesData?.result ? transformMoviesResponse(moviesData.result) : [];
-  }, [moviesData?.result]);
+  const movies: Movie[] = moviesData?.result ? transformMoviesResponse(moviesData.result) : [];
 
-  const showtimes = useMemo<Showtime[]>(() => {
-    return showtimesData?.result ? transformShowtimesResponse(showtimesData.result) : [];
-  }, [showtimesData?.result]);
+  const showtimes: Showtime[] = showtimesData?.result ? transformShowtimesResponse(showtimesData.result) : [];
 
   const getMovieName = (id: number) => movies.find((m) => m.id === id)?.name || `Movie ${id}`;
 
-  const filteredShowtimes = useMemo(() => {
+  const filteredShowtimes = (() => {
     const dateStr = selectedDate.toISOString().split("T")[0];
     let result = showtimes.filter((st) => st.showDateTime.startsWith(dateStr));
 
@@ -63,21 +57,17 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
     }
 
     return result;
-  }, [showtimes, selectedDate, searchTerm, filterCriteria, movies]);
+  })();
 
-  const events: EventInput[] = useMemo(() => {
-    return filteredShowtimes.map((st) => ({
-      id: st.id.toString(),
-      resourceId: st.roomId.toString(),
-      title: getMovieName(st.movieId),
-      start: st.showDateTime,
-      end: st.endDateTime,
-    }));
-  }, [filteredShowtimes, movies]);
+  const events: EventInput[] = filteredShowtimes.map((st) => ({
+    id: st.id.toString(),
+    resourceId: st.roomId.toString(),
+    title: getMovieName(st.movieId),
+    start: st.showDateTime,
+    end: st.endDateTime,
+  }));
 
-  const resources = useMemo(() => {
-    return rooms.map((r) => ({ id: (r.id ?? 0).toString(), title: r.name }));
-  }, [rooms]);
+  const resources = rooms.map((r) => ({ id: (r.id ?? 0).toString(), title: r.name }));
 
   if (roomsLoading || moviesLoading || showtimesLoading) {
     return <LoadingSpinner />;

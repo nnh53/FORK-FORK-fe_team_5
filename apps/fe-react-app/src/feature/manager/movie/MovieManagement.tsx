@@ -29,7 +29,7 @@ import {
   transformMovieToRequest,
 } from "@/services/movieService";
 import { Plus } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { MovieDataTable } from "./MovieDataTable";
 import MovieDetail from "./MovieDetail";
@@ -127,18 +127,15 @@ const MovieManagement = () => {
   const deleteMovieMutation = queryDeleteMovie();
 
   // Transform API response to Movie interface
-  const movies: Movie[] = useMemo(() => {
-    return moviesQuery.data?.result ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse)) : [];
-  }, [moviesQuery.data?.result]);
+  const movies: Movie[] = moviesQuery.data?.result
+    ? moviesQuery.data.result.map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
+    : [];
 
   // Transform API response to MovieCategory interface
-  const categories = useMemo(() => {
-    if (!categoriesQuery.data?.result) return [];
-    return transformMovieCategoriesResponse(categoriesQuery.data.result);
-  }, [categoriesQuery.data?.result]);
+  const categories = !categoriesQuery.data?.result ? [] : transformMovieCategoriesResponse(categoriesQuery.data.result);
 
   // Động tạo filterOptions dựa trên danh sách thể loại từ API
-  const filterOptions = useMemo(() => {
+  const filterOptions = (() => {
     const categoryOptions = categories.map((cat) => ({
       value: cat.id?.toString() || "",
       label: cat.name || "Unknown",
@@ -154,12 +151,10 @@ const MovieManagement = () => {
         placeholder: "Chọn thể loại",
       },
     ];
-  }, [categories]);
+  })();
 
   // Filtered movies
-  const filteredMovies = useMemo(() => {
-    return applyFilters(movies, filterCriteria, searchTerm);
-  }, [movies, searchTerm, filterCriteria]);
+  const filteredMovies = applyFilters(movies, filterCriteria, searchTerm);
 
   // Mutation handlers
   useMutationHandler(

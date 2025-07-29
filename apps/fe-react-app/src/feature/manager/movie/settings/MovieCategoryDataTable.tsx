@@ -24,7 +24,7 @@ import { usePagination } from "@/hooks/usePagination";
 import { useSortable } from "@/hooks/useSortable";
 import type { MovieCategory } from "@/interfaces/movie-category.interface";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
-import { forwardRef, useImperativeHandle, useMemo } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 
 interface MovieCategoryDataTableProps {
   data: MovieCategory[];
@@ -49,9 +49,7 @@ export const MovieCategoryDataTable = forwardRef<{ resetPagination: () => void }
   }));
 
   // Get current page data
-  const currentPageData = useMemo(() => {
-    return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
-  }, [sortedData, pagination.startIndex, pagination.endIndex]);
+  const currentPageData = sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
 
   return (
     <div className="w-full space-y-4">

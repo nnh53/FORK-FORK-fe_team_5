@@ -22,7 +22,7 @@ import { useSortable } from "@/hooks/useSortable";
 import type { Movie } from "@/interfaces/movies.interface";
 import { formatAgeRestrict, formatDateRange, formatDuration, getStatusBadgeVariant, getStatusClassName } from "@/utils/color.utils";
 import { ChevronDown, Columns3, Edit, Eye, MoreHorizontal, Tags, Trash } from "lucide-react";
-import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
 interface MovieDataTableProps {
   data: Movie[];
@@ -108,9 +108,7 @@ export const MovieDataTable = forwardRef<{ resetPagination: () => void }, MovieD
     }));
 
     // Get current page data
-    const currentPageData = useMemo(() => {
-      return sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
-    }, [sortedData, pagination.startIndex, pagination.endIndex]);
+    const currentPageData = sortedData.slice(pagination.startIndex, pagination.endIndex + 1);
 
     // Handle column visibility toggle
     const toggleColumnVisibility = (columnId: string, isVisible: boolean) => {

@@ -12,7 +12,7 @@ import { formatVND } from "@/utils/currency.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import { ArrowLeft, ListPlus, Save, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import ComboDetailTable from "./ComboDetailTable";
@@ -91,10 +91,12 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
   const [snackSearchTerm, setSnackSearchTerm] = useState("");
 
   const { data: snacksData } = useSnacks();
-  const snacks: Snack[] = useMemo(() => {
-    if (!snacksData?.result) return [];
-    return Array.isArray(snacksData.result) ? transformSnacksResponse(snacksData.result) : transformSnacksResponse([snacksData.result]);
-  }, [snacksData]);
+  let snacks: Snack[] = [];
+  if (snacksData?.result) {
+    snacks = Array.isArray(snacksData.result)
+      ? transformSnacksResponse(snacksData.result)
+      : transformSnacksResponse([snacksData.result]);
+  }
 
   useEffect(() => {
     if (combo.snacks) setComboSnacks(combo.snacks);
@@ -150,26 +152,24 @@ const ComboDetailForm: React.FC<ComboDetailFormProps> = ({ combo, onCancel, onAd
     form.reset();
   };
 
-  const availableSnacks = useMemo(() => {
-    return snacks
-      .filter((snack) => {
-        if (selectedComboSnack && selectedComboSnack.snack?.id === snack.id) return true;
-        return !comboSnacks.some((cs) => cs.snack?.id === snack.id);
-      })
-      .filter((snack) => {
-        if (!snackSearchTerm) return true;
-        const lowerSearchTerm = snackSearchTerm.toLowerCase();
-        return (
-          snack.name?.toLowerCase().includes(lowerSearchTerm) ||
-          snack.category?.toLowerCase().includes(lowerSearchTerm) ||
-          snack.flavor?.toLowerCase().includes(lowerSearchTerm) ||
-          snack.size?.toLowerCase().includes(lowerSearchTerm)
-        );
-      })
-      .filter((snack) => {
-        return selectedCategory === "ALL" || snack.category === selectedCategory;
-      });
-  }, [snacks, selectedComboSnack, comboSnacks, snackSearchTerm, selectedCategory]);
+  const availableSnacks = snacks
+    .filter((snack) => {
+      if (selectedComboSnack && selectedComboSnack.snack?.id === snack.id) return true;
+      return !comboSnacks.some((cs) => cs.snack?.id === snack.id);
+    })
+    .filter((snack) => {
+      if (!snackSearchTerm) return true;
+      const lowerSearchTerm = snackSearchTerm.toLowerCase();
+      return (
+        snack.name?.toLowerCase().includes(lowerSearchTerm) ||
+        snack.category?.toLowerCase().includes(lowerSearchTerm) ||
+        snack.flavor?.toLowerCase().includes(lowerSearchTerm) ||
+        snack.size?.toLowerCase().includes(lowerSearchTerm)
+      );
+    })
+    .filter((snack) => {
+      return selectedCategory === "ALL" || snack.category === selectedCategory;
+    });
 
   // Đã loại bỏ biến snackSizes không còn sử dụng
 
