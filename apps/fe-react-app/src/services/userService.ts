@@ -69,6 +69,13 @@ export const useUpdateUser = () => {
 };
 
 /**
+ * Hook for changing user password
+ */
+export const useChangePassword = () => {
+  return $api.useMutation("put", "/users/{userId}/change-password");
+};
+
+/**
  * Hook for deleting a user
  */
 export const useDeleteUser = () => {
