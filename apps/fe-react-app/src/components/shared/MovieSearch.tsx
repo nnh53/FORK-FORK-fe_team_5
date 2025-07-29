@@ -31,13 +31,7 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
 
     return moviesData.result
       .map((movieResponse: MovieResponse) => transformMovieResponse(movieResponse))
-      .filter(
-        (movie: Movie) =>
-          movie.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          movie.director?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          movie.actor?.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-      .slice(0, 8); // Limit to 8 results
+      .filter((movie: Movie) => movie.name?.toLowerCase().includes(searchTerm.toLowerCase())); // Limit to 8 results
   }, [searchTerm, moviesData]);
 
   // Update showDropdown based on filtered results
@@ -69,13 +63,13 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
   return (
     <div className={`relative ${className}`}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-500" />
         <Input
           type="text"
           placeholder={placeholder}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 pr-10"
+          className="h-12 rounded-3xl border-2 border-gray-300 bg-white pr-10 pl-10 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           onFocus={() => {
             if (filteredMovies.length > 0) {
               setShowDropdown(true);
@@ -83,7 +77,7 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
           }}
         />
         {searchTerm && (
-          <Button variant="ghost" size="sm" className="absolute right-2 top-1/2 h-6 w-6 -translate-y-1/2 transform p-0" onClick={clearSearch}>
+          <Button variant="ghost" size="sm" className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 transform p-0" onClick={clearSearch}>
             <X className="h-4 w-4" />
           </Button>
         )}
@@ -91,7 +85,7 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
 
       {/* Search Results Dropdown */}
       {showResults && showDropdown && (
-        <Card className="absolute left-0 right-0 top-full z-50 mt-1 max-h-96 overflow-y-auto shadow-lg">
+        <Card className="absolute top-full right-0 left-0 z-50 mt-1 max-h-96 overflow-y-auto border-2 border-gray-200 bg-white shadow-xl">
           <CardContent className="p-0">
             {isLoading && <div className="p-4 text-center text-gray-500">Đang tìm kiếm...</div>}
 
@@ -100,11 +94,11 @@ const MovieSearch: React.FC<MovieSearchProps> = ({ onMovieSelect, placeholder = 
             )}
 
             {!isLoading && filteredMovies.length > 0 && (
-              <div className="divide-y">
+              <div className="divide-y divide-gray-200">
                 {filteredMovies.map((movie) => (
                   <button
                     key={movie.id}
-                    className="w-full cursor-pointer p-4 text-left transition-colors hover:bg-gray-50"
+                    className="w-full cursor-pointer p-4 text-left transition-colors hover:bg-blue-50 focus:bg-blue-50 focus:outline-none"
                     onClick={() => handleMovieSelect(movie)}
                     type="button"
                   >
