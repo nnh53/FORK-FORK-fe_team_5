@@ -53,15 +53,6 @@ export const siteConfig = {
       },
     ],
   },
-  quoteSection: {
-    quote:
-      "SkyAgent has transformed our daily operations. Tasks that once consumed hours now complete in moments, freeing our team to focus on creativity and strategic growth.",
-    author: {
-      name: "Alex Johnson",
-      role: "CTO, Innovatech",
-      image: "https://randomuser.me/api/portraits/men/91.jpg",
-    },
-  },
   faqSection: {
     title: "Frequently Asked Questions",
     description: "Answers to common questions about SkyAgent and its features. If you have any other questions, please don't hesitate to contact us.",

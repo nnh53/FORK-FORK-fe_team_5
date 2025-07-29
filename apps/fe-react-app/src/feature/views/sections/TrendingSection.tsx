@@ -155,6 +155,7 @@ const TrendingSection = () => {
                 }
                 return (
                   <MovieRankingItem
+                    data-testid="movie-item"
                     key={movie.id}
                     movie={movie}
                     isSelected={selectedMovieId === movie.id}
