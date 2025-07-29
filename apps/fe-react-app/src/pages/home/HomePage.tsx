@@ -38,17 +38,17 @@ const HomePage = () => {
 
   return (
     <div>
-      <ClickSpark sparkColor="#8B4513" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
+      <ClickSpark sparkColor="#e7000b" sparkSize={20} sparkRadius={40} sparkCount={8} duration={400}>
         <div className="home-page">
           <CarouselSection />
           <LazySection threshold={0.1} rootMargin="200px" minHeight="600px" loadingTitle="Movie Selection">
             <MovieSelection />
           </LazySection>
-          <LazySection threshold={0.1} rootMargin="150px" minHeight="500px" loadingTitle="Spotlight Movies">
-            <SpotlightSection />
-          </LazySection>
           <LazySection threshold={0.1} rootMargin="100px" minHeight="400px" loadingTitle="Trending Movies">
             <TrendingSection />
+          </LazySection>
+          <LazySection threshold={0.1} rootMargin="150px" minHeight="500px" loadingTitle="Spotlight Movies">
+            <SpotlightSection />
           </LazySection>
           <FeatureSection />
           <CinemaExperience />
