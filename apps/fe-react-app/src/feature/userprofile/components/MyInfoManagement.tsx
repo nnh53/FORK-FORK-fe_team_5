@@ -10,9 +10,10 @@ import { CITIES, GENDERS, type UserFormData } from "@/constants/profile";
 import { useImageUploadAndUpdate } from "@/hooks/useImageUploadAndUpdate";
 import { useUpdateUserData, useUserData } from "@/hooks/userProfile";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
-import { Calendar, Camera, Gem, Mail, MapPin, Phone, User } from "lucide-react";
+import { Calendar, Camera, Gem, KeyRound, Mail, MapPin, Phone, User } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ChangePasswordDialog } from "./ChangePasswordDialog";
 
 export const MyInfo: React.FC = () => {
   const userId = getUserIdFromCookie();
@@ -20,6 +21,7 @@ export const MyInfo: React.FC = () => {
   const { updateUser, mutation } = useUpdateUserData();
   const { uploadAndUpdateAvatar, isUploading: isUploadingAndUpdating } = useImageUploadAndUpdate();
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // Handle mutation success/error
   useEffect(() => {
@@ -245,7 +247,13 @@ export const MyInfo: React.FC = () => {
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4">
             {!isEditing ? (
-              <Button onClick={() => setIsEditing(true)}>Chỉnh sửa thông tin</Button>
+              <>
+                <Button onClick={() => setIsEditing(true)}>Chỉnh sửa thông tin</Button>
+                <Button variant="outline" onClick={() => setIsChangePasswordOpen(true)}>
+                  <KeyRound className="mr-2 h-4 w-4" />
+                  Đổi mật khẩu
+                </Button>
+              </>
             ) : (
               <>
                 <Button onClick={handleSave} disabled={mutation.isPending}>
@@ -259,6 +267,9 @@ export const MyInfo: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Change Password Dialog */}
+      <ChangePasswordDialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen} />
     </div>
   );
 };
