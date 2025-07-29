@@ -173,12 +173,11 @@ const TrendingSection = () => {
             <div className="space-y-6 text-center">
               <div className="space-y-4">
                 <h3 className="text-6xl font-bold text-white"> </h3>
-                <p className="text-xl tracking-wider text-orange-400">BY F-Cinema</p>
 
                 {/* Book Now Button */}
                 <ShimmerButton
                   onClick={handleBookNow}
-                  className="inline-flex transform items-center justify-center rounded-lg bg-orange-500 px-8 py-3 text-lg font-semibold text-white shadow-2xl shadow-lg transition-colors duration-300 hover:scale-105 hover:bg-orange-600 hover:shadow-xl"
+                  className="inline-flex transform items-center justify-center rounded-lg bg-red-600 px-8 py-3 text-lg font-semibold text-white shadow-2xl transition-colors duration-300 hover:scale-105 hover:bg-red-700 hover:shadow-xl"
                 >
                   Book Ngay
                 </ShimmerButton>
@@ -211,9 +210,9 @@ const MovieRankingItem = ({
   // Determine the styling based on state
   let itemClassName = "border-white/10 bg-black/40 hover:bg-black/60";
   if (isHighlighted) {
-    itemClassName = "border-orange-400/50 bg-orange-500/20 shadow-lg shadow-orange-500/20";
+    itemClassName = "border-red-400/50 bg-red-500/20 shadow-lg shadow-red-500/20";
   } else if (isSelected) {
-    itemClassName = "border-orange-400/30 bg-orange-500/10";
+    itemClassName = "border-red-400/30 bg-red-500/10";
   }
 
   return (
@@ -236,7 +235,7 @@ const MovieRankingItem = ({
       </div>
 
       {/* Rank Number */}
-      <div className={`w-12 text-center text-4xl font-bold transition-colors duration-300 ${isHighlighted ? "text-orange-300" : "text-orange-400"}`}>
+      <div className={`w-12 text-center text-4xl font-bold transition-colors duration-300 ${isHighlighted ? "text-red-300" : "text-red-400"}`}>
         {movie.rank.toString().padStart(2, "0")}
       </div>
 
@@ -251,7 +250,7 @@ const MovieRankingItem = ({
       {/* Highlighted Indicator */}
       {isHighlighted && (
         <div className="flex-shrink-0">
-          <div className="h-3 w-3 animate-pulse rounded-full bg-orange-400" />
+          <div className="h-3 w-3 animate-pulse rounded-full bg-red-400" />
         </div>
       )}
     </div>
