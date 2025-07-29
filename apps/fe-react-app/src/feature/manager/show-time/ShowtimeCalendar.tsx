@@ -10,7 +10,7 @@ import type { Showtime } from "@/interfaces/showtime.interface";
 import { transformCinemaRoomsResponse, useCinemaRooms } from "@/services/cinemaRoomService";
 import { queryMovies, transformMoviesResponse } from "@/services/movieService";
 import { queryShowtimes, transformShowtimesResponse } from "@/services/showtimeService";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 
 interface ShowtimeCalendarProps {
   readonly searchTerm?: string;
@@ -19,6 +19,7 @@ interface ShowtimeCalendarProps {
 
 export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: ShowtimeCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const calendarRef = useRef<FullCalendar | null>(null);
 
   const { data: roomsData, isLoading: roomsLoading } = useCinemaRooms();
   const { data: moviesData, isLoading: moviesLoading } = queryMovies();
@@ -79,6 +80,13 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
     return rooms.map((r) => ({ id: (r.id ?? 0).toString(), title: r.name }));
   }, [rooms]);
 
+  useEffect(() => {
+    const calendarApi = calendarRef.current?.getApi();
+    if (calendarApi) {
+      calendarApi.gotoDate(selectedDate);
+    }
+  }, [selectedDate]);
+
   if (roomsLoading || moviesLoading || showtimesLoading) {
     return <LoadingSpinner />;
   }
@@ -87,8 +95,10 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
     <div className="space-y-4">
       <DatePicker mode="single" selected={selectedDate} onSelect={(date) => date && setSelectedDate(date)} />
       <FullCalendar
+        ref={calendarRef}
         plugins={[resourceTimeGridPlugin]}
         initialView="resourceTimeGridDay"
+        initialDate={selectedDate}
         headerToolbar={false}
         resources={resources}
         events={events}
