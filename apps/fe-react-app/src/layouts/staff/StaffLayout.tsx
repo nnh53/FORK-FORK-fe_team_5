@@ -1,9 +1,10 @@
-import { StaffSidebar } from "@/components/Shadcn/staff-sidebar";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
+import { AppSidebar } from "@/components/Shadcn/app-sidebar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/Shadcn/ui/breadcrumb";
 import { Separator } from "@/components/Shadcn/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/Shadcn/ui/sidebar";
 import type { ReactNode } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { sidebarData } from "./staff-sidebar-data";
 
 type StaffLayoutProps = {
   children?: ReactNode;
@@ -11,27 +12,14 @@ type StaffLayoutProps = {
 
 // Helper function to generate breadcrumb based on current path
 const getBreadcrumbFromPath = (pathname: string) => {
-  const pathSegments = pathname.split("/").filter(Boolean);
+  const allItems = [...sidebarData.navMain, ...(sidebarData.navSecondary ?? [])];
+  const found = allItems.find((item) => item.url === pathname);
 
-  if (pathSegments.includes("staff")) {
-    const staffIndex = pathSegments.indexOf("staff");
-    const currentPage = pathSegments[staffIndex + 1];
-
-    switch (currentPage) {
-      case "dashboard":
-        return { section: "Staff Operations", page: "Dashboard" };
-      case "sales":
-        return { section: "Sales Operations", page: "Ticket Sales" };
-      case "booking":
-        return { section: "Customer Service", page: "Booking Management" };
-      case "checkin":
-        return { section: "Operations", page: "Check-in Management" };
-      default:
-        return { section: "FCinema Staff", page: "Operations" };
-    }
+  if (found) {
+    return { section: "FCinema Staff", page: found.title };
   }
 
-  return { section: "FCinema Staff", page: "Operations" };
+  return { section: "FCinema Staff", page: "Dashboard" };
 };
 
 export default function StaffLayout({ children }: Readonly<StaffLayoutProps>) {
@@ -40,7 +28,7 @@ export default function StaffLayout({ children }: Readonly<StaffLayoutProps>) {
 
   return (
     <SidebarProvider>
-      <StaffSidebar variant="sidebar" />
+      <AppSidebar data={sidebarData} />
       <SidebarInset>
         <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear">
           <div className="flex items-center gap-2 px-4">
@@ -49,7 +37,7 @@ export default function StaffLayout({ children }: Readonly<StaffLayoutProps>) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/staff/dashboard">{breadcrumb.section}</BreadcrumbLink>
+                  <BreadcrumbPage>{breadcrumb.section}</BreadcrumbPage>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
