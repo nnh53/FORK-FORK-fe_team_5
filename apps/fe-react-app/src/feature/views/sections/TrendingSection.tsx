@@ -1,7 +1,8 @@
 import { LineShadowText } from "@/components/magicui/line-shadow-text";
-import { ShimmerButton } from "@/components/magicui/shimmer-button";
+import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardSwap/CardSwap";
 import { queryMoviesForTrending } from "@/services/movieService";
 import { queryReceiptTopMovies } from "@/services/receipService";
+import { getYouTubeEmbedUrl, getYouTubeVideoId } from "@/utils/movie.utils";
 import { Image } from "@unpic/react";
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -23,11 +24,11 @@ const TrendingSection = () => {
   const navigate = useNavigate();
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
   const [lastHoveredMovieId, setLastHoveredMovieId] = useState<number | null>(null); // Changed to persist last hovered
-
   const trendingQuery = queryReceiptTopMovies("2025-01-01", "2026-01-31");
   const moviesQuery = queryMoviesForTrending();
+  const [isMobile, setIsMobile] = useState(false);
+  const [hoveredMovieId, setHoveredMovieId] = useState<number | null>(null); // Changed to persist last hovered
 
-  // Combine trending stats with movie details
   const topMoviesWithDetails = useMemo(() => {
     if (!trendingQuery.data?.result || !moviesQuery.data?.result) return [];
 
@@ -49,12 +50,29 @@ const TrendingSection = () => {
           categories: movieDetail?.categories?.map((c) => c.name).filter((name): name is string => Boolean(name)) || [], // Fix categories type
           duration: movieDetail?.duration,
           fromDate: movieDetail?.fromDate,
+          trailer: movieDetail?.trailer,
         };
       })
       .filter((movie) => movie.id > 0);
   }, [trendingQuery.data, moviesQuery.data]);
 
+  const cardSwapSettings = isMobile
+    ? {
+        cardDistance: 30,
+        verticalDistance: 10,
+        delay: 8000,
+        pauseOnHover: true,
+        skewAmount: 0,
+      }
+    : {
+        cardDistance: 50,
+        verticalDistance: 100,
+        delay: 8000,
+        pauseOnHover: true,
+        skewAmount: 2,
+      };
   // Set default selected movie
+
   React.useEffect(() => {
     if (topMoviesWithDetails.length > 0 && selectedMovieId === null) {
       setSelectedMovieId(topMoviesWithDetails[0].id);
@@ -62,6 +80,16 @@ const TrendingSection = () => {
     }
   }, [topMoviesWithDetails, selectedMovieId]);
 
+  React.useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
   // Get banner based on last hovered or selected movie
   const currentMovieId = lastHoveredMovieId ?? selectedMovieId; // Use last hovered movie
   const selectedMovie = topMoviesWithDetails.find((movie) => movie.id === currentMovieId);
@@ -88,12 +116,9 @@ const TrendingSection = () => {
     setLastHoveredMovieId(movieId); // Update last hovered movie and persist it
   };
 
-  const handleBookNow = () => {
-    if (currentMovieId) {
-      navigate(`/movie/${currentMovieId}`);
-    }
+  const handleMouseHover = (movieId: number) => {
+    setHoveredMovieId(movieId); // Update last hovered movie and persist it
   };
-
   // Loading state
   if (trendingQuery.isLoading || moviesQuery.isLoading) {
     return (
@@ -150,6 +175,7 @@ const TrendingSection = () => {
 
             <div className="space-y-4">
               {displayMovies.map((movie) => {
+                console.log("selected movie id", selectedMovieId);
                 if ("isPlaceholder" in movie) {
                   return <PlaceholderMovieItem key={movie.rank} rank={movie.rank} />;
                 }
@@ -161,7 +187,8 @@ const TrendingSection = () => {
                     isSelected={selectedMovieId === movie.id}
                     isHighlighted={lastHoveredMovieId === movie.id} // Check if this is the last hovered
                     onClick={() => handleMovieClick(movie.id)}
-                    onMouseEnter={() => handleMouseEnter(movie.id)} // Handle hover
+                    onMouseEnter={() => handleMouseEnter(movie.id)}
+                    onMouseHover={() => handleMouseHover(movie.id)} // Handle hover
                   />
                 );
               })}
@@ -170,19 +197,68 @@ const TrendingSection = () => {
 
           {/* Right: Video Play Section */}
           <div className="flex items-center justify-center">
-            <div className="space-y-6 text-center">
-              <div className="space-y-4">
-                <h3 className="text-6xl font-bold text-white"> </h3>
+            <CardSwap
+              cardDistance={cardSwapSettings.cardDistance}
+              verticalDistance={cardSwapSettings.verticalDistance}
+              delay={cardSwapSettings.delay}
+              pauseOnHover={cardSwapSettings.pauseOnHover}
+              skewAmount={cardSwapSettings.skewAmount}
+              activeIndex={displayMovies.findIndex((movie) => movie.id === hoveredMovieId)}
+              onActiveIndexChange={setHoveredMovieId}
+            >
+              {displayMovies.map((movie) => (
+                <Card key={movie.id} className="card-style">
+                  {(() => {
+                    // Only play trailer for active card
+                    if (hoveredMovieId === movie.id && movie.trailer && getYouTubeEmbedUrl(movie.trailer)) {
+                      const videoId = getYouTubeVideoId(movie.trailer || "");
+                      const startTime = movie.id ? (movie.id % 60) + 10 : 0;
+                      const embedUrl = getYouTubeEmbedUrl(movie.trailer, {
+                        autoplay: false,
+                        rel: false,
+                        showinfo: false,
+                      });
 
-                {/* Book Now Button */}
-                <ShimmerButton
-                  onClick={handleBookNow}
-                  className="inline-flex transform items-center justify-center rounded-lg bg-red-600 px-8 py-3 text-lg font-semibold text-white shadow-2xl transition-colors duration-300 hover:scale-105 hover:bg-red-700 hover:shadow-xl"
-                >
-                  Book Ngay
-                </ShimmerButton>
-              </div>
-            </div>
+                      let finalUrl = embedUrl || "";
+                      finalUrl = `${finalUrl}&start=${startTime}&mute=1&loop=1`;
+                      if (videoId) {
+                        finalUrl += `&playlist=${videoId}`;
+                      }
+
+                      return (
+                        <div className="trailer-container">
+                          <iframe
+                            src={finalUrl}
+                            title={`Trailer - ${movie.name}`}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="trailer-iframe"
+                          />
+                        </div>
+                      );
+                    }
+
+                    // Fallback to poster for non-active cards or if no trailer
+                    if (movie.poster) {
+                      return (
+                        <div className="poster-container">
+                          <img src={movie.poster} alt={movie.name} className="poster-image" loading="lazy" />
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  })()}
+                </Card>
+              ))}
+              {displayMovies.length === 0 && (
+                <Card className="empty-card-style">
+                  <h3 className="empty-card-title">No spotlight movies available</h3>
+                </Card>
+              )}
+            </CardSwap>
+            {/* </div> */}
+            {/* </div> */}
           </div>
         </div>
       </div>
@@ -197,12 +273,14 @@ const MovieRankingItem = ({
   isHighlighted,
   onClick,
   onMouseEnter,
+  onMouseHover,
 }: {
   movie: TrendingMovieWithDetails;
   isSelected: boolean;
   isHighlighted: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
+  onMouseHover: () => void;
 }) => {
   const primaryCategory = movie.categories?.[0] || "Action";
   const genres = movie.categories?.join(", ") || "Action, Thriller";
@@ -220,6 +298,7 @@ const MovieRankingItem = ({
       className={`flex cursor-pointer items-center space-x-6 rounded-lg border p-4 backdrop-blur-sm transition-all duration-300 ${itemClassName}`}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
+      onMouseOver={onMouseHover}
     >
       {/* Movie Poster */}
       <div className="flex-shrink-0">

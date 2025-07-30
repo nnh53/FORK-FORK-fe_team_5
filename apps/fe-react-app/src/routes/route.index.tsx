@@ -34,7 +34,6 @@ import FAQ from "@/feature/views/sections/FAQ";
 import AdminDashboard from "@/feature/manager/dashboard/AdminDashboard";
 import StaffBookingManagement from "@/feature/staff/booking/StaffBookingManagement";
 import StaffTicketSales from "@/feature/staff/sales/StaffTicketSales";
-import SpotlightSection from "@/feature/views/sections/SpotlightSection";
 import AdminLayout from "@/layouts/admin/AdminLayout";
 import StaffLayout from "@/layouts/staff/StaffLayout";
 import { Header } from "@/layouts/user/components/Header";
@@ -180,7 +179,6 @@ export const AppRoutes = () => (
     <Route path={ROUTES.HEADER_TEST} element={<Header />} />
     <Route path={ROUTES.CINEMA_EXPERIENCE} element={<CinemaExperience />} />
     {/* <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} /> */}
-    <Route path={ROUTES.SPOTLIGHT_SECTION} element={<SpotlightSection />} />
     <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
 
     {/* Catch-all for unknown routes */}

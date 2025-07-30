@@ -14,7 +14,6 @@ import { FeatureSection } from "@/feature/views/sections/feature-section";
 // Lazy load heavy components
 const CarouselSection = lazy(() => import("@/feature/views/sections/CarouselSection"));
 const MovieSelection = lazy(() => import("../store/MovieSelection"));
-const SpotlightSection = lazy(() => import("@/feature/views/sections/SpotlightSection"));
 const TrendingSection = lazy(() => import("@/feature/views/sections/TrendingSection"));
 
 const HomePage = () => {
@@ -46,9 +45,6 @@ const HomePage = () => {
           </LazySection>
           <LazySection threshold={0.1} rootMargin="100px" minHeight="400px" loadingTitle="Trending Movies">
             <TrendingSection />
-          </LazySection>
-          <LazySection threshold={0.1} rootMargin="150px" minHeight="500px" loadingTitle="Spotlight Movies">
-            <SpotlightSection />
           </LazySection>
           <FeatureSection />
           <CinemaExperience />
