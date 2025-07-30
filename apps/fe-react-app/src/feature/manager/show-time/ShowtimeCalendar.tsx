@@ -1,3 +1,4 @@
+import { Button } from "@/components/Shadcn/ui/button";
 import { Calendar as DatePicker } from "@/components/Shadcn/ui/calendar";
 import type { FilterCriteria } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
@@ -21,13 +22,17 @@ interface ShowtimeCalendarProps {
 export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: ShowtimeCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const calendarRef = useRef<FullCalendar | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(true);
 
   const { data: roomsData, isLoading: roomsLoading } = useCinemaRooms();
   const { data: moviesData, isLoading: moviesLoading } = queryMovies();
   const { data: showtimesData, isLoading: showtimesLoading } = queryShowtimes();
 
   const rooms = useMemo<CinemaRoom[]>(() => {
-    return roomsData?.result ? transformCinemaRoomsResponse(roomsData.result) : [];
+    if (!roomsData?.result) return [];
+    return transformCinemaRoomsResponse(roomsData.result).filter(
+      (room) => room.status === "ACTIVE",
+    );
   }, [roomsData?.result]);
 
   const movies = useMemo<Movie[]>(() => {
@@ -98,18 +103,35 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
   }
 
   return (
-    <div className="space-y-4">
-      <DatePicker mode="single" selected={selectedDate} onSelect={(date) => date && setSelectedDate(date)} />
-      <FullCalendar
-        ref={calendarRef}
-        plugins={[resourceTimeGridPlugin]}
-        initialView="resourceTimeGridDay"
-        initialDate={selectedDate}
-        resources={resources}
-        events={events}
-        height="auto"
-        headerToolbar={false}
-      />
+    <div className="flex gap-4">
+      <div className="shrink-0">
+        <Button
+          variant="outline"
+          className="mb-2"
+          onClick={() => setShowDatePicker((prev) => !prev)}
+        >
+          {showDatePicker ? "Ẩn lịch" : "Chọn ngày"}
+        </Button>
+        {showDatePicker && (
+          <DatePicker
+            mode="single"
+            selected={selectedDate}
+            onSelect={(date) => date && setSelectedDate(date)}
+          />
+        )}
+      </div>
+      <div className="flex-1">
+        <FullCalendar
+          ref={calendarRef}
+          plugins={[resourceTimeGridPlugin]}
+          initialView="resourceTimeGridDay"
+          initialDate={selectedDate}
+          resources={resources}
+          events={events}
+          height="auto"
+          headerToolbar={false}
+        />
+      </div>
     </div>
   );
 }

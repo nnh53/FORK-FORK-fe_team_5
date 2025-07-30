@@ -91,7 +91,11 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
 
   useEffect(() => {
     if (roomsData?.result) {
-      setRooms(transformCinemaRoomsResponse(roomsData.result));
+      setRooms(
+        transformCinemaRoomsResponse(roomsData.result).filter(
+          (room) => room.status === "ACTIVE",
+        ),
+      );
     }
   }, [roomsData]);
 
