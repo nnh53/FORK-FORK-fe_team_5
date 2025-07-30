@@ -1,0 +1,42 @@
+.shadcn-time-picker.react-time-picker {
+  width: 100%;
+}
+
+.shadcn-time-picker.react-time-picker .react-time-picker__wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 2.25rem;
+  padding: 0.25rem 0.75rem;
+  background-color: transparent;
+  border-radius: 0.375rem;
+  border: 1px solid var(--input);
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.shadcn-time-picker.react-time-picker .react-time-picker__wrapper:focus-within {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.shadcn-time-picker.react-time-picker .react-time-picker__inputGroup__input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: none;
+  color: inherit;
+}
+
+.shadcn-time-picker.react-time-picker .react-time-picker__clock {
+  margin-top: 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+}
+
+.shadcn-time-picker.react-time-picker .react-time-picker__clear-button,
+.shadcn-time-picker.react-time-picker .react-time-picker__clock-button {
+  display: none;
+}

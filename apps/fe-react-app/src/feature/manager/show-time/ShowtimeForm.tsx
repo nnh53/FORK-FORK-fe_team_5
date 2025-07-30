@@ -5,9 +5,9 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
-import { Input } from "@/components/Shadcn/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import { TimePicker as ShadcnTimePicker } from "@/components/Shadcn/ui/time-picker";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import type { Movie } from "@/interfaces/movies.interface";
@@ -19,7 +19,7 @@ import { cn } from "@/utils/utils";
 import { showtimeFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { AlertTriangle, CalendarIcon, Clock, Home } from "lucide-react";
+import { AlertTriangle, CalendarIcon, Home } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -342,7 +342,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
               roomName={rooms.find((r) => r.id?.toString() === roomId)?.name}
             />
 
-            {/* Time Pickers using Input type="time" */}
+            {/* Time Pickers using custom TimePicker */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -354,14 +354,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Clock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
-                        <Input
-                          type="time"
-                          className="bg-background appearance-none pl-10 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                          {...field}
-                          disabled={!showDate}
-                          onChange={(e) => handleFieldChange("startTime", e.target.value)}
-                        />
+                        <ShadcnTimePicker {...field} disabled={!showDate} onChange={(value) => handleFieldChange("startTime", value ?? "")} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -390,13 +383,10 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                     </div>
                     <FormControl>
                       <div className="relative">
-                        <Clock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
-                        <Input
-                          type="time"
-                          className="bg-background appearance-none pl-10 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                        <ShadcnTimePicker
                           {...field}
                           disabled={!form.watch("manualEndTime") || !showDate}
-                          onChange={(e) => handleFieldChange("endTime", e.target.value)}
+                          onChange={(value) => handleFieldChange("endTime", value ?? "")}
                         />
                       </div>
                     </FormControl>
