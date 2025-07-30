@@ -10,7 +10,7 @@ declare global {
 
 // This attaches the new method to the Date prototype, making it globally available.
 Date.prototype.toICTISOString = function (timeZone: string = "Asia/Ho_Chi_Minh"): string {
-  const formatString = "yyyy-MM-dd'T'HH:mm:ssxxx";
+  const formatString = "yyyy-MM-dd'T'HH:mm";
   return formatInTimeZone(this, timeZone, formatString);
 };
 

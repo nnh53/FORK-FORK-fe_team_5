@@ -1,0 +1,39 @@
+.tp_inputBox {
+  height: 2.25rem;
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid hsl(var(--input));
+  background-color: transparent;
+  padding: 0.25rem 0.75rem;
+  outline: none;
+}
+.tp_inputBox:focus {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5);
+}
+.tp_dropdownWrapper {
+  margin-top: 0.25rem;
+  border-radius: 0.375rem;
+  border: 1px solid hsl(var(--input));
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.tp_option {
+  cursor: pointer;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+.tp_option:hover,
+.tp_option:focus {
+  background: hsl(var(--accent));
+}
+.tp_confirmBtn {
+  border-radius: 0.375rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 0.25rem 0.75rem;
+}
+.tp_confirmBtn:hover {
+  background: hsl(var(--primary) / 0.9);
+}

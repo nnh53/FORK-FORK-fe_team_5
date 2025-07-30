@@ -34,7 +34,13 @@
 
     "types": ["node", "@nx/react/typings/cssmodule.d.ts", "@nx/react/typings/image.d.ts", "vite/client"]
   },
-  "include": ["src", "cypress/component/SearchBar.cy.tsx", "cypress/component/Filter.cy.tsx", "cypress/component/SelectField.cy.tsx"],
+  "include": [
+    "src",
+    "src/types/react-time-picker-dropdown.d.ts",
+    "cypress/component/SearchBar.cy.tsx",
+    "cypress/component/Filter.cy.tsx",
+    "cypress/component/SelectField.cy.tsx"
+  ],
   "exclude": [
     "dist",
     "vite.config.ts",
@@ -50,7 +56,6 @@
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
-    "src/**/*.d.ts",
     "cypress.config.mjs",
     "cypress.config.js",
     "test/**/*",
@@ -59,6 +64,5 @@
     "**/*.cy.tsx",
     "**/*.cy.js",
     "**/*.cy.jsx",
-    "**/*.d.ts"
   ]
 }
