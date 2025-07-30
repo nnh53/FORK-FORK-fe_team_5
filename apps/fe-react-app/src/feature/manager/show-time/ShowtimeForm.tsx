@@ -24,6 +24,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { ShowtimeTimeline } from "./ShowtimeTimeline";
 
 interface ShowtimeFormProps {
   readonly initialData?: Showtime;
@@ -66,8 +67,8 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
     defaultValues: {
       movieId: initialData?.movieId.toString() || "",
       roomId: initialData?.roomId?.toString() || "",
-      showDate: initialData ? new Date(initialData.showDateTime) : new Date(),
-      startTime: initialData ? formatTimeForInput(new Date(initialData.showDateTime)) : "0",
+      showDate: initialData ? new Date(initialData.showDateTime) : undefined,
+      startTime: initialData ? formatTimeForInput(new Date(initialData.showDateTime)) : "",
       endTime: initialData ? formatTimeForInput(new Date(initialData.endDateTime)) : "",
       manualEndTime: Boolean(initialData),
     },
@@ -134,6 +135,19 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
         form.setValue("manualEndTime", false, { shouldValidate: true });
       }
       // Reset conflict error when movie changes
+      setConflictError("");
+    },
+    [form],
+  );
+
+  const handleRoomChange = useCallback(
+    (newRoomId: string) => {
+      form.setValue("roomId", newRoomId, { shouldValidate: true });
+      form.setValue("movieId", "", { shouldValidate: true });
+      form.setValue("showDate", undefined as unknown as Date, { shouldValidate: true });
+      form.setValue("startTime", "", { shouldValidate: true });
+      form.setValue("endTime", "", { shouldValidate: true });
+      form.setValue("manualEndTime", false, { shouldValidate: true });
       setConflictError("");
     },
     [form],
@@ -226,34 +240,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="movieId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Chọn phim <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Select value={field.value} onValueChange={handleMovieChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn phim" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {movies.map((movie) => (
-                          <SelectItem key={movie.id} value={movie.id?.toString() || ""}>
-                            {movie.name} ({movie.duration} phút)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <FormField
                 control={form.control}
                 name="roomId"
@@ -262,7 +249,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                     <FormLabel>
                       Chọn phòng chiếu <span className="text-red-500">*</span>
                     </FormLabel>
-                    <Select value={field.value} onValueChange={(value) => handleFieldChange("roomId", value)}>
+                    <Select value={field.value} onValueChange={handleRoomChange}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Chọn phòng chiếu" />
@@ -283,39 +270,77 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="movieId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Chọn phim <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select value={field.value} onValueChange={handleMovieChange} disabled={!roomId}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn phim" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {movies.map((movie) => (
+                          <SelectItem key={movie.id} value={movie.id?.toString() || ""}>
+                            {movie.name} ({movie.duration} phút)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="showDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>
+                      Ngày chiếu <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            disabled={!movieId}
+                            className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                          >
+                            {field.value ? format(field.value, "dd/MM/yyyy") : <span>Chọn ngày chiếu</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(date) => handleFieldChange("showDate", date || new Date())}
+                          disabled={(date) => date < new Date() || date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* Date Picker using Calendar like Register.tsx */}
-            <FormField
-              control={form.control}
-              name="showDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>
-                    Ngày chiếu <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                          {field.value ? format(field.value, "dd/MM/yyyy") : <span>Chọn ngày chiếu</span>}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={(date) => handleFieldChange("showDate", date || new Date())}
-                        disabled={(date) => date < new Date() || date < new Date(new Date().setHours(0, 0, 0, 0))}
-                        captionLayout="dropdown"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <ShowtimeTimeline
+              roomId={roomId}
+              selectedDate={showDate}
+              movies={movies}
+              selectedMovieId={movieId}
+              roomName={rooms.find((r) => r.id?.toString() === roomId)?.name}
             />
 
             {/* Time Pickers using Input type="time" */}
@@ -330,11 +355,12 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Clock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
+                        <Clock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                         <Input
                           type="time"
                           className="bg-background appearance-none pl-10 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                           {...field}
+                          disabled={!showDate}
                           onChange={(e) => handleFieldChange("startTime", e.target.value)}
                         />
                       </div>
@@ -365,12 +391,12 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                     </div>
                     <FormControl>
                       <div className="relative">
-                        <Clock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
+                        <Clock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                         <Input
                           type="time"
                           className="bg-background appearance-none pl-10 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                           {...field}
-                          disabled={!form.watch("manualEndTime")}
+                          disabled={!form.watch("manualEndTime") || !showDate}
                           onChange={(e) => handleFieldChange("endTime", e.target.value)}
                         />
                       </div>

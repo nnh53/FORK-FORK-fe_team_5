@@ -20,9 +20,13 @@ export const queryShowtimesByMovie = (movieId: number) => {
   });
 };
 
-export const queryShowtimesByRoom = (roomId: number) => {
+export const queryShowtimesByRoom = (
+  roomId: number,
+  options?: Record<string, unknown>,
+) => {
   return $api.useQuery("get", "/showtimes/room/{roomId}", {
     params: { path: { roomId } },
+    ...(options ?? {}),
   });
 };
 
