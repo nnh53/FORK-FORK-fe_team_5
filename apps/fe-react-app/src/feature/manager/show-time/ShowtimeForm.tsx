@@ -5,10 +5,10 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
-import { ShadcnTimePicker } from "@/components/shared/ShadcnTimePicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { ShadcnTimePicker } from "@/components/shared/ShadcnTimePicker";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import type { Movie } from "@/interfaces/movies.interface";
 import type { Showtime, ShowtimeFormData } from "@/interfaces/showtime.interface";
@@ -91,11 +91,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
 
   useEffect(() => {
     if (roomsData?.result) {
-      setRooms(
-        transformCinemaRoomsResponse(roomsData.result).filter(
-          (room) => room.status === "ACTIVE",
-        ),
-      );
+      setRooms(transformCinemaRoomsResponse(roomsData.result).filter((room) => room.status === "ACTIVE"));
     }
   }, [roomsData]);
 
@@ -222,7 +218,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
       onSuccess?.();
     } catch (error) {
       console.error("Error saving showtime:", error);
-      toast.error("Có lỗi xảy ra khi lưu lịch chiếu");
+      toast.error((error as { message: string }).message);
     } finally {
       setIsLoading(false);
     }
@@ -360,11 +356,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                       <div className="relative">
                         <Clock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                         <div className="pl-10">
-                          <ShadcnTimePicker
-                            value={field.value}
-                            onChange={(val) => handleFieldChange("startTime", val)}
-                            disabled={!showDate}
-                          />
+                          <ShadcnTimePicker value={field.value} onChange={(val) => handleFieldChange("startTime", val)} disabled={!showDate} />
                         </div>
                       </div>
                     </FormControl>

@@ -166,7 +166,7 @@ export const ShowtimeList = forwardRef<{ resetPagination: () => void }, Showtime
         refetchShowtimes();
       } catch (error) {
         console.error("Error deleting showtime:", error);
-        toast.error("Có lỗi xảy ra khi xóa lịch chiếu");
+        toast.error((error as { message: string }).message);
       } finally {
         setIsDeleteDialogOpen(false);
         setShowtimeToDelete(null);
