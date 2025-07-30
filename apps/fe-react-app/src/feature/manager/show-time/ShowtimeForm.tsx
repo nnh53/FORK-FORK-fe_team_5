@@ -34,13 +34,12 @@ interface ShowtimeFormProps {
 
 type FormData = z.infer<typeof showtimeFormSchema>;
 
-// Helper function to combine date and time into ISO string
-const createISODateTime = (date: Date, time: string): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${time}:00.000Z`;
+// Helper function to combine date and time and return ICT ISO string
+const combineDateTime = (date: Date, time: string): string => {
+  const [hours, minutes] = time.split(":").map(Number);
+  const result = new Date(date);
+  result.setHours(hours, minutes, 0, 0);
+  return result.toICTISOString();
 };
 
 // Helper function to format time for input[type="time"]
@@ -171,9 +170,9 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
     setIsLoading(true);
 
     try {
-      // Create ISO DateTime strings using the helper function
-      const showDateTime = createISODateTime(data.showDate, data.startTime);
-      const endDateTime = createISODateTime(data.showDate, data.endTime);
+      // Combine date and time into ICT ISO strings
+      const showDateTime = combineDateTime(data.showDate, data.startTime);
+      const endDateTime = combineDateTime(data.showDate, data.endTime);
 
       // Parse to check if end time is next day
       const startTimeMinutes = parseInt(data.startTime.split(":")[0]) * 60 + parseInt(data.startTime.split(":")[1]);
@@ -185,7 +184,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
       if (endTimeMinutes < startTimeMinutes) {
         const nextDay = new Date(data.showDate);
         nextDay.setDate(nextDay.getDate() + 1);
-        finalEndDateTime = createISODateTime(nextDay, data.endTime);
+        finalEndDateTime = combineDateTime(nextDay, data.endTime);
       }
 
       const showtimeData: ShowtimeFormData = {
