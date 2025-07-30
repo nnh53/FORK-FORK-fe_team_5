@@ -1,7 +1,7 @@
 import type { CarouselApi } from "@/components/Shadcn/ui/carousel";
 import { Carousel, CarouselContent, CarouselNext, CarouselPrevious } from "@/components/Shadcn/ui/carousel";
 import { Pointer } from "@/components/magicui/pointer";
-import { queryMoviesForCarousel, transformMoviesResponse } from "@/services/movieService";
+import { queryMoviesForCarousel, transformSpotlightsResponse } from "@/services/movieService";
 import Autoplay from "embla-carousel-autoplay";
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CarouselDotNavigation from "../components/CarouselDotNavigation";
@@ -32,10 +32,11 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
   const latestMovies = useMemo(() => {
     if (!moviesData?.result) return [];
 
-    const transformedMovies = transformMoviesResponse(moviesData.result);
-    // Sort by id descending and take first 5
-    const sortedMovies = [...transformedMovies].sort((a, b) => (b.id || 0) - (a.id || 0));
-    return sortedMovies.slice(0, 5);
+    const transformedMovies = transformSpotlightsResponse(moviesData.result);
+    // // Sort by id descending and take first 5
+    // const sortedMovies = [...transformedMovies].sort((a, b) => (b.id || 0) - (a.id || 0));
+    // return sortedMovies.slice(0, 5);
+    return transformedMovies;
   }, [moviesData]);
 
   // Handle dot click

@@ -2,6 +2,7 @@ import { type Movie } from "@/interfaces/movies.interface";
 import type { components } from "@/schema-from-be";
 import { $api } from "@/utils/api";
 type MovieResponse = components["schemas"]["MovieResponse"];
+type SpotlightResponse = components["schemas"]["SpotlightResponse"];
 
 // React Query hooks using $api
 export const queryMovies = () => {
@@ -17,7 +18,7 @@ export const queryMoviesForTrending = () => {
 
 // Separate hook for carousel with unique key
 export const queryMoviesForCarousel = () => {
-  return $api.useQuery("get", "/movies", {
+  return $api.useQuery("get", "/spotlights/ordered", {
     queryKey: ["movies-carousel"], // Unique query key
   });
 };
@@ -85,7 +86,9 @@ export const transformMovieResponse = (movieResponse: MovieResponse): Movie => {
 export const transformMoviesResponse = (moviesResponse: MovieResponse[]): Movie[] => {
   return moviesResponse.map(transformMovieResponse);
 };
-
+export const transformSpotlightsResponse = (moviesResponse: SpotlightResponse[]): SpotlightResponse[] => {
+  return moviesResponse.map(transformSpotlightResponse);
+};
 // Utility function to transform Movie to backend format
 export const transformMovieToRequest = (movie: Movie) => {
   return {
@@ -106,6 +109,25 @@ export const transformMovieToRequest = (movie: Movie) => {
   };
 };
 
+export const transformSpotlightResponse = (res: SpotlightResponse) => {
+  return {
+    name: res.movie?.name ?? "",
+    ageRestrict: res.movie?.ageRestrict ?? 13, // Default to minimum allowed age
+    fromDate: res.movie?.fromDate ?? "",
+    toDate: res.movie?.toDate ?? "",
+    actor: res.movie?.actor ?? "",
+    studio: res.movie?.studio ?? "",
+    director: res.movie?.director ?? "",
+    duration: res.movie?.duration ?? 0,
+    trailer: res.movie?.trailer ?? "",
+    categoryIds: res.movie?.categories ?? [], // Use categoryIds instead of type
+    description: res.movie?.description ?? "",
+    status: res.movie?.status ?? "ACTIVE", // Use string status
+    poster: res.movie?.poster ?? "",
+    banner: res.movie?.banner ?? "",
+    order: res.order // <-- return this
+  };
+};
 // Helper function to get genre label (for backward compatibility)
 export const getMovieGenreLabel = (genre: string): string => {
   return genre;

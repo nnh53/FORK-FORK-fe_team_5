@@ -64,3 +64,5 @@ export type ApiMovie = components["schemas"]["MovieResponse"];
 export type ApiMovieCategory = components["schemas"]["MovieCategoryResponse"];
 
 export type ApiShowtime = components["schemas"]["ShowtimeResponse"];
+
+export type ApiSpotlight = components["schemas"]["SpotlightResponse"];
