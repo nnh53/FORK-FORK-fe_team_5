@@ -61,14 +61,14 @@ const TrendingSection = () => {
         cardDistance: 30,
         verticalDistance: 10,
         delay: 8000,
-        pauseOnHover: false,
+        pauseOnHover: true,
         skewAmount: 0,
       }
     : {
         cardDistance: 50,
         verticalDistance: 100,
         delay: 8000,
-        pauseOnHover: false,
+        pauseOnHover: true,
         skewAmount: 2,
       };
   // Set default selected movie
@@ -114,13 +114,9 @@ const TrendingSection = () => {
     navigate(`/movie/${movieId}`);
   };
 
-  const handleMouseEnter = (movieId: number) => {
-    // setLastHoveredMovieId(movieId); // Update last hovered movie and persist it
-  };
-
   const handleMouseHover = (movieId: number) => {
-    setHoveredMovieId(movieId);
     setLastHoveredMovieId(movieId);
+    setHoveredMovieId(movieId);
   };
   // Loading state
   if (trendingQuery.isLoading || moviesQuery.isLoading) {
@@ -189,7 +185,6 @@ const TrendingSection = () => {
                     isSelected={selectedMovieId === movie.id}
                     isHighlighted={lastHoveredMovieId === movie.id} // Check if this is the last hovered
                     onClick={() => handleMovieClick(movie.id)}
-                    onMouseEnter={() => handleMouseEnter(movie.id)}
                     onMouseHover={() => handleMouseHover(movie.id)} // Handle hover
                   />
                 );
@@ -206,7 +201,7 @@ const TrendingSection = () => {
               pauseOnHover={cardSwapSettings.pauseOnHover}
               skewAmount={cardSwapSettings.skewAmount}
               activeIndex={displayMovies.findIndex((movie) => movie.id === hoveredMovieId)}
-              onActiveIndexChange={setHoveredMovieId}
+              // onActiveIndexChange={setHoveredMovieId}
             >
               {displayMovies.map((movie) => (
                 <Card key={movie.id} className="card-style h-100 w-100">
@@ -274,14 +269,14 @@ const MovieRankingItem = ({
   isSelected,
   isHighlighted,
   onClick,
-  onMouseEnter,
+  // onMouseEnter,
   onMouseHover,
 }: {
   movie: TrendingMovieWithDetails;
   isSelected: boolean;
   isHighlighted: boolean;
   onClick: () => void;
-  onMouseEnter: () => void;
+  // onMouseEnter: () => void;
   onMouseHover: () => void;
 }) => {
   const primaryCategory = movie.categories?.[0] || "Action";
@@ -299,7 +294,7 @@ const MovieRankingItem = ({
     <div
       className={`flex cursor-pointer items-center space-x-6 rounded-lg border p-4 backdrop-blur-sm transition-all duration-300 ${itemClassName}`}
       onClick={onClick}
-      onMouseEnter={onMouseEnter}
+      // onMouseEnter={onMouseEnter}
       onMouseOver={onMouseHover}
     >
       {/* Movie Poster */}
