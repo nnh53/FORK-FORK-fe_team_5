@@ -108,6 +108,7 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
         resources={resources}
         events={events}
         height="auto"
+        headerToolbar={false}
       />
     </div>
   );

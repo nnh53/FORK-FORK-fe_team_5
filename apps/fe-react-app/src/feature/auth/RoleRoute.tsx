@@ -29,7 +29,7 @@ const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles }) => {
   const storedRoles = getCookie("user_roles");
 
   // If not logged in or no token, redirect to login
-  if (!isLoggedIn || !token) {
+  if (!isLoggedIn && !token) {
     return <Navigate to="/auth/login" replace />;
   }
   const roles: ROLE_TYPE[] = user?.roles ?? parseRoles(storedRoles);
