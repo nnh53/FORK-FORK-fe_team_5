@@ -61,22 +61,24 @@ const TrendingSection = () => {
         cardDistance: 30,
         verticalDistance: 10,
         delay: 8000,
-        pauseOnHover: true,
+        pauseOnHover: false,
         skewAmount: 0,
       }
     : {
         cardDistance: 50,
         verticalDistance: 100,
         delay: 8000,
-        pauseOnHover: true,
+        pauseOnHover: false,
         skewAmount: 2,
       };
   // Set default selected movie
 
   React.useEffect(() => {
     if (topMoviesWithDetails.length > 0 && selectedMovieId === null) {
-      setSelectedMovieId(topMoviesWithDetails[0].id);
-      setLastHoveredMovieId(topMoviesWithDetails[0].id); // Also set as last hovered
+      // setSelectedMovieId(topMoviesWithDetails[0].id);
+      setLastHoveredMovieId(topMoviesWithDetails[0].id);
+      setHoveredMovieId(topMoviesWithDetails[0].id);
+      // Also set as last hovered
     }
   }, [topMoviesWithDetails, selectedMovieId]);
 
@@ -113,11 +115,12 @@ const TrendingSection = () => {
   };
 
   const handleMouseEnter = (movieId: number) => {
-    setLastHoveredMovieId(movieId); // Update last hovered movie and persist it
+    // setLastHoveredMovieId(movieId); // Update last hovered movie and persist it
   };
 
   const handleMouseHover = (movieId: number) => {
-    setHoveredMovieId(movieId); // Update last hovered movie and persist it
+    setHoveredMovieId(movieId);
+    setLastHoveredMovieId(movieId);
   };
   // Loading state
   if (trendingQuery.isLoading || moviesQuery.isLoading) {
@@ -175,7 +178,6 @@ const TrendingSection = () => {
 
             <div className="space-y-4">
               {displayMovies.map((movie) => {
-                console.log("selected movie id", selectedMovieId);
                 if ("isPlaceholder" in movie) {
                   return <PlaceholderMovieItem key={movie.rank} rank={movie.rank} />;
                 }
@@ -207,14 +209,14 @@ const TrendingSection = () => {
               onActiveIndexChange={setHoveredMovieId}
             >
               {displayMovies.map((movie) => (
-                <Card key={movie.id} className="card-style">
+                <Card key={movie.id} className="card-style h-100 w-100">
                   {(() => {
                     // Only play trailer for active card
                     if (hoveredMovieId === movie.id && movie.trailer && getYouTubeEmbedUrl(movie.trailer)) {
                       const videoId = getYouTubeVideoId(movie.trailer || "");
                       const startTime = movie.id ? (movie.id % 60) + 10 : 0;
                       const embedUrl = getYouTubeEmbedUrl(movie.trailer, {
-                        autoplay: false,
+                        autoplay: true,
                         rel: false,
                         showinfo: false,
                       });
@@ -226,13 +228,13 @@ const TrendingSection = () => {
                       }
 
                       return (
-                        <div className="trailer-container">
+                        <div className="trailer-container h-full w-full">
                           <iframe
                             src={finalUrl}
                             title={`Trailer - ${movie.name}`}
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
-                            className="trailer-iframe"
+                            className="trailer-iframe h-full w-full"
                           />
                         </div>
                       );

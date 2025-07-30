@@ -384,91 +384,92 @@ const CardSwap: React.FC<CardSwapProps> = ({
           z: slot.z,
           duration: config.durMove,
           ease: config.ease,
-          zIndex: slot.zIndex,
+          // zIndex: slot.zIndex,
+          zIndex: refs.length - position,
         },
         // position * 0.1,
         0,
       );
     });
 
-    // tl.call(() => {
-    //   order.current = newOrder;
-    //   if (typeof onActiveIndexChange === "function") {
-    //     onActiveIndexChange(targetIndex);
-    //   }
+    tl.call(() => {
+      order.current = newOrder;
+      // if (typeof onActiveIndexChange === "function") {
+      //   onActiveIndexChange(targetIndex);
+      // }
 
-    //   // Restart the automatic swapping
-    //   // startAutoSwap();
-    // });
+      // Restart the automatic swapping
+      // startAutoSwap();
+    });
   };
 
-  // const startAutoSwap = () => {
-  //   const swap = () => {
-  //     if (order.current.length < 2) return;
+  const startAutoSwap = () => {
+    const swap = () => {
+      if (order.current.length < 2) return;
 
-  //     const [front, ...rest] = order.current;
-  //     const elFront = refs[front].current!;
-  //     const tl = gsap.timeline();
-  //     tlRef.current = tl;
+      const [front, ...rest] = order.current;
+      const elFront = refs[front].current!;
+      const tl = gsap.timeline();
+      tlRef.current = tl;
 
-  //     tl.to(elFront, {
-  //       y: "+=500",
-  //       duration: config.durDrop,
-  //       ease: config.ease,
-  //     });
+      tl.to(elFront, {
+        y: "+=500",
+        duration: config.durDrop,
+        ease: config.ease,
+      });
 
-  //     tl.addLabel("promote", `-=${config.durDrop * config.promoteOverlap}`);
-  //     rest.forEach((idx, i) => {
-  //       const el = refs[idx].current!;
-  //       const slot = makeSlot(i, cardDistance, verticalDistance, refs.length);
-  //       tl.set(el, { zIndex: slot.zIndex }, "promote");
-  //       tl.to(
-  //         el,
-  //         {
-  //           x: slot.x,
-  //           y: slot.y,
-  //           z: slot.z,
-  //           duration: config.durMove,
-  //           ease: config.ease,
-  //         },
-  //         `promote+=${i * 0.15}`,
-  //       );
-  //     });
+      tl.addLabel("promote", `-=${config.durDrop * config.promoteOverlap}`);
+      rest.forEach((idx, i) => {
+        const el = refs[idx].current!;
+        const slot = makeSlot(i, cardDistance, verticalDistance, refs.length);
+        tl.set(el, { zIndex: slot.zIndex }, "promote");
+        tl.to(
+          el,
+          {
+            x: slot.x,
+            y: slot.y,
+            z: slot.z,
+            duration: config.durMove,
+            ease: config.ease,
+          },
+          `promote+=${i * 0.15}`,
+        );
+      });
 
-  //     const backSlot = makeSlot(refs.length - 1, cardDistance, verticalDistance, refs.length);
-  //     tl.addLabel("return", `promote+=${config.durMove * config.returnDelay}`);
-  //     tl.call(
-  //       () => {
-  //         gsap.set(elFront, { zIndex: backSlot.zIndex });
-  //       },
-  //       undefined,
-  //       "return",
-  //     );
-  //     tl.set(elFront, { x: backSlot.x, z: backSlot.z }, "return");
-  //     tl.to(
-  //       elFront,
-  //       {
-  //         y: backSlot.y,
-  //         duration: config.durReturn,
-  //         ease: config.ease,
-  //       },
-  //       "return",
-  //     );
+      const backSlot = makeSlot(refs.length - 1, cardDistance, verticalDistance, refs.length);
+      tl.addLabel("return", `promote+=${config.durMove * config.returnDelay}`);
+      tl.call(
+        () => {
+          gsap.set(elFront, { zIndex: backSlot.zIndex });
+        },
+        undefined,
+        "return",
+      );
+      tl.set(elFront, { x: backSlot.x, z: backSlot.z }, "return");
+      tl.to(
+        elFront,
+        {
+          y: backSlot.y,
+          duration: config.durReturn,
+          ease: config.ease,
+        },
+        "return",
+      );
 
-  //     tl.call(() => {
-  //       order.current = [...rest, front];
+      tl.call(() => {
+        order.current = [...rest, front];
 
-  //       // Inform consumer that active index has changed
-  //       if (typeof onActiveIndexChange === "function") {
-  //         const newActive = rest.length ? rest[0] : front;
-  //         onActiveIndexChange(newActive);
-  //       }
-  //     });
-  //   };
+        // Inform consumer that active index has changed
+        if (typeof onActiveIndexChange === "function") {
+          const newActive = rest.length ? rest[0] : front;
+          onActiveIndexChange(newActive);
+        }
+      });
+    };
 
-  //   swap();
-  //   intervalRef.current = window.setInterval(swap, delay);
-  // };
+    swap();
+    intervalRef.current = window.setInterval(swap, delay);
+  };
 
   // Handle activeIndex prop changes
   useEffect(() => {
@@ -504,26 +505,26 @@ const CardSwap: React.FC<CardSwapProps> = ({
       }
     }
 
-    // startAutoSwap();
+    startAutoSwap();
 
-    if (pauseOnHover) {
-      const node = container.current!;
-      const pause = () => {
-        tlRef.current?.pause();
-        clearInterval(intervalRef.current!);
-      };
-      const resume = () => {
-        tlRef.current?.play();
-        // startAutoSwap();
-      };
-      node.addEventListener("mouseenter", pause);
-      node.addEventListener("mouseleave", resume);
-      return () => {
-        node.removeEventListener("mouseenter", pause);
-        node.removeEventListener("mouseleave", resume);
-        clearInterval(intervalRef.current!);
-      };
-    }
+    // if (pauseOnHover) {
+    //   const node = container.current!;
+    //   const pause = () => {
+    //     tlRef.current?.pause();
+    //     clearInterval(intervalRef.current!);
+    //   };
+    //   const resume = () => {
+    //     tlRef.current?.play();
+    //     startAutoSwap();
+    //   };
+    //   node.addEventListener("mouseenter", pause);
+    //   node.addEventListener("mouseleave", resume);
+    //   return () => {
+    //     node.removeEventListener("mouseenter", pause);
+    //     node.removeEventListener("mouseleave", resume);
+    //     clearInterval(intervalRef.current!);
+    //   };
+    // }
     return () => clearInterval(intervalRef.current!);
   }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing, onActiveIndexChange]);
 
