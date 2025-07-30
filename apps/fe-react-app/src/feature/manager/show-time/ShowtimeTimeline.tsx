@@ -15,8 +15,10 @@ interface ShowtimeTimelineProps {
 }
 
 export function ShowtimeTimeline({ roomId, selectedDate, movies, selectedMovieId, roomName }: ShowtimeTimelineProps) {
-  const { data, isLoading } = queryShowtimesByRoom(Number(roomId ?? 0), {
-    enabled: !!roomId,
+  const numericRoomId = Number(roomId ?? 0);
+  const shouldFetch = numericRoomId > 0;
+  const { data, isLoading } = queryShowtimesByRoom(numericRoomId, {
+    enabled: shouldFetch,
   });
 
   const showtimes = useMemo(() => {
@@ -28,7 +30,7 @@ export function ShowtimeTimeline({ roomId, selectedDate, movies, selectedMovieId
 
   const getMovieName = (id: number) => movies.find((m) => m.id === id)?.name || `Movie ${id}`;
 
-  if (!roomId || !selectedDate) return null;
+  if (!shouldFetch || !selectedDate) return null;
 
   if (isLoading) return <LoadingSpinner />;
 
