@@ -125,7 +125,7 @@ export const transformSpotlightResponse = (res: SpotlightResponse) => {
     status: res.movie?.status ?? "ACTIVE", // Use string status
     poster: res.movie?.poster ?? "",
     banner: res.movie?.banner ?? "",
-    order: res.order // <-- return this
+    order: res.order, // <-- return this
   };
 };
 // Helper function to get genre label (for backward compatibility)
