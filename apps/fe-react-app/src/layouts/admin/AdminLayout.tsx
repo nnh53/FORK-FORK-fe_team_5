@@ -4,7 +4,7 @@ import { Separator } from "@/components/Shadcn/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/Shadcn/ui/sidebar";
 import type { ReactNode } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { sidebarData } from "./sidebar-data";
+import { sidebarData } from "./admin-sidebar-data";
 
 type AdminLayoutProps = {
   children?: ReactNode;
