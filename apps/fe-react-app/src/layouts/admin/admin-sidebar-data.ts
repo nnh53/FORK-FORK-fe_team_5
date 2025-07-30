@@ -14,7 +14,6 @@ import {
   SquareStack,
   // Star,
   Tag,
-  Ticket,
   User,
   UserCheck,
   Users,
@@ -88,11 +87,6 @@ export const sidebarData = {
           icon: FileClock,
         },
       ],
-    },
-    {
-      title: "Bookings",
-      url: ROUTES.ADMIN.BOOKING,
-      icon: Ticket,
     },
     {
       title: "Users",
