@@ -11,6 +11,7 @@ import { AlertCircle, Plus } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useMutationHandler } from "@/hooks/useMutationHandler";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
 import {
   calculateRoomStats,
@@ -19,7 +20,6 @@ import {
   transformCinemaRoomsResponse,
   useCinemaRooms,
   useCreateCinemaRoom,
-  useDeleteCinemaRoom,
   useUpdateCinemaRoom,
 } from "@/services/cinemaRoomService";
 import { getRoomStatusBadgeVariant } from "@/utils/color.utils";
@@ -43,7 +43,21 @@ const CinemaRoomManagement: React.FC = () => {
   const { data: roomsData, isLoading: loading, error: queryError, refetch } = useCinemaRooms();
   const createRoomMutation = useCreateCinemaRoom();
   const updateRoomMutation = useUpdateCinemaRoom();
-  const deleteRoomMutation = useDeleteCinemaRoom();
+
+  // Sử dụng useMutationHandler cho các mutations
+  useMutationHandler(createRoomMutation, "Tạo phòng mới thành công!", "Có lỗi xảy ra khi tạo phòng mới", () => setShowAddDialog(false), refetch);
+
+  useMutationHandler(
+    updateRoomMutation,
+    "Cập nhật phòng thành công!",
+    "Có lỗi xảy ra khi cập nhật phòng",
+    () => {
+      setShowEditDialog(false);
+      setShowStatusDialog(false);
+      setShowDeleteDialog(false);
+    },
+    refetch,
+  );
 
   // Transform data
   const rooms = roomsData?.result ? transformCinemaRoomsResponse(roomsData.result) : [];
@@ -79,7 +93,7 @@ const CinemaRoomManagement: React.FC = () => {
     setFormData({
       name: room.name ?? "",
       type: room.type ?? "",
-      fee: room.fee ?? 50000,
+      fee: room.fee ?? 0,
       width: room.width ?? 0,
       length: room.length ?? 10,
     });
@@ -101,8 +115,8 @@ const CinemaRoomManagement: React.FC = () => {
     setFormData({
       name: "",
       type: "Standard",
-      fee: 50000,
-      width: 16,
+      fee: 0,
+      width: 10,
       length: 10,
     });
     setShowAddDialog(true);
@@ -124,7 +138,6 @@ const CinemaRoomManagement: React.FC = () => {
           params: { path: { roomId: selectedRoom.id ?? 0 } },
           body: updateData,
         });
-        setShowEditDialog(false);
       } else {
         // Create room logic
         const createData = transformCinemaRoomToRequest({
@@ -140,14 +153,10 @@ const CinemaRoomManagement: React.FC = () => {
         await createRoomMutation.mutateAsync({
           body: createData,
         });
-        setShowAddDialog(false);
       }
-
-      refetch(); // Reload rooms
-      console.log(isEdit ? "Cập nhật phòng thành công!" : "Tạo phòng mới thành công!");
     } catch (err) {
+      // Error handling được xử lý bởi useMutationHandler
       console.error("Error saving room:", err);
-      // Error handling can be done through React Query's error states
     }
   };
 
@@ -163,10 +172,8 @@ const CinemaRoomManagement: React.FC = () => {
         params: { path: { roomId: selectedRoom.id ?? 0 } },
         body: updateData,
       });
-      setShowStatusDialog(false);
-      refetch();
-      console.log("Cập nhật trạng thái phòng thành công!");
     } catch (err) {
+      // Error handling được xử lý bởi useMutationHandler
       console.error("Error updating room status:", err);
     }
   };
@@ -175,14 +182,18 @@ const CinemaRoomManagement: React.FC = () => {
     if (!selectedRoom) return;
 
     try {
-      await deleteRoomMutation.mutateAsync({
-        params: { path: { roomId: selectedRoom.id ?? 0 } },
+      // Cập nhật status thành CLOSED thay vì xóa phòng
+      const updateData = transformCinemaRoomToUpdateRequest({
+        status: "CLOSED",
       });
-      setShowDeleteDialog(false);
-      refetch();
-      console.log("Xóa phòng thành công!");
+
+      await updateRoomMutation.mutateAsync({
+        params: { path: { roomId: selectedRoom.id ?? 0 } },
+        body: updateData,
+      });
     } catch (err) {
-      console.error("Error deleting room:", err);
+      // Error handling được xử lý bởi useMutationHandler
+      console.error("Error closing room:", err);
     }
   };
 
@@ -502,9 +513,9 @@ const CinemaRoomManagement: React.FC = () => {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa phòng</DialogTitle>
+            <DialogTitle>Xác nhận đóng phòng</DialogTitle>
             <DialogDescription>
-              Bạn có chắc muốn xóa phòng <strong>{selectedRoom?.name}</strong>? Hành động này không thể hoàn tác.
+              Bạn có chắc muốn đóng phòng <strong>{selectedRoom?.name}</strong>? Phòng sẽ được chuyển sang trạng thái "CLOSED" và không thể sử dụng.
             </DialogDescription>
           </DialogHeader>
 
@@ -513,7 +524,7 @@ const CinemaRoomManagement: React.FC = () => {
               Hủy
             </Button>
             <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Xóa phòng
+              Đóng phòng
             </Button>
           </DialogFooter>
         </DialogContent>
