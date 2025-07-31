@@ -4,7 +4,7 @@ import type { Receipt } from "@/interfaces/receipt.interface";
 import { queryReceiptTopMovies, queryReceipts } from "@/services/receiptService";
 import { eachDayOfInterval, format, startOfMonth } from "date-fns";
 import { useEffect, useRef, useState } from "react";
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import TopMoviesPieChart from "./components/TopMoviesPieChart";
 import AdminStatCards from "./components/AdminStatCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";
 
@@ -56,39 +56,6 @@ export default function AdminDashboard() {
   });
   const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
 
-  const comboSales = receipts
-    .flatMap((r) => r.items ?? [])
-    .filter((item) => item.type === "COMBO")
-    .reduce(
-      (acc, item) => {
-        const comboName = item.name ?? "Unknown Combo";
-        acc[comboName] = (acc[comboName] || 0) + (item.quantity ?? 0);
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-  console.log("Combo sales:", comboSales);
-
-  const snackSales = receipts
-    .flatMap((r) => r.items ?? [])
-    .filter((item) => item.type === "SNACK")
-    .reduce(
-      (acc, item) => {
-        const snackName = item.name ?? "Unknown Snack";
-        acc[snackName] = (acc[snackName] || 0) + (item.quantity ?? 0);
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-  const pieData = [
-    ...Object.entries(comboSales).map(([name, value]) => ({ name, value, type: "Combo" })),
-    ...Object.entries(snackSales).map(([name, value]) => ({ name, value, type: "Snack" })),
-  ];
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-  const [activeIndex, setActiveIndex] = useState(0);
 
   if (trendingQuery.isLoading || isReceiptLoading) {
     return <LoadingSpinner name="dashboard" />;
@@ -149,29 +116,7 @@ export default function AdminDashboard() {
               </Table>
             </div>
             <div className="col-span-1">
-              <ResponsiveContainer width="100%" height={400}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    activeIndex={activeIndex}
-                    onMouseEnter={(_, index) => setActiveIndex(index)}
-                    onMouseLeave={() => setActiveIndex(-1)}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              <TopMoviesPieChart />
             </div>
           </div>
         </div>
