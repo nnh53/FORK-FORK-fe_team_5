@@ -6,6 +6,7 @@ import { eachDayOfInterval, format, startOfMonth } from "date-fns";
 import { useGetAllCombos } from "@/services/comboService";
 import { useGetAllSnacks } from "@/services/snackService";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { useState } from "react";
 import AdminStatCards from "./components/AdminStatCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";
 
@@ -69,6 +70,7 @@ export default function AdminDashboard() {
   ];
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const [activeIndex, setActiveIndex] = useState(0);
 
   if (trendingQuery.isLoading || bookingsQuery.isLoading || combosQuery.isLoading || snacksQuery.isLoading) {
     return <LoadingSpinner name="dashboard" />;
@@ -88,6 +90,7 @@ export default function AdminDashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Combo</TableHead>
+                    <TableHead className="text-right">Sold</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -95,6 +98,7 @@ export default function AdminDashboard() {
                   {combos.map((c, idx) => (
                     <TableRow key={c.id ?? idx}>
                       <TableCell>{c.name}</TableCell>
+                      <TableCell className="text-right">{comboSales[c.name as string] ?? 0}</TableCell>
                       <TableCell className="text-right">{c.price?.toLocaleString()}</TableCell>
                     </TableRow>
                   ))}
@@ -105,6 +109,7 @@ export default function AdminDashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Snack</TableHead>
+                    <TableHead className="text-right">Sold</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -112,6 +117,7 @@ export default function AdminDashboard() {
                   {snacks.map((s, idx) => (
                     <TableRow key={s.id ?? idx}>
                       <TableCell>{s.name}</TableCell>
+                      <TableCell className="text-right">{snackSales[s.name as string] ?? 0}</TableCell>
                       <TableCell className="text-right">{s.price?.toLocaleString()}</TableCell>
                     </TableRow>
                   ))}
@@ -143,7 +149,19 @@ export default function AdminDashboard() {
             <div className="col-span-1">
               <ResponsiveContainer width="100%" height={400}>
                 <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" labelLine={false} outerRadius={80} fill="#8884d8" dataKey="value" label>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    activeIndex={activeIndex}
+                    onMouseEnter={(_, index) => setActiveIndex(index)}
+                    onMouseLeave={() => setActiveIndex(-1)}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label
+                  >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
