@@ -141,7 +141,7 @@ export function Navbar() {
                 <AuthAvatar />
               </div>
               <button
-                className="border-border flex size-8 cursor-pointer items-center justify-center rounded-md border md:hidden"
+                className="bg-background/75 border-border flex size-8 cursor-pointer items-center justify-center rounded-md border md:hidden"
                 onClick={toggleDrawer}
               >
                 {isDrawerOpen ? <X className="size-5" /> : <Menu className="size-5" />}
