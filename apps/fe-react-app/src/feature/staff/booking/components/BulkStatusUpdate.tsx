@@ -31,9 +31,24 @@ const BulkStatusUpdate: React.FC<BulkStatusUpdateProps> = ({ selectedBookings, o
 
   const handleBulkUpdate = async () => {
     if (!newStatus || selectedBookings.length === 0) return;
+
     setIsUpdating(true);
     try {
-      const updateData = updateType === "booking" ? { status: newStatus as BookingStatus } : { paymentStatus: newStatus as PaymentStatus };
+      let updateData: { status?: BookingStatus; paymentStatus?: PaymentStatus };
+
+      if (updateType === "booking") {
+        updateData = { status: newStatus as BookingStatus };
+      } else {
+        // Payment status update with automatic booking status change
+        updateData = { paymentStatus: newStatus as PaymentStatus };
+
+        if (newStatus === "SUCCESS") {
+          updateData.status = "SUCCESS" as BookingStatus;
+        } else if (newStatus === "FAILED") {
+          updateData.status = "CANCELLED" as BookingStatus;
+        }
+      }
+
       for (const bookingId of selectedBookings) {
         await updateBookingMutation.mutateAsync({
           params: { path: { id: parseInt(bookingId) } },
@@ -42,7 +57,13 @@ const BulkStatusUpdate: React.FC<BulkStatusUpdateProps> = ({ selectedBookings, o
       }
       onUpdate();
       onClearSelection();
-      toast.success(`Cập nhật ${selectedBookings.length} booking thành công!`);
+
+      const message =
+        updateType === "payment" && (newStatus === "SUCCESS" || newStatus === "FAILED")
+          ? `Cập nhật trạng thái thanh toán và booking cho ${selectedBookings.length} booking thành công!`
+          : `Cập nhật ${selectedBookings.length} booking thành công!`;
+
+      toast.success(message);
       setNewStatus("");
     } catch (error) {
       toast.error("Có lỗi xảy ra khi cập nhật hàng loạt!");
@@ -70,8 +91,10 @@ const BulkStatusUpdate: React.FC<BulkStatusUpdateProps> = ({ selectedBookings, o
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="booking">Trạng thái booking</SelectItem>
                 <SelectItem value="payment">Trạng thái thanh toán</SelectItem>
+                <SelectItem value="booking" disabled>
+                  Trạng thái booking (Chỉ đọc)
+                </SelectItem>
               </SelectContent>
             </Select>
             <Select value={newStatus} onValueChange={setNewStatus}>
@@ -80,11 +103,9 @@ const BulkStatusUpdate: React.FC<BulkStatusUpdateProps> = ({ selectedBookings, o
               </SelectTrigger>
               <SelectContent>
                 {updateType === "booking" ? (
-                  <>
-                    <SelectItem value="PENDING">Chờ xử lý</SelectItem>
-                    <SelectItem value="SUCCESS">Thành công</SelectItem>
-                    <SelectItem value="CANCELLED">Đã hủy</SelectItem>
-                  </>
+                  <SelectItem value="" disabled>
+                    Trạng thái booking không thể thay đổi trực tiếp
+                  </SelectItem>
                 ) : (
                   <>
                     <SelectItem value="PENDING">Chờ thanh toán</SelectItem>
@@ -96,7 +117,9 @@ const BulkStatusUpdate: React.FC<BulkStatusUpdateProps> = ({ selectedBookings, o
             </Select>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button disabled={!newStatus || isUpdating}>{isUpdating ? "Đang cập nhật..." : "Cập nhật hàng loạt"}</Button>
+                <Button disabled={!newStatus || isUpdating || updateType === "booking"}>
+                  {isUpdating ? "Đang cập nhật..." : "Cập nhật hàng loạt"}
+                </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>

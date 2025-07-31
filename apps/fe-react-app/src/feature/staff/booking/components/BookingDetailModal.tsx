@@ -90,7 +90,17 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ booking, onUpda
     payOsCode: booking.payOsCode || "",
   });
   const updateBookingMutation = useUpdateBooking();
+
+  // Vô hiệu hóa chỉnh sửa khi thanh toán đã thành công
+  const isPaymentSuccess = booking.paymentStatus === "SUCCESS";
+
   const handleUpdate = async () => {
+    // Không cho phép cập nhật nếu thanh toán đã thành công
+    if (isPaymentSuccess) {
+      toast.error("Không thể thay đổi khi thanh toán đã hoàn tất!");
+      return;
+    }
+
     try {
       await updateBookingMutation.mutateAsync({
         params: { path: { id: booking.id ?? 0 } },
@@ -112,7 +122,7 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ booking, onUpda
           <Eye className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[80vh] min-w-[60vw] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-h-[80vh] max-w-4xl min-w-[60vw] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Chi tiết Booking #{booking.id}</DialogTitle>
           <DialogDescription>Thông tin chi tiết về booking và các thao tác quản lý</DialogDescription>
@@ -307,16 +317,24 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ booking, onUpda
             Đóng
           </Button>
           {!isEditing ? (
-            <Button onClick={() => setIsEditing(true)}>
+            <Button
+              onClick={() => setIsEditing(true)}
+              disabled={isPaymentSuccess}
+              title={isPaymentSuccess ? "Không thể chỉnh sửa khi thanh toán đã hoàn tất" : "Chỉnh sửa booking"}
+            >
               <Edit className="mr-2 h-4 w-4" />
-              Chỉnh sửa
+              {isPaymentSuccess ? "Đã hoàn tất" : "Chỉnh sửa"}
             </Button>
           ) : (
             <>
               <Button variant="outline" onClick={() => setIsEditing(false)}>
                 Hủy
               </Button>
-              <Button onClick={handleUpdate} disabled={updateBookingMutation.isPending}>
+              <Button
+                onClick={handleUpdate}
+                disabled={updateBookingMutation.isPending || isPaymentSuccess}
+                title={isPaymentSuccess ? "Không thể cập nhật khi thanh toán đã hoàn tất" : "Cập nhật booking"}
+              >
                 <CheckCircle className="mr-2 h-4 w-4" />
                 {updateBookingMutation.isPending ? "Đang cập nhật..." : "Cập nhật"}
               </Button>

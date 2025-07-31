@@ -15,6 +15,12 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({ booking, onUpda
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleQuickAction = async (action: "approve" | "cancel" | "markPaid" | "markPending") => {
+    // Không cho phép thao tác nếu thanh toán đã thành công
+    if (booking.paymentStatus === "SUCCESS") {
+      toast.error("Không thể thay đổi khi thanh toán đã hoàn tất!");
+      return;
+    }
+
     setIsUpdating(true);
     try {
       let updateData: Partial<{ status: BookingStatus; paymentStatus: PaymentStatus }> = {};
@@ -26,7 +32,11 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({ booking, onUpda
           updateData = { status: "CANCELLED" as BookingStatus };
           break;
         case "markPaid":
-          updateData = { paymentStatus: "SUCCESS" as PaymentStatus };
+          // Khi đánh dấu đã thanh toán, cũng cập nhật booking thành công
+          updateData = {
+            paymentStatus: "SUCCESS" as PaymentStatus,
+            status: "SUCCESS" as BookingStatus,
+          };
           break;
         case "markPending":
           updateData = { status: "PENDING" as BookingStatus };
@@ -46,6 +56,9 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({ booking, onUpda
     }
   };
 
+  // Vô hiệu hóa tất cả nút khi thanh toán đã thành công
+  const isPaymentSuccess = booking.paymentStatus === "SUCCESS";
+
   return (
     <div className="flex items-center gap-1">
       {/* Quick cancel if not cancelled */}
@@ -53,15 +66,15 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({ booking, onUpda
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+          className="h-7 px-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
           onClick={() => handleQuickAction("cancel")}
-          disabled={isUpdating}
-          title="Hủy booking"
+          disabled={isUpdating || isPaymentSuccess}
+          title={isPaymentSuccess ? "Không thể hủy khi thanh toán đã hoàn tất" : "Hủy booking"}
         >
           <X className="h-3 w-3" />
         </Button>
       )}
-      {/* Quick mark as paid if payment pending */}
+      Quick mark as paid if payment pending
       {booking.paymentStatus === "PENDING" && (
         <Button
           size="sm"
@@ -79,10 +92,10 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({ booking, onUpda
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-gray-700"
+          className="h-7 px-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
           onClick={() => handleQuickAction("markPending")}
-          disabled={isUpdating}
-          title="Đặt lại chờ xử lý"
+          disabled={isUpdating || isPaymentSuccess}
+          title={isPaymentSuccess ? "Không thể thay đổi khi thanh toán đã hoàn tất" : "Đặt lại chờ xử lý"}
         >
           <RotateCcw className="h-3 w-3" />
         </Button>

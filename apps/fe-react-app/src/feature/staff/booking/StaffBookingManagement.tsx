@@ -25,7 +25,6 @@ import { Filter, MoreHorizontal, Search } from "lucide-react";
 import React, { useState } from "react";
 import BookingDetailModal from "./components/BookingDetailModal";
 import BulkStatusUpdate from "./components/BulkStatusUpdate";
-import QuickActionButtons from "./components/QuickActionButtons";
 import QuickStatusChange from "./components/QuickStatusChange";
 import StatusStatistics from "./components/StatusStatistics";
 
@@ -233,7 +232,8 @@ const StaffBookingManagement: React.FC = () => {
         <div className="font-medium text-red-600">{booking.totalPrice ? formatVND(booking.totalPrice, 0, "đ") : "N/A"}</div>
       </TableCell>
       <TableCell>
-        <QuickStatusChange booking={booking} onUpdate={() => refetchAll()} type="booking" />
+        {/* Display only - không cho phép thay đổi trực tiếp */}
+        {getStatusBadge(booking.status || "PENDING", "booking")}
       </TableCell>
       <TableCell>
         <QuickStatusChange booking={booking} onUpdate={() => refetchAll()} type="payment" />
@@ -243,9 +243,6 @@ const StaffBookingManagement: React.FC = () => {
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          {/* Quick Action Buttons */}
-          <QuickActionButtons booking={booking} onUpdate={() => refetchAll()} />
-
           {/* Detail Modal */}
           <BookingDetailModal
             booking={booking}
@@ -280,7 +277,12 @@ const StaffBookingManagement: React.FC = () => {
       {hasApiError && (
         <Card className="border-red-200 bg-red-50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600">⚠️ Lỗi Lấy dữ liệu</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <span role="img" aria-label="Warning">
+                ⚠️
+              </span>{" "}
+              Lỗi Lấy dữ liệu
+            </CardTitle>
           </CardHeader>
         </Card>
       )}
@@ -307,7 +309,7 @@ const StaffBookingManagement: React.FC = () => {
             <div className="min-w-[220px] flex-1">
               <Label className="mb-1 block">Tìm kiếm</Label>
               <div className="relative">
-                <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
+                <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
                 <Input
                   placeholder="Mã booking, tên KH, email, SĐT, tên phim..."
                   className="pl-8"
