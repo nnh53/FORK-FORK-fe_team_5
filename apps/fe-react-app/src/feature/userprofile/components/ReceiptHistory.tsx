@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/Shadcn/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import type { Receipt, ReceiptFilterRequest } from "@/interfaces/receipt.interface";
@@ -118,6 +118,7 @@ const ReceiptHistory: React.FC = () => {
             name: item.name || "Không tên",
             quantity: item.quantity || 0,
             price: item.unitPrice || 0,
+            type: item.type || "",
           })) || [];
 
         // Map payment method
@@ -145,12 +146,23 @@ const ReceiptHistory: React.FC = () => {
 
         return {
           id: String(receipt.id),
-          receiptNumber: `HD${String(receipt.id).padStart(3, "0")}`,
+          receiptNumber: `${String(receipt.id)}`,
           date: issuedDate,
           totalAmount: receipt.totalAmount || 0,
           paymentMethod: paymentMethodDisplay,
           items: items,
           status: status,
+          // Thêm thông tin mới từ API
+          movieName: receipt.movieName || undefined,
+          showtime: receipt.showtime || undefined,
+          roomName: receipt.roomName || undefined,
+          promotionName: receipt.promotionName || undefined,
+          bookingId: receipt.bookingId || undefined,
+          ticketCount: receipt.ticketCount || undefined,
+          // Thông tin điểm thưởng
+          addedPoints: receipt.addedPoints || undefined,
+          usedPoints: receipt.usedPoints || undefined,
+          refundedPoints: receipt.refundedPoints || undefined,
         };
       })
       .sort((a, b) => {
@@ -212,10 +224,6 @@ const ReceiptHistory: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <ReceiptIcon className="h-5 w-5" />
-                Lịch sử giao dịch
-              </CardTitle>
               <CardDescription>Danh sách các giao dịch của bạn tại FCinema</CardDescription>
             </div>
             <div className="flex items-center gap-2">

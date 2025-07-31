@@ -2,7 +2,7 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/Shadcn/ui/dialog";
 import { formatVND } from "@/utils/currency.utils";
-import { CalendarClock, CreditCard, MoreHorizontal, Receipt, ShoppingBag } from "lucide-react";
+import { CalendarClock, Clock, CreditCard, Film, LayoutGrid, MoreHorizontal, PercentIcon, Receipt, ShoppingBag, Ticket } from "lucide-react";
 
 // Receipt detail props interface
 export interface ReceiptDetailProps {
@@ -16,8 +16,20 @@ export interface ReceiptDetailProps {
     name: string;
     quantity: number;
     price: number;
+    type: string;
   }[];
   status: string;
+  // Thông tin mới từ API
+  movieName?: string;
+  showtime?: string;
+  roomName?: string;
+  promotionName?: string;
+  bookingId?: number;
+  ticketCount?: number;
+  // Thông tin điểm thưởng
+  addedPoints?: number;
+  usedPoints?: number;
+  refundedPoints?: number;
 }
 
 export const ReceiptHistoryDetail: React.FC<{ receipt: ReceiptDetailProps }> = ({ receipt }) => {
@@ -52,7 +64,7 @@ export const ReceiptHistoryDetail: React.FC<{ receipt: ReceiptDetailProps }> = (
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Chi tiết hóa đơn</DialogTitle>
           <DialogDescription>Thông tin chi tiết về hóa đơn mua hàng</DialogDescription>
@@ -66,10 +78,13 @@ export const ReceiptHistoryDetail: React.FC<{ receipt: ReceiptDetailProps }> = (
             </div>
           </div>
 
+          {/* Thông tin chung */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <CalendarClock className="text-muted-foreground h-4 w-4" />
-              <span className="text-sm">Ngày: {receipt.date}</span>
+              <span className="text-sm">
+                Ngày xuất hoá biên lai: {receipt.date} {new Date().toLocaleTimeString("vi-VN")}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <CreditCard className="text-muted-foreground h-4 w-4" />
@@ -79,15 +94,51 @@ export const ReceiptHistoryDetail: React.FC<{ receipt: ReceiptDetailProps }> = (
               <ShoppingBag className="text-muted-foreground h-4 w-4" />
               <span className="text-sm">Số sản phẩm: {receipt.items.length}</span>
             </div>
+            <div className="flex items-center gap-2">
+              <PercentIcon className="text-muted-foreground h-4 w-4" />
+              <span className="text-sm">Khuyến mãi: {receipt.promotionName || "Không"}</span>
+            </div>
           </div>
 
+          {/* Thông tin phim nếu có */}
+          {receipt.movieName && (
+            <div className="bg-muted/20 rounded-md border p-4">
+              <h4 className="mb-2 font-medium">Thông tin vé phim</h4>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Film className="text-muted-foreground h-4 w-4" />
+                  <span className="text-sm">Phim: {receipt.movieName}</span>
+                </div>
+                {receipt.showtime && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="text-muted-foreground h-4 w-4" />
+                    <span className="text-sm">Ngày chiếu: {new Date(receipt.showtime).toLocaleTimeString("vi-VN")}</span>
+                  </div>
+                )}
+                {receipt.roomName && (
+                  <div className="flex items-center gap-2">
+                    <LayoutGrid className="text-muted-foreground h-4 w-4" />
+                    <span className="text-sm">Phòng: {receipt.roomName}</span>
+                  </div>
+                )}
+                {receipt.ticketCount && receipt.ticketCount > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Ticket className="text-muted-foreground h-4 w-4" />
+                    <span className="text-sm">Số vé: {receipt.ticketCount}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Danh sách sản phẩm */}
           <div className="rounded-md border p-4">
             <h4 className="mb-2 font-medium">Danh sách sản phẩm</h4>
             <div className="space-y-2">
               {receipt.items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span>
-                    {item.name} x{item.quantity}
+                    {item.name} x{item.quantity} {item.type && `(${item.type})`}
                   </span>
                   <span className="font-medium">{formatVND(item.price * item.quantity)}</span>
                 </div>

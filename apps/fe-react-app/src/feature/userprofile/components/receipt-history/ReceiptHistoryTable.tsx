@@ -1,4 +1,3 @@
-import { Badge } from "@/components/Shadcn/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { formatVND } from "@/utils/currency.utils";
 import { CalendarClock, ReceiptIcon } from "lucide-react";
@@ -9,33 +8,16 @@ interface ReceiptHistoryTableProps {
 }
 
 export const ReceiptHistoryTable: React.FC<ReceiptHistoryTableProps> = ({ receiptHistory }) => {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "SUCCESS":
-        return (
-          <Badge variant="default" className="bg-green-500">
-            Đã thanh toán
-          </Badge>
-        );
-      case "CANCELLED":
-        return <Badge variant="destructive">Đã hủy</Badge>;
-      case "PENDING":
-        return <Badge variant="outline">Đang xử lý</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="hidden md:table-cell">Mã hóa đơn</TableHead>
           <TableHead>Thông tin</TableHead>
-          <TableHead className="hidden md:table-cell">Ngày</TableHead>
+          <TableHead className="hidden md:table-cell">Ngày chiếu</TableHead>
           <TableHead className="hidden lg:table-cell">Phương thức</TableHead>
           <TableHead className="text-right">Tổng tiền</TableHead>
-          <TableHead>Trạng thái</TableHead>
+          <TableHead>Ngày xuất</TableHead>
           <TableHead className="w-[50px]"></TableHead>
         </TableRow>
       </TableHeader>
@@ -60,7 +42,7 @@ export const ReceiptHistoryTable: React.FC<ReceiptHistoryTableProps> = ({ receip
                     <ReceiptIcon className="text-primary h-5 w-5" />
                   </div>
                   <div className="space-y-1">
-                    <p className="font-medium">Hóa đơn mua hàng</p>
+                    <p className="font-medium">{receipt.movieName ? `${receipt.movieName}` : "Hóa đơn mua hàng"}</p>
                     <div className="text-muted-foreground space-y-1 text-xs md:hidden">
                       <p>#{receipt.receiptNumber}</p>
                       <p>{receipt.date}</p>
@@ -72,14 +54,19 @@ export const ReceiptHistoryTable: React.FC<ReceiptHistoryTableProps> = ({ receip
               <TableCell className="hidden md:table-cell">
                 <div className="flex items-center gap-2">
                   <CalendarClock className="text-muted-foreground h-4 w-4" />
-                  <span className="text-sm">{receipt.date}</span>
+                  <span className="text-sm">{receipt.showtime ? new Date(receipt.showtime).toLocaleDateString("vi-VN") : "Không có"}</span>
                 </div>
               </TableCell>
               <TableCell className="hidden lg:table-cell">
                 <span className="text-sm">{receipt.paymentMethod}</span>
               </TableCell>
               <TableCell className="text-right font-medium">{formatVND(receipt.totalAmount)}</TableCell>
-              <TableCell>{getStatusBadge(receipt.status)}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <CalendarClock className="text-muted-foreground h-4 w-4" />
+                  <span className="text-sm">{receipt.date}</span>
+                </div>
+              </TableCell>
               <TableCell>
                 <ReceiptHistoryDetail receipt={receipt} />
               </TableCell>
