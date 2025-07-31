@@ -102,7 +102,7 @@ export const transformMovieToRequest = (movie: Movie) => {
     duration: movie.duration ?? 0,
     trailer: movie.trailer ?? "",
     categories: movie.categories ?? "",
-    // Use categoryIds instead of type
+    categoryIds: movie.categoryIds ?? [],
     description: movie.description ?? "",
     status: movie.status ?? "ACTIVE", // Use string status
     poster: movie.poster ?? "",
