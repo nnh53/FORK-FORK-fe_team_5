@@ -26,7 +26,7 @@ export const PromotionDetail: React.FC<PromotionDetailProps> = ({ open, setOpen,
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto bg-white sm:max-w-[700px]">
+      <DialogContent className="max-h-[90vh] overflow-y-auto bg-white sm:max-w-[800px]">
         <DialogHeader className="border-b pb-3">
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             <Icon icon="tabler:ticket-discount" className="h-5 w-5 text-blue-600" />
@@ -45,7 +45,7 @@ export const PromotionDetail: React.FC<PromotionDetailProps> = ({ open, setOpen,
                     <img
                       src={promotion.image}
                       alt={promotion.title}
-                      className="max-h-[400px] min-h-[200px] w-auto min-w-[200px] max-w-[95%] object-contain transition-transform duration-300 hover:scale-105"
+                      className="max-h-[400px] min-h-[200px] w-auto max-w-[95%] min-w-[200px] object-contain transition-transform duration-300 hover:scale-105"
                       style={{ objectFit: "contain", objectPosition: "center" }}
                     />
                   </div>

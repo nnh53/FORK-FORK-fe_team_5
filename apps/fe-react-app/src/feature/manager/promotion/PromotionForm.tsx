@@ -106,21 +106,20 @@ const SelectField = ({ name, label, icon, options, errors, touched, setFieldValu
   </div>
 );
 
-// DateTimePickerCustom component để thay thế DateTimePicker cũ
-interface DateTimePickerCustomProps {
+// Bộ chọn ngày tháng sử dụng Calendar24 làm gốc
+const CustomCalendar24: React.FC<{
   date: Date | undefined;
   setDate: (date: Date | undefined) => void;
   error?: boolean;
-}
-
-const DateTimePickerCustom: React.FC<DateTimePickerCustomProps> = ({ date, setDate, error }) => {
+  disablePastDates?: boolean;
+}> = ({ date, setDate, error, disablePastDates = false }) => {
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(date);
   const [time, setTime] = useState(
     date ? `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}` : "00:00",
   );
 
-  // Khi date prop thay đổi từ bên ngoài, cập nhật state nội bộ
+  // Cập nhật state khi prop date thay đổi
   useEffect(() => {
     if (date !== selectedDate) {
       setSelectedDate(date);
@@ -155,6 +154,15 @@ const DateTimePickerCustom: React.FC<DateTimePickerCustomProps> = ({ date, setDa
     }
   };
 
+  // Hàm lọc ngày trong quá khứ
+  const disableDate = disablePastDates
+    ? (date: Date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return date < today;
+      }
+    : undefined;
+
   return (
     <div className="flex gap-2">
       <div className="flex-grow">
@@ -166,7 +174,7 @@ const DateTimePickerCustom: React.FC<DateTimePickerCustomProps> = ({ date, setDa
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
-            <Calendar mode="single" selected={selectedDate} onSelect={handleDateSelect} />
+            <Calendar mode="single" selected={selectedDate} onSelect={handleDateSelect} disabled={disableDate} />
           </PopoverContent>
         </Popover>
       </div>
@@ -187,17 +195,41 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
     ? { ...selectedPromotion, startTime: formatDateForForm(selectedPromotion.startTime), endTime: formatDateForForm(selectedPromotion.endTime) }
     : initialValues;
 
+  // Kiểm tra nếu ngày kết thúc nằm trong quá khứ
+  const isEndDateInPast = (date: Date | undefined): boolean => {
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
+
+  // Cập nhật status khi ngày kết thúc thay đổi và nằm trong quá khứ
+  useEffect(() => {
+    if (endDate && isEndDateInPast(endDate) && selectedPromotion) {
+      console.log("Ngày kết thúc đã qua, khuyến mãi sẽ được cập nhật thành không hoạt động.");
+    }
+  }, [endDate, selectedPromotion]);
+
   return (
     <Formik
       initialValues={formInitialValues}
       validationSchema={promotionValidationSchema}
       onSubmit={(values, helpers) => {
         // Update the date values from our datetime pickers
-        const finalValues = {
+        let finalValues = {
           ...values,
           startTime: startDate ? startDate.toICTISOString() : "",
           endTime: endDate ? endDate.toICTISOString() : "",
         };
+
+        // Nếu ngày kết thúc trong quá khứ, tự động đặt trạng thái là INACTIVE
+        if (endDate && isEndDateInPast(endDate)) {
+          finalValues = {
+            ...finalValues,
+            status: "INACTIVE",
+          };
+        }
+
         onSubmit(finalValues, helpers);
       }}
     >
@@ -326,7 +358,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                             Thời gian bắt đầu <span className="text-destructive">*</span>
                           </Label>
                         </div>
-                        <DateTimePickerCustom
+                        <CustomCalendar24
                           date={startDate}
                           setDate={(date: Date | undefined) => {
                             setStartDate(date);
@@ -346,7 +378,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                             Thời gian kết thúc <span className="text-destructive">*</span>
                           </Label>
                         </div>
-                        <DateTimePickerCustom
+                        <CustomCalendar24
                           date={endDate}
                           setDate={(date: Date | undefined) => {
                             setEndDate(date);
@@ -355,6 +387,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                             }
                           }}
                           error={!!errors.endTime && touched.endTime}
+                          disablePastDates={!selectedPromotion} // Chỉ disable ngày trong quá khứ khi thêm mới
                         />
                         {errors.endTime && touched.endTime && <div className="text-destructive mt-1 text-sm">{String(errors.endTime)}</div>}
                       </div>

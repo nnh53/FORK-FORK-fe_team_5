@@ -99,7 +99,7 @@ export const transformPromotionToRequest = (promotion: Partial<Promotion>) => {
  */
 export const promotionStatusOptions = [
   { value: "ACTIVE" as PromotionStatus, label: "Đang hoạt động" },
-  { value: "INACTIVE" as PromotionStatus, label: "Chưa hoạt động" },
+  { value: "INACTIVE" as PromotionStatus, label: "Không hoạt động" },
 ];
 
 /**

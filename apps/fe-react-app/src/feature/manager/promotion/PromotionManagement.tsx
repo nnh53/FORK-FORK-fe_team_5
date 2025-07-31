@@ -10,7 +10,7 @@ import {
 } from "@/components/Shadcn/ui/alert-dialog";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
 import { type TableColumns } from "@/components/shared/CustomTable";
 import { Filter, type FilterCriteria, type FilterGroup } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
@@ -368,15 +368,12 @@ export const PromotionManagement: React.FC = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-h-[90vh] min-w-[50%] overflow-y-auto sm:max-w-3xl" onCloseAutoFocus={() => setSelectedPromotion(undefined)}>
+        <DialogContent className="max-h-[95vh] min-w-[50%] overflow-y-auto sm:max-w-5xl" onCloseAutoFocus={() => setSelectedPromotion(undefined)}>
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="flex items-center gap-2 text-xl font-bold">
               <Icon icon={selectedPromotion ? "tabler:edit" : "tabler:plus"} className="h-5 w-5" />
               {selectedPromotion ? "Chỉnh sửa khuyến mãi" : "Thêm khuyến mãi mới"}
             </DialogTitle>
-            <DialogDescription>
-              {selectedPromotion ? `Chỉnh sửa thông tin cho khuyến mãi "${selectedPromotion.title}"` : "Nhập thông tin cho khuyến mãi mới"}
-            </DialogDescription>
           </DialogHeader>
           <PromotionForm
             selectedPromotion={selectedPromotion}
