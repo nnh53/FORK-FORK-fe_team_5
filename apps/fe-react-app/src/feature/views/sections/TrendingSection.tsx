@@ -137,129 +137,131 @@ const TrendingSection = () => {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black">
-      {/* Background Banner */}
-      {backgroundBanner && (
-        <>
-          <Image
-            src={backgroundBanner}
-            alt="Selected movie banner"
-            layout="fullWidth"
-            priority={true}
-            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out"
-            height={1080}
-            aspectRatio={1920 / 1080}
-            breakpoints={[768, 1024, 1280, 1536]}
-          />
-          <div className="absolute inset-0 z-10 bg-black/60" />
-        </>
-      )}
+    <section id="trending">
+      <div className="relative min-h-screen overflow-hidden bg-black">
+        {/* Background Banner */}
+        {backgroundBanner && (
+          <>
+            <Image
+              src={backgroundBanner}
+              alt="Selected movie banner"
+              layout="fullWidth"
+              priority={true}
+              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out"
+              height={1080}
+              aspectRatio={1920 / 1080}
+              breakpoints={[768, 1024, 1280, 1536]}
+            />
+            <div className="absolute inset-0 z-10 bg-black/60" />
+          </>
+        )}
 
-      {/* Content */}
-      <div className="relative z-20 container mx-auto px-6 py-16">
-        <div className="grid min-h-screen grid-cols-1 items-center gap-12 lg:grid-cols-2">
-          {/* Left: Movie Ranking List */}
-          <div className="space-y-6">
-            <div className="text-left">
-              <h2 className="mb-2 text-4xl font-bold text-white">
-                <LineShadowText className="italic" shadowColor="white">
-                  TOP
-                </LineShadowText>{" "}
-                <LineShadowText className="italic" shadowColor="white">
-                  MOVIES
-                </LineShadowText>
-              </h2>
-              <p className="text-lg text-gray-300">Được bình chọn nhiều nhất</p>
+        {/* Content */}
+        <div className="relative z-20 container mx-auto px-6 py-16">
+          <div className="grid min-h-screen grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            {/* Left: Movie Ranking List */}
+            <div className="space-y-6">
+              <div className="text-left">
+                <h2 className="mb-2 text-4xl font-bold text-white">
+                  <LineShadowText className="italic" shadowColor="white">
+                    TOP
+                  </LineShadowText>{" "}
+                  <LineShadowText className="italic" shadowColor="white">
+                    MOVIES
+                  </LineShadowText>
+                </h2>
+                <p className="text-lg text-gray-300">Được bình chọn nhiều nhất</p>
+              </div>
+
+              <div className="space-y-4">
+                {displayMovies.map((movie) => {
+                  if ("isPlaceholder" in movie) {
+                    return <PlaceholderMovieItem key={movie.rank} rank={movie.rank} />;
+                  }
+                  return (
+                    <MovieRankingItem
+                      data-testid="movie-item"
+                      key={movie.id}
+                      movie={movie}
+                      isSelected={selectedMovieId === movie.id}
+                      isHighlighted={lastHoveredMovieId === movie.id} // Check if this is the last hovered
+                      onClick={() => handleMovieClick(movie.id)}
+                      onMouseHover={() => handleMouseHover(movie.id)} // Handle hover
+                    />
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="space-y-4">
-              {displayMovies.map((movie) => {
-                if ("isPlaceholder" in movie) {
-                  return <PlaceholderMovieItem key={movie.rank} rank={movie.rank} />;
-                }
-                return (
-                  <MovieRankingItem
-                    data-testid="movie-item"
-                    key={movie.id}
-                    movie={movie}
-                    isSelected={selectedMovieId === movie.id}
-                    isHighlighted={lastHoveredMovieId === movie.id} // Check if this is the last hovered
-                    onClick={() => handleMovieClick(movie.id)}
-                    onMouseHover={() => handleMouseHover(movie.id)} // Handle hover
-                  />
-                );
-              })}
-            </div>
-          </div>
+            {/* Right: Video Play Section */}
+            <div className="hidden items-center justify-center lg:flex">
+              <CardSwap
+                cardDistance={cardSwapSettings.cardDistance}
+                verticalDistance={cardSwapSettings.verticalDistance}
+                delay={cardSwapSettings.delay}
+                pauseOnHover={cardSwapSettings.pauseOnHover}
+                skewAmount={cardSwapSettings.skewAmount}
+                activeIndex={displayMovies.findIndex((movie) => movie.id === hoveredMovieId)}
+                // onActiveIndexChange={setHoveredMovieId}
+              >
+                {displayMovies.map((movie) => (
+                  <Card key={movie.id} className="card-style h-100 w-100">
+                    {(() => {
+                      // Only play trailer for active card
+                      if (hoveredMovieId === movie.id && movie.trailer && getYouTubeEmbedUrl(movie.trailer)) {
+                        const videoId = getYouTubeVideoId(movie.trailer || "");
+                        const startTime = movie.id ? (movie.id % 60) + 10 : 0;
+                        const embedUrl = getYouTubeEmbedUrl(movie.trailer, {
+                          autoplay: true,
+                          rel: false,
+                          showinfo: false,
+                        });
 
-          {/* Right: Video Play Section */}
-          <div className="hidden lg:flex items-center justify-center">
-            <CardSwap
-              cardDistance={cardSwapSettings.cardDistance}
-              verticalDistance={cardSwapSettings.verticalDistance}
-              delay={cardSwapSettings.delay}
-              pauseOnHover={cardSwapSettings.pauseOnHover}
-              skewAmount={cardSwapSettings.skewAmount}
-              activeIndex={displayMovies.findIndex((movie) => movie.id === hoveredMovieId)}
-              // onActiveIndexChange={setHoveredMovieId}
-            >
-              {displayMovies.map((movie) => (
-                <Card key={movie.id} className="card-style h-100 w-100">
-                  {(() => {
-                    // Only play trailer for active card
-                    if (hoveredMovieId === movie.id && movie.trailer && getYouTubeEmbedUrl(movie.trailer)) {
-                      const videoId = getYouTubeVideoId(movie.trailer || "");
-                      const startTime = movie.id ? (movie.id % 60) + 10 : 0;
-                      const embedUrl = getYouTubeEmbedUrl(movie.trailer, {
-                        autoplay: true,
-                        rel: false,
-                        showinfo: false,
-                      });
+                        let finalUrl = embedUrl || "";
+                        finalUrl = `${finalUrl}&start=${startTime}&mute=1&loop=1`;
+                        if (videoId) {
+                          finalUrl += `&playlist=${videoId}`;
+                        }
 
-                      let finalUrl = embedUrl || "";
-                      finalUrl = `${finalUrl}&start=${startTime}&mute=1&loop=1`;
-                      if (videoId) {
-                        finalUrl += `&playlist=${videoId}`;
+                        return (
+                          <div className="trailer-container h-full w-full">
+                            <iframe
+                              src={finalUrl}
+                              title={`Trailer - ${movie.name}`}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="trailer-iframe h-full w-full"
+                            />
+                          </div>
+                        );
                       }
 
-                      return (
-                        <div className="trailer-container h-full w-full">
-                          <iframe
-                            src={finalUrl}
-                            title={`Trailer - ${movie.name}`}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="trailer-iframe h-full w-full"
-                          />
-                        </div>
-                      );
-                    }
+                      // Fallback to poster for non-active cards or if no trailer
+                      if (movie.poster) {
+                        return (
+                          <div className="poster-container">
+                            <img src={movie.poster} alt={movie.name} className="poster-image" loading="lazy" />
+                          </div>
+                        );
+                      }
 
-                    // Fallback to poster for non-active cards or if no trailer
-                    if (movie.poster) {
-                      return (
-                        <div className="poster-container">
-                          <img src={movie.poster} alt={movie.name} className="poster-image" loading="lazy" />
-                        </div>
-                      );
-                    }
-
-                    return null;
-                  })()}
-                </Card>
-              ))}
-              {displayMovies.length === 0 && (
-                <Card className="empty-card-style">
-                  <h3 className="empty-card-title">No spotlight movies available</h3>
-                </Card>
-              )}
-            </CardSwap>
-            {/* </div> */}
-            {/* </div> */}
+                      return null;
+                    })()}
+                  </Card>
+                ))}
+                {displayMovies.length === 0 && (
+                  <Card className="empty-card-style">
+                    <h3 className="empty-card-title">No spotlight movies available</h3>
+                  </Card>
+                )}
+              </CardSwap>
+              {/* </div> */}
+              {/* </div> */}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
