@@ -193,7 +193,7 @@ const TrendingSection = () => {
           </div>
 
           {/* Right: Video Play Section */}
-          <div className="flex items-center justify-center">
+          <div className="hidden lg:flex items-center justify-center">
             <CardSwap
               cardDistance={cardSwapSettings.cardDistance}
               verticalDistance={cardSwapSettings.verticalDistance}
