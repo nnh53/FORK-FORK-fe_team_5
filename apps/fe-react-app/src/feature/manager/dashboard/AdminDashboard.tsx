@@ -4,9 +4,10 @@ import type { Receipt } from "@/interfaces/receipt.interface";
 import { queryReceiptTopMovies, queryReceipts } from "@/services/receiptService";
 import { eachDayOfInterval, format, startOfMonth } from "date-fns";
 import { useEffect, useRef, useState } from "react";
-import TopMoviesPieChart from "./components/TopMoviesPieChart";
 import AdminStatCards from "./components/AdminStatCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";
+import TopMoviesPieChart from "./components/TopMoviesPieChart";
+import TopMoviesRevenuePieChart from "./components/TopMoviesRevenuePieChart";
 
 export default function AdminDashboard() {
   const today = new Date();
@@ -56,7 +57,6 @@ export default function AdminDashboard() {
   });
   const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
 
-
   if (trendingQuery.isLoading || isReceiptLoading) {
     return <LoadingSpinner name="dashboard" />;
   }
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
           <div className="px-4 lg:px-6">
             <RevenueAreaChart data={chartData} />
           </div>
-          <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:gap-8 lg:px-6">
+          <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-3 lg:gap-8 lg:px-6">
             <div className="col-span-1">
               <Table>
                 <TableHeader>
@@ -117,6 +117,9 @@ export default function AdminDashboard() {
             </div>
             <div className="col-span-1">
               <TopMoviesPieChart />
+            </div>
+            <div className="col-span-1">
+              <TopMoviesRevenuePieChart />
             </div>
           </div>
         </div>
