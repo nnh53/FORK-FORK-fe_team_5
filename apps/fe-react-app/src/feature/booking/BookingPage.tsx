@@ -273,19 +273,19 @@ const BookingPage: React.FC = () => {
       {/* Content Layer */}
       <div className="relative z-10">
         {/* Hero Section */}
-        <div className="py-2 md:py-8">
-          <div className="mx-auto max-w-screen-2xl px-4 md:px-4">
+        <div className="py-2 sm:py-4 md:py-8">
+          <div className="mx-auto max-w-screen-2xl px-2 sm:px-4 md:px-4">
             {/* Breadcrumb */}
-            <nav className="mb-6" aria-label="Breadcrumb">
+            <nav className="mb-4 sm:mb-6" aria-label="Breadcrumb">
               <Breadcrumb>
                 <BreadcrumbList className="text-gray-300">
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
                       <Link
                         to="/"
-                        className="flex items-center rounded-md px-2 py-1 text-gray-300 transition-all duration-200 hover:bg-white/10 hover:text-white"
+                        className="flex items-center rounded-md px-1 py-1 text-xs text-gray-300 transition-all duration-200 hover:bg-white/10 hover:text-white sm:px-2 sm:text-sm"
                       >
-                        <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -299,9 +299,9 @@ const BookingPage: React.FC = () => {
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="text-gray-500" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="font-medium text-white">
+                    <BreadcrumbPage className="text-xs font-medium text-white sm:text-sm">
                       Chọn ghế
-                      {movie?.title && <span className="ml-2 text-red-300">- {movie.title}</span>}
+                      {movie?.title && <span className="ml-1 hidden text-red-300 sm:ml-2 sm:inline">- {movie.title}</span>}
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
@@ -310,15 +310,15 @@ const BookingPage: React.FC = () => {
 
             {/* Movie Info Header */}
             <div className="mb-2 text-center">
-              <h1 className="mb-4 bg-gradient-to-r from-white via-red-100 to-white bg-clip-text text-3xl font-bold text-transparent drop-shadow-2xl md:text-4xl">
+              <h1 className="mb-2 bg-gradient-to-r from-white via-red-100 to-white bg-clip-text text-xl font-bold text-transparent drop-shadow-2xl sm:mb-4 sm:text-2xl md:text-3xl lg:text-4xl">
                 {movie?.title || "Chọn ghế ngồi"}
               </h1>
 
               {/* Movie Details Row */}
-              <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
+              <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:gap-4 sm:text-sm">
                 {selection?.date && (
-                  <span className="rounded-full border border-white/10 bg-white/20 px-4 py-2 font-medium text-white backdrop-blur-md">
-                    <svg className="mr-2 inline h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="rounded-full border border-white/10 bg-white/20 px-2 py-1 font-medium text-white backdrop-blur-md sm:px-4 sm:py-2">
+                    <svg className="mr-1 inline h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -326,20 +326,21 @@ const BookingPage: React.FC = () => {
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    {new Date(selection.date).toLocaleDateString("vi-VN")}
+                    <span className="hidden sm:inline">{new Date(selection.date).toLocaleDateString("vi-VN")}</span>
+                    <span className="sm:hidden">{new Date(selection.date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}</span>
                   </span>
                 )}
                 {selection?.time && (
-                  <span className="rounded-full border border-red-500/50 bg-red-600/90 px-4 py-2 font-medium text-white backdrop-blur-sm">
-                    <svg className="mr-2 inline h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="rounded-full border border-red-500/50 bg-red-600/90 px-2 py-1 font-medium text-white backdrop-blur-sm sm:px-4 sm:py-2">
+                    <svg className="mr-1 inline h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     {selection.time}
                   </span>
                 )}
                 {cinemaName && (
-                  <span className="rounded-full border border-gray-700/50 bg-gray-800/60 px-4 py-2 font-medium text-white backdrop-blur-md">
-                    <svg className="mr-2 inline h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="rounded-full border border-gray-700/50 bg-gray-800/60 px-2 py-1 font-medium text-white backdrop-blur-md sm:px-4 sm:py-2">
+                    <svg className="mr-1 inline h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -347,7 +348,8 @@ const BookingPage: React.FC = () => {
                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                       />
                     </svg>
-                    {cinemaName}
+                    <span className="hidden sm:inline">{cinemaName}</span>
+                    <span className="sm:hidden">{cinemaName.length > 10 ? cinemaName.substring(0, 10) + "..." : cinemaName}</span>
                   </span>
                 )}
               </div>
@@ -357,12 +359,12 @@ const BookingPage: React.FC = () => {
 
         {/* Main Content */}
         <div>
-          <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="mx-auto max-w-screen-2xl px-2 sm:px-4 md:px-8">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 xl:grid-cols-3">
               {/* Left Column: Seat Map */}
-              <div className="lg:col-span-2">
-                <div className="overflow-hidden rounded-2xl border border-white/20 bg-white/95 shadow-2xl backdrop-blur-md">
-                  <div className="p-6">
+              <div className="xl:col-span-2">
+                <div className="overflow-hidden rounded-xl border border-white/20 bg-white/95 shadow-2xl backdrop-blur-md sm:rounded-2xl">
+                  <div className="p-3 sm:p-4 lg:p-6">
                     <BookingSeatMap
                       seatMap={seatMap}
                       selectedSeats={selectedSeatIds}
@@ -374,8 +376,8 @@ const BookingPage: React.FC = () => {
               </div>
 
               {/* Right Column: Booking Summary */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-6">
+              <div className="xl:col-span-1">
+                <div className="sticky top-2 sm:top-4 lg:top-6">
                   <BookingSummary
                     movie={movie}
                     selection={selection}

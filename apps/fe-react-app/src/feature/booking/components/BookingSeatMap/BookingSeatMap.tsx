@@ -337,42 +337,38 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Chọn ghế</CardTitle>
-          <div className="flex gap-2">
+      <CardHeader className="pb-3 sm:pb-4">
+        <div className="flex flex-col items-center justify-between gap-2 sm:flex-row sm:gap-4">
+          <CardTitle className="text-lg sm:text-xl">Chọn ghế</CardTitle>
+          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
             <Badge variant="outline" className="text-green-600">
-              <Icon icon="mdi:check-circle" className="mr-1 h-4 w-4" />
+              <Icon icon="mdi:check-circle" className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
               Đã chọn: {seatStats.selected}
             </Badge>
             <Badge variant="outline">
-              <Icon icon="mdi:seat" className="mr-1 h-4 w-4" />
+              <Icon icon="mdi:seat" className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
               Còn trống: {seatStats.available}
             </Badge>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-3 sm:p-4 lg:p-6">
         {/* Screen */}
-        <div className="mb-6">
-          <div className="mb-2 h-1 w-full rounded-full bg-gradient-to-r from-gray-300 via-gray-500 to-gray-300 shadow-lg"></div>
-          <p className="text-center text-sm font-medium text-gray-500">MÀN HÌNH CHIẾU</p>
+        <div className="mb-4 sm:mb-6">
+          <div className="mb-2 h-0.5 w-full rounded-full bg-gradient-to-r from-gray-300 via-gray-500 to-gray-300 shadow-lg sm:h-1"></div>
+          <p className="text-center text-xs font-medium text-gray-500 sm:text-sm">MÀN HÌNH CHIẾU</p>
         </div>
 
         {/* Grid with row labels - matching SeatMapEditorView structure */}
-        <div className="overflow-auto">
-          <div className="flex justify-center">
+        <div className="overflow-x-auto overflow-y-hidden">
+          <div className="flex min-w-fit justify-center px-2 sm:px-0">
             <div className="flex">
               {/* Row labels (A, B, C...) */}
-              <div className="mr-2 flex flex-col">
+              <div className="mr-1 flex flex-shrink-0 flex-col sm:mr-2">
                 {Array.from({ length: actualDimensions.actualHeight }, (_, i) => (
                   <div
                     key={i}
-                    className="flex w-6 items-center justify-center text-sm font-medium text-gray-500"
-                    style={{
-                      height: "32px", // Match seat height exactly
-                      marginBottom: i < actualDimensions.actualHeight - 1 ? "4px" : "0",
-                    }}
+                    className="mb-0.5 flex h-6 w-4 items-center justify-center text-xs font-medium text-gray-500 sm:mb-1 sm:h-8 sm:w-6 sm:text-sm"
                   >
                     {String.fromCharCode(65 + i)}
                   </div>
@@ -381,11 +377,10 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
 
               {/* Seat grid */}
               <div
-                className="grid"
+                className="grid flex-shrink-0 gap-0.5 sm:gap-1"
                 style={{
-                  gridTemplateColumns: `repeat(${actualDimensions.actualWidth}, 1fr)`,
-                  gap: "4px",
-                  maxWidth: `${actualDimensions.actualWidth * 32 + (actualDimensions.actualWidth - 1) * 4}px`,
+                  gridTemplateColumns: `repeat(${actualDimensions.actualWidth}, minmax(0, 1fr))`,
+                  minWidth: `${actualDimensions.actualWidth * 24 + (actualDimensions.actualWidth - 1) * 2}px`,
                 }}
               >
                 {/* Using render items for proper double seat handling */}
@@ -396,13 +391,21 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
                     return (
                       <div
                         key={item.seat.id || item.index}
-                        className={getSeatColor(item.seat, isSelected)}
+                        className={`${getSeatColor(item.seat, isSelected)} relative flex h-6 items-center justify-center text-xs sm:[margin-right:var(--double-seat-margin)] sm:[margin-left:var(--double-seat-margin)] sm:h-8 sm:[width:var(--double-seat-width)] sm:text-sm`}
                         onClick={() => handleSeatClick(item.seat)}
-                        style={{
-                          gridColumn: "span 2",
-                          height: "32px", // Fixed height
-                          width: "68px", // 32px * 2 + 4px gap
-                        }}
+                        style={
+                          {
+                            gridColumn: "span 2",
+                            width: "calc(100% + 1px)", // Mobile: gap-0.5 = 2px, thêm 1/2 gap = 1px
+                            marginLeft: "-0.5px", // Mobile: giảm 1/4 gap = 0.5px
+                            marginRight: "-0.5px",
+                            "--double-seat-width": "calc(100% + 2px)", // Desktop: gap-1 = 4px, thêm 1/2 gap = 2px
+                            "--double-seat-margin": "-1px", // Desktop: giảm 1/4 gap = 1px
+                          } as React.CSSProperties & {
+                            "--double-seat-width": string;
+                            "--double-seat-margin": string;
+                          }
+                        }
                         aria-disabled={!isSelectable}
                       >
                         {item.displayCol}
@@ -410,7 +413,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
                         {item.seat.status === "MAINTENANCE" && (
                           <Icon
                             icon="mdi:wrench"
-                            className="absolute top-0 right-0 h-3 w-3 text-orange-600"
+                            className="absolute top-0 right-0 h-2 w-2 text-orange-600 sm:h-3 sm:w-3"
                             style={{ transform: "translate(25%, -25%)" }}
                           />
                         )}
@@ -420,19 +423,15 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
                     // Render special content for path and blocked seats
                     let content: React.ReactNode = item.displayCol;
                     if (item.seat.type.name === "PATH") {
-                      content = <Icon icon="mdi:walk" className="h-3 w-3" />;
+                      content = <Icon icon="mdi:walk" className="h-2 w-2 sm:h-3 sm:w-3" />;
                     } else if (item.seat.type.name === "BLOCK") {
-                      content = <Icon icon="mdi:close" className="h-3 w-3" />;
+                      content = <Icon icon="mdi:close" className="h-2 w-2 sm:h-3 sm:w-3" />;
                     }
                     return (
                       <div
                         key={item.seat.id || item.index}
-                        className={getSeatColor(item.seat, isSelected)}
+                        className={`${getSeatColor(item.seat, isSelected)} h-6 w-6 text-xs sm:h-8 sm:w-8 sm:text-sm`}
                         onClick={() => handleSeatClick(item.seat)}
-                        style={{
-                          height: "32px", // Fixed height
-                          width: "32px", // Fixed width
-                        }}
                         aria-disabled={!isSelectable}
                       >
                         {content}
@@ -440,7 +439,7 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
                         {item.seat.status === "MAINTENANCE" && (
                           <Icon
                             icon="mdi:wrench"
-                            className="absolute top-0 right-0 h-3 w-3 text-orange-600"
+                            className="absolute top-0 right-0 h-2 w-2 text-orange-600 sm:h-3 sm:w-3"
                             style={{ transform: "translate(25%, -25%)" }}
                           />
                         )}
@@ -454,29 +453,20 @@ const BookingSeatMap: React.FC<BookingSeatMapProps> = ({ seatMap, selectedSeats 
         </div>
 
         {/* Column labels (1, 2, 3...) */}
-        <div className="mt-4 flex justify-center">
+        <div className="mt-2 flex justify-center sm:mt-4">
           <div className="flex">
             {/* Space for row labels */}
-            <div className="w-8"></div>
+            <div className="w-4 sm:w-6"></div>
 
             {/* Column numbers */}
             <div
-              className="grid"
+              className="grid gap-0.5 sm:gap-1"
               style={{
                 gridTemplateColumns: `repeat(${actualDimensions.actualWidth}, 1fr)`,
-                gap: "4px",
-                maxWidth: `${actualDimensions.actualWidth * 32 + (actualDimensions.actualWidth - 1) * 4}px`,
               }}
             >
               {Array.from({ length: actualDimensions.actualWidth }, (_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-center text-sm font-medium text-gray-500"
-                  style={{
-                    width: "32px",
-                    height: "24px",
-                  }}
-                >
+                <div key={i} className="flex h-4 w-6 items-center justify-center text-xs font-medium text-gray-500 sm:h-6 sm:w-8 sm:text-sm">
                   {i + 1}
                 </div>
               ))}
