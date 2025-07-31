@@ -1,10 +1,10 @@
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useBookingsByDateRange } from "@/services/bookingService";
-import { useGetAllCombos } from "@/services/comboService";
-import { queryReceiptTopMovies } from "@/services/receipService";
-import { useGetAllSnacks } from "@/services/snackService";
+import { queryReceiptTopMovies } from "@/services/receiptService";
 import { eachDayOfInterval, format, startOfMonth } from "date-fns";
+import { useGetAllCombos } from "@/services/comboService";
+import { useGetAllSnacks } from "@/services/snackService";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import AdminStatCards from "./components/AdminStatCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";

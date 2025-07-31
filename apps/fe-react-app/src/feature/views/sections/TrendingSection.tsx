@@ -1,7 +1,7 @@
 import { LineShadowText } from "@/components/magicui/line-shadow-text";
 import CardSwap, { Card } from "@/components/Reactbits/reactbit-components/CardSwap/CardSwap";
 import { queryMoviesForTrending } from "@/services/movieService";
-import { queryReceiptTopMovies } from "@/services/receipService";
+import { queryReceiptTopMovies } from "@/services/receiptService";
 import { getYouTubeEmbedUrl, getYouTubeVideoId } from "@/utils/movie.utils";
 import { Image } from "@unpic/react";
 import React, { useMemo, useState } from "react";
