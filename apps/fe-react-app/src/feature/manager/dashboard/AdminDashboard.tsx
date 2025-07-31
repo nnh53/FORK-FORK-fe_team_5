@@ -1,12 +1,10 @@
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import type { Receipt } from "@/interfaces/receipt.interface";
 import { queryReceiptTopMovies, queryReceipts } from "@/services/receiptService";
 import { eachDayOfInterval, format, startOfMonth } from "date-fns";
-import { useGetAllCombos } from "@/services/comboService";
-import { useGetAllSnacks } from "@/services/snackService";
+import { useEffect, useRef, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { useState, useEffect, useRef } from "react";
-import type { Receipt } from "@/interfaces/receipt.interface";
 import AdminStatCards from "./components/AdminStatCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";
 
@@ -17,8 +15,6 @@ export default function AdminDashboard() {
 
   const trendingQuery = queryReceiptTopMovies(startDate, endDate);
   const receiptMutationRef = useRef(queryReceipts());
-  const combosQuery = useGetAllCombos();
-  const snacksQuery = useGetAllSnacks();
 
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [isReceiptLoading, setIsReceiptLoading] = useState(true);
@@ -33,6 +29,8 @@ export default function AdminDashboard() {
           },
         });
         if (res?.result) {
+          console.log("Fetched receipts:", res.result);
+
           setReceipts(res.result);
         }
       } finally {
@@ -41,14 +39,13 @@ export default function AdminDashboard() {
     };
     fetchReceipts();
   }, [endDate, startDate]);
-  const combos = combosQuery.data?.result ?? [];
-  const snacks = snacksQuery.data?.result ?? [];
 
   const totalRevenue = receipts.reduce((sum, r) => sum + (r.totalAmount ?? 0), 0);
 
   const totalBookings = receipts.length;
 
   const customers = new Set(receipts.map((r) => r.user?.id)).size;
+
   const trendingMovies = trendingQuery.data?.result ?? [];
 
   const days = eachDayOfInterval({ start: startOfMonth(today), end: today });
@@ -71,6 +68,8 @@ export default function AdminDashboard() {
       {} as Record<string, number>,
     );
 
+  console.log("Combo sales:", comboSales);
+
   const snackSales = receipts
     .flatMap((r) => r.items ?? [])
     .filter((item) => item.type === "SNACK")
@@ -91,7 +90,7 @@ export default function AdminDashboard() {
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
   const [activeIndex, setActiveIndex] = useState(0);
 
-  if (trendingQuery.isLoading || isReceiptLoading || combosQuery.isLoading || snacksQuery.isLoading) {
+  if (trendingQuery.isLoading || isReceiptLoading) {
     return <LoadingSpinner name="dashboard" />;
   }
 
@@ -113,15 +112,7 @@ export default function AdminDashboard() {
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  {combos.map((c, idx) => (
-                    <TableRow key={c.id ?? idx}>
-                      <TableCell>{c.name}</TableCell>
-                      <TableCell className="text-right">{comboSales[c.name as string] ?? 0}</TableCell>
-                      <TableCell className="text-right">{c.price?.toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                <TableBody></TableBody>
                 <TableCaption>Combos</TableCaption>
               </Table>
               <Table>
@@ -132,15 +123,7 @@ export default function AdminDashboard() {
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  {snacks.map((s, idx) => (
-                    <TableRow key={s.id ?? idx}>
-                      <TableCell>{s.name}</TableCell>
-                      <TableCell className="text-right">{snackSales[s.name as string] ?? 0}</TableCell>
-                      <TableCell className="text-right">{s.price?.toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                <TableBody></TableBody>
                 <TableCaption>Snacks</TableCaption>
               </Table>
               <Table>
