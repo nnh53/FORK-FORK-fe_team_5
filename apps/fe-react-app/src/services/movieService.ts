@@ -101,7 +101,8 @@ export const transformMovieToRequest = (movie: Movie) => {
     director: movie.director ?? "",
     duration: movie.duration ?? 0,
     trailer: movie.trailer ?? "",
-    categoryIds: movie.categoryIds ?? [], // Use categoryIds instead of type
+    categories: movie.categories ?? "",
+    // Use categoryIds instead of type
     description: movie.description ?? "",
     status: movie.status ?? "ACTIVE", // Use string status
     poster: movie.poster ?? "",
@@ -111,6 +112,7 @@ export const transformMovieToRequest = (movie: Movie) => {
 
 export const transformSpotlightResponse = (res: SpotlightResponse) => {
   return {
+    id: res.movie?.id ?? 0,
     name: res.movie?.name ?? "",
     ageRestrict: res.movie?.ageRestrict ?? 13, // Default to minimum allowed age
     fromDate: res.movie?.fromDate ?? "",
@@ -120,7 +122,7 @@ export const transformSpotlightResponse = (res: SpotlightResponse) => {
     director: res.movie?.director ?? "",
     duration: res.movie?.duration ?? 0,
     trailer: res.movie?.trailer ?? "",
-    categoryIds: res.movie?.categories ?? [], // Use categoryIds instead of type
+    categories: res.movie?.categories ?? [], // Use categoryIds instead of type
     description: res.movie?.description ?? "",
     status: res.movie?.status ?? "ACTIVE", // Use string status
     poster: res.movie?.poster ?? "",
