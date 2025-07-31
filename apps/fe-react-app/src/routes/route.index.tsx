@@ -28,6 +28,7 @@ import SpotlightManagement from "@/feature/manager/spotlight/SpotlightManagement
 import StaffManagement from "@/feature/manager/staff/StaffManagement";
 import PaymentReturn from "@/feature/payment/PaymentReturn";
 import StaffBookingManagement from "@/feature/staff/booking/StaffBookingManagement";
+import StaffDashboard from "@/feature/staff/dashboard/StaffDashboard";
 import StaffTicketSales from "@/feature/staff/sales/StaffTicketSales";
 import { MyUserManagement } from "@/feature/userprofile/MyUserManagement";
 import CarouselSection from "@/feature/views/sections/CarouselSection";
@@ -137,15 +138,7 @@ export const AppRoutes = () => (
     <Route element={<RoleRoute allowedRoles={["STAFF"]} />}>
       <Route path={ROUTES.STAFF.ROOT} element={<StaffLayout />}>
         <Route index element={<Navigate to={ROUTES.STAFF.DASHBOARD} replace />} />
-        <Route
-          path={getRelativePath(ROUTES.STAFF.DASHBOARD, ROUTES.STAFF.ROOT)}
-          element={
-            <div className="p-4">
-              <h1 className="text-2xl font-bold">Staff Dashboard</h1>
-              <p>Welcome to staff dashboard!</p>
-            </div>
-          }
-        />
+        <Route path={getRelativePath(ROUTES.STAFF.DASHBOARD, ROUTES.STAFF.ROOT)} element={<StaffDashboard />} />
         <Route path={getRelativePath(ROUTES.STAFF.BOOKING, ROUTES.STAFF.ROOT)} element={<StaffBookingManagement />} />
         <Route path={getRelativePath(ROUTES.STAFF.TICKET_SALES, ROUTES.STAFF.ROOT)} element={<StaffTicketSales />} />
       </Route>
