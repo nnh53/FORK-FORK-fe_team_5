@@ -13,6 +13,10 @@ export const useSnacks = () => {
   return $api.useQuery("get", "/snacks", {});
 };
 
+export const useGetAllSnacks = () => {
+    return $api.useQuery("get", "/snacks", {});
+};
+
 export const useSnack = (id: number) => {
   return $api.useQuery("get", "/snacks/{id}", {
     params: { path: { id } },

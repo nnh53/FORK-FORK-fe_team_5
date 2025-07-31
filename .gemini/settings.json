@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "context7": {
+      "httpUrl": "https://mcp.context7.com/mcp"
+    },
+    "nx-mcp": {
+      "command": "npx",
+      "args": ["nx-mcp@latest"]
+    }
+  }
+}

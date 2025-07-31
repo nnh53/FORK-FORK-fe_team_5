@@ -18,6 +18,10 @@ export const useCombos = () => {
   return $api.useQuery("get", "/combos", {});
 };
 
+export const useGetAllCombos = () => {
+    return $api.useQuery("get", "/combos", {});
+};
+
 /**
  * Hook for creating a new combo
  */
