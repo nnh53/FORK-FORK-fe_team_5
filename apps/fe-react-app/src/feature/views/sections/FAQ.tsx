@@ -1,9 +1,9 @@
+import NavigateButton from "@/components/shared/NavigateButton";
 import React, { forwardRef, useRef, useState } from "react";
 import { useClickOutside } from "../../../hooks/useClickOutside";
 import { FaqFolderGroup } from "../components/FaqFolderGroup";
 import { FAQ_DATA } from "../data/faqData";
 import "../styles/faq.css";
-import NavigateButton from "@/components/shared/NavigateButton";
 
 interface FAQProps {
   className?: string;
