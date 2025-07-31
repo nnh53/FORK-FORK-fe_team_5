@@ -18,19 +18,24 @@ alwaysApply: true
 
 ```bash
 # Start dev server with hot reload
-pnpm nx dev fe-react-app
+pnpm exec nx run dev fe-react-app --disableNxCache --disableRemoteCache --verbose --outputStyle=static
 
 # Typecheck / Build / Lint via Nx cache
-pnpm nx typecheck fe-react-app
-pnpm nx build fe-react-app
-pnpm nx lint fe-react-app
+pnpm exec nx run @fcinema-workspace/fe-react-app:typecheck --disableNxCache --disableRemoteCache --verbose --outputStyle=static
+pnpm exec nx run @fcinema-workspace/fe-react-app:build --disableNxCache --disableRemoteCache --verbose --outputStyle=static
+pnpm exec nx run @fcinema-workspace/fe-react-app:lint --disableNxCache --disableRemoteCache --verbose --outputStyle=static
 
 # Vitest tests
-pnpm nx vitest fe-react-app
+pnpm exec nx run @fcinema-workspace/fe-react-app:vitest --disableNxCache --disableRemoteCache --verbose --outputStyle=static
 ```
+
+Before running any command, ensure you had run `CI=true pnpm install` to sync dependencies.
+Alway run in --disableNxCache --disableRemoteCache --verbose --outputStyle=static mode
+Alway run typecheck build lint successfully before give the user the respond
 
 ## Gotchas & Conventions
 
+- Don't need to manually do useMemo because the source code is already bundled by babel-plugin-react-compiler
 - Use the `@/` import alias instead of long relative paths (configured in `tsconfig.json` & `vite.config.js`).
 - Keep **feature** code UI-only; put data access in **services**.
 - Components = PascalCase; utilities = camelCase.
@@ -53,4 +58,3 @@ pnpm nx vitest fe-react-app
 ---
 
 _Update this file when workflows or folder structures change._
-
