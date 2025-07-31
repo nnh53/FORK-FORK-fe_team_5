@@ -1,7 +1,6 @@
 "use client";
 
 import { NavMenu } from "@/components/magicui/nav-menu";
-import { ThemeToggle } from "@/components/magicui/theme-toggle";
 import AuthAvatar from "@/components/shared/AuthAvatar";
 import { siteConfig } from "@/config/config";
 import Logo from "@/layouts/user/components/Header/components/Logo";
@@ -141,7 +140,6 @@ export function Navbar() {
               <div className="flex items-center space-x-6">
                 <AuthAvatar />
               </div>
-              <ThemeToggle />
               <button
                 className="border-border flex size-8 cursor-pointer items-center justify-center rounded-md border md:hidden"
                 onClick={toggleDrawer}
