@@ -131,7 +131,7 @@ export default function AdminDashboard() {
                   <TableRow>
                     <TableHead className="w-12">#</TableHead>
                     <TableHead>Movie</TableHead>
-                    <TableHead className="text-right">Tickets</TableHead>
+                    <TableHead className="text-right">{`Tickets (Seat)`}</TableHead>
                     <TableHead className="text-right">Revenue</TableHead>
                   </TableRow>
                 </TableHeader>
