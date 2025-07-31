@@ -4,9 +4,10 @@ import type { Receipt } from "@/interfaces/receipt.interface";
 import { queryReceiptTopMovies, queryReceipts } from "@/services/receiptService";
 import { eachDayOfInterval, format, startOfMonth } from "date-fns";
 import { useEffect, useRef, useState } from "react";
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import AdminStatCards from "./components/AdminStatCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";
+import TopMoviesPieChart from "./components/TopMoviesPieChart";
+import TopMoviesRevenuePieChart from "./components/TopMoviesRevenuePieChart";
 
 export default function AdminDashboard() {
   const today = new Date();
@@ -56,40 +57,6 @@ export default function AdminDashboard() {
   });
   const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
 
-  const comboSales = receipts
-    .flatMap((r) => r.items ?? [])
-    .filter((item) => item.type === "COMBO")
-    .reduce(
-      (acc, item) => {
-        const comboName = item.name ?? "Unknown Combo";
-        acc[comboName] = (acc[comboName] || 0) + (item.quantity ?? 0);
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-  console.log("Combo sales:", comboSales);
-
-  const snackSales = receipts
-    .flatMap((r) => r.items ?? [])
-    .filter((item) => item.type === "SNACK")
-    .reduce(
-      (acc, item) => {
-        const snackName = item.name ?? "Unknown Snack";
-        acc[snackName] = (acc[snackName] || 0) + (item.quantity ?? 0);
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-  const pieData = [
-    ...Object.entries(comboSales).map(([name, value]) => ({ name, value, type: "Combo" })),
-    ...Object.entries(snackSales).map(([name, value]) => ({ name, value, type: "Snack" })),
-  ];
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-  const [activeIndex, setActiveIndex] = useState(0);
-
   if (trendingQuery.isLoading || isReceiptLoading) {
     return <LoadingSpinner name="dashboard" />;
   }
@@ -102,7 +69,7 @@ export default function AdminDashboard() {
           <div className="px-4 lg:px-6">
             <RevenueAreaChart data={chartData} />
           </div>
-          <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:gap-8 lg:px-6">
+          <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-3 lg:gap-8 lg:px-6">
             <div className="col-span-1">
               <Table>
                 <TableHeader>
@@ -149,29 +116,10 @@ export default function AdminDashboard() {
               </Table>
             </div>
             <div className="col-span-1">
-              <ResponsiveContainer width="100%" height={400}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    activeIndex={activeIndex}
-                    onMouseEnter={(_, index) => setActiveIndex(index)}
-                    onMouseLeave={() => setActiveIndex(-1)}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              <TopMoviesPieChart />
+            </div>
+            <div className="col-span-1">
+              <TopMoviesRevenuePieChart />
             </div>
           </div>
         </div>
