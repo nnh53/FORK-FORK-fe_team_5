@@ -1,10 +1,9 @@
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { useBookingsByDateRange } from "@/services/bookingService";
-import { queryReceiptTopMovies } from "@/services/receiptService";
+import type { Receipt } from "@/interfaces/receipt.interface";
+import { queryReceiptTopMovies, queryReceipts } from "@/services/receiptService";
 import { eachDayOfInterval, format, startOfMonth } from "date-fns";
-import { useGetAllCombos } from "@/services/comboService";
-import { useGetAllSnacks } from "@/services/snackService";
+import { useEffect, useRef, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import AdminStatCards from "./components/AdminStatCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";
@@ -15,49 +14,69 @@ export default function AdminDashboard() {
   const endDate = format(today, "yyyy-MM-dd");
 
   const trendingQuery = queryReceiptTopMovies(startDate, endDate);
-  const bookingsQuery = useBookingsByDateRange(startDate, endDate);
-  const combosQuery = useGetAllCombos();
-  const snacksQuery = useGetAllSnacks();
+  const receiptMutationRef = useRef(queryReceipts());
 
-  const bookings = bookingsQuery.data?.result ?? [];
-  const combos = combosQuery.data?.result ?? [];
-  const snacks = snacksQuery.data?.result ?? [];
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const [isReceiptLoading, setIsReceiptLoading] = useState(true);
 
-  // Only consider successful bookings for revenue and statistics
-  const successfulBookings = bookings.filter((b) => b.status === "SUCCESS");
+  useEffect(() => {
+    const fetchReceipts = async () => {
+      try {
+        const res = await receiptMutationRef.current.mutateAsync({
+          body: {
+            fromDate: startDate,
+            toDate: endDate,
+          },
+        });
+        if (res?.result) {
+          console.log("Fetched receipts:", res.result);
 
-  const totalRevenue = successfulBookings.reduce((sum, b) => sum + (b.totalPrice ?? 0), 0);
+          setReceipts(res.result);
+        }
+      } finally {
+        setIsReceiptLoading(false);
+      }
+    };
+    fetchReceipts();
+  }, [endDate, startDate]);
 
-  const totalBookings = successfulBookings.length;
+  const totalRevenue = receipts.reduce((sum, r) => sum + (r.totalAmount ?? 0), 0);
 
-  const customers = new Set(successfulBookings.map((b) => b.user?.id)).size;
+  const totalBookings = receipts.length;
+
+  const customers = new Set(receipts.map((r) => r.user?.id)).size;
+
   const trendingMovies = trendingQuery.data?.result ?? [];
 
   const days = eachDayOfInterval({ start: startOfMonth(today), end: today });
   const revenueMap = new Map(days.map((d) => [format(d, "yyyy-MM-dd"), 0]));
-  successfulBookings.forEach((b) => {
-    const date = format(b.bookingDate ? new Date(b.bookingDate) : new Date(), "yyyy-MM-dd");
-    revenueMap.set(date, (revenueMap.get(date) || 0) + (b.totalPrice ?? 0));
+  receipts.forEach((r) => {
+    const date = format(r.issuedAt ? new Date(r.issuedAt) : new Date(), "yyyy-MM-dd");
+    revenueMap.set(date, (revenueMap.get(date) || 0) + (r.totalAmount ?? 0));
   });
   const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
 
-  const comboSales = successfulBookings
-    .flatMap((b) => b.bookingCombos ?? [])
+  const comboSales = receipts
+    .flatMap((r) => r.items ?? [])
+    .filter((item) => item.type === "COMBO")
     .reduce(
-      (acc, combo) => {
-        const comboName = combo.combo?.name ?? "Unknown Combo";
-        acc[comboName] = (acc[comboName] || 0) + (combo.quantity ?? 0);
+      (acc, item) => {
+        const comboName = item.name ?? "Unknown Combo";
+        acc[comboName] = (acc[comboName] || 0) + (item.quantity ?? 0);
         return acc;
       },
       {} as Record<string, number>,
     );
 
-  const snackSales = successfulBookings
-    .flatMap((b) => b.bookingSnacks ?? [])
+  console.log("Combo sales:", comboSales);
+
+  const snackSales = receipts
+    .flatMap((r) => r.items ?? [])
+    .filter((item) => item.type === "SNACK")
     .reduce(
-      (acc, snack) => {
-        const snackName = snack.snack?.name ?? "Unknown Snack";
-        acc[snackName] = (acc[snackName] || 0) + (snack.quantity ?? 0);
+      (acc, item) => {
+        const snackName = item.name ?? "Unknown Snack";
+        acc[snackName] = (acc[snackName] || 0) + (item.quantity ?? 0);
         return acc;
       },
       {} as Record<string, number>,
@@ -69,8 +88,9 @@ export default function AdminDashboard() {
   ];
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  if (trendingQuery.isLoading || bookingsQuery.isLoading || combosQuery.isLoading || snacksQuery.isLoading) {
+  if (trendingQuery.isLoading || isReceiptLoading) {
     return <LoadingSpinner name="dashboard" />;
   }
 
@@ -88,34 +108,22 @@ export default function AdminDashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Combo</TableHead>
+                    <TableHead className="text-right">Sold</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  {combos.map((c, idx) => (
-                    <TableRow key={c.id ?? idx}>
-                      <TableCell>{c.name}</TableCell>
-                      <TableCell className="text-right">{c.price?.toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                <TableBody></TableBody>
                 <TableCaption>Combos</TableCaption>
               </Table>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Snack</TableHead>
+                    <TableHead className="text-right">Sold</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  {snacks.map((s, idx) => (
-                    <TableRow key={s.id ?? idx}>
-                      <TableCell>{s.name}</TableCell>
-                      <TableCell className="text-right">{s.price?.toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                <TableBody></TableBody>
                 <TableCaption>Snacks</TableCaption>
               </Table>
               <Table>
@@ -123,7 +131,7 @@ export default function AdminDashboard() {
                   <TableRow>
                     <TableHead className="w-12">#</TableHead>
                     <TableHead>Movie</TableHead>
-                    <TableHead className="text-right">Tickets</TableHead>
+                    <TableHead className="text-right">{`Tickets (Seat)`}</TableHead>
                     <TableHead className="text-right">Revenue</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -143,7 +151,19 @@ export default function AdminDashboard() {
             <div className="col-span-1">
               <ResponsiveContainer width="100%" height={400}>
                 <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" labelLine={false} outerRadius={80} fill="#8884d8" dataKey="value" label>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    activeIndex={activeIndex}
+                    onMouseEnter={(_, index) => setActiveIndex(index)}
+                    onMouseLeave={() => setActiveIndex(-1)}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label
+                  >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
