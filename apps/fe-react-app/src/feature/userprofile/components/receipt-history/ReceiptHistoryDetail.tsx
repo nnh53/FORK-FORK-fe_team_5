@@ -1,4 +1,3 @@
-import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/Shadcn/ui/dialog";
 import { formatVND } from "@/utils/currency.utils";
@@ -9,6 +8,8 @@ export interface ReceiptDetailProps {
   id: string;
   receiptNumber: string;
   date: string;
+  time?: string; // Thời gian từ issuedAt (HH:mm)
+  issuedAt?: string; // Định dạng ISO (yyyy-MM-ddTHH:mm:ss)
   totalAmount: number;
   paymentMethod: string;
   items: {
@@ -33,26 +34,6 @@ export interface ReceiptDetailProps {
 }
 
 export const ReceiptHistoryDetail: React.FC<{ receipt: ReceiptDetailProps }> = ({ receipt }) => {
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      SUCCESS: { label: "Đã thanh toán", variant: "default" as const, className: "bg-green-500" },
-      PENDING: { label: "Đang xử lý", variant: "outline" as const, className: "" },
-      CANCELLED: { label: "Đã hủy", variant: "destructive" as const, className: "" },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || {
-      label: status,
-      variant: "default" as const,
-      className: "",
-    };
-
-    return (
-      <Badge variant={config.variant} className={config.className}>
-        {config.label}
-      </Badge>
-    );
-  };
-
   const calculateTotal = () => {
     return receipt.items.reduce((total, item) => total + item.price * item.quantity, 0);
   };
@@ -83,7 +64,7 @@ export const ReceiptHistoryDetail: React.FC<{ receipt: ReceiptDetailProps }> = (
             <div className="flex items-center gap-2">
               <CalendarClock className="text-muted-foreground h-4 w-4" />
               <span className="text-sm">
-                Ngày xuất hoá biên lai: {receipt.date} {new Date().toLocaleTimeString("vi-VN")}
+                Ngày xuất hoá đơn: {receipt.date} {receipt.time || ""}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -121,7 +102,7 @@ export const ReceiptHistoryDetail: React.FC<{ receipt: ReceiptDetailProps }> = (
                     <span className="text-sm">Phòng: {receipt.roomName}</span>
                   </div>
                 )}
-                {receipt.ticketCount && receipt.ticketCount > 0 && (
+                {receipt.ticketCount !== undefined && receipt.ticketCount > 0 && (
                   <div className="flex items-center gap-2">
                     <Ticket className="text-muted-foreground h-4 w-4" />
                     <span className="text-sm">Số vé: {receipt.ticketCount}</span>
@@ -150,10 +131,32 @@ export const ReceiptHistoryDetail: React.FC<{ receipt: ReceiptDetailProps }> = (
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Trạng thái:</span>
-            {getStatusBadge(receipt.status)}
-          </div>
+          {/* Thông tin điểm thưởng nếu có */}
+          {!!(receipt.addedPoints || receipt.usedPoints || receipt.refundedPoints) && (
+            <div className="bg-muted/20 rounded-md border p-4">
+              <h4 className="mb-2 font-medium">Thông tin điểm thưởng</h4>
+              <div className="space-y-2">
+                {!!(receipt.addedPoints && receipt.addedPoints > 0) && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Điểm cộng:</span>
+                    <span className="text-sm font-medium text-green-500">+{receipt.addedPoints}</span>
+                  </div>
+                )}
+                {!!(receipt.usedPoints && receipt.usedPoints > 0) && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Điểm sử dụng:</span>
+                    <span className="text-sm font-medium text-orange-500">-{receipt.usedPoints}</span>
+                  </div>
+                )}
+                {!!(receipt.refundedPoints && receipt.refundedPoints > 0) && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Điểm hoàn lại:</span>
+                    <span className="text-sm font-medium text-blue-500">+{receipt.refundedPoints}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
