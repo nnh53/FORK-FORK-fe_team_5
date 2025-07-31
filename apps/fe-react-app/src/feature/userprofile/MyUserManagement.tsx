@@ -1,8 +1,9 @@
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
-import { Film, Info, Receipt } from "lucide-react";
+import { Film, Info, Receipt, Trophy } from "lucide-react";
 import { MovieHistory } from "./components/MovieHistory";
 import { MyInfo } from "./components/MyInfoManagement";
+import PointHistory from "./components/PointHistory";
 import ReceiptHistory from "./components/ReceiptHistory";
 
 interface Tab {
@@ -31,13 +32,19 @@ const tabsData: Tab[] = [
     icon: <Receipt className="h-4 w-4" />,
     component: <ReceiptHistory />,
   },
+  {
+    id: "point-history",
+    label: "LỊCH SỬ ĐIỂM THƯỞNG",
+    icon: <Trophy className="h-4 w-4" />,
+    component: <PointHistory />,
+  },
 ];
 
 export const MyUserManagement: React.FC = () => {
   return (
     <div className="container mx-auto max-w-7xl p-4 md:p-8">
       <Tabs defaultValue="account" className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-3">
+        <TabsList className="mb-6 grid w-full grid-cols-4">
           {tabsData.map((tab) => (
             <TabsTrigger
               key={tab.id}
