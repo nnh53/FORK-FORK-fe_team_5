@@ -1,7 +1,7 @@
 import type { CarouselApi } from "@/components/Shadcn/ui/carousel";
 import { Carousel, CarouselContent, CarouselNext, CarouselPrevious } from "@/components/Shadcn/ui/carousel";
 import { Pointer } from "@/components/magicui/pointer";
-import { queryMoviesForCarousel, transformSpotlightsResponse } from "@/services/movieService";
+import { queryMoviesForCarousel, transformSpotlightsResponse } from "@/services/newSpotlightService";
 import Autoplay from "embla-carousel-autoplay";
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CarouselDotNavigation from "../components/CarouselDotNavigation";

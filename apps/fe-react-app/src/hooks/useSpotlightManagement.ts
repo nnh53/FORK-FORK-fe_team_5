@@ -1,18 +1,14 @@
 import type { Movie } from "@/interfaces/movies.interface";
 import { queryMoviesForTrending, transformMoviesResponse } from "@/services/movieService";
-import {
-  addToSpotlight as addMovieToSpotlight,
-  getSpotlightMovies,
-  initializeSpotlight,
-  isMovieInSpotlight,
-  removeFromSpotlight as removeMovieFromSpotlight,
-  updateSpotlightOrder,
-  type SpotlightMovie,
-} from "@/services/spotlightService";
+import { queryCreateSpotlights, queryGetSpotlightsOrdered, transformSpotlightsBatchToRequest } from "@/services/newSpotlightService";
+import type { SpotlightMovie } from "@/services/spotlightService";
+import type { components } from "@/schema-from-be";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+
+type SpotlightResponse = components["schemas"]["SpotlightResponse"];
 
 export function useSpotlightManagement() {
   const [spotlightMovies, setSpotlightMovies] = useState<SpotlightMovie[]>([]);
@@ -26,37 +22,39 @@ export function useSpotlightManagement() {
   // Use dedicated hook for loading all movies
   const moviesQuery = queryMoviesForTrending();
 
-  // Load spotlight data from localStorage
-  const loadSpotlightData = useCallback(() => {
-    try {
-      const spotlightData = getSpotlightMovies();
-      setSpotlightMovies(spotlightData);
-      setHasUnsavedChanges(false);
-    } catch (error) {
-      console.error("Error loading spotlight data:", error);
-      setError("Failed to load spotlight data");
-    }
+  // Use API to get current spotlights
+  const spotlightsQuery = queryGetSpotlightsOrdered();
+
+  // Mutation for creating new spotlights
+  const createSpotlightsMutation = queryCreateSpotlights();
+
+  // Convert API response to local SpotlightMovie format
+  const convertApiToSpotlightMovie = useCallback((apiData: SpotlightResponse[]): SpotlightMovie[] => {
+    return apiData.map((item, index) => ({
+      ...item.movie,
+      rank: item.order || index + 1,
+      id: item.movie?.id || item.id,
+    }));
   }, []);
 
-  // Initialize data when component mounts
+  // Load spotlight data from API
   useEffect(() => {
-    loadSpotlightData();
-  }, [loadSpotlightData]);
+    if (spotlightsQuery.data?.result) {
+      const spotlightData = convertApiToSpotlightMovie(spotlightsQuery.data.result);
+      setSpotlightMovies(spotlightData);
+      setHasUnsavedChanges(false);
+    }
+    if (spotlightsQuery.error) {
+      setError("Failed to load spotlight data");
+    }
+  }, [spotlightsQuery.data, spotlightsQuery.error, convertApiToSpotlightMovie]);
 
   // Initialize movies from API when data is ready (only for available movies list)
   useEffect(() => {
     try {
-      setIsLoading(true);
       if (moviesQuery.data?.result) {
         const transformedMovies = transformMoviesResponse(moviesQuery.data.result);
         setAvailableMovies(transformedMovies);
-
-        // Initialize spotlight if empty or on first load
-        const currentSpotlight = getSpotlightMovies();
-        if (currentSpotlight.length === 0) {
-          initializeSpotlight(transformedMovies);
-          loadSpotlightData(); // Reload after initialization
-        }
       }
       if (moviesQuery.error) {
         setError("Failed to load movies data");
@@ -64,22 +62,21 @@ export function useSpotlightManagement() {
     } catch (error) {
       console.error("Error processing movies data:", error);
       setError("Failed to process movies data");
-    } finally {
-      setIsLoading(false);
     }
-  }, [moviesQuery.data, moviesQuery.error, loadSpotlightData]);
+  }, [moviesQuery.data, moviesQuery.error]);
 
-  // Listen for spotlight updates from other sources (e.g., other tabs/windows)
+  // Set loading state based on both queries
   useEffect(() => {
-    const handleSpotlightUpdate = () => {
-      loadSpotlightData();
-    };
+    setIsLoading(moviesQuery.isLoading || spotlightsQuery.isLoading);
+  }, [moviesQuery.isLoading, spotlightsQuery.isLoading]);
 
-    window.addEventListener("spotlightUpdated", handleSpotlightUpdate);
-    return () => {
-      window.removeEventListener("spotlightUpdated", handleSpotlightUpdate);
-    };
-  }, [loadSpotlightData]);
+  // Helper function to check if movie is in spotlight
+  const isMovieInSpotlight = useCallback(
+    (movieId: number): boolean => {
+      return spotlightMovies.some((movie) => movie.id === movieId);
+    },
+    [spotlightMovies],
+  );
 
   // Filter available movies based on search term
   const filteredMovies = availableMovies.filter((movie) => movie.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
@@ -112,52 +109,63 @@ export function useSpotlightManagement() {
   // Add a movie to spotlight list
   const handleAddToSpotlight = useCallback(
     (movie: Movie) => {
-      const success = addMovieToSpotlight(movie);
-      if (success) {
-        loadSpotlightData();
-        setHasUnsavedChanges(true); // Adding a movie is a change
-      } else {
-        // Show error message
-        const currentSpotlight = getSpotlightMovies();
-        if (currentSpotlight.length >= 4) {
-          toast.error("Spotlight is full! Maximum 4 movies allowed.");
-        } else {
-          toast.error("Movie is already in spotlight or an error occurred.");
-        }
+      if (isMovieInSpotlight(movie.id || 0)) {
+        toast.error("Movie is already in spotlight.");
+        return;
       }
+
+      const newSpotlightMovie: SpotlightMovie = {
+        ...movie,
+        rank: spotlightMovies.length + 1,
+      };
+
+      setSpotlightMovies((prev) => [...prev, newSpotlightMovie]);
+      setHasUnsavedChanges(true);
+      toast.success("Movie added to spotlight. Remember to save changes!");
     },
-    [loadSpotlightData],
+    [spotlightMovies, isMovieInSpotlight],
   );
 
   // Remove movie from spotlight list
-  const handleRemoveFromSpotlight = useCallback(
-    (movieId: number) => {
-      const success = removeMovieFromSpotlight(movieId);
-      if (success) {
-        loadSpotlightData();
-        setHasUnsavedChanges(true); // Removing a movie is a change
-      } else {
-        toast.error("Failed to remove movie from spotlight.");
-      }
-    },
-    [loadSpotlightData],
-  );
+  const handleRemoveFromSpotlight = useCallback((movieId: number) => {
+    setSpotlightMovies((prev) => {
+      const updated = prev.filter((movie) => movie.id !== movieId);
+      // Re-rank remaining movies
+      return updated.map((movie, index) => ({
+        ...movie,
+        rank: index + 1,
+      }));
+    });
+    setHasUnsavedChanges(true);
+    toast.success("Movie removed from spotlight. Remember to save changes!");
+  }, []);
 
-  // Handle save changes
-  const handleSaveChanges = useCallback(() => {
+  // Handle save changes - POST new spotlight list to server
+  const handleSaveChanges = useCallback(async () => {
     try {
-      const success = updateSpotlightOrder(spotlightMovies);
-      if (success) {
-        setHasUnsavedChanges(false);
-        toast.success("Spotlight changes saved successfully!");
-      } else {
-        toast.error("Failed to save changes. Please try again.");
-      }
+      // Convert current spotlight movies to API format
+      const spotlightRequests = transformSpotlightsBatchToRequest(
+        spotlightMovies.map((movie, index) => ({
+          movieId: movie.id || 0,
+          order: index + 1,
+        })),
+      );
+
+      // Call API to create new spotlight list
+      await createSpotlightsMutation.mutateAsync({
+        body: spotlightRequests,
+      });
+
+      setHasUnsavedChanges(false);
+      toast.success("Spotlight changes saved successfully!");
+
+      // Refetch spotlight data to sync with server
+      spotlightsQuery.refetch();
     } catch (error) {
       console.error("Error saving spotlight data:", error);
       toast.error("Failed to save changes. Please try again.");
     }
-  }, [spotlightMovies]);
+  }, [spotlightMovies, createSpotlightsMutation, spotlightsQuery]);
 
   return {
     spotlightMovies,

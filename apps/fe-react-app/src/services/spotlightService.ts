@@ -140,3 +140,4 @@ export const isMovieInSpotlight = (movieId: number): boolean => {
   const spotlight = getSpotlightMovies();
   return spotlight.some((movie) => movie.id === movieId);
 };
+

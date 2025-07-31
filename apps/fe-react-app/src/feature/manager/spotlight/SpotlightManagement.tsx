@@ -60,7 +60,7 @@ export function SpotlightManagement() {
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="list">Spotlight List ({spotlightMovies.length}/4)</TabsTrigger>
+              <TabsTrigger value="list">Spotlight List ({spotlightMovies.length})</TabsTrigger>
               <TabsTrigger value="add">Add Movies</TabsTrigger>
             </TabsList>
 
