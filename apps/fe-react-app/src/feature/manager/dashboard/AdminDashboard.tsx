@@ -29,8 +29,6 @@ export default function AdminDashboard() {
           },
         });
         if (res?.result) {
-          console.log("Fetched receipts:", res.result);
-
           setReceipts(res.result);
         }
       } finally {
@@ -62,13 +60,16 @@ export default function AdminDashboard() {
     .reduce(
       (acc, item) => {
         const comboName = item.name ?? "Unknown Combo";
-        acc[comboName] = (acc[comboName] || 0) + (item.quantity ?? 0);
+        if (!acc[comboName]) {
+          acc[comboName] = { sold: 0, price: item.unitPrice ?? 0 };
+        }
+        acc[comboName].sold += item.quantity ?? 0;
+        // Update price in case backend changes, but keep first value as default
+        if (item.unitPrice !== undefined) acc[comboName].price = item.unitPrice;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, { sold: number; price: number }>,
     );
-
-  console.log("Combo sales:", comboSales);
 
   const snackSales = receipts
     .flatMap((r) => r.items ?? [])
@@ -76,15 +77,27 @@ export default function AdminDashboard() {
     .reduce(
       (acc, item) => {
         const snackName = item.name ?? "Unknown Snack";
-        acc[snackName] = (acc[snackName] || 0) + (item.quantity ?? 0);
+        if (!acc[snackName]) {
+          acc[snackName] = { sold: 0, price: item.unitPrice ?? 0 };
+        }
+        acc[snackName].sold += item.quantity ?? 0;
+        if (item.unitPrice !== undefined) acc[snackName].price = item.unitPrice;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, { sold: number; price: number }>,
     );
 
+  const comboTableData = Object.entries(comboSales)
+    .map(([name, stats]) => ({ name, ...stats }))
+    .sort((a, b) => b.sold - a.sold);
+
+  const snackTableData = Object.entries(snackSales)
+    .map(([name, stats]) => ({ name, ...stats }))
+    .sort((a, b) => b.sold - a.sold);
+
   const pieData = [
-    ...Object.entries(comboSales).map(([name, value]) => ({ name, value, type: "Combo" })),
-    ...Object.entries(snackSales).map(([name, value]) => ({ name, value, type: "Snack" })),
+    ...comboTableData.map(({ name, sold }) => ({ name, value: sold, type: "Combo" })),
+    ...snackTableData.map(({ name, sold }) => ({ name, value: sold, type: "Snack" })),
   ];
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
@@ -112,7 +125,15 @@ export default function AdminDashboard() {
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody></TableBody>
+                <TableBody>
+                  {comboTableData.map((c) => (
+                    <TableRow key={c.name}>
+                      <TableCell>{c.name}</TableCell>
+                      <TableCell className="text-right">{c.sold}</TableCell>
+                      <TableCell className="text-right">{c.price?.toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
                 <TableCaption>Combos</TableCaption>
               </Table>
               <Table>
@@ -123,7 +144,15 @@ export default function AdminDashboard() {
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody></TableBody>
+                <TableBody>
+                  {snackTableData.map((s) => (
+                    <TableRow key={s.name}>
+                      <TableCell>{s.name}</TableCell>
+                      <TableCell className="text-right">{s.sold}</TableCell>
+                      <TableCell className="text-right">{s.price?.toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
                 <TableCaption>Snacks</TableCaption>
               </Table>
               <Table>
