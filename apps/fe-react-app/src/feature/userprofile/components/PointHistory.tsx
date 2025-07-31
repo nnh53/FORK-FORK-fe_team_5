@@ -1,5 +1,4 @@
-import { Button } from "@/components/Shadcn/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/Shadcn/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { Form, FormField } from "@/components/Shadcn/ui/form";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,7 +7,7 @@ import { queryReceipts } from "@/services/receipService";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
 import { format, subDays } from "date-fns";
 import { vi } from "date-fns/locale";
-import { Loader2, Search, Trophy } from "lucide-react";
+import { Loader2, Trophy } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { PointHistoryProps } from "./point-history/PointHistoryDetail";
@@ -17,7 +16,6 @@ import { PointHistoryTable } from "./point-history/PointHistoryTable";
 interface PointHistoryFormValues {
   fromDate: Date;
   toDate: Date;
-  pointType: "ADDING" | "USING" | "ALL";
 }
 
 const PointHistory: React.FC = () => {
@@ -25,7 +23,6 @@ const PointHistory: React.FC = () => {
     defaultValues: {
       fromDate: subDays(new Date(), 90),
       toDate: new Date(),
-      pointType: "ALL",
     },
   });
 
@@ -80,11 +77,6 @@ const PointHistory: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  // Handle form submission
-  const onSubmit = (values: PointHistoryFormValues) => {
-    fetchReceipts(values);
-  };
-
   // Transform API data to display format for point history
   const pointHistory = useMemo(() => {
     if (!apiReceipts.length) {
@@ -97,39 +89,38 @@ const PointHistory: React.FC = () => {
       const formattedDate = receipt.issuedAt ? format(new Date(receipt.issuedAt), "dd/MM/yyyy", { locale: vi }) : "Không xác định";
       const movieName = receipt.movieName || "Không có thông tin phim";
 
-      // Lọc theo loại điểm (thêm/sử dụng/tất cả)
-      const pointType = form.getValues().pointType;
-
-      // Thêm điểm
-      if (receipt.addedPoints && receipt.addedPoints > 0 && (pointType === "ADDING" || pointType === "ALL")) {
+      // Trường hợp vừa thêm vừa sử dụng điểm trong cùng một giao dịch
+      if (receipt.addedPoints && receipt.addedPoints > 0 && receipt.usedPoints && receipt.usedPoints > 0) {
+        pointRecords.push({
+          id: `both-${receipt.id}`,
+          date: formattedDate,
+          movieName: movieName,
+          points: receipt.addedPoints - receipt.usedPoints, // Điểm ròng
+          pointType: "BOTH",
+          addedPoints: receipt.addedPoints,
+          usedPoints: receipt.usedPoints,
+        });
+      }
+      // Chỉ thêm điểm
+      else if (receipt.addedPoints && receipt.addedPoints > 0) {
         pointRecords.push({
           id: `add-${receipt.id}`,
           date: formattedDate,
           movieName: movieName,
           points: receipt.addedPoints,
           pointType: "ADDING",
+          addedPoints: receipt.addedPoints,
         });
       }
-
-      // Sử dụng điểm
-      if (receipt.usedPoints && receipt.usedPoints > 0 && (pointType === "USING" || pointType === "ALL")) {
+      // Chỉ sử dụng điểm
+      else if (receipt.usedPoints && receipt.usedPoints > 0) {
         pointRecords.push({
           id: `use-${receipt.id}`,
           date: formattedDate,
           movieName: movieName,
           points: receipt.usedPoints,
           pointType: "USING",
-        });
-      }
-
-      // Hoàn điểm
-      if (receipt.refundedPoints && receipt.refundedPoints > 0 && pointType === "ALL") {
-        pointRecords.push({
-          id: `refund-${receipt.id}`,
-          date: formattedDate,
-          movieName: movieName,
-          points: receipt.refundedPoints,
-          pointType: "REFUND",
+          usedPoints: receipt.usedPoints,
         });
       }
     });
@@ -140,7 +131,7 @@ const PointHistory: React.FC = () => {
       const dateB = new Date(b.date.split("/").reverse().join("-"));
       return dateB.getTime() - dateA.getTime();
     });
-  }, [apiReceipts, form]);
+  }, [apiReceipts]);
 
   // Loading state
   if (isLoading) {
@@ -188,81 +179,52 @@ const PointHistory: React.FC = () => {
         <h1 className="text-3xl font-bold">Lịch sử điểm thưởng</h1>
       </div>
 
-      {/* Point History Filter Form - Compact Design */}
-      <Card className="overflow-hidden">
-        <CardContent className="p-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              {/* Date Range Selection */}
-              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                <div className="grid w-full grid-cols-2 gap-2 sm:w-auto">
-                  <FormField
-                    control={form.control}
-                    name="fromDate"
-                    render={({ field }: { field: { value: Date; onChange: (date: Date) => void } }) => (
-                      <DatePicker date={field.value} setDate={(date) => date && field.onChange(date)} placeholder="Từ ngày" />
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="toDate"
-                    render={({ field }: { field: { value: Date; onChange: (date: Date) => void } }) => (
-                      <DatePicker date={field.value} setDate={(date) => date && field.onChange(date)} placeholder="Đến ngày" />
-                    )}
-                  />
-                </div>
-
-                <div className="flex w-full justify-start sm:w-auto">
-                  {/* Point Type Buttons */}
-                  <FormField
-                    control={form.control}
-                    name="pointType"
-                    render={({ field }: { field: { value: string; onChange: (value: string) => void } }) => (
-                      <div className="bg-muted flex rounded-md p-1">
-                        <Button
-                          type="button"
-                          variant={field.value === "ALL" ? "default" : "ghost"}
-                          onClick={() => field.onChange("ALL")}
-                          className="h-8 rounded-sm text-sm"
-                        >
-                          Tất cả
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={field.value === "ADDING" ? "default" : "ghost"}
-                          onClick={() => field.onChange("ADDING")}
-                          className="h-8 rounded-sm text-sm"
-                        >
-                          Cộng điểm
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={field.value === "USING" ? "default" : "ghost"}
-                          onClick={() => field.onChange("USING")}
-                          className="h-8 rounded-sm text-sm"
-                        >
-                          Sử dụng
-                        </Button>
-                      </div>
-                    )}
-                  />
-                </div>
-
-                {/* Search Button */}
-                <Button type="submit" className="ml-auto bg-red-600 text-white hover:bg-red-700">
-                  <Search className="mr-2 h-4 w-4" />
-                  Tìm kiếm
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-
-      {/* Point History Table */}
+      {/* Point History Table with Filters in CardHeader */}
       <Card>
         <CardHeader>
-          <CardDescription>Danh sách lịch sử điểm thưởng của bạn tại FCinema</CardDescription>
+          <div className="flex items-center justify-between">
+            <CardTitle>Lịch sử điểm thưởng của bạn tại FCinema</CardTitle>
+            <div className="mt-4">
+              <Form {...form}>
+                <div className="flex flex-wrap items-start gap-4">
+                  <div className="grid min-w-[240px] grid-cols-2 gap-2">
+                    <FormField
+                      control={form.control}
+                      name="fromDate"
+                      render={({ field }: { field: { value: Date; onChange: (date: Date) => void } }) => (
+                        <DatePicker
+                          date={field.value}
+                          setDate={(date) => {
+                            if (date) {
+                              field.onChange(date);
+                              fetchReceipts(form.getValues());
+                            }
+                          }}
+                          placeholder="Từ ngày"
+                        />
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="toDate"
+                      render={({ field }: { field: { value: Date; onChange: (date: Date) => void } }) => (
+                        <DatePicker
+                          date={field.value}
+                          setDate={(date) => {
+                            if (date) {
+                              field.onChange(date);
+                              fetchReceipts(form.getValues());
+                            }
+                          }}
+                          placeholder="Đến ngày"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              </Form>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <PointHistoryTable pointHistory={pointHistory} />

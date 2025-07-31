@@ -9,15 +9,17 @@ export interface PointHistoryProps {
   date: string; // Ngày đi coi phim
   movieName: string;
   points: number; // Số điểm thưởng (dương nếu thêm, âm nếu sử dụng)
-  pointType: "ADDING" | "USING" | "REFUND"; // Loại điểm thưởng
+  pointType: "ADDING" | "USING" | "BOTH"; // Loại điểm thưởng (thêm BOTH cho trường hợp vừa cộng vừa trừ)
+  addedPoints?: number; // Số điểm được cộng (trường hợp ADDING hoặc BOTH)
+  usedPoints?: number; // Số điểm đã sử dụng (trường hợp USING hoặc BOTH)
 }
 
 export const PointHistoryDetail: React.FC<{ point: PointHistoryProps }> = ({ point }) => {
   const getPointBadge = (pointType: string) => {
     const pointConfig = {
-      ADDING: { label: "Cộng điểm", variant: "default" as const, className: "bg-green-500" },
+      ADDING: { label: "Cộng điểm", variant: "outline" as const, className: "text-green-500" },
       USING: { label: "Sử dụng điểm", variant: "outline" as const, className: "text-orange-500" },
-      REFUND: { label: "Hoàn điểm", variant: "outline" as const, className: "text-blue-500" },
+      BOTH: { label: "Điểm thành viên", variant: "outline" as const, className: "text-purple-500" },
     };
 
     const config = pointConfig[pointType as keyof typeof pointConfig] || {
@@ -34,11 +36,20 @@ export const PointHistoryDetail: React.FC<{ point: PointHistoryProps }> = ({ poi
   };
 
   const getPointsDisplay = () => {
-    if (point.pointType === "ADDING" || point.pointType === "REFUND") {
+    if (point.pointType === "ADDING") {
       return <span className="font-medium text-green-500">+{point.points}</span>;
-    } else {
+    } else if (point.pointType === "USING") {
       return <span className="font-medium text-orange-500">-{Math.abs(point.points)}</span>;
+    } else if (point.pointType === "BOTH") {
+      // Trường hợp vừa cộng vừa trừ
+      const netPoints = (point.addedPoints || 0) - (point.usedPoints || 0);
+      if (netPoints > 0) {
+        return <span className="font-medium text-green-500">+{netPoints}</span>;
+      } else {
+        return <span className="font-medium text-orange-500">{netPoints}</span>;
+      }
     }
+    return <span className="font-medium">{point.points}</span>;
   };
 
   return (
@@ -53,30 +64,63 @@ export const PointHistoryDetail: React.FC<{ point: PointHistoryProps }> = ({ poi
           <DialogTitle>Chi tiết điểm thưởng</DialogTitle>
           <DialogDescription>Thông tin chi tiết về điểm thưởng</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <Trophy className="text-primary h-12 w-12" />
-            <div>
-              <h3 className="font-medium">Điểm thưởng: {getPointsDisplay()}</h3>
-              <p className="text-muted-foreground text-sm">ID: {point.id}</p>
-            </div>
-          </div>
-
-          {/* Thông tin chung */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <CalendarClock className="text-muted-foreground h-4 w-4" />
-              <span className="text-sm">Ngày: {point.date}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Film className="text-muted-foreground h-4 w-4" />
-              <span className="text-sm">Phim: {point.movieName}</span>
-            </div>
-          </div>
-
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Loại:</span>
+            <div className="flex items-center gap-3">
+              <Trophy className="text-primary h-12 w-12" />
+              <div>
+                <p className="text-muted-foreground text-sm">Mã giao dịch: {point.id}</p>
+                <h3 className="font-medium">{point.movieName}</h3>
+              </div>
+            </div>
             {getPointBadge(point.pointType)}
+          </div>
+
+          <div className="bg-muted/20 space-y-4 rounded-md border p-4">
+            {/* Thông tin chung */}
+            <div className="flex items-center gap-3">
+              <CalendarClock className="text-muted-foreground h-5 w-5" />
+              <div>
+                <p className="text-sm font-medium">Ngày giao dịch</p>
+                <p className="text-muted-foreground text-sm">{point.date}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Film className="text-muted-foreground h-5 w-5" />
+              <div>
+                <p className="text-sm font-medium">Phim</p>
+                <p className="text-muted-foreground text-sm">{point.movieName}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Chi tiết điểm thưởng */}
+          <div className="border-t pt-4">
+            {point.pointType === "BOTH" ? (
+              <div className="space-y-3">
+                {/* Hiển thị cả điểm cộng và điểm trừ */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Điểm thưởng:</span>
+                  <span className="font-medium text-green-500">+{point.addedPoints}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Điểm đã sử dụng:</span>
+                  <span className="font-medium text-orange-500">-{point.usedPoints}</span>
+                </div>
+                <div className="flex items-center justify-between border-t pt-2">
+                  <span className="text-sm font-medium">Tổng cộng:</span>
+                  <div className="text-xl font-bold">{getPointsDisplay()}</div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-sm font-medium">{point.pointType === "USING" ? "Điểm đã sử dụng:" : "Điểm thưởng:"}</span>
+                </div>
+                <div className="text-xl font-bold">{getPointsDisplay()}</div>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>
