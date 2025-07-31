@@ -1,13 +1,13 @@
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { useBookingsByDateRange } from "@/services/bookingService";
+import { useGetAllCombos } from "@/services/comboService";
 import { queryReceiptTopMovies } from "@/services/receipService";
-import { format, startOfMonth, eachDayOfInterval } from "date-fns";
+import { useGetAllSnacks } from "@/services/snackService";
+import { eachDayOfInterval, format, startOfMonth } from "date-fns";
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import AdminStatCards from "./components/AdminStatCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";
-import { useGetAllCombos } from "@/services/comboService";
-import { useGetAllSnacks } from "@/services/snackService";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function AdminDashboard() {
   const today = new Date();
@@ -26,10 +26,7 @@ export default function AdminDashboard() {
   // Only consider successful bookings for revenue and statistics
   const successfulBookings = bookings.filter((b) => b.status === "SUCCESS");
 
-  const totalRevenue = successfulBookings.reduce(
-    (sum, b) => sum + (b.totalPrice ?? 0),
-    0,
-  );
+  const totalRevenue = successfulBookings.reduce((sum, b) => sum + (b.totalPrice ?? 0), 0);
 
   const totalBookings = successfulBookings.length;
 
@@ -39,32 +36,39 @@ export default function AdminDashboard() {
   const days = eachDayOfInterval({ start: startOfMonth(today), end: today });
   const revenueMap = new Map(days.map((d) => [format(d, "yyyy-MM-dd"), 0]));
   successfulBookings.forEach((b) => {
-    const date = format(
-      b.bookingDate ? new Date(b.bookingDate) : new Date(),
-      "yyyy-MM-dd",
-    );
+    const date = format(b.bookingDate ? new Date(b.bookingDate) : new Date(), "yyyy-MM-dd");
     revenueMap.set(date, (revenueMap.get(date) || 0) + (b.totalPrice ?? 0));
   });
   const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
 
-  const comboSales = successfulBookings.flatMap(b => b.bookingCombos ?? []).reduce((acc, combo) => {
-    const comboName = combo.combo?.name ?? "Unknown Combo";
-    acc[comboName] = (acc[comboName] || 0) + (combo.quantity ?? 0);
-    return acc;
-  }, {} as Record<string, number>);
+  const comboSales = successfulBookings
+    .flatMap((b) => b.bookingCombos ?? [])
+    .reduce(
+      (acc, combo) => {
+        const comboName = combo.combo?.name ?? "Unknown Combo";
+        acc[comboName] = (acc[comboName] || 0) + (combo.quantity ?? 0);
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
-  const snackSales = successfulBookings.flatMap(b => b.bookingSnacks ?? []).reduce((acc, snack) => {
-    const snackName = snack.snack?.name ?? "Unknown Snack";
-    acc[snackName] = (acc[snackName] || 0) + (snack.quantity ?? 0);
-    return acc;
-    }, {} as Record<string, number>);
+  const snackSales = successfulBookings
+    .flatMap((b) => b.bookingSnacks ?? [])
+    .reduce(
+      (acc, snack) => {
+        const snackName = snack.snack?.name ?? "Unknown Snack";
+        acc[snackName] = (acc[snackName] || 0) + (snack.quantity ?? 0);
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
   const pieData = [
-    ...Object.entries(comboSales).map(([name, value]) => ({ name, value, type: 'Combo' })),
-    ...Object.entries(snackSales).map(([name, value]) => ({ name, value, type: 'Snack' })),
+    ...Object.entries(comboSales).map(([name, value]) => ({ name, value, type: "Combo" })),
+    ...Object.entries(snackSales).map(([name, value]) => ({ name, value, type: "Snack" })),
   ];
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
   if (trendingQuery.isLoading || bookingsQuery.isLoading || combosQuery.isLoading || snacksQuery.isLoading) {
     return <LoadingSpinner name="dashboard" />;
@@ -139,16 +143,7 @@ export default function AdminDashboard() {
             <div className="col-span-1">
               <ResponsiveContainer width="100%" height={400}>
                 <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label
-                  >
+                  <Pie data={pieData} cx="50%" cy="50%" labelLine={false} outerRadius={80} fill="#8884d8" dataKey="value" label>
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}

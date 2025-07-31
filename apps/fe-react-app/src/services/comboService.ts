@@ -19,7 +19,7 @@ export const useCombos = () => {
 };
 
 export const useGetAllCombos = () => {
-    return $api.useQuery("get", "/combos", {});
+  return $api.useQuery("get", "/combos", {});
 };
 
 /**

@@ -14,7 +14,7 @@ export const useSnacks = () => {
 };
 
 export const useGetAllSnacks = () => {
-    return $api.useQuery("get", "/snacks", {});
+  return $api.useQuery("get", "/snacks", {});
 };
 
 export const useSnack = (id: number) => {
