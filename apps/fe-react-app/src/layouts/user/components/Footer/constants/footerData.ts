@@ -8,15 +8,15 @@ export interface FooterLink {
 }
 
 export const quickLinks: FooterLink[] = [
-  { label: "Home", href: "#home" },
+  { label: "Home", href: "#" },
+  { label: "Theaters", href: "#features" },
   { label: "Movies", href: "#movies" },
-  { label: "Chairs", href: "#theaters" },
-  { label: "Offers", href: "#offers" },
+  { label: "Trending", href: "#trending" },
 ];
 
 export const supportLinks: FooterLink[] = [
-  { label: "FAQs", href: "#" },
+  { label: "FAQs", to: ROUTES.FAQ },
   { label: "Terms of Service", to: ROUTES.TERM_OF_SERVICE },
   { label: "Privacy Policy", to: ROUTES.PRIVACY_POLICY },
-  { label: "Contact Us", href: "#" },
+  { label: "About Us", to: ROUTES.ABOUT },
 ];

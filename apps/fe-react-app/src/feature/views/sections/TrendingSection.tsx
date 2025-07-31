@@ -293,45 +293,47 @@ const MovieRankingItem = ({
   }
 
   return (
-    <div
-      className={`flex cursor-pointer items-center space-x-6 rounded-lg border p-4 backdrop-blur-sm transition-all duration-300 ${itemClassName}`}
-      onClick={onClick}
-      // onMouseEnter={onMouseEnter}
-      onMouseOver={onMouseHover}
-    >
-      {/* Movie Poster */}
-      <div className="flex-shrink-0">
-        <Image
-          src={movie.poster || "/placeholder-movie.jpg"}
-          alt={movie.name}
-          layout="constrained"
-          width={64}
-          height={96}
-          className="h-24 w-16 rounded-lg object-cover"
-          loading="lazy"
-        />
-      </div>
-
-      {/* Rank Number */}
-      <div className={`w-12 text-center text-4xl font-bold transition-colors duration-300 ${isHighlighted ? "text-red-300" : "text-red-400"}`}>
-        {movie.rank.toString().padStart(2, "0")}
-      </div>
-
-      {/* Movie Info */}
-      <div className="flex-1 space-y-2">
-        <h4 className="line-clamp-1 text-xl font-semibold text-white">{movie.name}</h4>
-        <p className="text-sm text-gray-300">
-          {primaryCategory}, {genres}
-        </p>
-      </div>
-
-      {/* Highlighted Indicator */}
-      {isHighlighted && (
+    <section id="trending">
+      <div
+        className={`flex cursor-pointer items-center space-x-6 rounded-lg border p-4 backdrop-blur-sm transition-all duration-300 ${itemClassName}`}
+        onClick={onClick}
+        // onMouseEnter={onMouseEnter}
+        onMouseOver={onMouseHover}
+      >
+        {/* Movie Poster */}
         <div className="flex-shrink-0">
-          <div className="h-3 w-3 animate-pulse rounded-full bg-red-400" />
+          <Image
+            src={movie.poster || "/placeholder-movie.jpg"}
+            alt={movie.name}
+            layout="constrained"
+            width={64}
+            height={96}
+            className="h-24 w-16 rounded-lg object-cover"
+            loading="lazy"
+          />
         </div>
-      )}
-    </div>
+
+        {/* Rank Number */}
+        <div className={`w-12 text-center text-4xl font-bold transition-colors duration-300 ${isHighlighted ? "text-red-300" : "text-red-400"}`}>
+          {movie.rank.toString().padStart(2, "0")}
+        </div>
+
+        {/* Movie Info */}
+        <div className="flex-1 space-y-2">
+          <h4 className="line-clamp-1 text-xl font-semibold text-white">{movie.name}</h4>
+          <p className="text-sm text-gray-300">
+            {primaryCategory}, {genres}
+          </p>
+        </div>
+
+        {/* Highlighted Indicator */}
+        {isHighlighted && (
+          <div className="flex-shrink-0">
+            <div className="h-3 w-3 animate-pulse rounded-full bg-red-400" />
+          </div>
+        )}
+      </div>
+    </section>
   );
 };
 

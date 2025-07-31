@@ -3,6 +3,7 @@ import { useClickOutside } from "../../../hooks/useClickOutside";
 import { FaqFolderGroup } from "../components/FaqFolderGroup";
 import { FAQ_DATA } from "../data/faqData";
 import "../styles/faq.css";
+import NavigateButton from "@/components/shared/NavigateButton";
 
 interface FAQProps {
   className?: string;
@@ -97,6 +98,9 @@ const FAQ = forwardRef<HTMLElement, FAQProps>(({ className }, ref) => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="mt-8 text-center">
+        <NavigateButton to="/" text="Trở về Trang chủ" />
       </div>
     </section>
   );
