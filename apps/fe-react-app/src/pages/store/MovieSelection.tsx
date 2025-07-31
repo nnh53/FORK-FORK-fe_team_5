@@ -258,12 +258,12 @@ function MovieSelection() {
   return (
     <div id="movies">
       {/* Movie Search Section */}
-      <div className="mx-auto max-w-4xl px-4 py-8">
-        <div className="mb-6 text-center"></div>
-        <MovieSearch onMovieSelect={handleMovieSearchSelect} placeholder="Nhập tên phim để tìm kiếm..." className="mx-auto max-w-md" />
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="mb-4 text-center sm:mb-6"></div>
+        <MovieSearch onMovieSelect={handleMovieSearchSelect} placeholder="Nhập tên phim để tìm kiếm..." className="mx-auto max-w-xs sm:max-w-md" />
       </div>
       {/* Tabs Section (TrueFocus) */}
-      <div className="mx-auto max-w-7xl py-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <TrueFocus
           sentence="NOW UPCOMING ALL"
           blurAmount={2}
@@ -273,17 +273,17 @@ function MovieSelection() {
           onSelect={(index) => setActiveTab(TAB_KEYS[index])}
         />
 
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           {activeTab === "nowshowing" && (
             <>
               {nowShowingLoading && (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-lg text-white">Đang tải phim đang chiếu...</div>
+                <div className="flex items-center justify-center py-8 sm:py-12">
+                  <div className="text-base text-white sm:text-lg">Đang tải phim đang chiếu...</div>
                 </div>
               )}
               {nowShowingError && (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-lg text-red-500">Có lỗi xảy ra khi tải danh sách phim đang chiếu</div>
+                <div className="flex items-center justify-center py-8 sm:py-12">
+                  <div className="text-base text-red-500 sm:text-lg">Có lỗi xảy ra khi tải danh sách phim đang chiếu</div>
                 </div>
               )}
               {!nowShowingLoading && !nowShowingError && (
@@ -291,6 +291,7 @@ function MovieSelection() {
                   horizontal={true}
                   movies={nowShowingMovies}
                   cardsPerRow={4}
+                  showScrollButtons={true}
                   onPosterClick={handlePosterClick}
                   onTitleClick={handleTitleClick}
                   onMovieBuyTicketClick={handleBuyTicketClick}
@@ -302,13 +303,13 @@ function MovieSelection() {
           {activeTab === "upcoming" && (
             <>
               {upcomingLoading && (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-lg text-white">Đang tải phim sắp chiếu...</div>
+                <div className="flex items-center justify-center py-8 sm:py-12">
+                  <div className="text-base text-white sm:text-lg">Đang tải phim sắp chiếu...</div>
                 </div>
               )}
               {upcomingError && (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-lg text-red-500">Có lỗi xảy ra khi tải danh sách phim sắp chiếu</div>
+                <div className="flex items-center justify-center py-8 sm:py-12">
+                  <div className="text-base text-red-500 sm:text-lg">Có lỗi xảy ra khi tải danh sách phim sắp chiếu</div>
                 </div>
               )}
               {!upcomingLoading && !upcomingError && (
@@ -316,6 +317,7 @@ function MovieSelection() {
                   horizontal={true}
                   movies={upcomingMovies}
                   cardsPerRow={4}
+                  showScrollButtons={true}
                   onPosterClick={handlePosterClick}
                   onTitleClick={handleTitleClick}
                   onMovieBuyTicketClick={handleBuyTicketClick}
@@ -329,6 +331,7 @@ function MovieSelection() {
               horizontal={true}
               movies={movies}
               cardsPerRow={4}
+              showScrollButtons={true}
               onPosterClick={handlePosterClick}
               onTitleClick={handleTitleClick}
               onMovieBuyTicketClick={handleBuyTicketClick}
