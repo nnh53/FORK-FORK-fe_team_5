@@ -7,6 +7,7 @@ import { Label } from "@/components/Shadcn/ui/label";
 import { Separator } from "@/components/Shadcn/ui/separator";
 import { FormField, SelectField } from "@/components/shared/forms";
 import { CITIES, GENDERS, type UserFormData } from "@/constants/profile";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useImageUploadAndUpdate } from "@/hooks/useImageUploadAndUpdate";
 import { useUpdateUserData, useUserData } from "@/hooks/userProfile";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
@@ -48,6 +49,9 @@ export const MyInfo: React.FC = () => {
     },
     [setUserInfo],
   );
+
+  // Use media query to detect small screens
+  const isSmallScreen = useMediaQuery("(max-width: 520px)");
 
   const handleSave = useCallback(() => {
     if (!userId) return;
@@ -125,7 +129,7 @@ export const MyInfo: React.FC = () => {
           <CardDescription>Cập nhật ảnh đại diện của bạn</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
+          <div className={`flex ${isSmallScreen ? "flex-col" : "items-center justify-between"} gap-6`}>
             <div className="flex items-center gap-6">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={userInfo.img} />
@@ -150,7 +154,7 @@ export const MyInfo: React.FC = () => {
             </div>
 
             {/* Loyalty Points Display */}
-            <div className="p-4">
+            <div className={`p-4 ${isSmallScreen ? "mx-auto" : ""}`}>
               <div className="flex flex-col items-center space-y-2">
                 <Badge variant="secondary" className="px-3 py-1">
                   <Gem className="text-primary mr-1 h-4 w-4" />

@@ -2,9 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui
 import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { Form, FormField } from "@/components/Shadcn/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useAuth } from "@/hooks/useAuth";
 import type { Receipt, ReceiptFilterRequest } from "@/interfaces/receipt.interface";
-import { queryReceipts } from "@/services/receipService";
+import { queryReceipts } from "@/services/receiptService";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
 import { format, subDays } from "date-fns";
 import { Loader2, Receipt as ReceiptIcon } from "lucide-react";
@@ -40,6 +41,9 @@ const ReceiptHistory: React.FC = () => {
 
   // Sử dụng useRef để theo dõi việc đã fetch hay chưa, tránh fetch nhiều lần
   const hasFetchedRef = useRef(false);
+
+  // Use media query to detect small screens
+  const isSmallScreen = useMediaQuery("(max-width: 640px)");
 
   // Fetch receipts function
   const fetchReceipts = async (values: ReceiptHistoryFormValues) => {
@@ -223,10 +227,10 @@ const ReceiptHistory: React.FC = () => {
       {/* Receipt History List with Filters in CardHeader */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className={`flex ${isSmallScreen ? "flex-col" : "items-center justify-between"}`}>
             <CardTitle>Danh sách các giao dịch của bạn tại FCinema</CardTitle>
 
-            <div className="mt-4">
+            <div className={`${isSmallScreen ? "mt-4 w-full" : "mt-0"}`}>
               <Form {...form}>
                 <div className="flex flex-wrap items-start gap-4">
                   <div className="grid min-w-[240px] grid-cols-2 gap-2">

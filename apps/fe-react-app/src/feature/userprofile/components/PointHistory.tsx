@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { Form, FormField } from "@/components/Shadcn/ui/form";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useAuth } from "@/hooks/useAuth";
 import type { Receipt, ReceiptFilterRequest } from "@/interfaces/receipt.interface";
-import { queryReceipts } from "@/services/receipService";
+import { queryReceipts } from "@/services/receiptService";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
 import { format, subDays } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -29,6 +30,9 @@ const PointHistory: React.FC = () => {
   // Get user ID from auth context or cookies
   const { user } = useAuth();
   const userId = user?.id || getUserIdFromCookie();
+
+  // Use media query to detect small screens
+  const isSmallScreen = useMediaQuery("(max-width: 640px)");
 
   // Receipt API mutation - Sử dụng useRef để đảm bảo tính ổn định, không gây re-renders
   const receiptMutationRef = useRef(queryReceipts());
@@ -182,9 +186,9 @@ const PointHistory: React.FC = () => {
       {/* Point History Table with Filters in CardHeader */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className={`flex ${isSmallScreen ? "flex-col" : "items-center justify-between"}`}>
             <CardTitle>Lịch sử điểm thưởng của bạn tại FCinema</CardTitle>
-            <div className="mt-4">
+            <div className={`${isSmallScreen ? "mt-4 w-full" : "mt-0"}`}>
               <Form {...form}>
                 <div className="flex flex-wrap items-start gap-4">
                   <div className="grid min-w-[240px] grid-cols-2 gap-2">

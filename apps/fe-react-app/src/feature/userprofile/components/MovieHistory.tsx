@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useAuth } from "@/hooks/useAuth";
 import type { components } from "@/schema-from-be";
 import { queryBookingsByUserId } from "@/services/bookingService";
@@ -16,6 +17,9 @@ type MovieResponse = components["schemas"]["MovieResponse"];
 
 export const MovieHistory: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+
+  // Use media query to detect small screens
+  const isSmallScreen = useMediaQuery("(max-width: 640px)");
 
   // Get user ID from auth context or cookies
   const { user } = useAuth();
@@ -141,7 +145,7 @@ export const MovieHistory: React.FC = () => {
       {/* Movie History List */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className={`flex ${isSmallScreen ? "flex-col" : "items-center justify-between"} gap-4`}>
             <div>
               <CardTitle className="flex items-center gap-2">Danh sách các phim bạn đã xem tại FCinema</CardTitle>
             </div>
