@@ -6,7 +6,6 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { ROLES } from "@/interfaces/roles.interface";
 import type { USER_STATUS, User, UserRequest, UserUpdate } from "@/interfaces/users.interface";
-import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -56,9 +55,6 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
           status: "ACTIVE",
         },
   });
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (member) {
@@ -293,87 +289,6 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
                   <FormControl>
                     <Input id="address" placeholder="Địa chỉ" {...field} />
                   </FormControl>
-                </FormItem>
-              )}
-            />
-          )}
-
-          {/* Mật khẩu */}
-          <FormField
-            control={form.control}
-            name="password"
-            rules={
-              !member
-                ? {
-                    required: "Vui lòng nhập mật khẩu",
-                    minLength: {
-                      value: 8,
-                      message: "Mật khẩu phải có ít nhất 8 ký tự",
-                    },
-                    maxLength: {
-                      value: 20,
-                      message: "Mật khẩu không được quá 20 ký tự",
-                    },
-                  }
-                : {
-                    minLength: {
-                      value: 8,
-                      message: "Mật khẩu phải có ít nhất 8 ký tự",
-                    },
-                    maxLength: {
-                      value: 20,
-                      message: "Mật khẩu không được quá 20 ký tự",
-                    },
-                  }
-            }
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>Mật khẩu {member ? "(để trống nếu không thay đổi)" : ""}</FormLabel>
-                <FormControl>
-                  <div className="relative w-full">
-                    <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mật khẩu" className="pr-10" {...field} />
-                    <button
-                      type="button"
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </FormControl>
-                {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
-              </FormItem>
-            )}
-          />
-
-          {/* Xác nhận mật khẩu */}
-          {!member && (
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              rules={{ required: "Vui lòng xác nhận mật khẩu" }}
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Xác nhận mật khẩu</FormLabel>
-                  <FormControl>
-                    <div className="relative w-full">
-                      <Input
-                        id="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Xác nhận mật khẩu"
-                        className="pr-10"
-                        {...field}
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </FormControl>
-                  {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
                 </FormItem>
               )}
             />
