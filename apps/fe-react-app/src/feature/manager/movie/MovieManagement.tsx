@@ -50,9 +50,9 @@ const statusFilterOptions = {
   value: "status",
   type: "select" as const,
   selectOptions: [
-    { value: MovieStatus.ACTIVE, label: "Active" },
-    { value: MovieStatus.UPCOMING, label: "Upcoming" },
-    { value: MovieStatus.INACTIVE, label: "Canceled" },
+    { value: MovieStatus.ACTIVE, label: "Đang chiếu" },
+    { value: MovieStatus.UPCOMING, label: "Sắp chiếu" },
+    { value: MovieStatus.INACTIVE, label: "Ngừng chiếu" },
   ],
   placeholder: "Chọn trạng thái",
 };

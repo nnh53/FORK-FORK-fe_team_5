@@ -3,7 +3,7 @@ import { Checkbox } from "@/components/Shadcn/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
 import { ScrollArea } from "@/components/Shadcn/ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
 import ImageUpload from "@/components/shared/ImageUpload"; // Import ImageUpload
 import type { MovieCategory } from "@/interfaces/movie-category.interface";
@@ -15,6 +15,38 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import type { Movie, MovieFormData } from "../../../interfaces/movies.interface";
+
+// Utility function to determine movie status based on dates
+const getMovieStatusByDates = (fromDate?: string, toDate?: string): string => {
+  if (!fromDate) {
+    return MovieStatus.ACTIVE; // Default if no date specified
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+
+  const startDate = new Date(fromDate);
+  startDate.setHours(0, 0, 0, 0);
+
+  // If start date is in the future
+  if (startDate > today) {
+    return MovieStatus.UPCOMING;
+  }
+
+  // If end date is specified
+  if (toDate) {
+    const endDate = new Date(toDate);
+    endDate.setHours(23, 59, 59, 999); // Set to end of day
+
+    // If current date is past end date
+    if (today > endDate) {
+      return MovieStatus.INACTIVE;
+    }
+  }
+
+  // If current date is between start and end (or no end date specified and started)
+  return MovieStatus.ACTIVE;
+};
 
 interface MovieDetailProps {
   movie?: Movie;
@@ -95,6 +127,21 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
       form.setValue("banner", "");
     }
   }, [movie, form]);
+
+  // Watch fromDate and toDate changes to auto-update status
+  const watchedFromDate = form.watch("fromDate");
+  const watchedToDate = form.watch("toDate");
+
+  React.useEffect(() => {
+    if (watchedFromDate) {
+      const newStatus = getMovieStatusByDates(watchedFromDate, watchedToDate);
+      // Only update if the current status is different to avoid infinite loops
+      const currentStatus = form.getValues("status");
+      if (currentStatus !== newStatus) {
+        form.setValue("status", newStatus);
+      }
+    }
+  }, [watchedFromDate, watchedToDate, form]);
 
   const handleCategoryChange = (categoryId: number, checked: boolean, field: { value?: number[]; onChange: (value: number[]) => void }) => {
     const currentIds = field.value ?? [];
@@ -293,29 +340,6 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value={MovieStatus.ACTIVE}>Active</SelectItem>
-                    <SelectItem value={MovieStatus.UPCOMING}>Upcoming</SelectItem>
-                    <SelectItem value={MovieStatus.INACTIVE}>Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         {/* Row 6: Category Selection */}
@@ -350,7 +374,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
                             />
                             <label
                               htmlFor={`category-${category.id}`}
-                              className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                               {category.name}
                             </label>
@@ -411,10 +435,7 @@ const MovieDetail = ({ movie, onSubmit, onCancel }: MovieDetailProps) => {
         />
 
         <div className="flex justify-end space-x-2 pt-4">
-          <Button variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit">{movie ? "Update" : "Create"} Movie</Button>
+          <Button type="submit">{movie ? "Cập nhật" : "Tạo"} Phim</Button>
         </div>
       </form>
     </Form>
