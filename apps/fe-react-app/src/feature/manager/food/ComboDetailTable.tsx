@@ -37,7 +37,7 @@ const ComboDetailTable: React.FC<ComboDetailTableProps> = ({ comboSnacks, onAddN
   };
 
   return (
-    <>
+    <div className="space-y-4">
       {comboSnacks.length === 0 ? (
         <Card>
           <CardContent className="py-8">
@@ -70,6 +70,7 @@ const ComboDetailTable: React.FC<ComboDetailTableProps> = ({ comboSnacks, onAddN
                   <TableRow>
                     <TableHead>Tên thực phẩm</TableHead>
                     <TableHead>Số lượng</TableHead>
+                    <TableHead>Thành tiền</TableHead>
                     <TableHead className="text-right">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -136,6 +137,9 @@ const ComboDetailTable: React.FC<ComboDetailTableProps> = ({ comboSnacks, onAddN
                           </div>
                         </TableCell>
                         <TableCell>{comboSnack.quantity}</TableCell>
+                        <TableCell>
+                          <div className="text-sm font-bold">{formatVND((snack.price || 0) * (comboSnack.quantity || 1), 0, "đ")}</div>
+                        </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
                             <Button variant="outline" size="sm" onClick={() => onEditSnack(comboSnack)}>
@@ -157,7 +161,7 @@ const ComboDetailTable: React.FC<ComboDetailTableProps> = ({ comboSnacks, onAddN
           </ScrollArea>
         </Card>
       )}
-    </>
+    </div>
   );
 };
 

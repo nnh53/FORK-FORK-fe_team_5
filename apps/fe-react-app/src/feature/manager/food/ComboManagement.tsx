@@ -306,12 +306,6 @@ const ComboManagement: React.FC = () => {
         const basePrice = calculateComboPriceWithQuantity(updatedCombo.snacks);
         const discount = updatedCombo.discount || 0;
 
-        // Kiểm tra discount có hợp lệ không
-        if (discount > basePrice) {
-          toast.error("Giảm giá không được lớn hơn giá combo", { id: "invalid-discount" });
-          return;
-        }
-
         // Cập nhật giá trước khi gửi request
         // Lưu giá sau khi trừ giảm giá (tổng giá snack - giảm giá) lên database
         updatedCombo.price = Math.max(0, basePrice - discount);
@@ -335,12 +329,6 @@ const ComboManagement: React.FC = () => {
         // Tính giá tự động từ snacks
         const basePrice = calculateComboPriceWithQuantity(newCombo.snacks);
         const discount = newCombo.discount || 0;
-
-        // Kiểm tra discount có hợp lệ không
-        if (newCombo.snacks.length > 0 && discount > basePrice) {
-          toast.error("Giảm giá không được lớn hơn giá combo", { id: "invalid-discount" });
-          return;
-        }
 
         // Áp dụng giá đã tính toán - lưu giá sau khi trừ giảm giá (tổng giá snack - giảm giá) lên database
         newCombo.price = Math.max(0, basePrice - discount);
@@ -403,14 +391,14 @@ const ComboManagement: React.FC = () => {
               },
               {
                 onSuccess: () => {
-                  toast.success("Xóa món và cập nhật giá combo thành công");
+                  // Sử dụng ID duy nhất cho toast để ngăn hiển thị trùng lặp
                   combosQuery.refetch();
                 },
               },
             );
           },
           onError: () => {
-            toast.error("Lỗi khi xóa thực phẩm khỏi combo");
+            toast.error("Lỗi khi xóa thực phẩm khỏi combo", { id: "delete-combo-snack-error" });
           },
         },
       );
