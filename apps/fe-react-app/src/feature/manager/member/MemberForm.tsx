@@ -248,8 +248,9 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="ACTIVE">Đã xác minh</SelectItem>
-                      <SelectItem value="BAN">Bị cấm</SelectItem>
+                      <SelectItem value="ACTIVE">Hoạt động</SelectItem>
+                      <SelectItem value="INACTIVE">Không hoạt động</SelectItem>
+                      <SelectItem value="BANNED">Bị cấm</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>

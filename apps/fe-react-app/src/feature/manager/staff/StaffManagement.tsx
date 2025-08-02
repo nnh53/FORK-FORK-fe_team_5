@@ -179,8 +179,8 @@ const StaffManagement: React.FC = () => {
           value: "status",
           type: "select" as const,
           selectOptions: [
-            { value: "ACTIVE", label: "Đã xác minh" },
-            { value: "BAN", label: "Bị cấm" },
+            { value: "ACTIVE", label: "Hoạt động" },
+            { value: "BANNED", label: "Bị cấm" },
           ],
           placeholder: "Chọn trạng thái",
         },

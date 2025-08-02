@@ -27,19 +27,22 @@ export const MOVIE_STATUS_COLORS = {
 // User/Member/Staff Status
 export const USER_STATUS = {
   ACTIVE: "ACTIVE",
-  BAN: "BAN",
+  INACTIVE: "INACTIVE",
+  BANNED: "BANNED",
 } as const;
 
 export type UserStatus = (typeof USER_STATUS)[keyof typeof USER_STATUS];
 
 export const USER_STATUS_LABELS = {
-  [USER_STATUS.ACTIVE]: "Đã xác minh",
-  [USER_STATUS.BAN]: "Bị cấm",
+  [USER_STATUS.ACTIVE]: "Hoạt động",
+  [USER_STATUS.INACTIVE]: "Không hoạt động",
+  [USER_STATUS.BANNED]: "Bị cấm",
 } as const;
 
 export const USER_STATUS_COLORS = {
   [USER_STATUS.ACTIVE]: "bg-green-100 text-green-800",
-  [USER_STATUS.BAN]: "bg-red-100 text-red-800",
+  [USER_STATUS.INACTIVE]: "bg-yellow-100 text-yellow-800",
+  [USER_STATUS.BANNED]: "bg-red-100 text-red-800",
 } as const;
 
 // Cinema Room Status

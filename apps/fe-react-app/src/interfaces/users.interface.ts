@@ -1,7 +1,7 @@
 import type { components } from "@/schema-from-be";
 import { type ROLE_TYPE } from "./roles.interface.ts";
 
-export type USER_STATUS = "ACTIVE" | "BAN";
+export type USER_STATUS = "ACTIVE" | "INACTIVE" | "BANNED";
 export type USER_GENDER = "MALE" | "FEMALE" | "OTHER";
 
 // Interface phù hợp với schema của BE - API User interface (from OpenAPI schema)

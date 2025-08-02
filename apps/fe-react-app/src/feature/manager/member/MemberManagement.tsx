@@ -130,8 +130,9 @@ const filterGroups: FilterGroup[] = [
         value: "status",
         type: "select",
         selectOptions: [
-          { value: "ACTIVE", label: "Đã xác minh" },
-          { value: "BAN", label: "Bị cấm" },
+          { value: "ACTIVE", label: "Hoạt động" },
+          { value: "INACTIVE", label: "Không hoạt động" },
+          { value: "BANNED", label: "Bị cấm" },
         ],
         placeholder: "Chọn trạng thái",
       },
