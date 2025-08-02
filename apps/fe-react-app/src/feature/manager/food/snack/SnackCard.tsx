@@ -2,7 +2,6 @@ import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Shadcn/ui/tooltip";
-import { useMediaQuery } from "@/hooks/use-media-query";
 import type { Snack } from "@/interfaces/snacks.interface";
 import {
   getSnackCategoryLabel,
@@ -114,9 +113,14 @@ interface ActionButtonsProps {
 }
 
 const ActionButtons = ({ snack, onEdit, onDelete, isFullWidth = false }: ActionButtonsProps) => (
-  <>
+  <div className={`flex ${isFullWidth ? "w-full" : ""} h-8 gap-1`}>
     {onEdit && (
-      <Button size="sm" variant="outline" onClick={() => onEdit(snack)} className={isFullWidth ? "flex-1" : "h-8 w-8 p-0"}>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onEdit(snack)}
+        className={isFullWidth ? "flex h-8 flex-1 items-center justify-center" : "flex h-8 w-8 items-center justify-center p-0"}
+      >
         <Edit className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
         {isFullWidth && "Chỉnh sửa"}
       </Button>
@@ -124,42 +128,50 @@ const ActionButtons = ({ snack, onEdit, onDelete, isFullWidth = false }: ActionB
     {onDelete && (
       <Button
         size="sm"
-        variant="destructive"
+        variant={isFullWidth ? "destructive" : "outline"}
         onClick={() => onDelete(snack.id ?? 0)}
-        className={isFullWidth ? "flex-1" : "h-8 w-8 p-0 hover:border-red-200 hover:bg-red-50 hover:text-red-600"}
+        className={
+          isFullWidth
+            ? "flex h-8 flex-1 items-center justify-center"
+            : "flex h-8 w-8 items-center justify-center p-0 text-red-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+        }
       >
         <Trash className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
         {isFullWidth && "Xóa"}
       </Button>
     )}
-  </>
+  </div>
 );
 
 const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode = "grid" }) => {
   console.log("Rendering SnackCard with data:", snack);
-  const isMobile = useMediaQuery("(max-width: 768px)");
   // Grid View
   if (viewMode === "grid") {
     return (
-      <Card className={cn("w-full max-w-md p-4 transition-all duration-200 hover:shadow-lg")}>
-        <CardHeader className="p-0">
-          <div className="flex items-center justify-between">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <CardTitle className="line-clamp-2 text-xl font-bold">{snack?.name || "Unknown Snack"}</CardTitle>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{snack?.name || "Unknown Snack"}</p>
-              </TooltipContent>
-            </Tooltip>
-            <div className="flex items-center gap-2">
+      <Card className={cn("flex h-[400px] w-full max-w-md flex-col p-4 transition-all duration-200 hover:shadow-lg")}>
+        <CardHeader className="flex-shrink-0 p-0">
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center justify-end gap-2">
               <CategoryBadge snack={snack} />
               <StatusBadge snack={snack} />
             </div>
+            {/* Thiết kế lại phần tiêu đề với giới hạn chiều rộng chặt chẽ hơn */}
+            <div className="w-full overflow-hidden">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CardTitle className="line-clamp-1 overflow-hidden text-xl font-bold">{snack?.name || "Unknown Snack"}</CardTitle>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{snack?.name || "Unknown Snack"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-2 p-0">
-          <div className="grid grid-cols-2 gap-2">
+
+        {/* Main content with flex-grow to push buttons to bottom */}
+        <CardContent className="flex flex-grow flex-col space-y-2 p-0">
+          <div className="grid flex-shrink-0 grid-cols-2 gap-2">
             <div className="flex-shrink-0">
               {snack?.img ? (
                 <img
@@ -196,37 +208,40 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
                 </div>
               )}
             </div>
-            <div className="space-y-3">
-              <div className="flex justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">ID</span>
                 <span className="font-medium">#{snack?.id || "N/A"}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Giá</span>
                 <span className="text-lg font-bold text-green-600">{snack?.price ? formatVND(snack.price) : "N/A"}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Kích cỡ</span>
                 <SizeBadge snack={snack} />
               </div>
-              <div className="flex justify-between">
-                <p className="text-sm text-gray-500">Hương vị:</p>
-                <p className="text-sm text-blue-600">{snack?.flavor || "Không có"}</p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Hương vị</span>
+                <span className="max-w-[120px] truncate text-sm text-blue-600" title={snack?.flavor || "Không có"}>
+                  {snack?.flavor || "Không có"}
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-gradient-to-r from-blue-50 to-green-50 p-4 shadow-sm">
-            <div className="flex items-center gap-2">
-              <Utensils className="mt-1 h-4 w-4" />
+          {/* Flexible content area with overflow handling */}
+          <div className="flex-grow overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-r from-blue-50 to-green-50 p-4 shadow-sm">
+            <div className="mb-1 flex items-center gap-2">
+              <Utensils className="h-4 w-4" />
               <p className="text-sm font-semibold">Mô tả:</p>
             </div>
-            <div className="flex items-start gap-2">
-              <p className="text-sm italic leading-relaxed text-green-600">{snack?.description || "Không có mô tả"}</p>
-            </div>
+            <p className="line-clamp-2 overflow-hidden text-sm leading-relaxed text-green-600 italic">{snack?.description || "Không có mô tả"}</p>
           </div>
+
+          {/* Fixed-position action buttons always at the bottom */}
           {(onEdit || onDelete) && (
-            <div className="flex justify-end gap-1">
+            <div className="mt-auto flex flex-shrink-0 gap-1">
               <ActionButtons snack={snack} onEdit={onEdit} onDelete={onDelete} isFullWidth={true} />
             </div>
           )}
@@ -272,37 +287,56 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
               <Utensils className="h-6 w-6 text-gray-400" />
             </div>
           )}
-        </div>{" "}
+        </div>
+
+        {/* Grid layout with better text handling */}
         <div className="grid flex-1 grid-cols-12 items-center gap-2 text-sm">
-          <div className="col-span-6 flex flex-col gap-1 sm:col-span-4 md:col-span-3 lg:col-span-2">
-            <div className={`items-left flex gap-2 ${isMobile ? "flex-col" : "flex-row"}`}>
+          <div className="col-span-6 flex flex-col gap-1 overflow-hidden sm:col-span-4 md:col-span-3 lg:col-span-2">
+            <div className="mb-1 flex flex-wrap gap-1">
               <CategoryBadge snack={snack} />
               <StatusBadge snack={snack} />
             </div>
             <Tooltip>
               <TooltipTrigger asChild>
-                <h3 className="line-clamp-1 font-semibold">{snack?.name || "Unknown Snack"}</h3>
+                <div className="w-full overflow-hidden pr-2">
+                  <h3 className="w-full truncate font-semibold" title={snack?.name || "Unknown Snack"}>
+                    {snack?.name || "Unknown Snack"}
+                  </h3>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{snack?.name || "Unknown Snack"}</p>
+                <p className="max-w-[300px] break-words">{snack?.name || "Unknown Snack"}</p>
               </TooltipContent>
             </Tooltip>
             <p className="text-xs text-gray-500">ID: #{snack?.id ?? "N/A"}</p>
           </div>
-          <div className="line-clamp-1 flex hidden items-center gap-1 lg:col-span-2 lg:block">
-            <span>Hương vị: </span>
-            <span className="italic leading-relaxed text-blue-600">{snack?.flavor || "Không có"}</span>
+
+          {/* Flavor with ellipsis for long text */}
+          <div className="line-clamp-1 hidden items-center lg:col-span-2 lg:block">
+            <span className="text-gray-500">Hương vị: </span>
+            <span className="inline-block max-w-[80%] truncate text-blue-600 italic" title={snack?.flavor || "Không có"}>
+              {snack?.flavor || "Không có"}
+            </span>
           </div>
-          <div className="hidden items-center gap-2 sm:col-span-5 sm:block md:col-span-5 lg:col-span-4">
-            <p className="text-sm italic leading-relaxed text-green-600">{snack?.description || "Không có mô tả"}</p>
+
+          {/* Description with ellipsis for long text */}
+          <div className="hidden sm:col-span-5 sm:block md:col-span-5 lg:col-span-4">
+            <p className="line-clamp-1 text-sm text-green-600 italic" title={snack?.description || "Không có mô tả"}>
+              {snack?.description || "Không có mô tả"}
+            </p>
           </div>
+
           <div className="hidden md:col-span-1 md:block lg:col-span-1">
             <SizeBadge snack={snack} />
           </div>
-          <div className="col-span-3 text-left font-bold text-green-600 sm:col-span-1 md:col-span-1 lg:col-span-1">
+
+          {/* Price with consistent formatting */}
+          <div className="col-span-3 text-left font-bold whitespace-nowrap text-green-600 sm:col-span-1 md:col-span-1 lg:col-span-1">
             {snack?.price ? formatVND(snack.price) : "N/A"}
           </div>
-          <div className="col-span-3 flex justify-end gap-1 sm:col-span-2 md:col-span-2 lg:col-span-2">
+
+          {/* Action buttons with fixed height */}
+          <div className="col-span-3 flex h-8 justify-end gap-1 sm:col-span-2 md:col-span-2 lg:col-span-2">
             <ActionButtons snack={snack} onEdit={onEdit} onDelete={onDelete} isFullWidth={false} />
           </div>
         </div>

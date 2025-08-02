@@ -51,7 +51,7 @@ const snackValidationSchema = Yup.object({
   size: Yup.string().oneOf(["SMALL", "MEDIUM", "LARGE"], "Kích thước không hợp lệ").required("Kích thước là bắt buộc"),
   flavor: Yup.string().required("Hương vị là bắt buộc"),
   description: Yup.string().required("Mô tả là bắt buộc"),
-  price: Yup.number().min(1000, "Giá phải ít nhất 1,000 VND").required("Giá là bắt buộc"),
+  price: Yup.number().min(1000, "Giá phải ít nhất 1,000 VNĐ").required("Giá là bắt buộc"),
   status: Yup.string().oneOf(["AVAILABLE", "UNAVAILABLE"], "Trạng thái không hợp lệ").required("Trạng thái là bắt buộc"),
 });
 
