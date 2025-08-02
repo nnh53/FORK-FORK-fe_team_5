@@ -8,7 +8,6 @@ import {
   PaginationEllipsis,
   PaginationFirst,
   PaginationItem,
-  PaginationJump,
   PaginationLast,
   PaginationLink,
   PaginationNext,
@@ -82,8 +81,6 @@ export const MovieDataTable = forwardRef<{ resetPagination: () => void }, MovieD
   ({ data, onEdit, onView, onDelete, onManageGenres }, ref) => {
     const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
       name: true,
-      director: true,
-      studio: true,
       duration: true,
       ageRestrict: true,
       categories: true,
@@ -184,8 +181,6 @@ export const MovieDataTable = forwardRef<{ resetPagination: () => void }, MovieD
                     <SortButton {...getSortProps("name")}>Title</SortButton>
                   </TableHead>
                 )}
-                {visibleColumns.director && <TableHead>Director</TableHead>}
-                {visibleColumns.studio && <TableHead>Studio</TableHead>}
                 {visibleColumns.duration && (
                   <TableHead>
                     <SortButton {...getSortProps("duration")}>Duration</SortButton>
@@ -217,16 +212,7 @@ export const MovieDataTable = forwardRef<{ resetPagination: () => void }, MovieD
                         </div>
                       </TableCell>
                     )}
-                    {visibleColumns.director && (
-                      <TableCell>
-                        <div className="text-muted-foreground">{movie.director || "N/A"}</div>
-                      </TableCell>
-                    )}
-                    {visibleColumns.studio && (
-                      <TableCell>
-                        <div className="text-muted-foreground">{movie.studio || "N/A"}</div>
-                      </TableCell>
-                    )}
+
                     {visibleColumns.duration && (
                       <TableCell>
                         <div>{formatDuration(movie.duration)}</div>
@@ -280,11 +266,7 @@ export const MovieDataTable = forwardRef<{ resetPagination: () => void }, MovieD
           </Table>
         </div>
 
-        <div className="flex items-center justify-between py-4">
-          <div className="text-muted-foreground text-sm">
-            Showing {currentPageData.length} of {sortedData.length} movie(s)
-          </div>
-
+        <div className="justify-between py-4">
           {/* Pagination */}
           {sortedData.length > 0 && (
             <div className="flex items-center gap-4">
@@ -355,8 +337,6 @@ export const MovieDataTable = forwardRef<{ resetPagination: () => void }, MovieD
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
-
-              <PaginationJump currentPage={pagination.currentPage} totalPages={pagination.totalPages} onJump={(page) => pagination.setPage(page)} />
             </div>
           )}
         </div>
