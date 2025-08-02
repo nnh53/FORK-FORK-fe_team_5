@@ -116,7 +116,6 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                 <SortButton {...getSortProps("loyaltyPoint")}>Điểm tích lũy</SortButton>
               </TableHead>
               <TableHead className="w-24 text-center">Số điện thoại</TableHead>
-              <TableHead className="w-24 text-center">Địa chỉ</TableHead>
               <TableHead className="w-16 text-center">Giới tính</TableHead>
               <TableHead className="w-16 text-center">Trạng thái</TableHead>
               <TableHead className="w-24 text-center">Thao tác</TableHead>
@@ -135,7 +134,6 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                     <TableCell>{member.dateOfBirth ? formatDateTime(member.dateOfBirth) : "Chưa cập nhật"}</TableCell>
                     <TableCell className="text-center">{member.loyaltyPoint ?? 0}</TableCell>
                     <TableCell>{member.phone ?? "Chưa cập nhật"}</TableCell>
-                    <TableCell>{member.address ?? "Chưa cập nhật"}</TableCell>
                     <TableCell className="text-center">
                       {member.gender ? (
                         <Badge className={`px-2 py-1 ${getGenderBadgeClass(member.gender)}`}>{formatGender(member.gender)}</Badge>

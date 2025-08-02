@@ -113,7 +113,6 @@ export type LoginDTO = {
   password: string;
 };
 
-
 export type UserLoginResponse = {
   id: string;
   fullName: string;

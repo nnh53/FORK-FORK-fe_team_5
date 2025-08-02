@@ -109,7 +109,6 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
                 <SortButton {...getSortProps("dateOfBirth")}>Ngày sinh</SortButton>
               </TableHead>
               <TableHead className="w-24 text-center">Số điện thoại</TableHead>
-              <TableHead className="w-24 text-center">Địa chỉ</TableHead>
               <TableHead className="w-16 text-center">Giới tính</TableHead>
               <TableHead className="w-16 text-center">Trạng thái</TableHead>
               <TableHead className="w-24 text-center">Thao tác</TableHead>
@@ -147,7 +146,7 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
                     <TableCell>{staff.email}</TableCell>
                     <TableCell>{formatDateTime(staff.dateOfBirth)}</TableCell>
                     <TableCell>{staff.phone ?? "Chưa cập nhật"}</TableCell>
-                    <TableCell>{staff.address ?? "Chưa cập nhật"}</TableCell>
+                    {/* <TableCell>{staff.address ?? "Chưa cập nhật"}</TableCell> */}
                     <TableCell className="text-center">
                       {staff.gender ? (
                         <Badge className={`px-2 py-1 ${getGenderBadgeClass(staff.gender)}`}>{formatGender(staff.gender)}</Badge>

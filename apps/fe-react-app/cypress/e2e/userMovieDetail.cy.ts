@@ -31,7 +31,7 @@ describe("See Movie Detail", () => {
     cy.wait(1000);
     cy.scrollTo(0, 1800);
 
-    cy.contains("Được bình chọn nhiều nhất").should("be.visible");
+    cy.contains("Best Sellers").should("be.visible");
     cy.get('[data-testid="movie-item"]').should("have.length.gt", 0);
 
     // Hover over movies 02, 03, 04 sequentially

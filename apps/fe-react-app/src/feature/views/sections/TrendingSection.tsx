@@ -169,7 +169,7 @@ const TrendingSection = () => {
                     MOVIES
                   </LineShadowText>
                 </h2>
-                <p className="text-lg text-gray-300">Được bình chọn nhiều nhất</p>
+                <p className="text-lg text-gray-300">Best Sellers</p>
               </div>
 
               <div className="space-y-4">
