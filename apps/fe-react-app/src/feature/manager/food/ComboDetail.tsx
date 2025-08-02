@@ -22,6 +22,9 @@ interface ComboDetailProps {
   onDeleteSnack?: (comboSnackId: number) => void;
   onAddSnack?: (comboSnack: Partial<ComboSnack>) => void;
   onUpdateSnack?: (comboSnack: ComboSnack) => void;
+  mode?: "direct" | "edit" | "create"; // Thêm mode để xác định nguồn mở ComboDetail
+  isEditMode?: boolean; // Xác định form đang ở chế độ edit hay create
+  onComboChange?: (updatedCombo: Combo) => void; // Callback để thông báo thay đổi
 }
 
 // Create a fallback snack object for missing data
@@ -60,7 +63,17 @@ const SnackGrid = ({ snacks }: { snacks: ComboSnack[] }) => {
   );
 };
 
-const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDeleteSnack, onAddSnack, onUpdateSnack }) => {
+const ComboDetail: React.FC<ComboDetailProps> = ({
+  combo,
+  open,
+  onClose,
+  onDeleteSnack,
+  onAddSnack,
+  onUpdateSnack,
+  mode = "direct", // Giá trị mặc định là direct (mở trực tiếp từ ComboManagement)
+  isEditMode = false, // Biết đang ở chế độ edit hay create
+  onComboChange, // Thêm callback để thông báo thay đổi
+}) => {
   const [editMode, setEditMode] = useState(false);
   const [displayCombo, setDisplayCombo] = useState<Combo>(combo);
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -90,10 +103,17 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
         id: newComboSnack.id ?? tempId, // Use real ID if available or temp ID
       } as ComboSnack;
 
-      setDisplayCombo((prev) => ({
-        ...prev,
-        snacks: [...prev.snacks, newSnack],
-      }));
+      const updatedCombo = {
+        ...displayCombo,
+        snacks: [...displayCombo.snacks, newSnack],
+      };
+
+      setDisplayCombo(updatedCombo);
+
+      // Thông báo thay đổi nếu callback tồn tại
+      if (onComboChange && (mode === "edit" || mode === "create")) {
+        onComboChange(updatedCombo);
+      }
     }
   };
 
@@ -102,10 +122,19 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
       onUpdateSnack(updatedComboSnack);
 
       // Update the local state to reflect the update
-      setDisplayCombo((prev) => ({
-        ...prev,
-        snacks: prev.snacks.map((snack) => (snack.id === updatedComboSnack.id ? updatedComboSnack : snack)),
-      }));
+      const updatedSnacks = displayCombo.snacks.map((snack) => (snack.id === updatedComboSnack.id ? updatedComboSnack : snack));
+
+      const updatedCombo = {
+        ...displayCombo,
+        snacks: updatedSnacks,
+      };
+
+      setDisplayCombo(updatedCombo);
+
+      // Thông báo thay đổi nếu callback tồn tại
+      if (onComboChange && (mode === "edit" || mode === "create")) {
+        onComboChange(updatedCombo);
+      }
     }
   };
 
@@ -115,60 +144,94 @@ const ComboDetail: React.FC<ComboDetailProps> = ({ combo, open, onClose, onDelet
       onDeleteSnack(comboSnackId);
 
       // Update the local state to reflect the deletion immediately for UI feedback
-      setDisplayCombo((prev) => ({
-        ...prev,
-        snacks: prev.snacks.filter((snack) => snack.id !== comboSnackId),
-      }));
+      const updatedSnacks = displayCombo.snacks.filter((snack) => snack.id !== comboSnackId);
+
+      const updatedCombo = {
+        ...displayCombo,
+        snacks: updatedSnacks,
+      };
+
+      setDisplayCombo(updatedCombo);
+
+      // Thông báo thay đổi nếu callback tồn tại
+      if (onComboChange && (mode === "edit" || mode === "create")) {
+        onComboChange(updatedCombo);
+      }
     }
   };
 
-  const renderContent = () => (
-    <div className="flex flex-1 flex-col">
-      {!editMode ? (
-        <>
-          {/* Description section */}
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center">
-              <Utensils className="mr-2 h-4 w-4" />
-              <h3 className="text-lg font-semibold">Danh sách thực phẩm trong combo ({displayCombo.snacks?.length || 0})</h3>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="text-primary font-medium">Giá combo: {formatVND(displayCombo.price || 0)}</div>
-              {onAddSnack && onUpdateSnack && (
-                <Button variant="outline" size="sm" onClick={handleEditSnacks}>
-                  <Edit className="mr-1 h-4 w-4" />
-                  Chỉnh sửa
-                </Button>
-              )}
-            </div>
-          </div>
+  const renderContent = () => {
+    // Xử lý trường hợp đang ở chế độ edit
+    if (editMode) {
+      return (
+        <div className="flex flex-1 flex-col">
+          <ComboDetailForm
+            combo={displayCombo}
+            onCancel={() => setEditMode(false)}
+            onAddSnack={handleAddSnack}
+            onUpdateSnack={handleUpdateSnack}
+            onDeleteSnack={handleDeleteSnack}
+            mode={mode} // Truyền mode xuống ComboDetailForm
+          />
+        </div>
+      );
+    }
 
+    // Xử lý trường hợp chế độ create
+    if (mode === "create" && !isEditMode) {
+      return (
+        <div className="flex flex-1 flex-col">
           <div className="flex-1 overflow-hidden" style={{ maxHeight: isMobile ? "70vh" : "60vh" }}>
-            {!displayCombo.snacks?.length ? (
-              <Card>
-                <CardContent className="py-8">
-                  <div className="text-muted-foreground text-center">
-                    <Icon icon="lucide:popcorn" className="text-shadow-background mx-auto mb-0.5" />
-                    <div className="mb-2 text-lg font-medium">Không có thực phẩm trong combo</div>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <SnackGrid snacks={displayCombo.snacks} />
+            <ComboDetailForm
+              combo={displayCombo}
+              onCancel={() => setEditMode(false)}
+              onAddSnack={handleAddSnack}
+              onUpdateSnack={handleUpdateSnack}
+              onDeleteSnack={handleDeleteSnack}
+              mode={mode} // Truyền mode xuống ComboDetailForm
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // Chế độ direct hoặc edit
+    return (
+      <div className="flex flex-1 flex-col">
+        {/* Description section - Chỉ hiển thị khi mode direct hoặc edit */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <Utensils className="mr-2 h-4 w-4" />
+            <h3 className="text-lg font-semibold">Danh sách thực phẩm trong combo ({displayCombo.snacks?.length || 0})</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="text-primary font-medium">Giá combo: {formatVND(displayCombo.price || 0)}</div>
+            {onAddSnack && onUpdateSnack && (
+              <Button variant="outline" size="sm" onClick={handleEditSnacks}>
+                <Edit className="mr-1 h-4 w-4" />
+                Thêm & chỉnh sửa
+              </Button>
             )}
           </div>
-        </>
-      ) : (
-        <ComboDetailForm
-          combo={displayCombo}
-          onCancel={() => setEditMode(false)}
-          onAddSnack={handleAddSnack}
-          onUpdateSnack={handleUpdateSnack}
-          onDeleteSnack={handleDeleteSnack}
-        />
-      )}
-    </div>
-  );
+        </div>
+
+        <div className="flex-1 overflow-hidden" style={{ maxHeight: isMobile ? "70vh" : "60vh" }}>
+          {!displayCombo.snacks?.length ? (
+            <Card>
+              <CardContent className="py-8">
+                <div className="text-muted-foreground text-center">
+                  <Icon icon="lucide:popcorn" className="text-shadow-background mx-auto mb-0.5" />
+                  <div className="mb-2 text-lg font-medium">Không có thực phẩm trong combo</div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <SnackGrid snacks={displayCombo.snacks} />
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const renderHeader = () => (
     <>
