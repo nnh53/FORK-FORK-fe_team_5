@@ -23,6 +23,9 @@ interface OrderSummaryProps {
   };
   selectedPromotion?: Promotion | null;
   usePoints: number;
+  // Room information
+  roomType?: string;
+  roomFee?: number;
   getSeatDisplayNames: () => string[];
   calculateSeatPrice: () => number;
   calculateTotal: () => number;
@@ -38,6 +41,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   customerInfo,
   selectedPromotion,
   usePoints,
+  roomType,
+  roomFee = 0,
   getSeatDisplayNames,
   calculateSeatPrice,
   calculateTotal,
@@ -62,6 +67,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               {selectedShowtime.startTime} - {selectedShowtime.date}
             </p>
             <p className="text-sm">Phòng {selectedShowtime.cinemaRoomId}</p>
+            {roomType && <p className="text-xs text-gray-500">{roomType}</p>}
           </div>
         )}
 
@@ -70,6 +76,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <h4 className="font-semibold">Ghế đã chọn</h4>
             <p className="text-sm">{getSeatDisplayNames().join(", ")}</p>
             <p className="text-sm font-medium">{formatVND(calculateSeatPrice())}</p>
+            {roomFee > 0 && <p className="text-xs text-gray-500">Phí phòng: {formatVND(roomFee * selectedSeatIds.length)}</p>}
           </div>
         )}
 
@@ -83,15 +90,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   <span>
                     {combo.name} x{quantity}
                   </span>
-                  <span>
-                    {formatVND(
-                      (combo.snacks?.reduce((total, comboSnack) => {
-                        const snackPrice = comboSnack.snack?.price || 0;
-                        const snackQuantity = comboSnack.quantity || 1;
-                        return total + snackPrice * snackQuantity;
-                      }, 0) || 0) * quantity,
-                    )}
-                  </span>
+                  <span>{formatVND((combo.price ?? 0) * quantity)}</span>
                 </div>
               ))}
           </div>
@@ -142,18 +141,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   selectedPromotion,
                   calculateSeatPrice() +
                     selectedCombos.reduce((sum, { combo, quantity }) => {
-                      const comboPrice =
-                        combo.snacks?.reduce((total, comboSnack) => {
-                          const snackPrice = comboSnack.snack?.price || 0;
-                          const snackQuantity = comboSnack.quantity || 1;
-                          return total + snackPrice * snackQuantity;
-                        }, 0) || 0;
+                      const comboPrice = combo.price ?? 0;
                       return sum + comboPrice * quantity;
                     }, 0) +
                     Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
                       const snack = snacks.find((s) => s.id === parseInt(snackId));
                       return sum + (snack?.price ?? 0) * quantity;
-                    }, 0),
+                    }, 0) +
+                    (roomFee * selectedSeatIds.length),
                 ),
               )}
             </p>

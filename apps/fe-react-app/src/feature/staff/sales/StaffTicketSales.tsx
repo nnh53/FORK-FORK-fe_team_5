@@ -10,6 +10,7 @@ import type { CustomerInfo as CustomerInfoType, StaffSalesStep, UIShowtime } fro
 import { ROUTES } from "@/routes/route.constants.ts";
 import type { components, paths } from "@/schema-from-be";
 import { transformSeatsToSeatMap, useConfirmBookingPayment, useCreateBooking } from "@/services/bookingService";
+import { useCinemaRoom } from "@/services/cinemaRoomService";
 import { transformComboResponse, useCombos } from "@/services/comboService";
 import { queryMovies, transformMovieResponse } from "@/services/movieService";
 import { calculateDiscount, transformPromotionsResponse, usePromotions } from "@/services/promotionService";
@@ -174,6 +175,10 @@ const StaffTicketSales: React.FC = () => {
     seatMap = transformSeatsToSeatMap(seats, roomId);
   }
 
+  // Get room information for calculating room fee
+  const roomId = selectedShowtime ? parseInt(selectedShowtime.cinemaRoomId) || 0 : 0;
+  const { data: roomData } = useCinemaRoom(roomId);
+
   // State for customer info
   const [customerInfo, setCustomerInfo] = useState<CustomerInfoType>({
     name: "",
@@ -258,6 +263,12 @@ const StaffTicketSales: React.FC = () => {
       return sum + (seat?.type?.price || 0);
     }, 0);
 
+  // Helper function to calculate combo price consistently
+  const calculateComboPrice = (combo: Combo) => {
+    // Use combo price directly from API if available, otherwise calculate from snacks
+    return combo.price ?? 0;
+  };
+
   // Helper function to get seat display names
   const getSeatDisplayNames = () =>
     selectedSeatIds.map((seatId) => {
@@ -337,8 +348,8 @@ const StaffTicketSales: React.FC = () => {
 
     // Calculate combo cost from selected combos array
     const comboCost = selectedCombos.reduce((sum, { combo, quantity }) => {
-      // Use combo price directly from API
-      const comboPrice = combo.price || 0;
+      // Use consistent combo price calculation
+      const comboPrice = calculateComboPrice(combo);
 
       return sum + comboPrice * quantity;
     }, 0);
@@ -349,7 +360,11 @@ const StaffTicketSales: React.FC = () => {
       return sum + (snack ? (snack.price ?? 0) * quantity : 0);
     }, 0);
 
-    const subtotal = ticketCost + comboCost + snackCost;
+    // Add room fee per seat
+    const roomFee = roomData?.result?.fee || 0;
+    const totalRoomFee = roomFee * selectedSeatIds.length;
+
+    const subtotal = ticketCost + comboCost + snackCost + totalRoomFee;
     const pointsDiscount = usePoints * 1000; // 1 point = 1000 VND
     const promotionDiscount = selectedPromotion ? calculateDiscount(selectedPromotion, subtotal) : 0;
 
@@ -386,6 +401,19 @@ const StaffTicketSales: React.FC = () => {
 
     if (!user?.id) {
       toast.error("Không thể xác định thông tin nhân viên. Vui lòng đăng nhập lại.");
+      return false;
+    }
+
+    // Validate points usage
+    if (usePoints > 50) {
+      toast.error("Chỉ được sử dụng tối đa 50 điểm cho một lần mua");
+      return false;
+    }
+
+    // Validate minimum order amount after points discount
+    const totalBeforePointsDiscount = calculateTotal() + (usePoints * 1000);
+    if (totalBeforePointsDiscount - (usePoints * 1000) < 1000) {
+      toast.error("Tổng tiền sau khi trừ điểm phải lớn hơn 1,000 VNĐ");
       return false;
     }
 
@@ -564,13 +592,9 @@ const StaffTicketSales: React.FC = () => {
       paymentMethod: "CASH",
       costs: {
         ticketCost: calculateSeatPrice(),
+        roomFee: (roomData?.result?.fee || 0) * selectedSeatIds.length,
         comboCost: selectedCombos.reduce((sum, { combo, quantity }) => {
-          const comboPrice =
-            combo.snacks?.reduce((total, comboSnack) => {
-              const snackPrice = comboSnack.snack?.price || 0;
-              const snackQuantity = comboSnack.quantity || 1;
-              return total + snackPrice * snackQuantity;
-            }, 0) || 0;
+          const comboPrice = calculateComboPrice(combo);
           return sum + comboPrice * quantity;
         }, 0),
         snackCost: Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
@@ -790,19 +814,17 @@ const StaffTicketSales: React.FC = () => {
                   return sum + (seat?.type?.price || 0);
                 }, 0);
                 const comboCost = selectedCombos.reduce((sum, { combo, quantity }) => {
-                  const comboPrice =
-                    combo.snacks?.reduce((total, comboSnack) => {
-                      const snackPrice = comboSnack.snack?.price || 0;
-                      const snackQuantity = comboSnack.quantity || 1;
-                      return total + snackPrice * snackQuantity;
-                    }, 0) || 0;
+                  const comboPrice = calculateComboPrice(combo);
                   return sum + comboPrice * quantity;
                 }, 0);
                 const snackCost = Object.entries(selectedSnacks).reduce((sum, [snackId, quantity]) => {
                   const snack = snacks.find((s) => s.id === parseInt(snackId));
                   return sum + (snack ? (snack.price ?? 0) * quantity : 0);
                 }, 0);
-                return ticketCost + comboCost + snackCost;
+                // Add room fee per seat
+                const roomFee = roomData?.result?.fee || 0;
+                const totalRoomFee = roomFee * selectedSeatIds.length;
+                return ticketCost + comboCost + snackCost + totalRoomFee;
               })()}
               onComboSelect={handleComboSelect}
               onSnackQuantityChange={handleSnackQuantityChange}
@@ -861,6 +883,8 @@ const StaffTicketSales: React.FC = () => {
             customerInfo={customerInfo}
             selectedPromotion={selectedPromotion}
             usePoints={usePoints}
+            roomType={roomData?.result?.type}
+            roomFee={roomData?.result?.fee ?? 0}
             getSeatDisplayNames={getSeatDisplayNames}
             calculateSeatPrice={calculateSeatPrice}
             calculateTotal={calculateTotal}

@@ -108,15 +108,26 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           <div>
             <h3 className="mb-3 font-semibold">Sử Dụng Điểm Tích Lũy</h3>
             <div className="flex items-center gap-4">
-              <Label htmlFor="points">Điểm sử dụng (có {memberInfo.currentPoints} điểm):</Label>
-              <Input
-                id="points"
-                type="number"
-                value={usePoints}
-                onChange={(e) => onUsePointsChange(Math.min(parseInt(e.target.value) || 0, memberInfo.currentPoints))}
-                max={memberInfo.currentPoints}
-                className="w-24"
-              />
+              <Label htmlFor="points">Điểm sử dụng (có {memberInfo.currentPoints} điểm, tối đa 50 điểm):</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="points"
+                  type="number"
+                  value={usePoints}
+                  onChange={(e) => onUsePointsChange(Math.min(parseInt(e.target.value) || 0, Math.min(memberInfo.currentPoints, 50)))}
+                  max={Math.min(memberInfo.currentPoints, 50)}
+                  className="w-24"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onUsePointsChange(Math.min(memberInfo.currentPoints, 50))}
+                  className="text-xs"
+                >
+                  Tối đa
+                </Button>
+              </div>
               <span className="text-sm text-gray-500">= {formatVND(usePoints * 1000, 0, "VNĐ")}</span>
             </div>
           </div>
