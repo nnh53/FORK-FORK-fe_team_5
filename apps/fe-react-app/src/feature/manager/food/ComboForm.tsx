@@ -187,6 +187,7 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
     if (values.snacks.length === 0) {
       // Tự động đặt trạng thái là UNAVAILABLE nếu không có snack
       values.status = "UNAVAILABLE";
+      values.price = 0; // Đặt giá về 0 khi không có snack
     }
     // Nếu có snack, giá trị discount lớn hơn basePrice -> submit nhưng tự điều chỉnh discount
     else if (discount > basePrice) {

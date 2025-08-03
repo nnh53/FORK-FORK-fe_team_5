@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Shadcn/ui/
 import type { Combo } from "@/interfaces/combo.interface";
 import { calculateComboPriceWithQuantity, formatPrice, getComboStatusLabel, type ComboStatus } from "@/services/comboService";
 import { cn } from "@/utils/utils";
-import { Edit, Eye, Trash, Utensils } from "lucide-react";
+import { Edit, Eye, Utensils } from "lucide-react";
 
 interface ComboCardProps {
   combo: Combo;
@@ -95,8 +95,6 @@ const ComboCard: React.FC<ComboCardProps> = ({ combo, onEdit, onDelete, onViewDe
         {onViewDetails && renderButton("view", <Eye className="h-4 w-4" />, "Chi tiết thực phẩm trong combo", () => onViewDetails(combo), false)}
 
         {onEdit && renderButton("edit", <Edit className="h-4 w-4" />, "Chỉnh sửa", () => onEdit(combo), false)}
-
-        {onDelete && renderButton("delete", <Trash className="h-4 w-4" />, "Xóa", () => onDelete(combo.id ?? 0), true)}
       </div>
     );
   };

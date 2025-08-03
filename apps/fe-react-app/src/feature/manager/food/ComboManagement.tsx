@@ -49,18 +49,18 @@ const filterByGlobalSearch = (combo: Combo, searchTerm: string): boolean => {
   );
 };
 
-// Hàm filter theo trạng thái
+// Hàm filter theotrạng thái
 const filterByStatus = (combo: Combo, status: string): boolean => {
   return combo.status === status;
 };
 
-// Hàm filter theo khoảng giá
+// Hàm filter theokhoảng giá
 const filterByPriceRange = (combo: Combo, range: { from: number | undefined; to: number | undefined }): boolean => {
   const price = combo.price ?? 0;
   return !((range.from !== undefined && price < range.from) || (range.to !== undefined && price > range.to));
 };
 
-// Hàm filter theo khoảng giảm giá (giảm giá trên giá tiền, không phải %)
+// Hàm filter theokhoảng giảm giá (giảm giá trên giá tiền, không phải %)
 const filterByDiscountRange = (combo: Combo, range: { from: number | undefined; to: number | undefined }): boolean => {
   const discount = combo.discount ?? 0;
   return !((range.from !== undefined && discount < range.from) || (range.to !== undefined && discount > range.to));
@@ -174,10 +174,10 @@ const ComboManagement: React.FC = () => {
   const filteredCombos = useMemo(
     () =>
       combos.filter((combo) => {
-        // Lọc theo tìm kiếm toàn cục
+        // Lọc theotìm kiếm toàn cục
         if (!filterByGlobalSearch(combo, searchTerm)) return false;
 
-        // Lọc theo từng tiêu chí
+        // Lọc theotừng tiêu chí
         return filterCriteria.every((filter) => {
           switch (filter.field) {
             case "status":
@@ -197,7 +197,6 @@ const ComboManagement: React.FC = () => {
   // Memoized search and filter options
   const searchOptions: SearchOption[] = useMemo(
     () => [
-      { value: "id", label: "ID" },
       { value: "name", label: "Tên" },
       { value: "description", label: "Mô tả" },
     ],
@@ -291,30 +290,68 @@ const ComboManagement: React.FC = () => {
   const handleFormSubmit = useCallback(
     (data: ComboFormData) => {
       if (selectedCombo) {
-        // Tính toán giá dựa trên snacks
-        const updatedCombo: Combo = {
-          ...selectedCombo,
-          ...data,
-          snacks: data.snacks.map((s) => ({
-            id: typeof s.id === "number" ? s.id : undefined,
-            quantity: s.quantity || 1,
-            snack: s.snack,
-          })),
-        };
+        // Kiểm tra nếu đã xóa hết snacks
+        if (selectedCombo.snacks?.length > 0 && data.snacks.length === 0) {
+          // Lấy danh sách các snack ID từ combo hiện tại
+          const snackIdsToRemove = selectedCombo.snacks.filter((s) => s.snack && typeof s.snack.id === "number").map((s) => s.snack?.id as number);
 
-        // Tính lại giá tự động từ snacks
-        const basePrice = calculateComboPriceWithQuantity(updatedCombo.snacks);
-        const discount = updatedCombo.discount || 0;
+          if (snackIdsToRemove.length > 0) {
+            // Xóa tất cả snacks khỏi combo bằng endpoint DELETE
+            removeSnacksFromComboMutation.mutate(
+              {
+                params: { path: { comboId: selectedCombo.id ?? 0 } },
+                body: snackIdsToRemove,
+              },
+              {
+                onSuccess: () => {
+                  // Sau khi xóa hết snacks, cập nhật thông tin còn lại của combo
+                  const updatedComboWithoutSnacks: Partial<Combo> = {
+                    name: data.name,
+                    description: data.description,
+                    status: "UNAVAILABLE", // Đặt trạng thái là UNAVAILABLE khi không có snack
+                    img: data.img,
+                    price: 0,
+                    discount: data.discount || 0,
+                  };
 
-        // Cập nhật giá trước khi gửi request
-        // Lưu giá sau khi trừ giảm giá (tổng giá snack - giảm giá) lên database
-        updatedCombo.price = Math.max(0, basePrice - discount);
+                  // Cập nhật thông tin combo không bao gồm snacks
+                  updateComboMutation.mutate({
+                    params: { path: { id: selectedCombo.id ?? 0 } },
+                    body: updatedComboWithoutSnacks,
+                  });
+                },
+                onError: () => {
+                  toast.error("Lỗi khi xóa tất cả thực phẩm khỏi combo", { id: "delete-all-combo-snacks-error" });
+                },
+              },
+            );
+          }
+        } else {
+          // Tính toán giá dựa trên snacks
+          const updatedCombo: Combo = {
+            ...selectedCombo,
+            ...data,
+            snacks: data.snacks.map((s) => ({
+              id: typeof s.id === "number" ? s.id : undefined,
+              quantity: s.quantity || 1,
+              snack: s.snack,
+            })),
+          };
 
-        // Gửi update combo
-        updateComboMutation.mutate({
-          params: { path: { id: selectedCombo.id ?? 0 } },
-          body: transformComboToRequest(updatedCombo),
-        });
+          // Tính lại giá tự động từ snacks
+          const basePrice = calculateComboPriceWithQuantity(updatedCombo.snacks);
+          const discount = updatedCombo.discount || 0;
+
+          // Cập nhật giá trước khi gửi request
+          // Lưu giá sau khi trừ giảm giá (tổng giá snack - giảm giá) lên database
+          updatedCombo.price = Math.max(0, basePrice - discount);
+
+          // Gửi update combo
+          updateComboMutation.mutate({
+            params: { path: { id: selectedCombo.id ?? 0 } },
+            body: transformComboToRequest(updatedCombo),
+          });
+        }
       } else {
         // Tạo combo mới
         const newCombo: Combo = {
@@ -339,7 +376,7 @@ const ComboManagement: React.FC = () => {
         });
       }
     },
-    [selectedCombo, updateComboMutation, createComboMutation],
+    [selectedCombo, updateComboMutation, createComboMutation, removeSnacksFromComboMutation],
   );
 
   const handleDeleteSnack = useCallback(
@@ -588,7 +625,7 @@ const ComboManagement: React.FC = () => {
               <SearchBar
                 searchOptions={searchOptions}
                 onSearchChange={setSearchTerm}
-                placeholder="Tìm kiếm theo ID, tên, mô tả..."
+                placeholder="Tìm kiếm theo tên, mô tả..."
                 className="w-full flex-1 sm:w-auto"
                 resetPagination={() => tableRef.current?.resetPagination()}
               />
