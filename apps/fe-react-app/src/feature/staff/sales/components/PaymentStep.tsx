@@ -116,6 +116,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                   value={usePoints}
                   onChange={(e) => onUsePointsChange(Math.min(parseInt(e.target.value) || 0, Math.min(memberInfo.currentPoints, 50)))}
                   max={Math.min(memberInfo.currentPoints, 50)}
+                  min={0}
                   className="w-24"
                 />
                 <Button
