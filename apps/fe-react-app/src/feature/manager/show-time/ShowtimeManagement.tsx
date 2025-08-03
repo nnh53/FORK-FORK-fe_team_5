@@ -14,7 +14,6 @@ import { ShowtimeForm } from "./ShowtimeForm";
 
 const searchOptions = [
   { value: "movieName", label: "Tên phim" },
-  { value: "date", label: "Ngày chiếu" },
 ];
 
 const filterOptions = [
@@ -107,7 +106,7 @@ export function ShowtimeManagement() {
               onSearchChange={(value) => {
                 setSearchTerm(value);
               }}
-              placeholder="Tìm kiếm theo tên phim hoặc ngày chiếu..."
+              placeholder="Tìm kiếm theo tên phim"
               className="flex-1"
             />
             {/* Filter */}

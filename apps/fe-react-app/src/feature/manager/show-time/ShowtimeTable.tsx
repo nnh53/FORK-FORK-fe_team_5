@@ -14,7 +14,7 @@ import { ShowtimeList } from "./ShowtimeList";
 
 const searchOptions = [
   { value: "movieName", label: "Tên phim" },
-  { value: "date", label: "Ngày chiếu" },
+  // { value: "date", label: "Ngày chiếu" },
 ];
 
 const filterOptions = [
@@ -113,7 +113,7 @@ export function ShowtimeTable() {
                 setSearchTerm(value);
                 if (tableRef.current) tableRef.current.resetPagination();
               }}
-              placeholder="Tìm kiếm theo tên phim hoặc ngày chiếu..."
+              placeholder="Tìm kiếm theo tên phim"
               className="flex-1"
               resetPagination={() => tableRef.current?.resetPagination()}
             />
