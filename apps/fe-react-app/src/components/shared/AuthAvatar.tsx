@@ -57,9 +57,9 @@ const AuthAvatar = () => {
     } else if (roles.includes("STAFF")) {
       return (
         <DropdownMenuItem asChild>
-          <Link to={ROUTES.STAFF.DASHBOARD} className="cursor-pointer">
+          <Link to={ROUTES.STAFF.TICKET_SALES} className="cursor-pointer">
             <IconLayoutDashboard className="mr-2 h-4 w-4" />
-            Staff Dashboard
+            Staff Page
           </Link>
         </DropdownMenuItem>
       );
@@ -117,7 +117,7 @@ const AuthAvatar = () => {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} >
+        <DropdownMenuItem onClick={handleLogout}>
           <IconLogout className="mr-2 h-4 w-4" />
           Log out
         </DropdownMenuItem>

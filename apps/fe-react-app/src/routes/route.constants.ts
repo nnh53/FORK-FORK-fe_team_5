@@ -72,7 +72,6 @@ export const ROUTES = {
   },
   STAFF: {
     ROOT: "/staff",
-    DASHBOARD: "/staff/dashboard",
     TICKET_SALES: "/staff/sales",
     BOOKING: "/staff/booking",
     MOVIES: "/staff/movies",

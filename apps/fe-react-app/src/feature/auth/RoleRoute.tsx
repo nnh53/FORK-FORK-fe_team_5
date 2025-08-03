@@ -11,7 +11,7 @@ export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
     case "ADMIN":
       return ROUTES.ADMIN.DASHBOARD;
     case "STAFF":
-      return ROUTES.STAFF.DASHBOARD;
+      return ROUTES.STAFF.TICKET_SALES;
     default:
       return ROUTES.HOME;
   }

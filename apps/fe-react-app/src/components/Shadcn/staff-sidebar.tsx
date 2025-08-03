@@ -9,18 +9,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/Shadcn/ui/sidebar";
-import { IconCalendar, IconHome, IconLifebuoy, IconSend, IconTicket } from "@tabler/icons-react";
+import { IconCalendar, IconLifebuoy, IconSend, IconTicket } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { NavUser } from "./nav-user";
 
 // Navigation data for staff sidebar.
 const staffNavData = {
   navMain: [
-    {
-      title: "Dashboard",
-      url: "/staff/dashboard",
-      icon: IconHome,
-    },
     {
       title: "Bán vé trực tiếp",
       url: "/staff/sales",
@@ -54,7 +49,7 @@ export function StaffSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
           {" "}
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <Link to="/staff/dashboard">
+              <Link to="/staff/sales">
                 <img src={FCinemaLogo} alt="FCinema Logo" className="!size-5" />
                 <span className="text-base font-semibold">FCinema Staff</span>
               </Link>

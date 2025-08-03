@@ -1,11 +1,5 @@
 import { ROUTES } from "@/routes/route.constants";
-import {
-  IconHome,
-  IconTicket,
-  IconCalendar,
-  IconLifebuoy,
-  IconSend,
-} from "@tabler/icons-react";
+import { IconCalendar, IconLifebuoy, IconSend, IconTicket } from "@tabler/icons-react";
 
 export const sidebarData = {
   user: {
@@ -14,11 +8,6 @@ export const sidebarData = {
     avatar: "/assets/FCinema_Logo.webp",
   },
   navMain: [
-    {
-      title: "Dashboard",
-      url: ROUTES.STAFF.DASHBOARD,
-      icon: IconHome,
-    },
     {
       title: "Bán vé trực tiếp",
       url: ROUTES.STAFF.TICKET_SALES,

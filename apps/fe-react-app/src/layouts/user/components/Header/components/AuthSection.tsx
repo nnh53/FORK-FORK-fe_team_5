@@ -126,9 +126,9 @@ const AuthSection = ({ className = "header-actions", loginText = "Login", logout
               )}
               {roles.includes("STAFF") && (
                 <DropdownMenuItem asChild>
-                  <Link to={ROUTES.STAFF.DASHBOARD} className="cursor-pointer">
+                  <Link to={ROUTES.STAFF.TICKET_SALES} className="cursor-pointer">
                     <IconLayoutDashboard className="mr-2 h-4 w-4" />
-                    Staff Dashboard
+                    Staff Page
                   </Link>
                 </DropdownMenuItem>
               )}
