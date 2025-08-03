@@ -218,7 +218,6 @@ const MemberManagement = () => {
 
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [
-    { value: "id", label: "ID" },
     { value: "fullName", label: "Tên" },
     { value: "email", label: "Email" },
     { value: "phone", label: "Số điện thoại" },
@@ -236,7 +235,7 @@ const MemberManagement = () => {
     return [];
   }, [usersQuery.data]);
 
-  // Lọc members theo các tiêu chí
+  // Lọc members theocác tiêu chí
   const filteredMembers = useMemo(() => {
     if (!members) return [];
     return applyMemberFilters(members, filterCriteria, searchTerm);
@@ -307,7 +306,7 @@ const MemberManagement = () => {
               <SearchBar
                 searchOptions={searchOptions}
                 onSearchChange={setSearchTerm}
-                placeholder="Tìm kiếm theo ID, tên, email, số điện thoại hoặc địa chỉ..."
+                placeholder="Tìm kiếm theo tên, email, số điện thoại hoặc địa chỉ..."
                 className="w-full sm:w-1/2"
                 resetPagination={resetTablePagination}
               />

@@ -323,7 +323,7 @@ const MovieManagement = () => {
                   setSearchTerm(value);
                   if (tableRef.current) tableRef.current.resetPagination();
                 }}
-                placeholder="Tìm kiếm theo id, tên phim, hãng phim, diễn viên, đạo diễn, hoặc mô tả..."
+                placeholder="Tìm kiếm theo tên phim, hãng phim, diễn viên, đạo diễn, hoặc mô tả..."
                 className="flex-1"
                 resetPagination={() => tableRef.current?.resetPagination()}
               />

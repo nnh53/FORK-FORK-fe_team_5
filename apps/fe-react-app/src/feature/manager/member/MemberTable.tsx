@@ -20,7 +20,7 @@ import { useSortable } from "@/hooks/useSortable";
 import type { User } from "@/interfaces/users.interface";
 import { formatUserDate } from "@/services/userService";
 import { getUserStatusDisplay } from "@/utils/color.utils";
-import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, Eye, MoreHorizontal } from "lucide-react";
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 
 // Thêm hàm để định dạng thời gian
@@ -161,10 +161,6 @@ const MemberTable = forwardRef<{ resetPagination: () => void }, MemberTableProps
                             <DropdownMenuItem className="cursor-pointer" onClick={() => onEdit(member)}>
                               <Edit className="mr-2 h-4 w-4" />
                               <span>Chỉnh sửa</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer text-red-600" onClick={() => onDelete(member)}>
-                              <Trash className="mr-2 h-4 w-4" />
-                              <span>Xóa</span>
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
