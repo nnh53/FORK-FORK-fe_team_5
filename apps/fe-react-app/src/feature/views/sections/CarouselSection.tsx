@@ -82,7 +82,7 @@ const CarouselSection = forwardRef<HTMLElement, CarouselSectionProps>((_, ref) =
   return (
     <section className="relative h-screen w-full cursor-none overflow-hidden text-white" ref={ref} id="home">
       <Pointer>
-        <div className="text-2xl">🐉</div>
+        <div className="text-2xl"></div>
       </Pointer>
 
       <Carousel

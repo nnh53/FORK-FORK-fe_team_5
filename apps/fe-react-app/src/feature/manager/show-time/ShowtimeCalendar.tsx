@@ -1,5 +1,5 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { Calendar as DatePicker } from "@/components/Shadcn/ui/calendar";
+import { DateTimePicker } from "@/components/Shadcn/ui/datetime-picker";
 import type { FilterCriteria } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
@@ -30,9 +30,7 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
 
   const rooms = useMemo<CinemaRoom[]>(() => {
     if (!roomsData?.result) return [];
-    return transformCinemaRoomsResponse(roomsData.result).filter(
-      (room) => room.status === "ACTIVE",
-    );
+    return transformCinemaRoomsResponse(roomsData.result).filter((room) => room.status === "ACTIVE");
   }, [roomsData?.result]);
 
   const movies = useMemo<Movie[]>(() => {
@@ -105,20 +103,10 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
   return (
     <div className="flex gap-4">
       <div className="shrink-0">
-        <Button
-          variant="outline"
-          className="mb-2"
-          onClick={() => setShowDatePicker((prev) => !prev)}
-        >
+        <Button variant="outline" className="mb-2" onClick={() => setShowDatePicker((prev) => !prev)}>
           {showDatePicker ? "Ẩn lịch" : "Chọn ngày"}
         </Button>
-        {showDatePicker && (
-          <DatePicker
-            mode="single"
-            selected={selectedDate}
-            onSelect={(date) => date && setSelectedDate(date)}
-          />
-        )}
+        {showDatePicker && <DateTimePicker date={selectedDate} setDate={(date) => date && setSelectedDate(date)} placeholder="Chọn ngày" />}
       </div>
       <div className="flex-1">
         <FullCalendar

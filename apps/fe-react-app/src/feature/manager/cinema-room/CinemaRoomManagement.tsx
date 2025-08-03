@@ -342,7 +342,7 @@ const CinemaRoomManagement: React.FC = () => {
               </div>
               <div>
                 <Label className="mb-1" htmlFor="fee">
-                  Tỉ lệ giá <span className="text-red-500">*</span>
+                  Giá phòng cộng thêm (không tính giá ghế) <span className="text-red-500">*</span>
                 </Label>
                 <Input id="fee" type="number" value={formData.fee} onChange={(e) => handleFormChange("fee", parseInt(e.target.value) || 0)} />
               </div>
@@ -422,7 +422,7 @@ const CinemaRoomManagement: React.FC = () => {
               </div>
               <div>
                 <Label className="mb-1" htmlFor="edit-fee">
-                  Tỉ lệ giá <span className="text-red-500">*</span>
+                  Giá phòng cộng thêm (không tính giá ghế) <span className="text-red-500">*</span>
                 </Label>
                 <Input id="edit-fee" type="number" value={formData.fee} onChange={(e) => handleFormChange("fee", parseInt(e.target.value) || 0)} />
               </div>

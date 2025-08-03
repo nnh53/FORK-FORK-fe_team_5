@@ -1,5 +1,5 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { DatePicker } from "@/components/Shadcn/ui/date-picker";
+import { DateTimePicker } from "@/components/Shadcn/ui/datetime-picker";
 import { DialogFooter } from "@/components/Shadcn/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
@@ -199,9 +199,10 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
               <FormItem>
                 <FormLabel>Ngày sinh</FormLabel>
                 <FormControl>
-                  <DatePicker
+                  <DateTimePicker
                     date={field.value ? new Date(field.value) : undefined}
                     setDate={(date) => field.onChange(date ? date.toICTISOString().split("T")[0] : "")}
+                    placeholder="Chọn ngày sinh"
                   />
                 </FormControl>
               </FormItem>

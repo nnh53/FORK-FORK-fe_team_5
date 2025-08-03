@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
-import { DatePicker } from "@/components/Shadcn/ui/date-picker";
+import { DateTimePicker } from "@/components/Shadcn/ui/datetime-picker";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
@@ -165,10 +165,14 @@ function Filter({ filterOptions, onFilterChange, className, showActiveFilters = 
         <div className="text-sm font-medium">{option.label}</div>
         <div className="flex gap-2">
           <div className="flex-1">
-            <DatePicker date={value.from} setDate={(date) => handleTempValueChange(option.value, { ...value, from: date })} placeholder="Từ ngày" />
+            <DateTimePicker
+              date={value.from}
+              setDate={(date) => handleTempValueChange(option.value, { ...value, from: date })}
+              placeholder="Từ ngày"
+            />
           </div>
           <div className="flex-1">
-            <DatePicker date={value.to} setDate={(date) => handleTempValueChange(option.value, { ...value, to: date })} placeholder="Đến ngày" />
+            <DateTimePicker date={value.to} setDate={(date) => handleTempValueChange(option.value, { ...value, to: date })} placeholder="Đến ngày" />
           </div>
         </div>
       </div>

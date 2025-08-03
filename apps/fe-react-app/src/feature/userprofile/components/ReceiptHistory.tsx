@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
-import { DatePicker } from "@/components/Shadcn/ui/date-picker";
+import { DateTimePicker } from "@/components/Shadcn/ui/datetime-picker";
 import { Form, FormField } from "@/components/Shadcn/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -238,7 +238,7 @@ const ReceiptHistory: React.FC = () => {
                       control={form.control}
                       name="fromDate"
                       render={({ field }: { field: { value: Date; onChange: (date: Date) => void } }) => (
-                        <DatePicker
+                        <DateTimePicker
                           date={field.value}
                           setDate={(date) => {
                             if (date) {
@@ -254,7 +254,7 @@ const ReceiptHistory: React.FC = () => {
                       control={form.control}
                       name="toDate"
                       render={({ field }: { field: { value: Date; onChange: (date: Date) => void } }) => (
-                        <DatePicker
+                        <DateTimePicker
                           date={field.value}
                           setDate={(date) => {
                             if (date) {
