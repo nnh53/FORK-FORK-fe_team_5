@@ -1,7 +1,6 @@
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
-import { Checkbox } from "@/components/Shadcn/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,19 +15,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/Shadcn/ui/tabs";
 import type { ApiBooking, BookingStatus, PaymentStatus } from "@/interfaces/booking.interface";
-import type { components } from "@/schema-from-be";
 import { useBookings, useBookingsByStatus } from "@/services/bookingService";
 import { formatVND } from "@/utils/currency.utils";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Filter, MoreHorizontal, Search } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import BookingDetailModal from "./components/BookingDetailModal";
-import BulkStatusUpdate from "./components/BulkStatusUpdate";
 import QuickStatusChange from "./components/QuickStatusChange";
 import StatusStatistics from "./components/StatusStatistics";
-
-type ApiUserResponse = components["schemas"]["ApiResponseUserResponse"];
 
 // Types for filters and booking management
 interface BookingFilters {
@@ -81,29 +76,6 @@ const getStatusBadge = (status: string, type: "booking" | "payment") => {
   }
 };
 
-// Helper function to get payment method text
-const getPaymentMethodText = (method: string | undefined) => {
-  switch (method) {
-    case "CASH":
-      return "Tiền mặt";
-    case "ONLINE":
-      return "Thanh toán online";
-    default:
-      return method || "N/A";
-  }
-};
-
-// Helper functions for safe operations
-
-const formatDateTime = (dateString: string | undefined): string => {
-  if (!dateString) return "N/A";
-  try {
-    return format(new Date(dateString), "dd/MM/yyyy HH:mm", { locale: vi });
-  } catch {
-    return "N/A";
-  }
-};
-
 const StaffBookingManagement: React.FC = () => {
   // State for filters and search
   const [filters, setFilters] = useState<BookingFilters>({
@@ -114,10 +86,6 @@ const StaffBookingManagement: React.FC = () => {
   });
   const [activeTab, setActiveTab] = useState("all");
   const [searchUser, setSearchUser] = useState("");
-
-  // State for bulk selection
-  const [selectedBookings, setSelectedBookings] = useState<string[]>([]);
-  const [selectAll, setSelectAll] = useState(false);
 
   // API hooks with error handling
   const { data: allBookings, isLoading: isLoadingAll, error: errorAll, refetch: refetchAll } = useBookings();
@@ -145,131 +113,107 @@ const StaffBookingManagement: React.FC = () => {
   const { data: currentBookings, isLoading } = getCurrentData();
 
   // Filter bookings based on current filters
-  const bookingsData = currentBookings?.result || [];
-  const filteredBookings = Array.isArray(bookingsData)
-    ? bookingsData
-        .filter((booking) => {
-          if (!filters.searchTerm) return true;
-          const searchLower = filters.searchTerm.toLowerCase();
-          return (
-            booking.id?.toString().includes(searchLower) ||
-            booking.user?.fullName?.toLowerCase().includes(searchLower) ||
-            booking.user?.email?.toLowerCase().includes(searchLower) ||
-            booking.user?.phone?.toLowerCase().includes(searchLower)
-          );
-        })
-        .filter((booking) => (filters.userId ? booking.user?.id === filters.userId : true))
-        .filter((booking) => (filters.paymentStatus && filters.paymentStatus !== "ALL" ? booking.paymentStatus === filters.paymentStatus : true))
-    : [];
-
-  // Handle bulk selection functions
-  const handleSelectBooking = (bookingId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedBookings((prev) => [...prev, bookingId]);
-    } else {
-      setSelectedBookings((prev) => prev.filter((id) => id !== bookingId));
-    }
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    setSelectAll(checked);
-    if (checked) {
-      const allIds = filteredBookings.map((booking) => booking.id?.toString()).filter(Boolean) as string[];
-      setSelectedBookings(allIds);
-    } else {
-      setSelectedBookings([]);
-    }
-  };
-
-  const clearSelection = () => {
-    setSelectedBookings([]);
-    setSelectAll(false);
-  };
+  const filteredBookings = useMemo(() => {
+    const bookingsData = currentBookings?.result || [];
+    return Array.isArray(bookingsData)
+      ? bookingsData
+          .filter((booking) => {
+            if (!filters.searchTerm) return true;
+            const searchLower = filters.searchTerm.toLowerCase();
+            return (
+              booking.id?.toString().includes(searchLower) ||
+              booking.user?.fullName?.toLowerCase().includes(searchLower) ||
+              booking.user?.email?.toLowerCase().includes(searchLower) ||
+              booking.user?.phone?.toLowerCase().includes(searchLower)
+            );
+          })
+          .filter((booking) => (filters.userId ? booking.user?.id === filters.userId : true))
+          .filter((booking) => (filters.paymentStatus && filters.paymentStatus !== "ALL" ? booking.paymentStatus === filters.paymentStatus : true))
+      : [];
+  }, [currentBookings?.result, filters.searchTerm, filters.userId, filters.paymentStatus]);
 
   // Table columns definition - removed complex ColumnDef and replaced with simple table
-  const renderBookingRow = (booking: ApiBooking) => (
-    <TableRow key={booking.id} className={selectedBookings.includes(booking.id?.toString() || "") ? "bg-blue-50" : ""}>
-      <TableCell>
-        <Checkbox
-          checked={selectedBookings.includes(booking.id?.toString() || "")}
-          onCheckedChange={(checked) => handleSelectBooking(booking.id?.toString() || "", checked as boolean)}
-        />
-      </TableCell>
-      <TableCell>
-        <div className="font-medium">#{booking.id}</div>
-      </TableCell>
-      <TableCell>
-        <div className="space-y-1">
-          <div className="font-medium">{booking.user?.fullName || "N/A"}</div>
-          <div className="text-xs text-gray-500">{booking.user?.email || booking.user?.phone || ""}</div>
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="space-y-1">
-          <div className="text-sm font-medium">Movie ID: {booking.showTime?.movieId || "N/A"}</div>
-          <div className="text-xs text-gray-500">
-            {booking.showTime?.showDateTime ? format(new Date(booking.showTime.showDateTime), "dd/MM/yyyy HH:mm", { locale: vi }) : "N/A"}
+  const renderBookingRow = (booking: ApiBooking) => {
+    return (
+      <TableRow key={booking.id}>
+        <TableCell>
+          <div className="font-medium">#{booking.id}</div>
+        </TableCell>
+        <TableCell>
+          <div className="space-y-1">
+            <div className="font-medium">{booking.user?.fullName || "N/A"}</div>
+            <div className="text-xs text-gray-500">{booking.user?.email || booking.user?.phone || ""}</div>
           </div>
-          <div className="text-xs text-gray-500">{booking.showTime?.roomName || "N/A"}</div>
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="flex flex-wrap gap-1">
-          {booking.seats?.slice(0, 3).map((seat) => (
-            <Badge key={seat.id} variant="outline" className="text-xs">
-              {seat.row}
-              {seat.column}
-            </Badge>
-          ))}
-          {booking.seats && booking.seats.length > 3 && (
-            <Badge variant="outline" className="text-xs">
-              +{booking.seats.length - 3}
-            </Badge>
-          )}
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="font-medium text-red-600">{booking.totalPrice ? formatVND(booking.totalPrice, 0, "đ") : "N/A"}</div>
-      </TableCell>
-      <TableCell>
-        {/* Display only - không cho phép thay đổi trực tiếp */}
-        {getStatusBadge(booking.status || "PENDING", "booking")}
-      </TableCell>
-      <TableCell>
-        <QuickStatusChange booking={booking} onUpdate={() => refetchAll()} type="payment" />
-      </TableCell>
-      <TableCell>
-        <div className="text-sm">{booking.bookingDate ? format(new Date(booking.bookingDate), "dd/MM/yyyy HH:mm", { locale: vi }) : "N/A"}</div>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          {/* Detail Modal */}
-          <BookingDetailModal
-            booking={booking}
-            onUpdate={() => {
-              // Refetch data to update the table
-              refetchAll();
-            }}
-          />
+        </TableCell>
+        <TableCell>
+          <div className="space-y-1">
+            <div className="text-sm font-medium">Movie ID: {booking.showTime?.movieId || "N/A"}</div>
+            <div className="text-xs text-gray-500">
+              {booking.showTime?.showDateTime ? format(new Date(booking.showTime.showDateTime), "dd/MM/yyyy HH:mm", { locale: vi }) : "N/A"}
+            </div>
+            <div className="text-xs text-gray-500">{booking.showTime?.roomName || "N/A"}</div>
+          </div>
+        </TableCell>
+        <TableCell>
+          <div className="flex flex-wrap gap-1">
+            {booking.seats?.slice(0, 3).map((seat) => (
+              <Badge key={seat.id} variant="outline" className="text-xs">
+                {seat.row}
+                {seat.column}
+              </Badge>
+            ))}
+            {booking.seats && booking.seats.length > 3 && (
+              <Badge variant="outline" className="text-xs">
+                +{booking.seats.length - 3}
+              </Badge>
+            )}
+          </div>
+        </TableCell>
+        <TableCell>
+          <div className="font-medium text-red-600">{booking.totalPrice ? formatVND(booking.totalPrice, 0, "đ") : "N/A"}</div>
+        </TableCell>
+        <TableCell>
+          {/* Display only - không cho phép thay đổi trực tiếp */}
+          {getStatusBadge(booking.status || "PENDING", "booking")}
+        </TableCell>
+        <TableCell>
+          <QuickStatusChange booking={booking} onUpdate={() => refetchAll()} type="payment" />
+        </TableCell>
+        <TableCell>
+          <div className="text-sm">{booking.bookingDate ? format(new Date(booking.bookingDate), "dd/MM/yyyy HH:mm", { locale: vi }) : "N/A"}</div>
+        </TableCell>
+        <TableCell>
+          <div className="flex items-center gap-2">
+            {/* Detail Modal */}
+            <BookingDetailModal
+              booking={booking}
+              onUpdate={() => {
+                // Refetch data to update the table
+                refetchAll();
+              }}
+            />
 
-          {/* More Actions Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(booking.id?.toString() || "")}>Sao chép mã booking</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(booking.user?.email || "")}>Sao chép email khách hàng</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </TableCell>
-    </TableRow>
-  );
+            {/* More Actions Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(booking.id?.toString() || "")}>Sao chép mã booking</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(booking.user?.email || "")}>
+                  Sao chép email khách hàng
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </TableCell>
+      </TableRow>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -445,9 +389,6 @@ const StaffBookingManagement: React.FC = () => {
             </Card>
           </div>
 
-          {/* Bulk Status Update */}
-          <BulkStatusUpdate selectedBookings={selectedBookings} onUpdate={() => refetchAll()} onClearSelection={clearSelection} />
-
           {/* Data Table */}
           <Card>
             <CardHeader>
@@ -467,11 +408,6 @@ const StaffBookingManagement: React.FC = () => {
                     <StatusStatistics bookings={filteredBookings.filter((b) => b.id !== undefined) as ApiBooking[]} />
                   </CardDescription>
                 </div>
-                {selectedBookings.length > 0 && (
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                    Đã chọn: {selectedBookings.length}
-                  </Badge>
-                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -483,9 +419,6 @@ const StaffBookingManagement: React.FC = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">
-                        <Checkbox checked={selectAll} onCheckedChange={(checked) => handleSelectAll(checked as boolean)} />
-                      </TableHead>
                       <TableHead>Mã Booking</TableHead>
                       <TableHead>Khách hàng</TableHead>
                       <TableHead>Phim & Suất chiếu</TableHead>
@@ -502,7 +435,7 @@ const StaffBookingManagement: React.FC = () => {
                       filteredBookings.map((booking) => (booking.id ? renderBookingRow(booking as ApiBooking) : null))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={10} className="py-8 text-center text-gray-500">
+                        <TableCell colSpan={9} className="py-8 text-center text-gray-500">
                           Không có booking nào được tìm thấy
                         </TableCell>
                       </TableRow>
