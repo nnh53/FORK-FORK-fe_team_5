@@ -427,6 +427,47 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  // Prepare detailed combo and snack data for BookingSummary
+  const selectedCombosDetails = Object.entries(selectedCombos)
+    .filter(([, quantity]) => quantity > 0)
+    .map(([comboId, quantity]) => {
+      const combo = combos.find((c) => c.id === parseInt(comboId));
+      return combo
+        ? {
+            id: combo.id,
+            name: combo.name,
+            price: combo.price,
+            quantity,
+          }
+        : null;
+    })
+    .filter(Boolean) as Array<{
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+  }>;
+
+  const selectedSnacksDetails = Object.entries(selectedSnacks)
+    .filter(([, quantity]) => quantity > 0)
+    .map(([snackId, quantity]) => {
+      const snack = snacks.find((s) => s.id === parseInt(snackId));
+      return snack
+        ? {
+            id: snack.id,
+            name: snack.name,
+            price: snack.price,
+            quantity,
+          }
+        : null;
+    })
+    .filter(Boolean) as Array<{
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+  }>;
+
   if (!movie) {
     // Xử lý khi không có dữ liệu
     return (
@@ -519,6 +560,8 @@ const CheckoutPage: React.FC = () => {
               onPointsChange={handlePointsChange}
               onVoucherChange={handleVoucherChange}
               onMemberChange={handleMemberChange}
+              voucherDiscount={voucherDiscount}
+              promotionDiscount={promotionDiscount}
             />
             <PaymentSummary
               ticketCost={ticketCost}
@@ -557,6 +600,10 @@ const CheckoutPage: React.FC = () => {
               selectedPromotion={selectedPromotion}
               promotionDiscount={promotionDiscount}
               finalTotal={finalTotalCost}
+              selectedCombos={selectedCombosDetails}
+              selectedSnacks={selectedSnacksDetails}
+              roomType={roomData?.result?.type}
+              roomFee={roomData?.result?.fee ?? 0}
               showBackButton={true}
             />
           </div>

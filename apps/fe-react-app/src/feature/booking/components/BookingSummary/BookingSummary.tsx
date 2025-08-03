@@ -28,6 +28,23 @@ interface BookingSummaryProps {
   voucherDiscount?: number; // Add voucher discount
   promotionDiscount?: number; // Add promotion discount
   finalTotal?: number; // Add final total after all discounts
+  // Detailed combo and snack information
+  selectedCombos?: Array<{
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+  }>;
+  selectedSnacks?: Array<{
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+  }>;
+  // Room information
+  roomType?: string;
+  roomFee?: number;
+  includeRoomFeeInTotal?: boolean; // If true, totalCost already includes room fee
   // Navigation props
   showContinueButton?: boolean;
   selectedPromotion?: Promotion | null;
@@ -49,6 +66,11 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   promotionDiscount = 0,
   selectedPromotion = null,
   finalTotal,
+  selectedCombos = [],
+  selectedSnacks = [],
+  roomType,
+  roomFee = 0,
+  includeRoomFeeInTotal = false,
   showContinueButton = false,
   showBackButton = false,
   onContinueClick,
@@ -57,7 +79,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   const navigate = useNavigate();
 
   // Calculate display values
-  const subtotal = totalCost + comboCost + snackCost;
+  const subtotal = includeRoomFeeInTotal ? totalCost + comboCost + snackCost : totalCost + comboCost + snackCost + roomFee;
   const totalDiscounts = pointsDiscount + voucherDiscount;
   const displayTotal = finalTotal !== undefined ? finalTotal : subtotal - totalDiscounts;
 
@@ -85,7 +107,10 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">Phòng chiếu</span>
-          <span className="font-semibold">{selection.roomId ? `${selection.roomId}` : "Chưa chọn phòng"}</span>
+          <div className="text-right">
+            <div className="font-semibold">{selection.roomId ? `${selection.roomId}` : "Chưa chọn phòng"}</div>
+            {roomType && <div className="text-xs text-gray-500">{roomType}</div>}
+          </div>
         </div>
         <div className="flex items-start justify-between">
           <span className="flex-shrink-0 text-gray-500">Ghế ngồi</span>
@@ -97,18 +122,63 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       <div className="mt-4 space-y-2 border-t pt-3 sm:mt-6 sm:pt-4">
         {/* Ticket cost */}
         <div className="flex justify-between text-xs sm:text-sm">
-          <span className="text-gray-600">Tiền vé ({selectedSeats.length} ghế):</span>
+          <span className="text-gray-600">
+            {includeRoomFeeInTotal && roomFee > 0 ? `Tiền vé + phí phòng (${selectedSeats.length} ghế):` : `Tiền vé (${selectedSeats.length} ghế):`}
+          </span>
           <span className="font-semibold">{formatVND(totalCost)}</span>
         </div>
-        {/* Combo cost */}
-        {comboCost > 0 && (
+        {/* Room fee */}
+        {roomFee > 0 && !includeRoomFeeInTotal && (
+          <div className="flex justify-between text-xs sm:text-sm">
+            <span className="text-gray-600">Phí phòng:</span>
+            <span className="font-semibold">{formatVND(roomFee)}</span>
+          </div>
+        )}
+        {/* Combo cost - detailed breakdown */}
+        {selectedCombos.length > 0 && (
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-gray-700 sm:text-sm">Combo bắp nước:</div>
+            {selectedCombos.map((combo) => (
+              <div key={combo.id} className="flex justify-between pl-2 text-xs sm:text-sm">
+                <span className="max-w-[60%] truncate text-gray-600">
+                  {combo.name} x{combo.quantity}
+                </span>
+                <span className="font-semibold">{formatVND(combo.price * combo.quantity)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Snack cost - detailed breakdown */}
+        {selectedSnacks.length > 0 && (
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-gray-700 sm:text-sm">Đồ ăn vặt:</div>
+            {selectedSnacks.map((snack) => (
+              <div key={snack.id} className="flex justify-between pl-2 text-xs sm:text-sm">
+                <span className="max-w-[60%] truncate text-gray-600">
+                  {snack.name} x{snack.quantity}
+                </span>
+                <span className="font-semibold">{formatVND(snack.price * snack.quantity)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Fallback: show total combo/snack cost if no detailed data but has cost */}
+        {comboCost > 0 && selectedCombos.length === 0 && (
           <div className="flex justify-between text-xs sm:text-sm">
             <span className="text-gray-600">Combo bắp nước:</span>
             <span className="font-semibold">{formatVND(comboCost)}</span>
           </div>
         )}
+        {snackCost > 0 && selectedSnacks.length === 0 && (
+          <div className="flex justify-between text-xs sm:text-sm">
+            <span className="text-gray-600">Đồ ăn vặt:</span>
+            <span className="font-semibold">{formatVND(snackCost)}</span>
+          </div>
+        )}
         {/* Subtotal */}
-        {(comboCost > 0 || totalDiscounts > 0) && (
+        {(comboCost > 0 || snackCost > 0 || totalDiscounts > 0) && (
           <div className="flex justify-between border-t pt-2 text-xs sm:text-sm">
             <span className="text-gray-600">Tạm tính:</span>
             <span className="font-semibold">{formatVND(subtotal)}</span>

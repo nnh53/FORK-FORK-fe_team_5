@@ -27,6 +27,9 @@ interface DiscountSectionProps {
     email: string;
     loyalty_point?: number;
   } | null;
+  // Other discounts already applied (to calculate remaining amount for points)
+  voucherDiscount?: number;
+  promotionDiscount?: number;
 }
 
 const DiscountSection: React.FC<DiscountSectionProps> = ({
@@ -38,6 +41,8 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
   className = "",
   mode = "manual", // Default to manual mode for backward compatibility
   currentUser = null,
+  voucherDiscount = 0,
+  promotionDiscount = 0,
 }) => {
   // State for manual mode (staff search)
   const [searchValue, setSearchValue] = useState(""); // Can be phone or email
@@ -94,9 +99,43 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
 
   // Calculate points discount (1 point = 1000 VND)
   const pointsDiscount = pointsToUse * 1000;
-  const maxPointsCanUse = member ? Math.min(member.currentPoints, Math.floor(orderAmount / 1000)) : 0;
+
+  // Calculate amount after other discounts (voucher, promotion)
+  const amountAfterOtherDiscounts = orderAmount - voucherDiscount - promotionDiscount;
+
+  // Maximum points calculation with constraints:
+  // 1. Max 50 points absolute limit
+  // 2. Cannot exceed member's current points
+  // 3. Must leave at least 1000 VND after points discount
+  const maxPointsCanUse = member
+    ? Math.max(
+        0,
+        Math.min(
+          50, // Maximum 50 points
+          member.currentPoints, // Cannot exceed member's points
+          Math.floor((amountAfterOtherDiscounts - 1000) / 1000), // Must leave at least 1000 VND
+        ),
+      )
+    : 0;
 
   const handlePointsChange = (value: number) => {
+    // Validation and user feedback
+    if (value > 50) {
+      toast.warning("Chỉ được sử dụng tối đa 50 điểm mỗi lần");
+      return;
+    }
+
+    if (member && value > member.currentPoints) {
+      toast.warning(`Bạn chỉ có ${member.currentPoints} điểm`);
+      return;
+    }
+
+    const pointsValue = value * 1000;
+    if (amountAfterOtherDiscounts - pointsValue < 1000) {
+      toast.warning("Phải giữ lại tối thiểu 1.000đ sau khi trừ điểm");
+      return;
+    }
+
     const validPoints = Math.min(Math.max(0, value), maxPointsCanUse);
     setPointsToUse(validPoints);
     onPointsChange(validPoints, validPoints * 1000);
@@ -186,7 +225,22 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
                   min={0}
                   className="flex-1"
                 />
-                <Button variant="outline" size="sm" onClick={() => handlePointsChange(maxPointsCanUse)} disabled={maxPointsCanUse === 0}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (maxPointsCanUse === 0) {
+                      if (amountAfterOtherDiscounts <= 1000) {
+                        toast.info("Không thể sử dụng điểm vì phải giữ lại tối thiểu 1.000đ");
+                      } else if (!member || member.currentPoints === 0) {
+                        toast.info("Không có điểm để sử dụng");
+                      }
+                    } else {
+                      handlePointsChange(maxPointsCanUse);
+                    }
+                  }}
+                  disabled={maxPointsCanUse === 0}
+                >
                   Dùng hết
                 </Button>
                 {pointsToUse > 0 && (
@@ -198,6 +252,7 @@ const DiscountSection: React.FC<DiscountSectionProps> = ({
 
               <div className="text-xs text-gray-600">
                 Tối đa {maxPointsCanUse.toLocaleString()} điểm (= {formatVND(maxPointsCanUse * 1000)})
+                <div className="mt-1 text-orange-600">• Giới hạn 50 điểm/lần • Giữ lại tối thiểu {formatVND(1000)} sau khi trừ điểm</div>
                 {pointsToUse > 0 && <span className="ml-2 font-medium text-green-600">Giảm {formatVND(pointsDiscount)}</span>}
               </div>
             </div>
