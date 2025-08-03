@@ -45,7 +45,7 @@ const isValidPromotion = (promotion: Promotion | undefined | null): promotion is
   return !!promotion && typeof promotion.id === "number" && !!promotion.title;
 };
 
-// Hàm lọc theo từ khóa tìm kiếm
+// Hàm lọc theotừ khóa tìm kiếm
 const filterBySearchTerm = (promotion: Promotion, searchTerm: string): boolean => {
   if (!searchTerm || !isValidPromotion(promotion)) return true;
 
@@ -57,7 +57,7 @@ const filterBySearchTerm = (promotion: Promotion, searchTerm: string): boolean =
   );
 };
 
-// Hàm lọc theo loại select
+// Hàm lọc theoloại select
 const filterBySelectType = (promotion: Promotion, field: string, value: string): boolean => {
   if (value === "all") return true;
   if (field === "status") return promotion.status === value;
@@ -65,7 +65,7 @@ const filterBySelectType = (promotion: Promotion, field: string, value: string):
   return true;
 };
 
-// Hàm lọc theo khoảng thời gian
+// Hàm lọc theokhoảng thời gian
 const filterByDateRange = (promotion: Promotion, field: string, range: { from: Date | undefined; to: Date | undefined }): boolean => {
   if (!range.from && !range.to) return true;
 
@@ -73,7 +73,7 @@ const filterByDateRange = (promotion: Promotion, field: string, range: { from: D
   return (!range.from || dateValue >= range.from) && (!range.to || dateValue <= range.to);
 };
 
-// Hàm lọc theo khoảng số
+// Hàm lọc theokhoảng số
 const filterByNumberRange = (promotion: Promotion, field: string, range: { from: number | undefined; to: number | undefined }): boolean => {
   if (!range.from && !range.to) return true;
 
@@ -83,7 +83,7 @@ const filterByNumberRange = (promotion: Promotion, field: string, range: { from:
 
 // Hàm applyFilters để xử lý tất cả các tiêu chí lọc và tìm kiếm
 const applyFilters = (promotions: Promotion[], criteria: StrictFilterCriteria[], searchTerm: string): Promotion[] => {
-  // Lọc theo tất cả các tiêu chí
+  // Lọc theotất cả các tiêu chí
   return promotions.filter((promotion) => {
     if (!isValidPromotion(promotion)) return false;
     if (!filterBySearchTerm(promotion, searchTerm)) return false;
@@ -242,7 +242,6 @@ export const PromotionManagement: React.FC = () => {
 
   // Define search options for the SearchBar component
   const searchOptions: SearchOption[] = [
-    { value: "id", label: "ID" },
     { value: "title", label: "Tên khuyến mãi" },
     { value: "description", label: "Mô tả" },
   ];
@@ -339,7 +338,7 @@ export const PromotionManagement: React.FC = () => {
                 searchOptions={searchOptions}
                 onSearchChange={setSearchTerm}
                 className="w-full sm:w-1/2"
-                placeholder="Tìm kiếm khuyến mãi theo id, tên, mô tả..."
+                placeholder="Tìm kiếm khuyến mãi theo tên, mô tả..."
                 resetPagination={() => tableRef.current?.resetPagination()}
               />
               <div className="shrink-0">
@@ -368,8 +367,8 @@ export const PromotionManagement: React.FC = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-h-[95vh] min-w-[50%] overflow-y-auto sm:max-w-5xl" onCloseAutoFocus={() => setSelectedPromotion(undefined)}>
-          <DialogHeader className="border-b pb-4">
+        <DialogContent className="max-h-[100vh] min-w-[50%] overflow-y-auto sm:max-w-4xl" onCloseAutoFocus={() => setSelectedPromotion(undefined)}>
+          <DialogHeader className="border-b">
             <DialogTitle className="flex items-center gap-2 text-xl font-bold">
               <Icon icon={selectedPromotion ? "tabler:edit" : "tabler:plus"} className="h-5 w-5" />
               {selectedPromotion ? "Chỉnh sửa khuyến mãi" : "Thêm khuyến mãi mới"}

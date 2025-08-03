@@ -1,9 +1,8 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
+import { DateTimePicker } from "@/components/Shadcn/ui/datetime-picker";
 import { Input } from "@/components/Shadcn/ui/input";
 import { Label } from "@/components/Shadcn/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import { Textarea } from "@/components/Shadcn/ui/textarea";
 import ImageUpload from "@/components/shared/ImageUpload";
@@ -11,9 +10,8 @@ import type { Promotion } from "@/interfaces/promotion.interface";
 import { promotionStatusOptions, promotionTypeOptions } from "@/services/promotionService";
 import { promotionValidationSchema } from "@/utils/validation.utils";
 import { Icon } from "@iconify/react";
-import { format } from "date-fns";
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from "formik";
-import { CalendarIcon, ImageIcon } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 interface PromotionFormProps {
@@ -60,11 +58,6 @@ const initialValues: Omit<Promotion, "id"> = {
   status: "inactive",
 };
 
-// Helper function to format date for form
-const formatDateForForm = (date: string): string => {
-  return new Date(date).toICTISOString().slice(0, 16);
-};
-
 // Component to render form field with error handling
 const FormField = ({ name, label, icon, as: Component = Input, errors, touched, ...props }: FormFieldProps) => (
   <div className="space-y-2">
@@ -106,83 +99,6 @@ const SelectField = ({ name, label, icon, options, errors, touched, setFieldValu
   </div>
 );
 
-// Bộ chọn ngày tháng sử dụng Calendar24 làm gốc
-const CustomCalendar24: React.FC<{
-  date: Date | undefined;
-  setDate: (date: Date | undefined) => void;
-  error?: boolean;
-  disablePastDates?: boolean;
-}> = ({ date, setDate, error, disablePastDates = false }) => {
-  const [open, setOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(date);
-  const [time, setTime] = useState(
-    date ? `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}` : "00:00",
-  );
-
-  // Cập nhật state khi prop date thay đổi
-  useEffect(() => {
-    if (date !== selectedDate) {
-      setSelectedDate(date);
-      if (date) {
-        setTime(`${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`);
-      }
-    }
-  }, [date, selectedDate]);
-
-  // Xử lý khi chọn ngày mới
-  const handleDateSelect = (newDate: Date | undefined) => {
-    if (newDate) {
-      // Giữ nguyên giờ phút hiện tại khi chọn ngày mới
-      const [hours, minutes] = time.split(":").map(Number);
-      newDate.setHours(hours, minutes, 0, 0);
-      setSelectedDate(newDate);
-      setDate(newDate);
-    }
-    setOpen(false);
-  };
-
-  // Xử lý khi thay đổi thời gian
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTime = e.target.value;
-    setTime(newTime);
-
-    if (selectedDate) {
-      const [hours, minutes] = newTime.split(":").map(Number);
-      const newDateTime = new Date(selectedDate);
-      newDateTime.setHours(hours, minutes, 0, 0);
-      setDate(newDateTime);
-    }
-  };
-
-  // Hàm lọc ngày trong quá khứ
-  const disableDate = disablePastDates
-    ? (date: Date) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return date < today;
-      }
-    : undefined;
-
-  return (
-    <div className="flex gap-2">
-      <div className="flex-grow">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className={`w-full justify-start text-left font-normal ${error ? "border-destructive ring-destructive" : ""}`}>
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {selectedDate ? format(selectedDate, "dd/MM/yyyy") : <span className="text-muted-foreground">Chọn ngày</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar mode="single" selected={selectedDate} onSelect={handleDateSelect} disabled={disableDate} />
-          </PopoverContent>
-        </Popover>
-      </div>
-      <Input type="time" value={time} onChange={handleTimeChange} className={`w-32 ${error ? "border-destructive ring-destructive" : ""}`} />
-    </div>
-  );
-};
-
 export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion, onSubmit, onCancel }) => {
   // Khởi tạo imagePreview là null để có thể phân biệt giữa chưa thay đổi (null) và đã xóa ("")
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -191,9 +107,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
   const [startDate, setStartDate] = useState<Date | undefined>(selectedPromotion?.startTime ? new Date(selectedPromotion.startTime) : undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(selectedPromotion?.endTime ? new Date(selectedPromotion.endTime) : undefined);
 
-  const formInitialValues = selectedPromotion
-    ? { ...selectedPromotion, startTime: formatDateForForm(selectedPromotion.startTime), endTime: formatDateForForm(selectedPromotion.endTime) }
-    : initialValues;
+  const formInitialValues = selectedPromotion ? { ...selectedPromotion } : initialValues;
 
   // Kiểm tra nếu ngày kết thúc nằm trong quá khứ
   const isEndDateInPast = (date: Date | undefined): boolean => {
@@ -350,7 +264,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                     </div>
 
                     {/* Date Time Section */}
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4">
                       <div>
                         <div className="mb-2 flex items-center gap-1">
                           <Icon icon="tabler:calendar-plus" className="h-4 w-4" />
@@ -358,7 +272,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                             Thời gian bắt đầu <span className="text-destructive">*</span>
                           </Label>
                         </div>
-                        <CustomCalendar24
+                        <DateTimePicker
                           date={startDate}
                           setDate={(date: Date | undefined) => {
                             setStartDate(date);
@@ -366,7 +280,8 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                               setFieldValue("startTime", date.toICTISOString());
                             }
                           }}
-                          error={!!errors.startTime && touched.startTime}
+                          showTime={true}
+                          placeholder="Chọn thời gian"
                         />
                         {errors.startTime && touched.startTime && <div className="text-destructive mt-1 text-sm">{String(errors.startTime)}</div>}
                       </div>
@@ -378,7 +293,7 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                             Thời gian kết thúc <span className="text-destructive">*</span>
                           </Label>
                         </div>
-                        <CustomCalendar24
+                        <DateTimePicker
                           date={endDate}
                           setDate={(date: Date | undefined) => {
                             setEndDate(date);
@@ -386,8 +301,8 @@ export const PromotionForm: React.FC<PromotionFormProps> = ({ selectedPromotion,
                               setFieldValue("endTime", date.toICTISOString());
                             }
                           }}
-                          error={!!errors.endTime && touched.endTime}
-                          disablePastDates={!selectedPromotion} // Chỉ disable ngày trong quá khứ khi thêm mới
+                          showTime={true}
+                          placeholder="Chọn thời gian"
                         />
                         {errors.endTime && touched.endTime && <div className="text-destructive mt-1 text-sm">{String(errors.endTime)}</div>}
                       </div>
