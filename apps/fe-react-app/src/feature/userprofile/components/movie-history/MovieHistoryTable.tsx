@@ -1,4 +1,5 @@
 import { Badge } from "@/components/Shadcn/ui/badge";
+import { Button } from "@/components/Shadcn/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -11,7 +12,7 @@ import {
 } from "@/components/Shadcn/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/Shadcn/ui/table";
 import { usePagination } from "@/hooks/usePagination";
-import { Clock, Film, MapPin, Users } from "lucide-react";
+import { Clock, CreditCard, Film, MapPin, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { MovieDetailProps } from "./MovieHistoryDetail";
 import { MovieHistoryDetail } from "./MovieHistoryDetail";
@@ -65,7 +66,7 @@ export const MovieHistoryTable: React.FC<MovieHistoryTableProps> = ({ movieHisto
             <TableHead className="hidden md:table-cell">Suất chiếu</TableHead>
             <TableHead className="hidden lg:table-cell">Ghế</TableHead>
             <TableHead>Trạng thái</TableHead>
-            <TableHead className="w-[50px]"></TableHead>
+            <TableHead className="text-center">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -92,6 +93,17 @@ export const MovieHistoryTable: React.FC<MovieHistoryTableProps> = ({ movieHisto
                         <p>#{movie.receiptId}</p>
                         <p>{movie.room}</p>
                         <p>{movie.movieSlot}</p>
+                        {movie.status === "PENDING" && movie.payOsLink && (
+                          <Button
+                            size="sm"
+                            variant="default"
+                            className="h-7 bg-blue-600 text-xs hover:bg-blue-700"
+                            onClick={() => window.open(movie.payOsLink, "_blank")}
+                          >
+                            <CreditCard className="mr-1 h-3 w-3" />
+                            Thanh toán
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -116,7 +128,20 @@ export const MovieHistoryTable: React.FC<MovieHistoryTableProps> = ({ movieHisto
                 </TableCell>
                 <TableCell>{getStatusBadge(movie.status)}</TableCell>
                 <TableCell>
-                  <MovieHistoryDetail movie={movie} />
+                  <div className="flex items-center justify-center gap-2">
+                    {movie.status === "PENDING" && movie.payOsLink && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="h-8 bg-blue-600 hover:bg-blue-700"
+                        onClick={() => window.open(movie.payOsLink, "_blank")}
+                      >
+                        <CreditCard className="mr-1 h-3 w-3" />
+                        Thanh toán
+                      </Button>
+                    )}
+                    <MovieHistoryDetail movie={movie} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))

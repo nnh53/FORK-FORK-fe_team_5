@@ -1,7 +1,7 @@
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/Shadcn/ui/dialog";
-import { Clock, MapPin, MoreHorizontal, Users } from "lucide-react";
+import { Clock, CreditCard, MapPin, MoreHorizontal, Users } from "lucide-react";
 
 // Movie detail props interface
 export interface MovieDetailProps {
@@ -14,23 +14,25 @@ export interface MovieDetailProps {
   points: number; // Keep this in the interface for compatibility
   poster: string;
   status: string;
+  payOsLink?: string; // Add payOsLink for pending payments
 }
 
 export const MovieHistoryDetail: React.FC<{ movie: MovieDetailProps }> = ({ movie }) => {
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      confirmed: { label: "Đã xác nhận", variant: "default" as const },
-      paid: { label: "Đã thanh toán", variant: "secondary" as const },
-      cancelled: { label: "Đã hủy", variant: "destructive" as const },
-      refunded: { label: "Đã hoàn tiền", variant: "outline" as const },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || {
-      label: status,
-      variant: "default" as const,
-    };
-
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    switch (status) {
+      case "SUCCESS":
+        return (
+          <Badge variant="default" className="bg-green-500">
+            Hoàn thành
+          </Badge>
+        );
+      case "PENDING":
+        return <Badge variant="secondary">Đang xử lý</Badge>;
+      case "CANCELLED":
+        return <Badge variant="destructive">Đã hủy</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
   return (
@@ -73,6 +75,16 @@ export const MovieHistoryDetail: React.FC<{ movie: MovieDetailProps }> = ({ movi
             <span className="text-sm font-medium">Trạng thái:</span>
             {getStatusBadge(movie.status)}
           </div>
+
+          {/* Payment button for PENDING orders */}
+          {movie.status === "PENDING" && movie.payOsLink && (
+            <div className="pt-2">
+              <Button onClick={() => window.open(movie.payOsLink, "_blank")} className="w-full bg-blue-600 hover:bg-blue-700">
+                <CreditCard className="mr-2 h-4 w-4" />
+                Tiếp tục thanh toán
+              </Button>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

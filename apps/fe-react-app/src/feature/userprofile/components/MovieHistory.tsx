@@ -99,6 +99,7 @@ export const MovieHistory: React.FC = () => {
           points: booking.loyaltyPointsUsed || 0,
           poster: movie?.poster || "https://via.placeholder.com/100x150",
           status: booking.status || "PENDING",
+          payOsLink: booking.payOsLink || "",
         };
       })
       .sort((a, b) => b.movieTime.getTime() - a.movieTime.getTime());
