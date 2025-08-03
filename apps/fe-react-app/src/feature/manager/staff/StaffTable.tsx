@@ -19,7 +19,7 @@ import { useSortable } from "@/hooks/useSortable";
 import type { StaffUser } from "@/interfaces/staff.interface";
 import { formatUserDate } from "@/services/userService";
 import { getUserStatusDisplay } from "@/utils/color.utils";
-import { Edit, Trash } from "lucide-react";
+import { Edit } from "lucide-react";
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 
 interface StaffTableProps {
@@ -161,9 +161,6 @@ const StaffTable = forwardRef<{ resetPagination: () => void }, StaffTableProps>(
                       <div className="flex justify-center gap-1">
                         <Button variant="ghost" size="icon" onClick={() => onEdit(staff)} title="Chỉnh sửa">
                           <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => onDelete(staff)} title="Xóa">
-                          <Trash className="h-4 w-4 text-red-600" />
                         </Button>
                       </div>
                     </TableCell>

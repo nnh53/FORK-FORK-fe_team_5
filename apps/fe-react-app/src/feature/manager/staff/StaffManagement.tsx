@@ -43,7 +43,7 @@ interface StrictFilterCriteria extends FilterCriteria {
 const applyFilters = (staffs: StaffUser[], criteria: StrictFilterCriteria[], searchTerm: string): StaffUser[] => {
   let result = staffs;
 
-  // Lọc theo tìm kiếm toàn cục
+  // Lọc theotìm kiếm toàn cục
   if (searchTerm) {
     const lowerSearchTerm = searchTerm.toLowerCase().trim();
     result = result.filter(
@@ -106,7 +106,7 @@ const StaffManagement: React.FC = () => {
     return [];
   }, [usersQuery.data]);
 
-  // Lọc staffs theo tiêu chí và tìm kiếm
+  // Lọc staffs theotiêu chí và tìm kiếm
   const filteredStaffs = useMemo(() => applyFilters(staffs, filterCriteria, searchTerm), [staffs, searchTerm, filterCriteria]);
 
   // Sử dụng hook chung useMutationHandler để xử lý các mutation
@@ -156,7 +156,6 @@ const StaffManagement: React.FC = () => {
 
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [
-    { value: "id", label: "ID" },
     { value: "fullName", label: "Tên" },
     { value: "email", label: "Email" },
     { value: "phone", label: "Số điện thoại" },
@@ -258,7 +257,7 @@ const StaffManagement: React.FC = () => {
             <SearchBar
               searchOptions={searchOptions}
               onSearchChange={setSearchTerm}
-              placeholder="Tìm kiếm theo ID, tên, email, số điện thoại hoặc địa chỉ..."
+              placeholder="Tìm kiếm theo tên, email, số điện thoại hoặc địa chỉ..."
               className="w-full flex-1 sm:w-auto"
               resetPagination={() => tableRef.current?.resetPagination()}
             />
