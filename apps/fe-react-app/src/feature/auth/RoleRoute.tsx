@@ -12,8 +12,6 @@ export function RoleRouteToEachPage(roleName: ROLE_TYPE): string {
       return ROUTES.ADMIN.DASHBOARD;
     case "STAFF":
       return ROUTES.STAFF.DASHBOARD;
-    case "MEMBER":
-      return ROUTES.HOME;
     default:
       return ROUTES.HOME;
   }
@@ -50,9 +48,8 @@ const RoleRoute: React.FC<RoleRouteProps> = ({ allowedRoles }) => {
       console.log("Admin trying to access staff route, redirecting to admin dashboard");
       return <Navigate to={RoleRouteToEachPage("ADMIN")} replace />;
     }
-
-    console.log("Access denied: User roles do not match allowed roles");
-    return <Navigate to="/unauthorized" replace />;
+    // return <Navigate to={ROUTES.UNAUTHORIZED} replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
