@@ -62,7 +62,7 @@ const filterByNumberRange = (snack: Snack, field: string, range: { from: number 
   return !(range.from && value < range.from) && !(range.to && value > range.to);
 };
 
-// Hàm filter theo các enum
+// Hàm filter theocác enum
 const filterByCategory = (snack: Snack, category: FilterValue): boolean => {
   if (typeof category !== "string" || !isValidSnack(snack)) return false;
   return snack.category === category;
@@ -156,7 +156,6 @@ const SnackManagement: React.FC = () => {
 
   // Định nghĩa các trường tìm kiếm
   const searchOptions: SearchOption[] = [
-    { value: "id", label: "ID" },
     { value: "name", label: "Tên" },
     { value: "flavor", label: "Hương vị" },
     { value: "description", label: "Mô tả" },
@@ -271,7 +270,7 @@ const SnackManagement: React.FC = () => {
     }
   };
 
-  // Lọc snacks theo các tiêu chí
+  // Lọc snacks theocác tiêu chí
   const filteredSnacks = useMemo(() => {
     const snacks = snacksQuery.data?.result ? transformSnacksResponse(snacksQuery.data.result) : [];
     return applyFilters(snacks, filterCriteria, searchTerm);
@@ -301,7 +300,7 @@ const SnackManagement: React.FC = () => {
               <SearchBar
                 searchOptions={searchOptions}
                 onSearchChange={setSearchTerm}
-                placeholder="Tìm kiếm theo ID, tên, mô tả..."
+                placeholder="Tìm kiếm theo tên, mô tả..."
                 className="w-full flex-1 sm:w-auto"
                 resetPagination={() => tableRef.current?.resetPagination()}
               />
@@ -332,7 +331,7 @@ const SnackManagement: React.FC = () => {
           if (!open) handleCancel();
         }}
       >
-        <DialogContent className="sm:max-w-220 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-220">
           <DialogHeader>
             <DialogTitle>{selectedSnack ? "Chỉnh sửa thực phẩm" : "Thêm thực phẩm mới"}</DialogTitle>
           </DialogHeader>

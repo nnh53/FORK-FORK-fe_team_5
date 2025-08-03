@@ -14,7 +14,7 @@ import {
 import { formatVND } from "@/utils/currency.utils";
 import { cn } from "@/utils/utils";
 import { Icon } from "@iconify/react";
-import { Edit, Trash, Utensils } from "lucide-react";
+import { Edit, Utensils } from "lucide-react";
 interface SnackCardProps {
   snack: Snack;
   onEdit?: (snack: Snack) => void;
@@ -105,55 +105,23 @@ const SizeBadge = ({ snack }: { snack: Snack | null | undefined }) => {
   );
 };
 
-interface ActionButtonsProps {
-  snack: Snack;
-  onEdit?: (snack: Snack) => void;
-  onDelete?: (id: number) => void;
-  isFullWidth?: boolean;
-}
-
-const ActionButtons = ({ snack, onEdit, onDelete, isFullWidth = false }: ActionButtonsProps) => (
-  <div className={`flex ${isFullWidth ? "w-full" : ""} h-8 gap-1`}>
-    {onEdit && (
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => onEdit(snack)}
-        className={isFullWidth ? "flex h-8 flex-1 items-center justify-center" : "flex h-8 w-8 items-center justify-center p-0"}
-      >
-        <Edit className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
-        {isFullWidth && "Chỉnh sửa"}
-      </Button>
-    )}
-    {onDelete && (
-      <Button
-        size="sm"
-        variant={isFullWidth ? "destructive" : "outline"}
-        onClick={() => onDelete(snack.id ?? 0)}
-        className={
-          isFullWidth
-            ? "flex h-8 flex-1 items-center justify-center"
-            : "flex h-8 w-8 items-center justify-center p-0 text-red-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-        }
-      >
-        <Trash className={isFullWidth ? "mr-1 h-3 w-3" : "h-4 w-4"} />
-        {isFullWidth && "Xóa"}
-      </Button>
-    )}
-  </div>
-);
-
 const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode = "grid" }) => {
-  console.log("Rendering SnackCard with data:", snack);
   // Grid View
   if (viewMode === "grid") {
     return (
-      <Card className={cn("flex h-[400px] w-full max-w-md flex-col p-4 transition-all duration-200 hover:shadow-lg")}>
+      <Card className={cn("flex h-[360px] w-full max-w-md flex-col p-4 transition-all duration-200 hover:shadow-lg")}>
         <CardHeader className="flex-shrink-0 p-0">
           <div className="flex flex-col space-y-2">
-            <div className="flex items-center justify-end gap-2">
-              <CategoryBadge snack={snack} />
-              <StatusBadge snack={snack} />
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <CategoryBadge snack={snack} />
+                <StatusBadge snack={snack} />
+              </div>
+              {onEdit && (
+                <Button size="sm" variant="outline" onClick={() => onEdit(snack)} className="flex h-7 w-7 items-center justify-center p-0">
+                  <Edit className="h-3.5 w-3.5" />
+                </Button>
+              )}
             </div>
             {/* Thiết kế lại phần tiêu đề với giới hạn chiều rộng chặt chẽ hơn */}
             <div className="w-full overflow-hidden">
@@ -215,7 +183,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Giá</span>
-                <span className="text-lg font-bold text-green-600">{snack?.price ? formatVND(snack.price) : "N/A"}</span>
+                <span className="text-lg font-bold text-green-600">{snack?.price ? formatVND(snack.price, 0, "đ") : "N/A"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Kích cỡ</span>
@@ -238,13 +206,6 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
             </div>
             <p className="line-clamp-2 overflow-hidden text-sm leading-relaxed text-green-600 italic">{snack?.description || "Không có mô tả"}</p>
           </div>
-
-          {/* Fixed-position action buttons always at the bottom */}
-          {(onEdit || onDelete) && (
-            <div className="mt-auto flex flex-shrink-0 gap-1">
-              <ActionButtons snack={snack} onEdit={onEdit} onDelete={onDelete} isFullWidth={true} />
-            </div>
-          )}
         </CardContent>
       </Card>
     );
@@ -292,9 +253,14 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
         {/* Grid layout with better text handling */}
         <div className="grid flex-1 grid-cols-12 items-center gap-2 text-sm">
           <div className="col-span-6 flex flex-col gap-1 overflow-hidden sm:col-span-4 md:col-span-3 lg:col-span-2">
-            <div className="mb-1 flex flex-wrap gap-1">
+            <div className="mb-1 flex flex-wrap items-center gap-1">
               <CategoryBadge snack={snack} />
               <StatusBadge snack={snack} />
+              {onEdit && (
+                <Button size="sm" variant="outline" onClick={() => onEdit(snack)} className="ml-1 flex h-6 w-6 items-center justify-center p-0">
+                  <Edit className="h-3 w-3" />
+                </Button>
+              )}
             </div>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -332,12 +298,7 @@ const SnackCard: React.FC<SnackCardProps> = ({ snack, onEdit, onDelete, viewMode
 
           {/* Price with consistent formatting */}
           <div className="col-span-3 text-left font-bold whitespace-nowrap text-green-600 sm:col-span-1 md:col-span-1 lg:col-span-1">
-            {snack?.price ? formatVND(snack.price) : "N/A"}
-          </div>
-
-          {/* Action buttons with fixed height */}
-          <div className="col-span-3 flex h-8 justify-end gap-1 sm:col-span-2 md:col-span-2 lg:col-span-2">
-            <ActionButtons snack={snack} onEdit={onEdit} onDelete={onDelete} isFullWidth={false} />
+            {snack?.price ? formatVND(snack.price, 0, "đ") : "N/A"}
           </div>
         </div>
       </CardContent>
