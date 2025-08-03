@@ -93,7 +93,7 @@ export const ReceiptHistoryDetail: React.FC<{ receipt: ReceiptDetailProps }> = (
                 {receipt.showtime && (
                   <div className="flex items-center gap-2">
                     <Clock className="text-muted-foreground h-4 w-4" />
-                    <span className="text-sm">Ngày chiếu: {new Date(receipt.showtime).toLocaleTimeString("vi-VN")}</span>
+                    <span className="text-sm">Giờ chiếu: {new Date(receipt.showtime).toLocaleTimeString("vi-VN")}</span>
                   </div>
                 )}
                 {receipt.roomName && (
