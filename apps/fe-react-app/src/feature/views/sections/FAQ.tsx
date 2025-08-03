@@ -1,4 +1,3 @@
-import NavigateButton from "@/components/shared/NavigateButton";
 import React, { forwardRef, useRef, useState } from "react";
 import { useClickOutside } from "../../../hooks/useClickOutside";
 import { FaqFolderGroup } from "../components/FaqFolderGroup";
@@ -98,9 +97,6 @@ const FAQ = forwardRef<HTMLElement, FAQProps>(({ className }, ref) => {
             </div>
           </div>
         </div>
-      </div>
-      <div className="mt-8 text-center">
-        <NavigateButton to="/" text="Trở về Trang chủ" />
       </div>
     </section>
   );
