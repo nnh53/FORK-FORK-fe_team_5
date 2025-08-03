@@ -6,6 +6,7 @@ import { Input } from "@/components/Shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
 import type { StaffRequest, StaffUpdate, StaffUser } from "@/interfaces/staff.interface";
 import type { USER_GENDER, USER_STATUS } from "@/interfaces/users.interface";
+import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -28,6 +29,9 @@ interface StaffFormData extends StaffRequest {
 const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => {
   // Store the initial values for comparison when updating
   const [initialValues, setInitialValues] = useState<StaffFormData | null>(null);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<StaffFormData>({
     defaultValues: staff
@@ -280,10 +284,81 @@ const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => 
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="ACTIVE">Hoạt động</SelectItem>
-                      <SelectItem value="BANNED">Bị cấm</SelectItem>
+                      <SelectItem value="ACTIVE">Đã xác minh</SelectItem>
+                      <SelectItem value="BAN">Bị cấm</SelectItem>
                     </SelectContent>
                   </Select>
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Mật khẩu */}
+          <FormField
+            control={form.control}
+            name="password"
+            rules={
+              !staff
+                ? {
+                    required: "Vui lòng nhập mật khẩu",
+                    minLength: {
+                      value: 8,
+                      message: "Mật khẩu phải có ít nhất 8 ký tự",
+                    },
+                    maxLength: {
+                      value: 20,
+                      message: "Mật khẩu không được quá 20 ký tự",
+                    },
+                  }
+                : {
+                    minLength: {
+                      value: 8,
+                      message: "Mật khẩu phải có ít nhất 8 ký tự",
+                    },
+                    maxLength: {
+                      value: 20,
+                      message: "Mật khẩu không được quá 20 ký tự",
+                    },
+                  }
+            }
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Mật khẩu {staff ? "(để trống nếu không thay đổi)" : ""}</FormLabel>
+                <div className="relative">
+                  <FormControl>
+                    <Input placeholder="Mật khẩu" type={showPassword ? "text" : "password"} {...field} />
+                  </FormControl>
+                  <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Xác nhận mật khẩu */}
+          {!staff && (
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              rules={{ required: "Vui lòng xác nhận mật khẩu" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Xác nhận mật khẩu</FormLabel>
+                  <div className="relative">
+                    <FormControl>
+                      <Input placeholder="Xác nhận mật khẩu" type={showConfirmPassword ? "text" : "password"} {...field} />
+                    </FormControl>
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center pr-3"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
