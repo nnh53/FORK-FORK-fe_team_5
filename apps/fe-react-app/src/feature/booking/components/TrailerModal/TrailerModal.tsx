@@ -17,12 +17,12 @@ const TrailerModal: React.FC<TrailerModalProps> = ({ isOpen, onClose, trailerUrl
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="min-w-4xl w-full max-w-6xl">
+      <DialogContent className="min-w-full p-1 sm:p-2 md:min-w-3xl md:p-4 lg:min-w-4xl">
         <DialogHeader className="px-4 pt-4">
           <DialogTitle>{movieTitle} - Trailer</DialogTitle>
           <button
             onClick={onClose}
-            className="ring-offset-background absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+            className="ring-offset-background absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
           >
             <span className="sr-only">Close</span>
           </button>
@@ -43,7 +43,7 @@ const TrailerModal: React.FC<TrailerModalProps> = ({ isOpen, onClose, trailerUrl
               <div className="text-center text-gray-600">
                 <p className="mb-2">⚠️ URL trailer không hợp lệ</p>
                 <p className="text-sm">Vui lòng kiểm tra lại đường dẫn YouTube</p>
-                <div className="mx-auto mt-2 max-w-md break-all text-xs text-gray-400">URL: {trailerUrl}</div>
+                <div className="mx-auto mt-2 max-w-md text-xs break-all text-gray-400">URL: {trailerUrl}</div>
               </div>
             </div>
           )}

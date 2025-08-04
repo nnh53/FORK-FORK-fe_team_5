@@ -30,25 +30,25 @@ const TicketConfirmModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose,
         </DialogHeader>
 
         {/* Nội dung chính */}
-        <div className="p-8 flex flex-col items-center text-center gap-y-6">
-          <h1 className="text-2xl md:text-3xl font-semibold text-red-600">{movieTitle}</h1>
+        <div className="flex flex-col items-center gap-y-6 p-0 text-center sm:p-8">
+          <h1 className="text-2xl font-semibold text-red-600 md:text-3xl">{movieTitle}</h1>
 
           {/* Khung thông tin */}
-          <div className="w-full bg-gray-50 p-4 rounded-lg border">
+          <div className="w-full border bg-gray-50 p-0 pt-1 pb-1 sm:p-4">
             <div className="grid grid-cols-3 gap-4">
               {/* Cột Rạp chiếu */}
               <div>
-                <p className="text-xs text-gray-500 mb-1">Rạp chiếu</p>
+                <p className="mb-1 text-xs text-gray-500">Rạp chiếu</p>
                 <p className="text-base font-semibold text-black">{cinemaName}</p>
               </div>
               {/* Cột Ngày chiếu */}
               <div>
-                <p className="text-xs text-gray-500 mb-1">Ngày chiếu</p>
+                <p className="mb-1 text-xs text-gray-500">Ngày chiếu</p>
                 <p className="text-base font-semibold text-black">{formatDate(selectedDate)}</p>
               </div>
               {/* Cột Giờ chiếu */}
               <div>
-                <p className="text-xs text-gray-500 mb-1">Giờ chiếu</p>
+                <p className="mb-1 text-xs text-gray-500">Giờ chiếu</p>
                 <p className="text-base font-semibold text-black">{selectedTime}</p>
               </div>
             </div>
@@ -57,9 +57,7 @@ const TicketConfirmModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose,
           {/* Nút Đồng ý */}
           <button
             onClick={onConfirm}
-            className="w-1/3 h-11 bg-gradient-to-r from-red-700 via-red-600 to-red-500 hover:brightness-110 text-white font-bold rounded-md
-                     transition duration-200 flex items-center justify-center text-base relative mt-4
-                     cursor-pointer"
+            className="relative mt-4 flex h-11 w-auto cursor-pointer items-center justify-center rounded-md bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-base font-bold text-white transition duration-200 hover:brightness-110 sm:w-auto"
           >
             <Icon icon="material-symbols-light:local-activity-rounded" width="60" height="60" />
             <span>ĐỒNG Ý</span>
