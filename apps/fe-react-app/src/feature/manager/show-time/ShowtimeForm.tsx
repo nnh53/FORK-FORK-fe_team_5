@@ -86,8 +86,7 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
   useEffect(() => {
     if (moviesData?.result) {
       const transformedMovies = transformMoviesResponse(moviesData.result);
-      // Only show movies with ACTIVE status for showtime creation
-      setMovies(transformedMovies.filter((movie) => movie.status === "ACTIVE"));
+      setMovies(transformedMovies);
     }
   }, [moviesData]);
 

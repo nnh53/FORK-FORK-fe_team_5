@@ -34,10 +34,7 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
   }, [roomsData?.result]);
 
   const movies = useMemo<Movie[]>(() => {
-    if (!moviesData?.result) return [];
-    const transformedMovies = transformMoviesResponse(moviesData.result);
-    // Only show movies with ACTIVE status for consistency
-    return transformedMovies.filter((movie) => movie.status === "ACTIVE");
+    return moviesData?.result ? transformMoviesResponse(moviesData.result) : [];
   }, [moviesData?.result]);
 
   const showtimes = useMemo<Showtime[]>(() => {
