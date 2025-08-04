@@ -1,5 +1,6 @@
 // ✅ File: src/feature/movie/MovieDetailPage.tsx
 
+import { Lens } from "@/components/magicui/lens";
 import ShowDateSelector from "@/feature/booking/components/ShowDateSelector/ShowDateSelector";
 import ShowtimesGroup from "@/feature/booking/components/ShowtimesGroup/ShowtimesGroup";
 import type { SchedulePerDay } from "@/feature/booking/components/ShowtimesModal/ShowtimesModal";
@@ -209,7 +210,9 @@ const MovieDetailPage: React.FC = () => {
             {/* Movie Poster */}
             <div className="lg:col-span-4">
               <div className="group relative overflow-hidden rounded-2xl bg-white/20 p-3 shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/25">
-                <img src={movie.poster} alt={movie.name ?? "Movie poster"} className="h-auto w-full rounded-xl object-cover shadow-xl" />
+                <Lens>
+                  <img src={movie.poster} alt={movie.name ?? "Movie poster"} className="h-auto w-full rounded-xl object-cover shadow-xl" />
+                </Lens>
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
 
                 {/* Floating rating badge if available */}
