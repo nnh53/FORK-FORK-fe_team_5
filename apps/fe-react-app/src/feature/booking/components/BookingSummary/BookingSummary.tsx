@@ -18,7 +18,7 @@ interface BookingSelectedSeat {
 
 interface BookingSummaryProps {
   movie: MovieCardProps;
-  selection: { date: string; time: string; format: string; roomId?: string; showtimeId?: string };
+  selection: { date: string; time: string; format: string; roomId?: string; roomName?: string; showtimeId?: string };
   cinemaName: string;
   selectedSeats: BookingSelectedSeat[];
   totalCost: number; // This is just ticket cost
@@ -108,7 +108,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         <div className="flex justify-between">
           <span className="text-gray-500">Phòng chiếu</span>
           <div className="text-right">
-            <div className="font-semibold">{selection.roomId ? `${selection.roomId}` : "Chưa chọn phòng"}</div>
+            <div className="font-semibold">{selection.roomName || `Phòng ${selection.roomId}` || "Chưa chọn phòng"}</div>
             {roomType && <div className="text-xs text-gray-500">{roomType}</div>}
           </div>
         </div>
@@ -127,11 +127,24 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           </span>
           <span className="font-semibold">{formatVND(totalCost)}</span>
         </div>
-        {/* Room fee */}
+        {/* Room fee breakdown - show details when included in total */}
+        {includeRoomFeeInTotal && roomFee > 0 && selectedSeats.length > 0 && (
+          <div className="pl-2 text-xs text-gray-500">
+            <div className="flex justify-between">
+              <span>• Tiền vé:</span>
+              <span>{formatVND(totalCost - roomFee * selectedSeats.length)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>• Phí phòng ({formatVND(roomFee)}/ghế):</span>
+              <span>{formatVND(roomFee * selectedSeats.length)}</span>
+            </div>
+          </div>
+        )}
+        {/* Room fee separate line - when not included in total */}
         {roomFee > 0 && !includeRoomFeeInTotal && (
           <div className="flex justify-between text-xs sm:text-sm">
-            <span className="text-gray-600">Phí phòng:</span>
-            <span className="font-semibold">{formatVND(roomFee)}</span>
+            <span className="text-gray-600">Phí phòng ({formatVND(roomFee)}/ghế):</span>
+            <span className="font-semibold">{formatVND(roomFee * selectedSeats.length)}</span>
           </div>
         )}
         {/* Combo cost - detailed breakdown */}

@@ -380,10 +380,16 @@ const BookingPage: React.FC = () => {
                 <div className="sticky top-2 sm:top-4 lg:top-6">
                   <BookingSummary
                     movie={movie}
-                    selection={selection}
+                    selection={{
+                      ...selection,
+                      roomName: roomData?.result?.name || `Phòng ${selection.roomId}`,
+                    }}
                     cinemaName={cinemaName}
                     selectedSeats={selectedSeats}
                     totalCost={totalCost}
+                    roomType={roomData?.result?.type}
+                    roomFee={roomData?.result?.fee}
+                    includeRoomFeeInTotal={true}
                     showContinueButton={true}
                     onContinueClick={handleContinue}
                     continueText="TIẾP TỤC"
