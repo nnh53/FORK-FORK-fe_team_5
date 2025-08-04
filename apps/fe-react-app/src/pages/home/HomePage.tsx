@@ -5,7 +5,6 @@ import { useLocation } from "react-router-dom";
 import "./styles/HomePage.css";
 
 // Light components can be imported normally
-import AdminTeamSection from "@/feature/views/sections/AdminTeamSection";
 import CinemaExperience from "@/feature/views/sections/CinemaExperience";
 import { CTASection } from "@/feature/views/sections/cta-section";
 import { FAQSection } from "@/feature/views/sections/faq-section";
@@ -50,7 +49,7 @@ const HomePage = () => {
           <CinemaExperience />
           {/* <FAQ /> */}
           <FAQSection />
-          <AdminTeamSection />
+          {/* <AdminTeamSection /> */}
         </div>
         <CTASection />
       </ClickSpark>
