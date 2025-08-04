@@ -4,14 +4,25 @@
   padding-right: 50px;
 }
 
+
+  .open-sans-1000 {
+    font-family: "Open Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 1000;
+    font-style: normal;
+    font-variation-settings:
+      "wdth" 100;
+  }
+
 .experience-title {
   margin-bottom: 30px;
   background: linear-gradient(to right, #946b38, #392819);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  font-weight: 800;
+  font-weight: 1000;
   font-size: 3rem;
+  font-family: Open Sans;
 }
 
 .experience-description {
@@ -20,25 +31,6 @@
   font-size: 1.2rem;
   line-height: 1.6;
 }
-
-.learn-button {
-  transition:
-    background-color 0.3s,
-    color 0.3s;
-  cursor: pointer;
-  border: 2px solid var(--color-accent);
-  border-radius: 25px;
-  background: transparent;
-  padding: 10px 25px;
-  color: var(--color-accent);
-  font-weight: 600;
-}
-
-.learn-button:hover {
-  background-color: var(--color-accent);
-  color: var(--color-accent-content);
-}
-
 /* Media Queries */
 @media (max-width: 992px) {
   .experience-text {

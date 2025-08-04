@@ -54,44 +54,41 @@ export const siteConfig = {
     ],
   },
   faqSection: {
-    title: "Frequently Asked Questions",
-    description: "Answers to common questions about SkyAgent and its features. If you have any other questions, please don't hesitate to contact us.",
+    title: "Câu Hỏi Thường Gặp",
     faQitems: [
       {
         id: 1,
-        question: "What is an AI Agent?",
+        question: "Sau khi đặt vé trực tuyến, tôi cần làm gì tiếp theo? Có cần in vé không?",
         answer:
-          "An AI Agent is an intelligent software program that can perform tasks autonomously, learn from interactions, and make decisions to help achieve specific goals. It combines artificial intelligence and machine learning to provide personalized assistance and automation.",
+          "Bạn không cần in vé giấy. Sau khi đặt vé thành công, bạn chỉ cần mở email xác nhận hoặc vào mục. Khi đến rạp, bạn chỉ cần đưa mã QR này cho nhân viên soát vé để quét trực tiếp trên màn hình điện thoại của bạn và vào phòng chiếu.",
       },
       {
         id: 2,
-        question: "How does SkyAgent work?",
-        answer:
-          "SkyAgent works by analyzing your requirements, leveraging advanced AI algorithms to understand context, and executing tasks based on your instructions. It can integrate with your workflow, learn from feedback, and continuously improve its performance.",
+        question: "Làm thế nào để tôi có thể mua vé xem phim?",
+        answer: "Bạn có thể mua vé một cách tiện lợi qua hai hình thức chính là Mua vé trực tuyến và Mua vé trực tiếp tại rạp.",
       },
       {
         id: 3,
-        question: "How secure is my data?",
-        answer:
-          "We implement enterprise-grade security measures including end-to-end encryption, secure data centers, and regular security audits. Your data is protected according to industry best practices and compliance standards.",
+        question: "Tôi có thể hủy vé, đổi suất chiếu hoặc yêu cầu hoàn tiền không?",
+        answer: "Chúng tôi rất tiếc nhưng vé xem phim đã giao dịch thành công sẽ không được hoàn lại hoặc hủy.",
       },
       {
         id: 4,
-        question: "Can I integrate my existing tools?",
+        question: "Rạp có cho phép mang đồ ăn, thức uống từ bên ngoài vào không?",
         answer:
-          "Yes, SkyAgent is designed to be highly compatible with popular tools and platforms. We offer APIs and pre-built integrations for seamless connection with your existing workflow tools and systems.",
+          "Để đảm bảo chất lượng dịch vụ, vệ sinh chung và trải nghiệm điện ảnh tốt nhất cho tất cả khách hàng, rạp phim chúng tôi xin phép không cho phép mang đồ ăn và thức uống được mua từ bên ngoài vào. Rạp có quầy F&B phục vụ đa dạng các loại bắp rang, nước ngọt và các món ăn nhẹ khác để bạn thưởng thức.",
       },
       {
         id: 5,
-        question: "Is there a free trial available?",
+        question: "Quy định về độ tuổi khi xem các phim được phân loại (Rating) như thế nào?",
         answer:
-          "Yes, we offer a 14-day free trial that gives you full access to all features. No credit card is required to start your trial, and you can upgrade or cancel at any time.",
+          "Nhân viên của chúng tôi có thể yêu cầu xem giấy tờ tùy thân (CMND/CCCD, bằng lái xe) để xác thực độ tuổi đối với các phim có giới hạn.",
       },
       {
         id: 6,
-        question: "How does SkyAgent save me time?",
+        question: "Giá vé được tính như thế nào và có những chương trình khuyến mãi gì?",
         answer:
-          "SkyAgent automates repetitive tasks, streamlines workflows, and provides quick solutions to common challenges. This automation and efficiency can save hours of manual work, allowing you to focus on more strategic activities.",
+          "Giá vé có thể khác nhau tùy thuộc vào định dạng phim (2D, 3D), loại ghế (thường, VIP), thời điểm xem phim (ngày thường, cuối tuần, ngày lễ) và suất chiếu (trước 17:00, sau 17:00).",
       },
     ],
   },
@@ -101,13 +98,13 @@ export const siteConfig = {
     backgroundImage: ctaImage,
     button: {
       text: "Đặt phim ngay",
-      href: "/movies",
+      href: "#movies",
     },
     subtext: "Hủy vé bất cứ lúc nào, không cần lo lắng",
   },
   chairSection: {
-    title: "Chair Experience",
-    description: "Discover our premium seating options for the ultimate movie experience",
+    title: "Hạng Ghế",
+    description: "Khám phá các lựa chọn chỗ ngồi cao cấp của chúng tôi để có trải nghiệm xem phim tuyệt đỉnh",
     chairs: [
       {
         imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/75c58430-e8fe-4366-8047-8e3f63ab4048-normal.webp",

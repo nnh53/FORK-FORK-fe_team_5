@@ -36,9 +36,10 @@ const FAQ = forwardRef<HTMLElement, FAQProps>(({ className }, ref) => {
             fontWeight: "800",
             fontSize: "2.5rem",
             marginBottom: "2rem",
+            fontFamily: "Open Sans",
           }}
         >
-          Frequently Asked Questions
+          Câu Hỏi Thường Gặp
         </h2>
         <div
           className="section-line"
@@ -81,7 +82,7 @@ const FAQ = forwardRef<HTMLElement, FAQProps>(({ className }, ref) => {
             }}
           >
             <div style={{ textAlign: "center" }}>
-              <p style={{ marginBottom: "100px", color: "#666" }}>Click each folder to explore different questions</p>
+              <p style={{ marginBottom: "100px", color: "#666" }}>Nhấp vào từng thư mục để khám phá các câu hỏi khác nhau</p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "40px", alignItems: "center" }}>
                 {/* First Row */}

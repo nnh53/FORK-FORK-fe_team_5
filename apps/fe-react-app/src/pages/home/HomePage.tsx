@@ -5,11 +5,11 @@ import { useLocation } from "react-router-dom";
 import "./styles/HomePage.css";
 
 // Light components can be imported normally
-import { FAQ } from "@/feature/views/sections";
 import AdminTeamSection from "@/feature/views/sections/AdminTeamSection";
 import CinemaExperience from "@/feature/views/sections/CinemaExperience";
 import { CTASection } from "@/feature/views/sections/cta-section";
 import { FeatureSection } from "@/feature/views/sections/feature-section";
+import { FAQSection } from "@/feature/views/sections/faq-section";
 
 // Lazy load heavy components
 const CarouselSection = lazy(() => import("@/feature/views/sections/CarouselSection"));
@@ -48,7 +48,8 @@ const HomePage = () => {
           </LazySection>
           <FeatureSection />
           <CinemaExperience />
-          <FAQ />
+          {/* <FAQ /> */}
+          <FAQSection />
           <AdminTeamSection />
         </div>
         <CTASection />
