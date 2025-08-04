@@ -14,9 +14,6 @@ const ExperienceText: React.FC<ExperienceTextProps> = ({ onButtonClick, classNam
     <div className={`experience-text ${className || ""}`}>
       <h2 className="experience-title">{title}</h2>
       <p className="experience-description">{description}</p>
-      <button className="learn-button" onClick={onButtonClick}>
-        Learn More
-      </button>
     </div>
   );
 };

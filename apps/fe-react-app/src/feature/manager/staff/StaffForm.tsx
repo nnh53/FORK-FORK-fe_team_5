@@ -1,5 +1,5 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { DateTimePicker } from "@/components/Shadcn/ui/datetime-picker";
+import { DatePicker } from "@/components/Shadcn/ui/date-picker";
 import { DialogFooter } from "@/components/Shadcn/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Input } from "@/components/Shadcn/ui/input";
@@ -103,7 +103,7 @@ const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => 
     }
 
     // For existing staff, only send changed fields
-    const changedFields: Partial<StaffUpdate> = {
+    const changedFields: Partial<StaffUpdate & { password?: string }> = {
       role: "STAFF", // Always include role
     };
 
@@ -115,6 +115,11 @@ const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => 
     }
 
     // Email field is read-only when editing
+
+    // Only include password if it's not empty (user wants to change password)
+    if (data.password) {
+      changedFields.password = data.password;
+    }
 
     if (data.phone !== initialValues.phone) {
       changedFields.phone = data.phone;
@@ -193,10 +198,9 @@ const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => 
               <FormItem>
                 <FormLabel>Ngày sinh</FormLabel>
                 <FormControl>
-                  <DateTimePicker
+                  <DatePicker
                     date={field.value ? new Date(field.value) : undefined}
                     setDate={(date) => field.onChange(date ? date.toICTISOString().split("T")[0] : "")}
-                    placeholder="Chọn ngày sinh"
                   />
                 </FormControl>
               </FormItem>
@@ -280,8 +284,8 @@ const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => 
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="ACTIVE">Đã xác minh</SelectItem>
-                      <SelectItem value="BAN">Bị cấm</SelectItem>
+                      <SelectItem value="ACTIVE">Hoạt động</SelectItem>
+                      <SelectItem value="BANNED">Bị cấm</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
@@ -289,42 +293,49 @@ const StaffForm = ({ staff, onSubmit, onCancel, isLoading }: StaffFormProps) => 
             />
           )}
 
-          {/* Mật khẩu - chỉ hiển thị khi thêm mới */}
-          {!staff && (
-            <FormField
-              control={form.control}
-              name="password"
-              rules={{
-                required: "Vui lòng nhập mật khẩu",
-                minLength: {
-                  value: 8,
-                  message: "Mật khẩu phải có ít nhất 8 ký tự",
-                },
-                maxLength: {
-                  value: 20,
-                  message: "Mật khẩu không được quá 20 ký tự",
-                },
-              }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mật khẩu</FormLabel>
-                  <div className="relative">
-                    <FormControl>
-                      <Input placeholder="Mật khẩu" type={showPassword ? "text" : "password"} {...field} />
-                    </FormControl>
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 flex items-center pr-3"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+          {/* Mật khẩu */}
+          <FormField
+            control={form.control}
+            name="password"
+            rules={
+              !staff
+                ? {
+                    required: "Vui lòng nhập mật khẩu",
+                    minLength: {
+                      value: 8,
+                      message: "Mật khẩu phải có ít nhất 8 ký tự",
+                    },
+                    maxLength: {
+                      value: 20,
+                      message: "Mật khẩu không được quá 20 ký tự",
+                    },
+                  }
+                : {
+                    minLength: {
+                      value: 8,
+                      message: "Mật khẩu phải có ít nhất 8 ký tự",
+                    },
+                    maxLength: {
+                      value: 20,
+                      message: "Mật khẩu không được quá 20 ký tự",
+                    },
+                  }
+            }
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Mật khẩu {staff ? "(để trống nếu không thay đổi)" : ""}</FormLabel>
+                <div className="relative">
+                  <FormControl>
+                    <Input placeholder="Mật khẩu" type={showPassword ? "text" : "password"} {...field} />
+                  </FormControl>
+                  <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Xác nhận mật khẩu */}
           {!staff && (
