@@ -4,6 +4,7 @@ import { Alert, AlertDescription } from "@/components/Shadcn/ui/alert";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Calendar } from "@/components/Shadcn/ui/calendar";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/Shadcn/ui/command";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/Shadcn/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Shadcn/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Shadcn/ui/select";
@@ -19,7 +20,7 @@ import { cn } from "@/utils/utils";
 import { showtimeFormSchema } from "@/utils/validation.utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { AlertTriangle, CalendarIcon, Clock, Home } from "lucide-react";
+import { AlertTriangle, CalendarIcon, Check, ChevronsUpDown, Clock, Home } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -85,7 +86,8 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
   useEffect(() => {
     if (moviesData?.result) {
       const transformedMovies = transformMoviesResponse(moviesData.result);
-      setMovies(transformedMovies);
+      // Only show movies with ACTIVE status for showtime creation
+      setMovies(transformedMovies.filter((movie) => movie.status === "ACTIVE"));
     }
   }, [moviesData]);
 
@@ -274,24 +276,52 @@ export function ShowtimeForm({ initialData, onSuccess, onCancel }: ShowtimeFormP
                 control={form.control}
                 name="movieId"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel>
                       Chọn phim <span className="text-red-500">*</span>
                     </FormLabel>
-                    <Select value={field.value} onValueChange={handleMovieChange} disabled={!roomId}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn phim" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {movies.map((movie) => (
-                          <SelectItem key={movie.id} value={movie.id?.toString() || ""}>
-                            {movie.name} ({movie.duration} phút)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            disabled={!roomId}
+                            className={cn("w-full justify-between font-normal", !field.value && "text-muted-foreground")}
+                          >
+                            {field.value
+                              ? (() => {
+                                  const movie = movies.find((movie) => movie.id?.toString() === field.value);
+                                  return movie ? `${movie.name} (${movie.duration} phút)` : "Chọn phim...";
+                                })()
+                              : "Chọn phim..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="max-h-[300px] w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                          <CommandInput placeholder="Tìm kiếm phim..." />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy phim nào.</CommandEmpty>
+                            <CommandGroup>
+                              {movies.map((movie) => (
+                                <CommandItem
+                                  key={movie.id}
+                                  value={movie.name}
+                                  onSelect={() => {
+                                    handleMovieChange(movie.id?.toString() || "");
+                                  }}
+                                >
+                                  <Check className={cn("mr-2 h-4 w-4", field.value === movie.id?.toString() ? "opacity-100" : "opacity-0")} />
+                                  {movie.name} ({movie.duration} phút)
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
