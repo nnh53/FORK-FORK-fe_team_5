@@ -17,8 +17,8 @@ const formatDate = (dateString: string): { day: string; month: string; dayOfWeek
 
 const ShowDateSelector: React.FC<ShowDateSelectorProps> = ({ dates, selectedDate, onSelectDate }) => {
   return (
-    <div className="flex justify-start border-b border-gray-200 mb-6">
-      <div className="flex items-center space-x-4 overflow-x-auto pb-px">
+    <div className="mb-6 flex justify-start border-b border-gray-200">
+      <div className="flex w-full items-center space-x-2 overflow-x-auto pb-px">
         {dates.map((dateStr) => {
           const { day, month, dayOfWeek } = formatDate(dateStr);
           const isActive = selectedDate === dateStr;
@@ -26,14 +26,13 @@ const ShowDateSelector: React.FC<ShowDateSelectorProps> = ({ dates, selectedDate
             <button
               key={dateStr}
               onClick={() => onSelectDate(dateStr)}
-              className={`text-center py-3 px-4 cursor-pointer transition-colors flex-shrink-0 border-b-2
-            ${isActive ? "border-red-600 text-red-600" : "border-transparent text-gray-900 hover:text-gray-900"}`}
+              className={`min-w-16 flex-shrink-0 cursor-pointer border-b-2 px-2 py-2 text-center transition-colors sm:px-4 sm:py-3 ${isActive ? "border-red-600 text-red-600" : "border-transparent text-gray-900 hover:text-gray-900"}`}
             >
-              <div className=" items-center">
-                <a className={`text-4xl leading-none ${isActive ? "font-semibold" : "font-normal"}`}>{day}</a>
-                <a className={`text-lg leading-none mt-1 ${isActive ? "font-bold" : "font-medium"}`}>
+              <div className="items-center">
+                <span className={`text-2xl leading-none sm:text-4xl ${isActive ? "font-semibold" : "font-normal"} block`}>{day}</span>
+                <span className={`mt-1 block text-xs leading-none sm:text-lg ${isActive ? "font-bold" : "font-medium"}`}>
                   /{month} - {dayOfWeek}
-                </a>
+                </span>
               </div>
             </button>
           );

@@ -27,11 +27,11 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
             roomId: showtime.cinemaRoomId,
           })
         }
-        className="rounded-md border border-gray-300 bg-gray-50 p-2 text-center transition-all duration-200 hover:border-red-500 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-md border border-gray-300 bg-gray-50 p-1 text-center transition-all duration-200 hover:border-red-500 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 sm:p-2"
         disabled={isLoading || availableSeats === 0}
       >
-        <p className="text-base font-bold text-gray-900">{showtime.startTime}</p>
-        <p className="text-xs text-gray-500">{seatLabel}</p>
+        <p className="text-sm font-bold whitespace-nowrap text-gray-900 sm:text-base">{showtime.startTime}</p>
+        <p className="text-[10px] whitespace-nowrap text-gray-500 sm:text-xs">{seatLabel}</p>
       </button>
     );
   };
@@ -71,9 +71,9 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
       {Object.entries(sortedGroupedShowtimes).map(([format, showtimes]) => (
         <div key={format}>
           {/* CẬP NHẬT: Style lại tiêu đề định dạng (2D, 3D...) */}
-          <h3 className="mb-3 text-sm font-bold uppercase text-gray-800">{format}</h3>
-          {/* CẬP NHẬT: Tăng số cột trong grid */}
-          <div className="grid grid-cols-4 gap-3 md:grid-cols-5 lg:grid-cols-6">
+          <h3 className="mb-3 text-sm font-bold text-gray-800 uppercase">{format}</h3>
+          {/* CẬP NHẬT: Điều chỉnh số cột trong grid để hiển thị tốt hơn trên màn hình nhỏ */}
+          <div className="grid grid-cols-3 gap-1 sm:grid-cols-4 sm:gap-2 md:grid-cols-5 lg:grid-cols-6">
             {showtimes.map((showtime) => (
               <ShowtimeButton key={showtime.id} showtime={showtime} />
             ))}

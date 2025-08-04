@@ -60,32 +60,56 @@ const ShowtimesModal: React.FC<ShowtimesModalProps> = ({
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Xác định các lớp CSS và nội dung dựa trên kích thước màn hình
+  const isSmallScreen = useMediaQuery("(max-width: 500px)");
+
+  // Xác định class cho dialog content
   let dialogContentClass = "min-w-3xl max-h-[90vh] w-full max-w-4xl overflow-y-auto";
-  if (isMobile) {
-    dialogContentClass = " max-w-[95vw] p-2";
+  if (isSmallScreen) {
+    dialogContentClass = "max-w-[95vw] p-1";
+  } else if (isMobile) {
+    dialogContentClass = "max-w-[95vw] p-2";
   }
 
-  const titleSizeClass = isMobile ? "text-base" : "text-lg";
+  // Xác định kích thước tiêu đề
+  let titleSizeClass = "text-lg";
+  if (isSmallScreen) {
+    titleSizeClass = "text-sm";
+  } else if (isMobile) {
+    titleSizeClass = "text-base";
+  }
 
   // Xử lý tiêu đề phim nếu quá dài trên màn hình nhỏ
   let displayMovieTitle = movieTitle;
-  if (isMobile && movieTitle.length > 15) {
+  if (isSmallScreen && movieTitle.length > 10) {
+    displayMovieTitle = `${movieTitle.substring(0, 10)}...`;
+  } else if (isMobile && movieTitle.length > 15) {
     displayMovieTitle = `${movieTitle.substring(0, 15)}...`;
   }
 
   // Xác định padding cho nội dung
   let contentPaddingClass = "";
-  if (isMobile) {
+  if (isSmallScreen) {
+    contentPaddingClass = "p-1";
+  } else if (isMobile) {
     contentPaddingClass = "p-2";
   }
 
-  const headingClass = `mb-4 sm:mb-6 text-center ${isMobile ? "text-xl" : "text-3xl"} font-bold text-gray-800`;
+  // Xác định class cho heading
+  let headingSizeClass = "text-3xl";
+  if (isSmallScreen) {
+    headingSizeClass = "text-lg";
+  } else if (isMobile) {
+    headingSizeClass = "text-xl";
+  }
+  const headingClass = `mb-2 sm:mb-4 md:mb-6 text-center ${headingSizeClass} font-bold text-gray-800`;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={dialogContentClass}>
-        <DialogHeader>
-          <DialogTitle className={`${titleSizeClass} font-semibold uppercase text-gray-700`}>LỊCH CHIẾU - {displayMovieTitle}</DialogTitle>
+        <DialogHeader className="pb-1">
+          <DialogTitle className={`${titleSizeClass} font-semibold break-words text-gray-700 uppercase`}>
+            LỊCH CHIẾU - {displayMovieTitle}
+          </DialogTitle>
         </DialogHeader>
 
         <div className={contentPaddingClass}>
