@@ -1,5 +1,5 @@
 import { Button } from "@/components/Shadcn/ui/button";
-import { DateTimePicker } from "@/components/Shadcn/ui/datetime-picker";
+import { Calendar as DatePicker } from "@/components/Shadcn/ui/calendar";
 import type { FilterCriteria } from "@/components/shared/Filter";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import type { CinemaRoom } from "@/interfaces/cinemarooms.interface";
@@ -106,7 +106,7 @@ export function ShowtimeCalendar({ searchTerm = "", filterCriteria = [] }: Showt
         <Button variant="outline" className="mb-2" onClick={() => setShowDatePicker((prev) => !prev)}>
           {showDatePicker ? "Ẩn lịch" : "Chọn ngày"}
         </Button>
-        {showDatePicker && <DateTimePicker date={selectedDate} setDate={(date) => date && setSelectedDate(date)} placeholder="Chọn ngày" />}
+        {showDatePicker && <DatePicker mode="single" selected={selectedDate} onSelect={(date) => date && setSelectedDate(date)} />}
       </div>
       <div className="flex-1">
         <FullCalendar
