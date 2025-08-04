@@ -18,7 +18,8 @@ interface MemberFormProps {
   isLoading?: boolean;
 }
 
-interface MemberFormData extends UserRequest {
+interface MemberFormData extends Omit<UserRequest, "password"> {
+  password?: string;
   confirmPassword?: string;
   loyaltyPoint?: number;
   gender?: "MALE" | "FEMALE" | "OTHER";
@@ -35,7 +36,6 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
       ? {
           fullName: member.fullName ?? "",
           email: member.email ?? "",
-          password: "",
           dateOfBirth: member.dateOfBirth ?? "",
           phone: member.phone ?? "",
           role: ROLES.MEMBER,
@@ -65,7 +65,6 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
       const values: MemberFormData = {
         fullName: member.fullName ?? "",
         email: member.email ?? "",
-        password: "",
         dateOfBirth: member.dateOfBirth ?? "",
         phone: member.phone ?? "",
         role: ROLES.MEMBER,
@@ -90,7 +89,7 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
       const userData: UserRequest = {
         fullName: data.fullName,
         email: data.email,
-        password: data.password,
+        password: data.password || "", // Ensure password is always a string
         phone: data.phone,
         dateOfBirth: data.dateOfBirth,
         role: ROLES.MEMBER,
@@ -113,11 +112,6 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
     }
 
     // Email field is read-only when editing
-
-    // Only include password if it's not empty (user wants to change password)
-    if (data.password) {
-      changedFields.password = data.password;
-    }
 
     if (data.phone !== initialValues.phone) {
       changedFields.phone = data.phone;
@@ -300,53 +294,42 @@ const MemberForm = ({ member, onSubmit, onCancel }: MemberFormProps) => {
             />
           )}
 
-          {/* Mật khẩu */}
-          <FormField
-            control={form.control}
-            name="password"
-            rules={
-              !member
-                ? {
-                    required: "Vui lòng nhập mật khẩu",
-                    minLength: {
-                      value: 8,
-                      message: "Mật khẩu phải có ít nhất 8 ký tự",
-                    },
-                    maxLength: {
-                      value: 20,
-                      message: "Mật khẩu không được quá 20 ký tự",
-                    },
-                  }
-                : {
-                    minLength: {
-                      value: 8,
-                      message: "Mật khẩu phải có ít nhất 8 ký tự",
-                    },
-                    maxLength: {
-                      value: 20,
-                      message: "Mật khẩu không được quá 20 ký tự",
-                    },
-                  }
-            }
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>Mật khẩu {member ? "(để trống nếu không thay đổi)" : ""}</FormLabel>
-                <FormControl>
-                  <div className="relative w-full">
-                    <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mật khẩu" className="pr-10" {...field} />
-                    <button
-                      type="button"
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </FormControl>
-                {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
-              </FormItem>
-            )}
-          />
+          {/* Mật khẩu - chỉ hiển thị khi thêm mới */}
+          {!member && (
+            <FormField
+              control={form.control}
+              name="password"
+              rules={{
+                required: "Vui lòng nhập mật khẩu",
+                minLength: {
+                  value: 8,
+                  message: "Mật khẩu phải có ít nhất 8 ký tự",
+                },
+                maxLength: {
+                  value: 20,
+                  message: "Mật khẩu không được quá 20 ký tự",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Mật khẩu</FormLabel>
+                  <FormControl>
+                    <div className="relative w-full">
+                      <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mật khẩu" className="pr-10" {...field} />
+                      <button
+                        type="button"
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </FormControl>
+                  {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+                </FormItem>
+              )}
+            />
+          )}
 
           {/* Xác nhận mật khẩu */}
           {!member && (
