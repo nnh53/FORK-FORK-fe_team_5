@@ -336,13 +336,13 @@ const ComboForm: React.FC<ComboFormProps> = ({ combo, onSubmit, onCancel }) => {
                       >
                         {combo ? (
                           <>
-                            <Edit className="h-4 w-4" />
-                            <span>Chỉnh sửa thực phẩm trong combo</span>
+                            <Edit className="h-5 w-5" />
+                            <span className="hidden sm:inline">Sửa thực phẩm trong combo</span>
                           </>
                         ) : (
                           <>
-                            <PlusCircle className="h-4 w-4" />
-                            <span>Thêm thực phẩm vào combo</span>
+                            <PlusCircle className="h-5 w-5" />
+                            <span className="hidden sm:inline">Thêm thực phẩm vào combo</span>
                           </>
                         )}
                       </Button>

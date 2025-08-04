@@ -2,7 +2,7 @@ import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent } from "@/components/Shadcn/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/Shadcn/ui/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Shadcn/ui/dialog";
-import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/Shadcn/ui/drawer";
+import { Drawer, DrawerClose, DrawerContent, DrawerHeader } from "@/components/Shadcn/ui/drawer";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { type Combo, type ComboSnack } from "@/interfaces/combo.interface";
 import { type Snack } from "@/interfaces/snacks.interface";
@@ -260,12 +260,18 @@ const ComboDetail: React.FC<ComboDetailProps> = ({
       <DrawerContent>
         <DrawerHeader className="text-left">
           <div className="flex items-center justify-between">
-            <DrawerTitle className="text-xl font-semibold">Chi tiết combo</DrawerTitle>
-            <DrawerClose asChild>
-              <Button variant="ghost" size="icon">
-                <X className="h-4 w-4" />
-              </Button>
-            </DrawerClose>
+            <div className="absolute top-0 right-0 flex items-center gap-2">
+              {(mode === "edit" || mode === "create") && (
+                <Button onClick={onClose} variant="default" size="sm">
+                  Xác nhận
+                </Button>
+              )}
+              <DrawerClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DrawerClose>
+            </div>
           </div>
           {renderHeader()}
         </DrawerHeader>
@@ -275,6 +281,13 @@ const ComboDetail: React.FC<ComboDetailProps> = ({
   ) : (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="flex max-h-[90vh] w-full flex-col sm:max-w-[1000px] md:max-w-[90vw] lg:max-w-[1070px]">
+        <div className="absolute top-2 right-10 flex items-center gap-2">
+          {(mode === "edit" || mode === "create") && (
+            <Button onClick={onClose} variant="default" size="sm" className="">
+              Xác nhận
+            </Button>
+          )}
+        </div>
         <DialogHeader>
           <DialogTitle>{renderHeader()}</DialogTitle>
         </DialogHeader>
