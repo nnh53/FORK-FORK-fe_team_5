@@ -2,67 +2,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/Shadcn/ui/avat
 import { Badge } from "@/components/Shadcn/ui/badge";
 import { Button } from "@/components/Shadcn/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/Shadcn/ui/card";
-import { Input } from "@/components/Shadcn/ui/input";
-import { Label } from "@/components/Shadcn/ui/label";
 import { Separator } from "@/components/Shadcn/ui/separator";
-import { FormField, SelectField } from "@/components/shared/forms";
-import { CITIES, GENDERS, type UserFormData } from "@/constants/profile";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useImageUploadAndUpdate } from "@/hooks/useImageUploadAndUpdate";
-import { useUpdateUserData, useUserData } from "@/hooks/userProfile";
+import { useUserData } from "@/hooks/userProfile";
 import { getUserIdFromCookie } from "@/utils/auth.utils";
-import { Calendar, Camera, Gem, KeyRound, Mail, MapPin, Phone, User } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { Calendar, Camera, Edit, Gem, KeyRound, Mail, MapPin, Phone, User } from "lucide-react";
+import { useCallback, useState } from "react";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
+import { EditUserInfoDialog } from "./EditUserInfoDialog";
 
 export const MyInfo: React.FC = () => {
   const userId = getUserIdFromCookie();
-  const { userInfo, setUserInfo, isLoading, error } = useUserData(userId);
-  const { updateUser, mutation } = useUpdateUserData();
+  const { userInfo, isLoading, error } = useUserData(userId);
   const { uploadAndUpdateAvatar, isUploading: isUploadingAndUpdating } = useImageUploadAndUpdate();
-  const [isEditing, setIsEditing] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
-
-  // Handle mutation success/error
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      console.log("✅ MyInfoManagement - Update successful, clearing editing state");
-      setIsEditing(false);
-
-      // Show success message
-      toast.success("Cập nhật thông tin thành công!");
-
-      // Optional: Add a small delay to ensure data refetch completes
-      setTimeout(() => {
-        console.log("🔄 MyInfoManagement - Data should be refreshed now");
-      }, 1000);
-    } else if (mutation.isError) {
-      console.error("❌ MyInfoManagement - Update failed:", mutation.error);
-      toast.error("Có lỗi xảy ra khi cập nhật thông tin. Vui lòng thử lại.");
-    }
-  }, [mutation.isSuccess, mutation.isError, mutation.error]);
-
-  const updateField = useCallback(
-    (field: keyof UserFormData, value: string) => {
-      setUserInfo((prev) => ({ ...prev, [field]: value }));
-    },
-    [setUserInfo],
-  );
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // Use media query to detect small screens
   const isSmallScreen = useMediaQuery("(max-width: 520px)");
-
-  const handleSave = useCallback(() => {
-    if (!userId) return;
-
-    console.log("🔍 MyInfoManagement - handleSave starting (avatar already updated separately)");
-    console.log("🔍 MyInfoManagement - userId:", userId);
-    console.log("🔍 MyInfoManagement - userInfo:", userInfo);
-
-    // Update user with current form data (avatar is already updated via uploadAndUpdateAvatar)
-    updateUser(userId, userInfo);
-  }, [userId, userInfo, updateUser]);
 
   const handleImageUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,18 +31,15 @@ export const MyInfo: React.FC = () => {
         console.log("🔍 MyInfoManagement - Starting image upload and user update");
 
         // Use the combined hook to upload and update user immediately
-        const imageId = await uploadAndUpdateAvatar(file, userId, userInfo);
+        await uploadAndUpdateAvatar(file, userId, userInfo);
 
-        // Update the local UI state for immediate feedback
-        updateField("img", imageId);
-
-        console.log("🔍 MyInfoManagement - Upload and update completed, ID:", imageId);
+        console.log("🔍 MyInfoManagement - Upload and update completed");
       } catch (error) {
         console.error("Upload and update failed:", error);
         // Error message is already handled in the hook
       }
     },
-    [uploadAndUpdateAvatar, userId, userInfo, updateField],
+    [uploadAndUpdateAvatar, userId, userInfo],
   );
 
   // Loading state
@@ -180,100 +135,87 @@ export const MyInfo: React.FC = () => {
           <CardDescription>Quản lý thông tin cá nhân của bạn</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Name */}
-            <FormField id="name" label="Họ và tên" value={userInfo.name} onChange={(value) => updateField("name", value)} disabled={!isEditing} />
+            <div className="space-y-2">
+              <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+                <User className="h-4 w-4" />
+                Họ và tên
+              </div>
+              <div className="text-base">{userInfo.name || "Chưa cập nhật"}</div>
+            </div>
 
             {/* Email */}
-            <FormField
-              id="email"
-              label="Email"
-              value={userInfo.email}
-              disabled={true}
-              type="email"
-              placeholder="Email không thể thay đổi"
-              description="Email không thể thay đổi"
-              icon={<Mail className="h-4 w-4" />}
-              onChange={function (value: string): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
+            <div className="space-y-2">
+              <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+                <Mail className="h-4 w-4" />
+                Email
+              </div>
+              <div className="text-base">{userInfo.email || "Chưa cập nhật"}</div>
+            </div>
 
             {/* Phone */}
-            <FormField
-              id="phone"
-              label="Số điện thoại"
-              value={userInfo.phone}
-              onChange={(value) => updateField("phone", value)}
-              disabled={!isEditing}
-              icon={<Phone className="h-4 w-4" />}
-            />
+            <div className="space-y-2">
+              <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+                <Phone className="h-4 w-4" />
+                Số điện thoại
+              </div>
+              <div className="text-base">{userInfo.phone || "Chưa cập nhật"}</div>
+            </div>
 
             {/* Date of Birth */}
-            <FormField
-              id="dob"
-              label="Ngày sinh"
-              value={userInfo.dob}
-              onChange={(value) => updateField("dob", value)}
-              disabled={!isEditing}
-              type="date"
-              icon={<Calendar className="h-4 w-4" />}
-            />
+            <div className="space-y-2">
+              <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+                <Calendar className="h-4 w-4" />
+                Ngày sinh
+              </div>
+              <div className="text-base">{userInfo.dob || "Chưa cập nhật"}</div>
+            </div>
 
             {/* Gender */}
-            <SelectField
-              label="Giới tính"
-              value={userInfo.gender}
-              onChange={(value) => updateField("gender", value)}
-              disabled={!isEditing}
-              options={GENDERS}
-              placeholder="Chọn giới tính"
-            />
-
-            {/* City */}
-            <SelectField
-              label="Thành phố"
-              value={userInfo.city}
-              onChange={(value) => updateField("city", value)}
-              disabled={!isEditing}
-              options={CITIES}
-              placeholder="Chọn thành phố"
-              icon={<MapPin className="h-4 w-4" />}
-            />
+            <div className="space-y-2">
+              <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+                <User className="h-4 w-4" />
+                Giới tính
+              </div>
+              <div className="text-base">
+                {(() => {
+                  if (userInfo.gender === "male") return "Nam";
+                  if (userInfo.gender === "female") return "Nữ";
+                  return "Chưa cập nhật";
+                })()}
+              </div>
+            </div>
           </div>
 
           {/* Address */}
           <div className="space-y-2">
-            <Label htmlFor="address">Địa chỉ</Label>
-            <Input id="address" value={userInfo.address} onChange={(e) => updateField("address", e.target.value)} disabled={!isEditing} />
+            <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+              <MapPin className="h-4 w-4" />
+              Địa chỉ
+            </div>
+            <div className="text-base">{userInfo.address || "Chưa cập nhật"}</div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4">
-            {!isEditing ? (
-              <>
-                <Button onClick={() => setIsEditing(true)}>Chỉnh sửa thông tin</Button>
-                <Button variant="outline" onClick={() => setIsChangePasswordOpen(true)}>
-                  <KeyRound className="mr-2 h-4 w-4" />
-                  Đổi mật khẩu
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button onClick={handleSave} disabled={mutation.isPending}>
-                  {mutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-                </Button>
-                <Button variant="outline" onClick={() => setIsEditing(false)} disabled={mutation.isPending}>
-                  Hủy
-                </Button>
-              </>
-            )}
+            <Button onClick={() => setIsEditDialogOpen(true)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Chỉnh sửa thông tin
+            </Button>
+            <Button variant="outline" onClick={() => setIsChangePasswordOpen(true)}>
+              <KeyRound className="mr-2 h-4 w-4" />
+              Đổi mật khẩu
+            </Button>
           </div>
         </CardContent>
       </Card>
 
       {/* Change Password Dialog */}
       <ChangePasswordDialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen} />
+
+      {/* Edit User Info Dialog */}
+      {userId && <EditUserInfoDialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} userInfo={userInfo} userId={userId} />}
     </div>
   );
 };
