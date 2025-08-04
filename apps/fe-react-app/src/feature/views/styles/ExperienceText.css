@@ -4,15 +4,13 @@
   padding-right: 50px;
 }
 
-
-  .open-sans-1000 {
-    font-family: "Open Sans", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 1000;
-    font-style: normal;
-    font-variation-settings:
-      "wdth" 100;
-  }
+.open-sans-1000 {
+  font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 1000;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
 
 .experience-title {
   margin-bottom: 30px;

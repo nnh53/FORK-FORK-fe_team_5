@@ -8,8 +8,8 @@ import "./styles/HomePage.css";
 import AdminTeamSection from "@/feature/views/sections/AdminTeamSection";
 import CinemaExperience from "@/feature/views/sections/CinemaExperience";
 import { CTASection } from "@/feature/views/sections/cta-section";
-import { FeatureSection } from "@/feature/views/sections/feature-section";
 import { FAQSection } from "@/feature/views/sections/faq-section";
+import { FeatureSection } from "@/feature/views/sections/feature-section";
 
 // Lazy load heavy components
 const CarouselSection = lazy(() => import("@/feature/views/sections/CarouselSection"));

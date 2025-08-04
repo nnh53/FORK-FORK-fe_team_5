@@ -1,4 +1,3 @@
-
 import { SectionHeader } from "@/components/magicui/section-header";
 import { siteConfig } from "@/config/config";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/accordion";
@@ -7,35 +6,20 @@ export function FAQSection() {
   const { faqSection } = siteConfig;
 
   return (
-    <section
-      id="faq"
-      className="flex flex-col items-center justify-center gap-10 pb-10 w-full relative"
-    >
+    <section id="faq" className="relative flex w-full flex-col items-center justify-center gap-10 pb-10">
       <SectionHeader>
-        <h2 className="text-3xl md:text-4xl font-medium tracking-tighter text-center text-balance">
-          {faqSection.title}
-        </h2>
+        <h2 className="text-center text-3xl font-medium tracking-tighter text-balance md:text-4xl">{faqSection.title}</h2>
       </SectionHeader>
 
-      <div className="max-w-3xl w-full mx-auto px-10">
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full border-b-0 grid gap-2"
-        >
+      <div className="mx-auto w-full max-w-3xl px-10">
+        <Accordion type="single" collapsible className="grid w-full gap-2 border-b-0">
           {faqSection.faQitems.map((faq, index) => (
-            <AccordionItem
-              key={index}
-              value={index.toString()}
-              className="border-0 grid gap-2"
-            >
-              <AccordionTrigger className="border bg-accent border-border rounded-lg px-4 py-3.5 cursor-pointer no-underline hover:no-underline data-[state=open]:ring data-[state=open]:ring-primary/20">
+            <AccordionItem key={index} value={index.toString()} className="grid gap-2 border-0">
+              <AccordionTrigger className="bg-accent border-border data-[state=open]:ring-primary/20 cursor-pointer rounded-lg border px-4 py-3.5 no-underline hover:no-underline data-[state=open]:ring">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="p-3 border text-primary rounded-lg bg-accent">
-                <p className="text-primary font-medium leading-relaxed">
-                  {faq.answer}
-                </p>
+              <AccordionContent className="text-primary bg-accent rounded-lg border p-3">
+                <p className="text-primary leading-relaxed font-medium">{faq.answer}</p>
               </AccordionContent>
             </AccordionItem>
           ))}
