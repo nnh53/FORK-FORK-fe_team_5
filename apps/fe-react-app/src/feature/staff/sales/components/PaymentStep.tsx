@@ -8,7 +8,7 @@ import type { Combo } from "@/interfaces/combo.interface";
 import type { Member } from "@/interfaces/member.interface";
 import type { Snack } from "@/interfaces/snacks.interface";
 import { formatVND } from "@/utils/currency.utils.ts";
-import { CreditCard } from "lucide-react";
+import { ArrowLeft, Banknote, CreditCard, Globe, Target } from "lucide-react";
 import React from "react";
 
 interface PaymentStepProps {
@@ -110,27 +110,50 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
             <div className="flex items-center gap-4">
               <Label htmlFor="points">Điểm sử dụng (có {memberInfo.currentPoints} điểm, tối đa 50 điểm):</Label>
               <div className="flex items-center gap-2">
-                <Input
-                  id="points"
-                  type="number"
-                  value={usePoints}
-                  onChange={(e) => onUsePointsChange(Math.min(parseInt(e.target.value) || 0, Math.min(memberInfo.currentPoints, 50)))}
-                  max={Math.min(memberInfo.currentPoints, 50)}
-                  min={0}
-                  className="w-24"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onUsePointsChange(Math.min(memberInfo.currentPoints, 50))}
-                  className="text-xs"
-                >
-                  Tối đa
-                </Button>
+                {(() => {
+                  // Calculate maximum points that can be used while keeping order ≥ 1000 VNĐ
+                  const totalBeforePoints = calculateTotal() + usePoints * 1000; // Get original total
+                  const maxPointsForMinimum = Math.floor((totalBeforePoints - 1000) / 1000); // Max points to keep ≥ 1000 VNĐ
+                  const maxAllowedPoints = Math.min(memberInfo.currentPoints, 50, maxPointsForMinimum);
+
+                  return (
+                    <>
+                      <Input
+                        id="points"
+                        type="number"
+                        value={usePoints}
+                        onChange={(e) => onUsePointsChange(Math.min(parseInt(e.target.value) || 0, Math.min(memberInfo.currentPoints, 50)))}
+                        max={Math.max(0, maxAllowedPoints)}
+                        min={0}
+                        className="w-24"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          onUsePointsChange(Math.max(0, maxAllowedPoints));
+                        }}
+                        className="text-xs"
+                      >
+                        <Target className="mr-1 h-3 w-3" />
+                        Tối đa
+                      </Button>
+                    </>
+                  );
+                })()}
               </div>
               <span className="text-sm text-gray-500">= {formatVND(usePoints * 1000, 0, "VNĐ")}</span>
             </div>
+            {/* Validation warning for minimum order amount */}
+            {usePoints > 0 && calculateTotal() < 1000 && (
+              <div className="mt-2 rounded-md bg-red-50 p-2 text-sm text-red-600">
+                <span role="img" aria-label="Warning">
+                  ⚠️
+                </span>{" "}
+                Tổng tiền sau khi trừ điểm phải từ 1,000 VNĐ trở lên
+              </div>
+            )}
           </div>
         )}
 
@@ -141,16 +164,17 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
           <h3 className="mb-3 font-semibold">Phương Thức Thanh Toán</h3>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
             {[
-              { id: "CASH" as PaymentMethod, name: "Tiền mặt" },
-              { id: "ONLINE" as PaymentMethod, name: "Online" },
+              { id: "CASH" as PaymentMethod, name: "Tiền mặt", icon: Banknote },
+              { id: "ONLINE" as PaymentMethod, name: "Online", icon: Globe },
             ].map((method) => (
               <button
                 key={method.id}
                 onClick={() => onPaymentMethodChange(method.id)}
-                className={`rounded-lg border p-3 text-center transition-colors ${
+                className={`flex items-center justify-center gap-2 rounded-lg border p-3 text-center transition-colors ${
                   paymentMethod === method.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
                 }`}
               >
+                <method.icon className="h-4 w-4" />
                 {method.name}
               </button>
             ))}
@@ -159,9 +183,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
         <div className="mt-6 flex justify-center gap-2">
           <Button variant="outline" onClick={onBack}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại
           </Button>
-          <Button onClick={onCreateBooking} disabled={loading} className="bg-green-600 hover:bg-green-700">
+          <Button
+            onClick={onCreateBooking}
+            disabled={loading || (usePoints > 0 && calculateTotal() < 1000)}
+            className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
+          >
+            <CreditCard className="mr-2 h-4 w-4" />
             {loading ? "Đang xử lý..." : `Thanh toán ${formatVND(calculateTotal(), 0, "VNĐ")}`}
           </Button>
         </div>
