@@ -155,7 +155,7 @@ export const MovieHistory: React.FC = () => {
                 Lọc theo trạng thái:
               </label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger id="status-filter" className="w-40">
+                <SelectTrigger id="status-filter" className="w-auto">
                   <SelectValue placeholder="Chọn trạng thái" />
                 </SelectTrigger>
                 <SelectContent>

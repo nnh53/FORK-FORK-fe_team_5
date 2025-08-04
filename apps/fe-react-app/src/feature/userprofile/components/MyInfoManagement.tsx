@@ -20,7 +20,8 @@ export const MyInfo: React.FC = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // Use media query to detect small screens
-  const isSmallScreen = useMediaQuery("(max-width: 520px)");
+  const isSmallScreen = useMediaQuery("(max-width: 544px)");
+  const isExtraSmallScreen = useMediaQuery("(max-width: 444px)");
 
   const handleImageUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,14 +86,14 @@ export const MyInfo: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className={`flex ${isSmallScreen ? "flex-col" : "items-center justify-between"} gap-6`}>
-            <div className="flex items-center gap-6">
+            <div className={`flex ${isExtraSmallScreen ? "flex-col items-center" : "gap-4"}`}>
               <Avatar className="h-24 w-24">
                 <AvatarImage src={userInfo.img} />
                 <AvatarFallback>
                   <User className="h-12 w-12" />
                 </AvatarFallback>
               </Avatar>
-              <div className="space-y-2">
+              <div className={` ${isExtraSmallScreen ? "mt-1 flex flex-col items-center space-y-1 text-center" : "space-y-2"}`}>
                 <Button variant="outline" className="relative" disabled={isUploadingAndUpdating}>
                   <Camera className="mr-2 h-4 w-4" />
                   {isUploadingAndUpdating ? "Đang tải lên và cập nhật..." : "Thay đổi ảnh"}
@@ -198,7 +199,7 @@ export const MyInfo: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 pt-4">
+          <div className={`flex ${isExtraSmallScreen ? "flex-col" : ""} gap-2`}>
             <Button onClick={() => setIsEditDialogOpen(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Chỉnh sửa thông tin

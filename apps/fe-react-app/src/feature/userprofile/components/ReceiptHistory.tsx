@@ -43,7 +43,7 @@ const ReceiptHistory: React.FC = () => {
   const hasFetchedRef = useRef(false);
 
   // Use media query to detect small screens
-  const isSmallScreen = useMediaQuery("(max-width: 640px)");
+  const isSmallScreen = useMediaQuery("(max-width: 500px)");
 
   // Fetch receipts function
   const fetchReceipts = async (values: ReceiptHistoryFormValues) => {
@@ -233,7 +233,7 @@ const ReceiptHistory: React.FC = () => {
             <div className={`${isSmallScreen ? "mt-4 w-full" : "mt-0"}`}>
               <Form {...form}>
                 <div className="flex flex-wrap items-start gap-4">
-                  <div className="grid min-w-[240px] grid-cols-2 gap-2">
+                  <div className="grid min-w-auto grid-cols-1 gap-2 sm:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="fromDate"
@@ -283,7 +283,7 @@ const ReceiptHistory: React.FC = () => {
                             fetchReceipts(form.getValues());
                           }}
                         >
-                          <SelectTrigger id="payment-filter" className="w-40">
+                          <SelectTrigger id="payment-filter" className="w-auto">
                             <SelectValue placeholder="Phương thức" />
                           </SelectTrigger>
                           <SelectContent>

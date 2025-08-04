@@ -191,7 +191,7 @@ const PointHistory: React.FC = () => {
             <div className={`${isSmallScreen ? "mt-4 w-full" : "mt-0"}`}>
               <Form {...form}>
                 <div className="flex flex-wrap items-start gap-4">
-                  <div className="grid min-w-[240px] grid-cols-2 gap-2">
+                  <div className="grid min-w-auto grid-cols-1 gap-2 sm:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="fromDate"
