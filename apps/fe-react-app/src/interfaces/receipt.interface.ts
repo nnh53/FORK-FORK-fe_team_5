@@ -12,3 +12,6 @@ export type MovieTrendingResponse = components["schemas"]["MovieTrendingResponse
 export type ApiResponseListReceipt = components["schemas"]["ApiResponseListReceipt"];
 
 export type ApiResponseListMovieTrendingResponse = components["schemas"]["ApiResponseListMovieTrendingResponse"];
+
+export type ApiResponseTopItem =  components["schemas"]["TopReceiptItemResponse"];
+

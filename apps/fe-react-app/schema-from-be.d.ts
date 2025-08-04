@@ -752,6 +752,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/receipt/topSnack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getTopSnack"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/receipt/topMovie": {
         parameters: {
             query?: never;
@@ -760,6 +776,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getTrendingMovie"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/receipt/topCombo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getTopCombo"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1685,6 +1717,21 @@ export interface components {
             code?: number;
             message?: string;
             result?: components["schemas"]["SeatTypeResponse"][];
+        };
+        ApiResponseListTopReceiptItemResponse: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            result?: components["schemas"]["TopReceiptItemResponse"][];
+        };
+        TopReceiptItemResponse: {
+            name?: string;
+            /** Format: double */
+            totalRevenue?: number;
+            /** Format: int64 */
+            quantity?: number;
+            /** @enum {string} */
+            type?: "COMBO" | "SNACK" | "TICKET";
         };
         ApiResponseListMovieTrendingResponse: {
             /** Format: int32 */
@@ -3661,6 +3708,29 @@ export interface operations {
             };
         };
     };
+    getTopSnack: {
+        parameters: {
+            query: {
+                fromDate: string;
+                toDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListTopReceiptItemResponse"];
+                };
+            };
+        };
+    };
     getTrendingMovie: {
         parameters: {
             query: {
@@ -3680,6 +3750,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponseListMovieTrendingResponse"];
+                };
+            };
+        };
+    };
+    getTopCombo: {
+        parameters: {
+            query: {
+                fromDate: string;
+                toDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponseListTopReceiptItemResponse"];
                 };
             };
         };
