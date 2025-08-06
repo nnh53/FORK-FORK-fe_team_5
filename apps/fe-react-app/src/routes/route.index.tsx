@@ -51,127 +51,193 @@ import MovieDetailPage from "@/pages/store/MovieDetailPage";
 import MovieSelection from "@/pages/store/MovieSelection";
 import { ROUTES } from "@/routes/route.constants";
 import { getRelativePath } from "@/routes/route.utils";
-import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { $api } from "@/utils/api";
+import { useEffect } from "react";
+import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 // Main App Routes following React Router best practices
-export const AppRoutes = () => (
-  <Routes>
-    <Route path={ROUTES.PAYMENT_RETURN} element={<PaymentReturn />} />
-    {/* Auth Routes - standalone without layout */}
-    <Route element={<AuthPageProtector />}>
-      <Route path={ROUTES.AUTH.ROOT}>
-        <Route index element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
-        <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
-        <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
-        <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
-      </Route>
-    </Route>
+export function AppRoutes() {
+  console.log("AppRoutes initialized");
+  const { search, state } = useLocation();
+  const navigate = useNavigate();
+  const cancelRequestWithOrderCode = $api.useMutation("post", "/bookings/cancel/{id}");
+  const searchParams = new URLSearchParams(search);
+  // Get parameters from the URL
+  const code = searchParams.get("code");
+  const id = searchParams.get("id");
+  const cancel = searchParams.get("cancel");
+  const status = searchParams.get("status");
+  const orderCode = searchParams.get("orderCode");
+  // Check if this is a staff booking (from navigation state)
+  const isStaffBooking = state?.isStaffBooking || false;
+  const paymentMethod = state?.paymentMethod;
+  console.log("Payment return params:", { code, id, cancel, status, orderCode, isStaffBooking, paymentMethod });
+  useEffect(() => {
+    // Handle staff booking - they should always go to success page
+    if (isStaffBooking && paymentMethod === "OFFLINE") {
+      console.log("Staff booking with offline payment, navigating to success page");
+      navigate(ROUTES.BOOKING_SUCCESS);
+      return;
+    }
+    // If no URL parameters but we have state, it might be a staff booking
+    if (!code && !id && !status && !cancel && !orderCode && state) {
+      console.log("No URL parameters but state exists, assuming staff booking success");
+      navigate(ROUTES.BOOKING_SUCCESS);
+      return;
+    }
+    // Check if payment was cancelled
+    if (cancel === "true" && orderCode != null) {
+      console.log("orderCode:", orderCode);
+      cancelRequestWithOrderCode.mutate({
+        params: {
+          path: {
+            id: parseInt(orderCode),
+          },
+        },
+      });
+      // quay về movies tạm
+      toast.error("Bạn đã hủy thanh toán. Vui lòng thử lại.");
+      navigate(ROUTES.MOVIES_SELECTION);
+      return;
+    }
+    // Check if payment was successful (for online payments)
+    if (status === "PAID" && cancel === "false") {
+      // Navigate to booking success page with the booking ID in URL params
+      console.log("Payment successful, navigating to success page with booking ID:", id);
+      navigate(`${ROUTES.BOOKING_SUCCESS}`);
+      // Clear the booking state from localStorage since booking is complete
+      // localStorage.removeItem("bookingState");
+      return;
+    }
+    // Handle other cases (failed payment, invalid status, etc.)
+    // Only show error if we have URL parameters (indicating this is an online payment return)
+    if (code || id || status || cancel || orderCode) {
+      toast.error("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
+      navigate(ROUTES.CHECKOUT);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    {/* User Routes - All routes that use UserLayout */}
-    <Route path={ROUTES.ROOT} element={<UserLayout />}>
-      {/* Root redirect */}
-      <Route index element={<Navigate to={ROUTES.HOME} replace />} />
-      {/* Public Routes */}
-      <Route path={ROUTES.HOME} element={<HomePage />} />
-      <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
-      <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
-
-      {/* Protected Routes for Booking - require authentication */}
-      <Route element={<ProtectedRoute />}>
-        <Route path={ROUTES.BOOKING} element={<BookingPage />} />
-        <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
-        <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
-        <Route path={ROUTES.ACCOUNT} element={<MyUserManagement />} />
-      </Route>
-      {/* Legacy route for backward compatibility */}
-      <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
-      <Route path={ROUTES.LEGACY_AUTH.LOGIN} element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
-      <Route path={ROUTES.LEGACY_AUTH.REGISTER} element={<Navigate to={ROUTES.AUTH.REGISTER} replace />} />
-      <Route path={ROUTES.LEGACY_AUTH.FORGOT_PASSWORD} element={<Navigate to={ROUTES.AUTH.FORGOT_PASSWORD} replace />} />
-    </Route>
-    {/*----------------------------------- Ở TRÊN LÀ MEMBER VÀ GUEST ---------------------------------------*/}
-    {/* --------------------------------------------------------------------------------------------------- */}
-    {/*----------------------------------- Ở DƯỚI LÀ ADMIN VÀ STAFF ---------------------------------------*/}
-    {/* Admin Routes - Protected for ADMIN role */}
-    <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
-      <Route
-        path={ROUTES.ROOT}
-        element={
-          <PageTransition>
-            <Outlet />
-          </PageTransition>
-        }
-      >
-        <Route path={ROUTES.ADMIN.ROOT} element={<AdminLayout />}>
-          <Route index element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.DASHBOARD, ROUTES.ADMIN.ROOT)} element={<AdminDashboard />} />
-          <Route
-            path={getRelativePath(ROUTES.ADMIN.BOOKING, ROUTES.ADMIN.ROOT)}
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl font-bold">Booking Management</h1>
-              </div>
-            }
-          />
-          <Route path={getRelativePath(ROUTES.ADMIN.MOVIE, ROUTES.ADMIN.ROOT)} element={<MovieManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.GENRES, ROUTES.ADMIN.ROOT)} element={<MovieCategoryManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM, ROUTES.ADMIN.ROOT)} element={<CinemaRoomManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM_DETAIL, ROUTES.ADMIN.ROOT)} element={<CinemaRoomDetail />} />
-          <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM_ADD, ROUTES.ADMIN.ROOT)} element={<CinemaRoomAdd />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM_EDIT, ROUTES.ADMIN.ROOT)} element={<CinemaRoomEdit />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.SEAT_TYPES, ROUTES.ADMIN.ROOT)} element={<SeatTypeAdminPage />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.PROMOTION, ROUTES.ADMIN.ROOT)} element={<PromotionManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.MEMBERS, ROUTES.ADMIN.ROOT)} element={<MemberManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.SHOWTIME, ROUTES.ADMIN.ROOT)} element={<ShowtimeManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.SHOWTIME_TABLE, ROUTES.ADMIN.ROOT)} element={<ShowtimeTable />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.STAFFS, ROUTES.ADMIN.ROOT)} element={<StaffManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.COMBO, ROUTES.ADMIN.ROOT)} element={<ComboManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.SNACKS, ROUTES.ADMIN.ROOT)} element={<SnackManagement />} />
-          <Route path={getRelativePath(ROUTES.ADMIN.SPOTLIGHT, ROUTES.ADMIN.ROOT)} element={<SpotlightManagement />} />
+  return (
+    <Routes>
+      <Route path={ROUTES.PAYMENT_RETURN} element={<PaymentReturn />} />
+      {/* Auth Routes - standalone without layout */}
+      <Route element={<AuthPageProtector />}>
+        <Route path={ROUTES.AUTH.ROOT}>
+          <Route index element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
+          <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
+          <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
+          <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
         </Route>
       </Route>
-    </Route>
 
-    {/* Staff Routes - Protected for STAFF role */}
-    <Route element={<RoleRoute allowedRoles={["STAFF"]} />}>
-      <Route path={ROUTES.STAFF.ROOT} element={<StaffLayout />}>
-        <Route index element={<Navigate to={ROUTES.STAFF.TICKET_SALES} replace />} />
-        <Route path={getRelativePath(ROUTES.STAFF.BOOKING, ROUTES.STAFF.ROOT)} element={<StaffBookingManagement />} />
-        <Route path={getRelativePath(ROUTES.STAFF.TICKET_SALES, ROUTES.STAFF.ROOT)} element={<StaffTicketSales />} />
+      {/* User Routes - All routes that use UserLayout */}
+      <Route path={ROUTES.ROOT} element={<UserLayout />}>
+        {/* Root redirect */}
+        <Route index element={<Navigate to={ROUTES.HOME} replace />} />
+        {/* Public Routes */}
+        <Route path={ROUTES.HOME} element={<HomePage />} />
+        <Route path={ROUTES.MOVIES_SELECTION} element={<MovieSelection />} />
+        <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
+
+        {/* Protected Routes for Booking - require authentication */}
+        <Route element={<ProtectedRoute />}>
+          <Route path={ROUTES.BOOKING} element={<BookingPage />} />
+          <Route path={ROUTES.CHECKOUT} element={<CheckoutPage />} />
+          <Route path={ROUTES.BOOKING_SUCCESS} element={<BookingSuccessPage />} />
+          <Route path={ROUTES.ACCOUNT} element={<MyUserManagement />} />
+        </Route>
+        {/* Legacy route for backward compatibility */}
+        <Route path={ROUTES.LEGACY_ACCOUNT} element={<Navigate to={ROUTES.ACCOUNT} replace />} />
+        <Route path={ROUTES.LEGACY_AUTH.LOGIN} element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
+        <Route path={ROUTES.LEGACY_AUTH.REGISTER} element={<Navigate to={ROUTES.AUTH.REGISTER} replace />} />
+        <Route path={ROUTES.LEGACY_AUTH.FORGOT_PASSWORD} element={<Navigate to={ROUTES.AUTH.FORGOT_PASSWORD} replace />} />
       </Route>
-    </Route>
-    {/* Legacy Management Routes - Protected for ADMIN/STAFF */}
-    <Route element={<RoleRoute allowedRoles={["ADMIN", "STAFF"]} />}>
-      <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
-    </Route>
-    <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
-      <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
-    </Route>
-    {/* <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} /> */}
-    {/* --------------------------------------------------------------------------------------------------- */}
-    {/*----------------------------------- Ở DƯỚI LÀ UTILITY VÀ STATIC VÀ TEST ---------------------------------------*/}
-    {/* --------------------------------------------------------------------------------------------------- */}
-    {/* Utility Routes */}
-    <Route path={ROUTES.LOADING} element={<Loading />} />
-    <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
-    <Route path={ROUTES.ERROR} element={<NotFoundError />} />
-    <Route path={ROUTES.INTERNAL_SERVER_ERROR} element={<InternalServerError />} />
-    <Route path={ROUTES.TEST} element={<Test />} />
-    <Route path="*" element={<NotFoundError />} />
-    {/* Static Routes */}
-    <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
-    <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
-    <Route path={ROUTES.ABOUT} element={<About />} />
-    {/* Viewing Test Route */}
-    <Route path={ROUTES.FAQ} element={<FAQ />} />
-    <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselSection />} />
-    <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
-    <Route path={ROUTES.HEADER_TEST} element={<Header />} />
-    <Route path={ROUTES.CINEMA_EXPERIENCE} element={<CinemaExperience />} />
-    {/* <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} /> */}
-    <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
+      {/*----------------------------------- Ở TRÊN LÀ MEMBER VÀ GUEST ---------------------------------------*/}
+      {/* --------------------------------------------------------------------------------------------------- */}
+      {/*----------------------------------- Ở DƯỚI LÀ ADMIN VÀ STAFF ---------------------------------------*/}
+      {/* Admin Routes - Protected for ADMIN role */}
+      <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
+        <Route
+          path={ROUTES.ROOT}
+          element={
+            <PageTransition>
+              <Outlet />
+            </PageTransition>
+          }
+        >
+          <Route path={ROUTES.ADMIN.ROOT} element={<AdminLayout />}>
+            <Route index element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.DASHBOARD, ROUTES.ADMIN.ROOT)} element={<AdminDashboard />} />
+            <Route
+              path={getRelativePath(ROUTES.ADMIN.BOOKING, ROUTES.ADMIN.ROOT)}
+              element={
+                <div className="p-6">
+                  <h1 className="text-2xl font-bold">Booking Management</h1>
+                </div>
+              }
+            />
+            <Route path={getRelativePath(ROUTES.ADMIN.MOVIE, ROUTES.ADMIN.ROOT)} element={<MovieManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.GENRES, ROUTES.ADMIN.ROOT)} element={<MovieCategoryManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM, ROUTES.ADMIN.ROOT)} element={<CinemaRoomManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM_DETAIL, ROUTES.ADMIN.ROOT)} element={<CinemaRoomDetail />} />
+            <Route path="cinema-room/:roomId/seat-map" element={<SeatMapManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM_ADD, ROUTES.ADMIN.ROOT)} element={<CinemaRoomAdd />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.CINEMA_ROOM_EDIT, ROUTES.ADMIN.ROOT)} element={<CinemaRoomEdit />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.SEAT_TYPES, ROUTES.ADMIN.ROOT)} element={<SeatTypeAdminPage />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.PROMOTION, ROUTES.ADMIN.ROOT)} element={<PromotionManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.MEMBERS, ROUTES.ADMIN.ROOT)} element={<MemberManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.SHOWTIME, ROUTES.ADMIN.ROOT)} element={<ShowtimeManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.SHOWTIME_TABLE, ROUTES.ADMIN.ROOT)} element={<ShowtimeTable />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.STAFFS, ROUTES.ADMIN.ROOT)} element={<StaffManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.COMBO, ROUTES.ADMIN.ROOT)} element={<ComboManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.SNACKS, ROUTES.ADMIN.ROOT)} element={<SnackManagement />} />
+            <Route path={getRelativePath(ROUTES.ADMIN.SPOTLIGHT, ROUTES.ADMIN.ROOT)} element={<SpotlightManagement />} />
+          </Route>
+        </Route>
+      </Route>
 
-    {/* Catch-all for unknown routes */}
-  </Routes>
-);
+      {/* Staff Routes - Protected for STAFF role */}
+      <Route element={<RoleRoute allowedRoles={["STAFF"]} />}>
+        <Route path={ROUTES.STAFF.ROOT} element={<StaffLayout />}>
+          <Route index element={<Navigate to={ROUTES.STAFF.TICKET_SALES} replace />} />
+          <Route path={getRelativePath(ROUTES.STAFF.BOOKING, ROUTES.STAFF.ROOT)} element={<StaffBookingManagement />} />
+          <Route path={getRelativePath(ROUTES.STAFF.TICKET_SALES, ROUTES.STAFF.ROOT)} element={<StaffTicketSales />} />
+        </Route>
+      </Route>
+      {/* Legacy Management Routes - Protected for ADMIN/STAFF */}
+      <Route element={<RoleRoute allowedRoles={["ADMIN", "STAFF"]} />}>
+        <Route path={ROUTES.LEGACY.MOVIE_MANAGEMENT} element={<MovieManagement />} />
+      </Route>
+      <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
+        <Route path={ROUTES.LEGACY.MEMBER_MANAGEMENT} element={<MemberManagement />} />
+      </Route>
+      {/* <Route path={ROUTES.LEGACY.STAFF_MANAGEMENT} element={<StaffManagement />} /> */}
+      {/* --------------------------------------------------------------------------------------------------- */}
+      {/*----------------------------------- Ở DƯỚI LÀ UTILITY VÀ STATIC VÀ TEST ---------------------------------------*/}
+      {/* --------------------------------------------------------------------------------------------------- */}
+      {/* Utility Routes */}
+      <Route path={ROUTES.LOADING} element={<Loading />} />
+      <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
+      <Route path={ROUTES.ERROR} element={<NotFoundError />} />
+      <Route path={ROUTES.INTERNAL_SERVER_ERROR} element={<InternalServerError />} />
+      <Route path={ROUTES.TEST} element={<Test />} />
+      <Route path="*" element={<NotFoundError />} />
+      {/* Static Routes */}
+      <Route path={ROUTES.TERM_OF_SERVICE} element={<TermOfService />} />
+      <Route path={ROUTES.PRIVACY_POLICY} element={<PrivacyPolicy />} />
+      <Route path={ROUTES.ABOUT} element={<About />} />
+      {/* Viewing Test Route */}
+      <Route path={ROUTES.FAQ} element={<FAQ />} />
+      <Route path={ROUTES.CAROUSEL_SECTION} element={<CarouselSection />} />
+      <Route path={ROUTES.SCROLL_VELOCITY} element={<ScrollVelocityTest />} />
+      <Route path={ROUTES.HEADER_TEST} element={<Header />} />
+      <Route path={ROUTES.CINEMA_EXPERIENCE} element={<CinemaExperience />} />
+      {/* <Route path={ROUTES.NOW_SHOWING} element={<NowShowing />} /> */}
+      <Route path={ROUTES.TRENDING_SECTION} element={<TrendingSection />} />
+
+      {/* Catch-all for unknown routes */}
+    </Routes>
+  );
+}

@@ -1,12 +1,10 @@
 {
   "servers": {
-    "nx-mcp": {
-      "type": "http",
-      "url": "http://localhost:9280/mcp"
-    },
     "shadcn-ui-server": {
       "command": "npx",
-      "args": ["@heilgar/shadcn-ui-mcp-server"]
+      "args": [
+        "@heilgar/shadcn-ui-mcp-server"
+      ]
     }
   }
 }
