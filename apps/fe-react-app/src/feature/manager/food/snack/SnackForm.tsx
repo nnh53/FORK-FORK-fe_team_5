@@ -124,7 +124,7 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
   return (
     <div className="w-full">
       <Formik initialValues={initialValues} validationSchema={snackValidationSchema} onSubmit={onSubmit}>
-        {({ values, errors, touched, setFieldValue, isSubmitting }) => (
+        {({ values, errors, touched, setFieldValue, isSubmitting, dirty }) => (
           <Form className="space-y-6">
             {/* Khu vực upload hình và form */}
             <div className={isMobile ? "flex flex-col gap-8" : "grid grid-cols-5 gap-8"}>
@@ -140,14 +140,16 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
                   <CardContent className="flex h-full flex-col space-y-4">
                     <div>
                       <ImageUpload
-                        currentImage={imagePreview !== null ? imagePreview : values.img || ""}
+                        currentImage={imagePreview ?? values.img ?? ""}
                         onImageChange={(url) => {
                           setImagePreview(url);
                           setFieldValue("img", url);
+                          // Đánh dấu form đã được chạm vào để kích hoạt dirty
+                          setFieldValue("img", url, true);
                         }}
                         onImageClear={() => {
                           setImagePreview("");
-                          setFieldValue("img", "");
+                          setFieldValue("img", "", true);
                         }}
                         label=""
                         aspectRatio="16:9"
@@ -261,7 +263,13 @@ const SnackForm: React.FC<SnackFormProps> = ({ snack, onSubmit, onCancel }) => {
               <Button type="button" variant="outline" onClick={onCancel} className="px-8 py-2">
                 Hủy bỏ
               </Button>
-              <Button type="submit" className="px-8 py-2" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                className={`px-8 py-2 ${!dirty ? "cursor-not-allowed opacity-50" : ""}`}
+                disabled={isSubmitting || !dirty}
+                variant={dirty ? "default" : "outline"}
+                title={!dirty ? "Chưa có thay đổi nào để lưu" : ""}
+              >
                 {snack ? "Cập nhật" : "Thêm"} đồ ăn
               </Button>
             </div>

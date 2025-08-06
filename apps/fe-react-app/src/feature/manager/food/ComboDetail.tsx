@@ -43,23 +43,29 @@ const createFallbackSnack = (): Snack => ({
 // Extracted SnackGrid component to reduce complexity
 const SnackGrid = ({ snacks }: { snacks: ComboSnack[] }) => {
   return (
-    <Carousel className="w-full py-4">
-      <CarouselContent>
-        {snacks?.map((comboSnack) => {
-          // Chỉ sử dụng fallback nếu thực sự không có dữ liệu snack
-          const snackData = comboSnack.snack && Object.keys(comboSnack.snack).length > 0 ? comboSnack.snack : createFallbackSnack();
-          return (
-            <CarouselItem key={comboSnack.id} className="basis-full sm:basis-1/2 md:basis-1/2 lg:basis-1/3">
-              <div className="p-1">
-                <SnackCard snack={snackData} viewMode="grid" />
-              </div>
-            </CarouselItem>
-          );
-        })}
-      </CarouselContent>
-      <CarouselPrevious className="hidden sm:flex" />
-      <CarouselNext className="hidden sm:flex" />
-    </Carousel>
+    <div className="relative w-full py-4">
+      <Carousel className="w-full">
+        <CarouselContent>
+          {snacks?.map((comboSnack) => {
+            // Chỉ sử dụng fallback nếu thực sự không có dữ liệu snack
+            const snackData = comboSnack.snack && Object.keys(comboSnack.snack).length > 0 ? comboSnack.snack : createFallbackSnack();
+            return (
+              <CarouselItem key={comboSnack.id} className="basis-full sm:basis-1/2 md:basis-1/2 lg:basis-1/3">
+                <div className="p-1">
+                  <SnackCard snack={snackData} viewMode="grid" />
+                </div>
+              </CarouselItem>
+            );
+          })}
+        </CarouselContent>
+        <div className="absolute inset-y-0 left-0 z-10 flex items-center">
+          <CarouselPrevious className="ml-12 bg-white/80 shadow-md hover:bg-white" />
+        </div>
+        <div className="absolute inset-y-0 right-0 z-10 flex items-center">
+          <CarouselNext className="mr-12 bg-white/80 shadow-md hover:bg-white" />
+        </div>
+      </Carousel>
+    </div>
   );
 };
 
