@@ -49,7 +49,9 @@ export default function AdminDashboard() {
     const date = format(receipt.issuedAt ? new Date(receipt.issuedAt) : new Date(), "yyyy-MM-dd");
     revenueMap.set(date, (revenueMap.get(date) || 0) + (receipt.totalAmount ?? 0));
   });
-  const chartData = Array.from(revenueMap.entries()).map(([date, revenue]) => ({ date, revenue }));
+  const chartData = Array.from(revenueMap.entries())
+    .map(([date, revenue]) => ({ date, revenue }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   // Prepare pie chart data for combos
   const pieData = combos.map((combo) => ({
@@ -84,7 +86,7 @@ export default function AdminDashboard() {
     "#F06292", // Rose
     "#009688", // Cyan
     "#CDDC39", // Lime
-  ]
+  ];
 
   if (trendingQuery.isLoading || receiptsQuery.isLoading || combosQuery.isLoading || snacksQuery.isLoading) {
     return <LoadingSpinner name="dashboard" />;
