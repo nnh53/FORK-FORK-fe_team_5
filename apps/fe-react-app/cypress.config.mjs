@@ -2,6 +2,7 @@ import { nxE2EPreset } from "@nx/cypress/plugins/cypress-preset.js";
 import { defineConfig } from "cypress";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import config from "./vite.config.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
@@ -18,7 +19,8 @@ export default defineConfig({
     }),
     baseUrl: "http://localhost:5173",
     specPattern: ["./cypress/e2e/*.cy.{js,jsx,ts,tsx}"],
-    supportFile: "./test/src/support/e2e.{js,jsx,ts,tsx}",
+    // supportFile: "./cypress/support/e2e.{js,ts}",
+    supportFile: false,
   },
 
   // component: nxComponentTestingPreset(__filename, {
@@ -29,9 +31,9 @@ export default defineConfig({
     devServer: {
       framework: "react",
       bundler: "vite",
-      // viteConfig: {
-      //   ...config,
-      // },
+      viteConfig: {
+        ...config,
+      },
     },
     specPattern: ["./cypress/component/*.cy.{js,jsx,ts,tsx}"],
   },

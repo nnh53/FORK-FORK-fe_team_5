@@ -59,10 +59,11 @@
     "cypress.config.mjs",
     "cypress.config.js",
     "test/**/*",
+    "cypress/**/*",
     "*.cy.*",
     "**/*.cy.ts",
     "**/*.cy.tsx",
     "**/*.cy.js",
-    "**/*.cy.jsx",
+    "**/*.cy.jsx"
   ]
 }
