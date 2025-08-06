@@ -108,23 +108,23 @@ export const siteConfig = {
     chairs: [
       {
         imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/75c58430-e8fe-4366-8047-8e3f63ab4048-normal.webp",
-        alt: "Normal Chair",
-        title: "Normal Chair",
+        alt: "Ghế Thường",
+        title: "Ghế Thường",
       },
       {
         imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/b44d4ed9-dae5-4a0d-80ce-1c14e777b9d1-vip.webp",
-        alt: "VIP Chair",
-        title: "VIP Chair",
+        alt: "Ghế VIP",
+        title: "Ghế VIP",
       },
       {
         imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/691f23ca-42f4-4fa8-a785-7a1f7127f90b-premium.webp",
-        alt: "Premium Chair",
-        title: "Premium Chair",
+        alt: "Ghế Premium",
+        title: "Ghế Premium",
       },
       {
         imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/86a5d757-c920-48bd-957e-ebd016c36cfb-couple.webp",
-        alt: "Couple Chair",
-        title: "Couple Chair",
+        alt: "Ghế Đôi",
+        title: "Ghế Đôi",
       },
     ],
   },
