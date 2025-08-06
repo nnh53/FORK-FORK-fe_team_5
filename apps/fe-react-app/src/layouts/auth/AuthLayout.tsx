@@ -1,9 +1,10 @@
+import { Button } from "@/components/Shadcn/ui/button";
 import BannerTransition from "@/components/shared/BannerTransition";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useAuthPageAnimation } from "@/hooks/useAuthPageAnimation";
 import { ROUTES } from "@/routes/route.constants";
 import { animated } from "@react-spring/web";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -34,14 +35,21 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   const FormSection = (
     <div className={`${isDesktop ? "w-1/2" : "mt-15 w-full"} relative flex items-center justify-center p-8 md:p-12`}>
       {showBackButton && (
-        <div className="absolute top-0 left-6 z-10 sm:top-10">
-          <Link
-            to={ROUTES.HOME}
-            className="inline-flex items-center gap-1 rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-red-700 sm:px-4 sm:text-sm"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Quay lại trang chủ</span>
-          </Link>
+        <div className="absolute top-0 left-6 z-10 sm:top-1">
+          <Button variant="outline" size={isDesktop ? "default" : "sm"} asChild className="border-red-600">
+            <Link to={ROUTES.HOME}>
+              {isDesktop ? (
+                <>
+                  <ArrowLeft className="h-4 w-4 text-red-600" />
+                  <span className="text-red-600">Quay lại trang chủ</span>
+                </>
+              ) : (
+                <div className="flex">
+                  <Home className="h-4 w-4 text-red-600" />
+                </div>
+              )}
+            </Link>
+          </Button>
         </div>
       )}
       <div className="w-full max-w-md">

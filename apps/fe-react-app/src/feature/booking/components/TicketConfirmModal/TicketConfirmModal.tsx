@@ -57,10 +57,10 @@ const TicketConfirmModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose,
           {/* Nút Đồng ý */}
           <button
             onClick={onConfirm}
-            className="relative mt-4 flex h-11 w-auto cursor-pointer items-center justify-center rounded-md bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-base font-bold text-white transition duration-200 hover:brightness-110 sm:w-auto"
+            className="relative mt-4 flex h-11 w-auto cursor-pointer items-center justify-center rounded-md bg-gradient-to-r from-red-700 via-red-600 to-red-500 pr-2 text-base font-bold text-white transition duration-200 hover:brightness-110 sm:w-auto"
           >
             <Icon icon="material-symbols-light:local-activity-rounded" width="60" height="60" />
-            <span>ĐỒNG Ý</span>
+            <span>ĐỒNG Ý </span>
           </button>
         </div>
       </DialogContent>
