@@ -7,12 +7,12 @@ export interface FooterLink {
   isExternal?: boolean;
 }
 
-export const quickLinks: FooterLink[] = siteConfig.quickLinks.map(link => ({
+export const quickLinks: FooterLink[] = siteConfig.quickLinks.map((link) => ({
   label: link.label,
   href: link.href,
 }));
 
-export const supportLinks: FooterLink[] = siteConfig.supportLinks.map(link => ({
+export const supportLinks: FooterLink[] = siteConfig.supportLinks.map((link) => ({
   label: link.label,
   href: link.href,
 }));
