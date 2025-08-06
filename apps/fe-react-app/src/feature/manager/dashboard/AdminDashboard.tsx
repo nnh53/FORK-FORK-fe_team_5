@@ -69,7 +69,22 @@ export default function AdminDashboard() {
     value: movie.totalRevenue ?? 0,
   }));
 
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const COLORS = [
+    "#0088FE", // Blue
+    "#00C49F", // Teal
+    "#FFBB28", // Amber
+    "#FF8042", // Orange
+    "#A28EFF", // Purple
+    "#FF5E78", // Pink
+    "#4DD0E1", // Light Blue
+    "#8BC34A", // Light Green
+    "#FFC107", // Deep Yellow
+    "#D32F2F", // Red
+    "#7B1FA2", // Deep Purple
+    "#F06292", // Rose
+    "#009688", // Cyan
+    "#CDDC39", // Lime
+  ]
 
   if (trendingQuery.isLoading || receiptsQuery.isLoading || combosQuery.isLoading || snacksQuery.isLoading) {
     return <LoadingSpinner name="dashboard" />;
