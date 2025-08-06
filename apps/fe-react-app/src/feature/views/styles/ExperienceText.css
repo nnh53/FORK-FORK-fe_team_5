@@ -1,15 +1,21 @@
 /* Experience Text Component Styles */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
 .experience-text {
   flex: 1;
   padding-right: 50px;
 }
 
 .open-sans-1000 {
-  font-family: "Open Sans", sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   font-optical-sizing: auto;
-  font-weight: 1000;
+  font-weight: 900;
   font-style: normal;
-  font-variation-settings: "wdth" 100;
 }
 
 .experience-title {
@@ -18,9 +24,14 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  font-weight: 1000;
+  font-weight: 900;
   font-size: 3rem;
-  font-family: Open Sans;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
 }
 
 .experience-description {
@@ -28,6 +39,12 @@
   color: var(--color-base-content);
   font-size: 1.2rem;
   line-height: 1.6;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
 }
 /* Media Queries */
 @media (max-width: 992px) {

@@ -6,7 +6,6 @@ import "./styles/HomePage.css";
 
 // Light components can be imported normally
 import CinemaExperience from "@/feature/views/sections/CinemaExperience";
-import { CTASection } from "@/feature/views/sections/cta-section";
 import { FAQSection } from "@/feature/views/sections/faq-section";
 import { FeatureSection } from "@/feature/views/sections/feature-section";
 
@@ -51,7 +50,6 @@ const HomePage = () => {
           <FAQSection />
           {/* <AdminTeamSection /> */}
         </div>
-        <CTASection />
       </ClickSpark>
     </div>
   );

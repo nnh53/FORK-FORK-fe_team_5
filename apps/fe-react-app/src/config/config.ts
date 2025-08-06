@@ -129,11 +129,6 @@ export const siteConfig = {
         title: "Ghế VIP",
       },
       {
-        imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/691f23ca-42f4-4fa8-a785-7a1f7127f90b-premium.webp",
-        alt: "Ghế Premium",
-        title: "Ghế Premium",
-      },
-      {
         imageSrc: "https://pub-78054fb93d354b70874e7689a78e2705.r2.dev/images/86a5d757-c920-48bd-957e-ebd016c36cfb-couple.webp",
         alt: "Ghế Đôi",
         title: "Ghế Đôi",
