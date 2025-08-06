@@ -17,7 +17,7 @@ describe("Role Route To Each Page", () => {
     cy.get("input[name='email']").type("staff1@fcinema.com");
     cy.get("input[name='password']").type("123123123");
     cy.get("button[type='submit']").click();
-    cy.url().should("include", "/staff/dashboard");
+    cy.url().should("include", "/staff/sales");
     cy.pause();
   });
 

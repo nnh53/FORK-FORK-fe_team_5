@@ -16,7 +16,7 @@ describe("Logout", () => {
     cy.contains("Log out").should("be.visible");
     cy.contains("Log out").click();
 
-    cy.url().should("include", "/auth/login");
+    cy.url().should("include", "/home");
   });
 
   it("logout in user", () => {
@@ -30,5 +30,7 @@ describe("Logout", () => {
     cy.contains("Log out").trigger("mouseover");
     cy.contains("Log out").should("be.visible");
     cy.contains("Log out").click();
+
+    cy.url().should("include", "/home");
   });
 });
