@@ -2,9 +2,7 @@
   "servers": {
     "shadcn-ui-server": {
       "command": "npx",
-      "args": [
-        "@heilgar/shadcn-ui-mcp-server"
-      ]
+      "args": ["@heilgar/shadcn-ui-mcp-server"]
     }
   }
 }
