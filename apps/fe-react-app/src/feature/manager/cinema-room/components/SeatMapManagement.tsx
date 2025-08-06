@@ -179,6 +179,7 @@ const SeatMapManagement: React.FC = () => {
   useEffect(() => {
     if (room && (roomSettings.width !== room.width || roomSettings.height !== room.length)) {
       // User has changed dimensions locally, recreate seat map preview
+      // NOTE: This is only a preview - actual seat map changes will only be applied after successful room update
       if (seatMap && seatMap.gridData.length > 0) {
         const defaultSeats: Seat[] = [];
         const width = roomSettings.width;
@@ -216,6 +217,7 @@ const SeatMapManagement: React.FC = () => {
 
         setSeatMap(newSeatMap);
         // Don't update originalSeatMap here to preserve the "hasChanges" state
+        // This is only a preview - changes will be committed only after successful room update
       }
     }
   }, [roomSettings.width, roomSettings.height, room, seatMap]);
@@ -232,23 +234,149 @@ const SeatMapManagement: React.FC = () => {
   const hasRoomSettingsChanges =
     room && (roomSettings.width !== room.width || roomSettings.height !== room.length || roomSettings.name !== room.name);
 
+  // Helper function to extract error message from API response
+  const getErrorMessage = (error: unknown, defaultMessage = "Có lỗi xảy ra"): string => {
+    let errorMessage = defaultMessage;
+
+    if (error && typeof error === "object") {
+      // Check if error has a response (axios-like error structure)
+      if ("response" in error && error.response && typeof error.response === "object") {
+        const response = error.response as { data?: { message?: string } };
+        if (response.data?.message) {
+          errorMessage = response.data.message;
+        }
+      }
+      // Check if error has a message property directly
+      else if ("message" in error && typeof error.message === "string") {
+        errorMessage = error.message;
+      }
+      // Check if error has an error property with message (openapi-fetch specific)
+      else if ("error" in error && error.error && typeof error.error === "object" && "message" in error.error) {
+        errorMessage = error.error.message as string;
+      }
+      // Check for openapi-fetch error format with data
+      else if ("data" in error && error.data && typeof error.data === "object" && "message" in error.data) {
+        errorMessage = (error.data as { message: string }).message;
+      }
+    }
+
+    return errorMessage;
+  };
+
+  // Helper function to extract success message from API response
+  const getSuccessMessage = (response: unknown, defaultMessage = "Thao tác thành công"): string => {
+    if (response && typeof response === "object") {
+      // Check for message in response
+      if ("message" in response && typeof response.message === "string") {
+        return response.message;
+      }
+      // Check for data.message in response
+      else if ("data" in response && response.data && typeof response.data === "object" && "message" in response.data) {
+        return (response.data as { message: string }).message;
+      }
+      // Check for result.message in response
+      else if ("result" in response && response.result && typeof response.result === "object" && "message" in response.result) {
+        return (response.result as { message: string }).message;
+      }
+    }
+    return defaultMessage;
+  };
+
+  const handleRoomUpdate = async (
+    originalSeatMapBackup: SeatMap | null,
+    originalRoomSettings: { width: number; height: number; name: string } | null,
+  ) => {
+    if (!room) return;
+
+    console.log("Room settings changed, updating room first...");
+
+    const roomUpdateData = transformCinemaRoomToUpdateRequest({
+      name: roomSettings.name,
+      width: roomSettings.width,
+      length: roomSettings.height, // Map height to length
+    });
+
+    try {
+      const roomResponse = await updateRoomMutation.mutateAsync({
+        params: { path: { roomId: room.id ?? 0 } },
+        body: roomUpdateData,
+      });
+
+      // Show room update success message
+      const roomSuccessMessage = getSuccessMessage(roomResponse, "Cập nhật thông tin phòng chiếu thành công!");
+      toast.success(roomSuccessMessage);
+
+      // Refetch room data to get updated info
+      await refetchRoom();
+
+      // Only commit seat map changes after successful room update
+      if (roomSettings.width !== room.width || roomSettings.height !== room.length) {
+        // Room dimensions changed successfully, commit seat map changes
+        setOriginalSeatMap(JSON.parse(JSON.stringify(seatMap)));
+        toast.info("Sơ đồ ghế đã được cập nhật theo kích thước phòng mới");
+      }
+    } catch (roomError: unknown) {
+      // Room update failed, revert everything
+      const roomErrorMessage = getErrorMessage(roomError, "Không thể cập nhật thông tin phòng chiếu!");
+
+      // Restore original room settings
+      if (originalRoomSettings) {
+        setRoomSettings(originalRoomSettings);
+      }
+
+      // Restore original seat map
+      if (originalSeatMapBackup) {
+        setSeatMap(originalSeatMapBackup);
+        setOriginalSeatMap(originalSeatMapBackup);
+        setHasChanges(false);
+      }
+
+      throw new Error(roomErrorMessage);
+    }
+  };
+
   const handleSaveSeatMap = async () => {
     if (!seatMap || !roomId) return;
+
+    // Store original seat map and room settings to restore on failure
+    const originalSeatMapBackup = originalSeatMap ? JSON.parse(JSON.stringify(originalSeatMap)) : null;
+    const originalRoomSettings = room
+      ? {
+          width: room.width ?? 0,
+          height: room.length ?? 0,
+          name: room.name ?? "",
+        }
+      : null;
 
     try {
       setSaving(true);
 
-      // Note: Save seat map API endpoint needs to be implemented
-      // await saveSeatMapMutation.mutateAsync({ roomId, seatMap });
+      // Check if room settings have changed and need to be saved first
+      if (hasRoomSettingsChanges) {
+        await handleRoomUpdate(originalSeatMapBackup, originalRoomSettings);
+      }
 
-      setOriginalSeatMap(JSON.parse(JSON.stringify(seatMap)));
+      // Note: Save seat map API endpoint needs to be implemented
+      // const response = await saveSeatMapMutation.mutateAsync({ roomId, seatMap });
+
+      // If no room changes or room update was successful, commit seat map changes
+      if (!hasRoomSettingsChanges) {
+        setOriginalSeatMap(JSON.parse(JSON.stringify(seatMap)));
+      }
       setHasChanges(false);
 
-      // Show success message
-      toast.success("Lưu sơ đồ ghế thành công!");
-    } catch {
-      // Handle error appropriately - show user-friendly error message
-      toast.error("Có lỗi xảy ra khi lưu sơ đồ ghế!");
+      // Show final success message
+      const finalMessage = hasRoomSettingsChanges ? "Lưu thông tin phòng và sơ đồ ghế thành công!" : "Lưu sơ đồ ghế thành công!";
+
+      // Only show final message if we haven't already shown room update message
+      if (!hasRoomSettingsChanges) {
+        toast.success(finalMessage);
+      }
+    } catch (error: unknown) {
+      // Extract error message from API response
+      const errorMessage = getErrorMessage(error, "Có lỗi xảy ra khi lưu sơ đồ ghế!");
+      console.error("Error saving seat map or room settings:", error);
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -292,6 +420,9 @@ const SeatMapManagement: React.FC = () => {
   const handleSaveRoomSettings = async () => {
     if (!room) return;
 
+    // Store original seat map to restore on failure
+    const originalSeatMapBackup = originalSeatMap ? JSON.parse(JSON.stringify(originalSeatMap)) : null;
+
     try {
       const updateData = transformCinemaRoomToUpdateRequest({
         name: roomSettings.name,
@@ -299,7 +430,7 @@ const SeatMapManagement: React.FC = () => {
         length: roomSettings.height, // Map height to length
       });
 
-      await updateRoomMutation.mutateAsync({
+      const response = await updateRoomMutation.mutateAsync({
         params: { path: { roomId: room.id ?? 0 } },
         body: updateData,
       });
@@ -307,10 +438,39 @@ const SeatMapManagement: React.FC = () => {
       // Refetch room data to get updated info
       await refetchRoom();
 
-      toast.success("Cập nhật thông tin phòng chiếu thành công!");
-    } catch (error) {
+      // Only commit seat map changes after successful room update
+      if (hasRoomSettingsChanges && (roomSettings.width !== room.width || roomSettings.height !== room.length)) {
+        // Room dimensions changed successfully, commit seat map changes
+        if (seatMap) {
+          setOriginalSeatMap(JSON.parse(JSON.stringify(seatMap)));
+          toast.info("Sơ đồ ghế đã được cập nhật theo kích thước phòng mới");
+        }
+      }
+
+      // Extract success message from API response or use default
+      const successMessage = getSuccessMessage(response, "Cập nhật thông tin phòng chiếu thành công!");
+      toast.success(successMessage);
+    } catch (error: unknown) {
+      // Extract error message from API response
+      const errorMessage = getErrorMessage(error, "Có lỗi xảy ra khi cập nhật thông tin phòng chiếu!");
       console.error("Error updating room:", error);
-      toast.error("Có lỗi xảy ra khi cập nhật thông tin phòng chiếu!");
+
+      // Revert room settings and seat map on failure
+      if (room) {
+        setRoomSettings({
+          width: room.width ?? 0,
+          height: room.length ?? 0,
+          name: room.name ?? "",
+        });
+      }
+
+      // Restore original seat map if it was changed due to dimension changes
+      if (originalSeatMapBackup) {
+        setSeatMap(originalSeatMapBackup);
+        setOriginalSeatMap(originalSeatMapBackup);
+      }
+
+      toast.error(errorMessage);
     }
   };
 
@@ -512,22 +672,20 @@ const SeatMapManagement: React.FC = () => {
       )}
 
       {/* Seat Map Editor/View */}
-      {seatMap && room && (
-        <>
-          {isEditing ? (
-            <SeatMapEditor
-              seatMap={seatMap}
-              onSeatMapChange={setSeatMap}
-              onRefetchRequired={handleRefetchRequired}
-              readonly={false}
-              width={roomSettings.width}
-              length={roomSettings.height}
-            />
-          ) : (
-            <SeatMapEditorView seatMap={seatMap} showSelectable={false} width={roomSettings.width} length={roomSettings.height} />
-          )}
-        </>
-      )}
+      {seatMap &&
+        room &&
+        (isEditing ? (
+          <SeatMapEditor
+            seatMap={seatMap}
+            onSeatMapChange={setSeatMap}
+            onRefetchRequired={handleRefetchRequired}
+            readonly={false}
+            width={roomSettings.width}
+            length={roomSettings.height}
+          />
+        ) : (
+          <SeatMapEditorView seatMap={seatMap} showSelectable={false} width={roomSettings.width} length={roomSettings.height} />
+        ))}
 
       {/* Status Alert */}
       {hasChanges && (

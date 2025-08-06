@@ -298,6 +298,54 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
     return true;
   };
 
+  // Helper function to extract success message from API response
+  const getSuccessMessage = (response: unknown, defaultMessage = "Cập nhật ghế thành công"): string => {
+    if (response && typeof response === "object") {
+      // Check for direct message property (API format: {"code": 200, "message": "Seat updated successfully", "result": {...}})
+      if ("message" in response && typeof response.message === "string") {
+        return response.message;
+      }
+      // Check for data.message in response
+      else if ("data" in response && response.data && typeof response.data === "object" && "message" in response.data) {
+        return (response.data as { message: string }).message;
+      }
+      // Check for result.message in response
+      else if ("result" in response && response.result && typeof response.result === "object" && "message" in response.result) {
+        return (response.result as { message: string }).message;
+      }
+    }
+    return defaultMessage;
+  };
+
+  // Helper function to extract error message from API response
+  const getErrorMessage = (error: unknown, defaultMessage = "Không thể cập nhật ghế"): string => {
+    let errorMessage = defaultMessage;
+
+    if (error && typeof error === "object") {
+      // Check for direct message property (API format: {"code":1054,"message":"Ghế liên kết không tồn tại"})
+      if ("message" in error && typeof error.message === "string") {
+        errorMessage = error.message;
+      }
+      // Check if error has a response (axios-like error structure)
+      else if ("response" in error && error.response && typeof error.response === "object") {
+        const response = error.response as { data?: { message?: string; code?: number } };
+        if (response.data?.message) {
+          errorMessage = response.data.message;
+        }
+      }
+      // Check if error has an error property with message (openapi-fetch specific)
+      else if ("error" in error && error.error && typeof error.error === "object" && "message" in error.error) {
+        errorMessage = error.error.message as string;
+      }
+      // Check for openapi-fetch error format with data
+      else if ("data" in error && error.data && typeof error.data === "object" && "message" in error.data) {
+        errorMessage = (error.data as { message: string }).message;
+      }
+    }
+
+    return errorMessage;
+  };
+
   // Helper function to handle errors and rollback
   const handleSeatUpdateError = (error: unknown, originalSeatMap: SeatMap) => {
     console.error("Failed to update seat:", error);
@@ -308,8 +356,9 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       onSeatMapChange(originalSeatMap);
     }
 
-    // Show error message to user
-    toast.error(`Không thể cập nhật ghế: ${error instanceof Error ? error.message : "Lỗi không xác định"}`);
+    // Extract error message from API response and show to user
+    const errorMessage = getErrorMessage(error);
+    toast.error(errorMessage);
   };
 
   // Handle seat click to change seat type
@@ -341,6 +390,10 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
       const updateSuccess = updateUIWithAPIResponse(response);
 
       if (updateSuccess) {
+        // Extract and show success message from API response
+        const successMessage = getSuccessMessage(response);
+        toast.success(successMessage);
+        
         console.log(`✅ Successfully updated seat ${seat.id}`);
 
         // Only refetch when necessary (couple seat operations that affect multiple seats)
@@ -642,7 +695,7 @@ const SeatMapEditor: React.FC<SeatMapEditorProps> = ({ seatMap, onSeatMapChange,
           <CardContent>
             <div className="mb-3 rounded-lg bg-blue-50 p-2">
               <p className="text-sm text-blue-700">
-                💡 <strong>Hướng dẫn:</strong> Chọn công cụ bên dưới, sau đó click vào ghế để thay đổi loại ghế.
+                <span role="img" aria-label="Light bulb">💡</span> <strong>Hướng dẫn:</strong> Chọn công cụ bên dưới, sau đó click vào ghế để thay đổi loại ghế.
               </p>
             </div>
             <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
