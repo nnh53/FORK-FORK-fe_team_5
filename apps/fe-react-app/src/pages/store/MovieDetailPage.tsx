@@ -209,19 +209,20 @@ const MovieDetailPage: React.FC = () => {
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
             {/* Movie Poster */}
             <div className="lg:col-span-4">
-              <div className="group relative overflow-hidden rounded-2xl bg-white/20 p-3 shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/25">
-                <Lens>
+              <Lens>
+                <div className="group relative overflow-hidden rounded-2xl bg-white/20 p-3 shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/25">
                   <img src={movie.poster} alt={movie.name ?? "Movie poster"} className="h-auto w-full rounded-xl object-cover shadow-xl" />
-                </Lens>
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
 
-                {/* Floating rating badge if available */}
-                {movie.ageRestrict && (
-                  <div className="absolute top-6 right-6 rounded-full bg-red-600 px-3 py-1 text-sm font-bold text-white shadow-lg backdrop-blur-sm">
-                    {movie.ageRestrict}+
-                  </div>
-                )}
-              </div>
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+
+                  {/* Floating rating badge if available */}
+                  {movie.ageRestrict && (
+                    <div className="absolute top-6 right-6 rounded-full bg-red-600 px-3 py-1 text-sm font-bold text-white shadow-lg backdrop-blur-sm">
+                      {movie.ageRestrict}+
+                    </div>
+                  )}
+                </div>
+              </Lens>
             </div>
 
             {/* Movie Details */}
