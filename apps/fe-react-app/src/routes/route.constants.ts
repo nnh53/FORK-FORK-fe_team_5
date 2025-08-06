@@ -94,7 +94,7 @@ export const ROUTES = {
   TEST: "/test",
 
   //Static Routes
-  TERM_OF_SERVICE: "/term-of-service",
+  TERM_OF_SERVICE: "/terms-of-service",
   PRIVACY_POLICY: "/privacy-policy",
   ABOUT: "/about",
   HELP: "/help",

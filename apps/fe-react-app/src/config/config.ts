@@ -22,6 +22,18 @@ export const siteConfig = {
       { id: 5, name: "FAQ", href: "#faq" },
     ],
   },
+  quickLinks: [
+    { id: 1, label: "Home", href: "#home" },
+    { id: 2, label: "Theaters", href: "#features" },
+    { id: 3, label: "Movies", href: "#movies" },
+    { id: 4, label: "Trending", href: "#trending" },
+  ],
+  supportLinks: [
+    { id: 1, label: "FAQs", href: "#faq" },
+    { id: 2, label: "Terms of Service", href: "/terms-of-service" },
+    { id: 3, label: "Privacy Policy", href: "/privacy-policy" },
+    { id: 4, label: "About Us", href: "/about" },
+  ],
   featureSection: {
     title: "Công Nghệ. Phong Cách. Trải nghiệm.",
     description: "Nâng cấp trải nghiệm và cảm xúc khi xem phim",
@@ -98,7 +110,7 @@ export const siteConfig = {
     backgroundImage: ctaImage,
     button: {
       text: "Đặt phim ngay",
-      href: "#movies",
+      href: "#movies", // This will be used from nav.links
     },
     subtext: "Hủy vé bất cứ lúc nào, không cần lo lắng",
   },

@@ -1,4 +1,4 @@
-import { ROUTES } from "@/routes/route.constants";
+import { siteConfig } from "@/config/config";
 
 export interface FooterLink {
   label: string;
@@ -7,16 +7,12 @@ export interface FooterLink {
   isExternal?: boolean;
 }
 
-export const quickLinks: FooterLink[] = [
-  { label: "Home", href: "#" },
-  { label: "Theaters", href: "#features" },
-  { label: "Movies", href: "#movies" },
-  { label: "Trending", href: "#trending" },
-];
+export const quickLinks: FooterLink[] = siteConfig.quickLinks.map(link => ({
+  label: link.label,
+  href: link.href,
+}));
 
-export const supportLinks: FooterLink[] = [
-  { label: "FAQs", to: ROUTES.FAQ },
-  { label: "Terms of Service", to: ROUTES.TERM_OF_SERVICE },
-  { label: "Privacy Policy", to: ROUTES.PRIVACY_POLICY },
-  { label: "About Us", to: ROUTES.ABOUT },
-];
+export const supportLinks: FooterLink[] = siteConfig.supportLinks.map(link => ({
+  label: link.label,
+  href: link.href,
+}));

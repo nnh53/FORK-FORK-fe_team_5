@@ -1,9 +1,47 @@
 import Magnet from "@/components/Reactbits/reactbit-animations/Magnet/Magnet";
 import { siteConfig } from "@/config/config";
-import { Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export function CTASection() {
-  const { ctaSection } = siteConfig;
+  const { ctaSection, nav } = siteConfig;
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check if we're on homepage
+  const isHomePage = location.pathname === "/" || location.pathname === "/home";
+
+  // Find the movies link from nav.links
+  const moviesLink = nav.links.find((link) => link.href === "#movies");
+  const moviesHref = moviesLink?.href || "#movies";
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+
+    const targetId = moviesHref.substring(1);
+
+    if (isHomePage) {
+      // If on homepage, scroll to section
+      const element = document.getElementById(targetId);
+
+      if (element) {
+        // Calculate exact scroll position
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - 100; // 100px offset
+
+        // Smooth scroll to exact position
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }
+    } else {
+      // If on other page, navigate to homepage with section info
+      navigate("/home", {
+        replace: false,
+        state: { scrollToSection: targetId },
+      });
+    }
+  };
 
   return (
     <section id="cta" className="flex w-full flex-col items-center justify-center">
@@ -24,12 +62,13 @@ export function CTASection() {
                 activeTransition="transform 0.2s ease-out"
                 inactiveTransition="transform 0.4s ease-in-out"
               >
-                <Link
-                  to={ctaSection.button.href}
+                <a
+                  href={moviesHref}
+                  onClick={handleClick}
                   className="flex h-10 w-fit items-center justify-center rounded-full bg-white px-4 text-sm font-semibold text-black shadow-md"
                 >
                   {ctaSection.button.text}
-                </Link>
+                </a>
               </Magnet>
               <span className="text-sm text-white">{ctaSection.subtext}</span>
             </div>
