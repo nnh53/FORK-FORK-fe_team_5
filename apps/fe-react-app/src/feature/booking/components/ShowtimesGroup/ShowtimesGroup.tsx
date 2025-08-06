@@ -67,7 +67,7 @@ const ShowtimesGroup: React.FC<ShowtimesGroupProps> = ({ scheduleForDay, onSelec
 
   return (
     // CẬP NHẬT: Tăng khoảng cách giữa các group
-    <div className="space-y-6">
+    <div className="mr-5 space-y-6 sm:mr-0">
       {Object.entries(sortedGroupedShowtimes).map(([format, showtimes]) => (
         <div key={format}>
           {/* CẬP NHẬT: Style lại tiêu đề định dạng (2D, 3D...) */}

@@ -18,7 +18,7 @@ const formatDate = (dateString: string): { day: string; month: string; dayOfWeek
 const ShowDateSelector: React.FC<ShowDateSelectorProps> = ({ dates, selectedDate, onSelectDate }) => {
   return (
     <div className="mb-6 flex justify-start border-b border-gray-200">
-      <div className="flex w-full items-center space-x-2 overflow-x-auto pb-px">
+      <div className="flex w-screen items-center space-x-2 overflow-x-auto pb-px sm:w-auto sm:max-w-[64vw] md:w-auto md:max-w-[94vw]">
         {dates.map((dateStr) => {
           const { day, month, dayOfWeek } = formatDate(dateStr);
           const isActive = selectedDate === dateStr;

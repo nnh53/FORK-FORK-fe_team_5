@@ -65,9 +65,9 @@ const ShowtimesModal: React.FC<ShowtimesModalProps> = ({
   // Xác định class cho dialog content
   let dialogContentClass = "min-w-3xl max-h-[90vh] w-full max-w-4xl overflow-y-auto";
   if (isSmallScreen) {
-    dialogContentClass = "max-w-[95vw] p-1";
+    dialogContentClass = "max-w-full p-1";
   } else if (isMobile) {
-    dialogContentClass = "max-w-[95vw] p-2";
+    dialogContentClass = "max-w-full p-2";
   }
 
   // Xác định kích thước tiêu đề
