@@ -117,9 +117,9 @@ const Login: React.FC = () => {
           />
 
           <div className="flex items-center justify-between">
-            <Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm text-red-600 hover:underline">
+            {/* <Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm text-red-600 hover:underline">
               Quên mật khẩu?
-            </Link>
+            </Link> */}
           </div>
 
           <Button type="submit" disabled={loginQuery.isPending} className="w-full bg-red-600 hover:bg-red-700">
