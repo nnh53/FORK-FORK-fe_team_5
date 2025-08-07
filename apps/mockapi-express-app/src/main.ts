@@ -1,3 +1,4 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 /**
  * This is not a production server yet!
  * This is only a minimal backend to get started.
@@ -33,7 +34,7 @@ app.get("/api", (req, res) => {
   res.send({ message: "Welcome to mockapi-express!" });
 });
 
-export let user: UserBase = {
+export const user: UserBase = {
   id: "asdasfasd",
   full_name: "Lucian Nguyen",
   date_of_birth: "2000-02-21",
@@ -305,6 +306,7 @@ app.get("/seat-map/rooms", async (req, res) => {
     const rooms = cinemaRoomsAPI.getAll();
     res.send(rooms);
   } catch (error) {
+    console.log("Error fetching rooms:", error);
     res.status(500).send({ error: "Failed to fetch rooms" });
   }
 });
@@ -319,6 +321,7 @@ app.get("/seat-map/rooms/:roomId", async (req, res) => {
       res.status(404).send({ error: "Room not found" });
     }
   } catch (error) {
+    console.log("Error fetching rooms:", error);
     res.status(500).send({ error: "Failed to fetch room" });
   }
 });
@@ -329,6 +332,7 @@ app.get("/seat-map/:roomId", async (req, res) => {
     const seats = seatsAPI.getByRoomId(req.params.roomId);
     res.send(seats);
   } catch (error) {
+    console.log("Error fetching seat map:", error);
     res.status(500).send({ error: "Failed to fetch seat map" });
   }
 });
@@ -339,6 +343,7 @@ app.put("/seat-map/:roomId", async (req, res) => {
     // For now, just return success - this would need more complex logic to handle seat updates
     res.send({ success: true, message: "Seat map saved successfully" });
   } catch (error) {
+    console.error("Error saving seat map:", error);
     res.status(500).send({ error: "Failed to save seat map" });
   }
 });
@@ -349,6 +354,7 @@ app.post("/seat-map/rooms", async (req, res) => {
     const newRoom = cinemaRoomsAPI.create(req.body);
     res.status(201).send(newRoom);
   } catch (error) {
+    console.error("Error creating room:", error);
     res.status(500).send({ error: "Failed to create room" });
   }
 });
@@ -363,6 +369,7 @@ app.put("/seat-map/rooms/:roomId", async (req, res) => {
       res.status(404).send({ error: "Room not found" });
     }
   } catch (error) {
+    console.error("Error updating room:", error);
     res.status(500).send({ error: "Failed to update room" });
   }
 });
@@ -377,6 +384,7 @@ app.delete("/seat-map/rooms/:roomId", async (req, res) => {
       res.status(404).send({ error: "Room not found" });
     }
   } catch (error) {
+    console.error("Error deleting room:", error);
     res.status(500).send({ error: "Failed to delete room" });
   }
 });
@@ -392,6 +400,7 @@ app.patch("/seat-map/rooms/:roomId/status", async (req, res) => {
       res.status(404).send({ error: "Room not found" });
     }
   } catch (error) {
+    console.error("Error updating room status:", error);
     res.status(500).send({ error: "Failed to update room status" });
   }
 });
@@ -409,6 +418,7 @@ app.get("/seat-map/stats", async (req, res) => {
     };
     res.send(stats);
   } catch (error) {
+    console.log("Error fetching rooms:", error);
     res.status(500).send({ error: "Failed to fetch stats" });
   }
 });
@@ -428,6 +438,7 @@ app.get("/seat-map/search", async (req, res) => {
     );
     res.send(rooms);
   } catch (error) {
+    console.log("Error fetching rooms:", error);
     res.status(500).send({ error: "Failed to search rooms" });
   }
 });
@@ -545,7 +556,7 @@ app.get("/bookings", (req, res) => {
 
 // Get booking by ID
 app.get("/bookings/:id", (req, res) => {
-  const booking = bookingAPI.getById(req.params.id);
+  const booking = bookingAPI.getById(parseInt(req.params.id));
   if (booking) {
     res.send(booking);
   } else {
@@ -565,7 +576,7 @@ app.post("/bookings", (req, res) => {
 
 // Update booking
 app.put("/bookings/:id", (req, res) => {
-  const booking = bookingAPI.update(req.params.id, req.body);
+  const booking = bookingAPI.update(parseInt(req.params.id), req.body);
   if (booking) {
     res.send(booking);
   } else {
@@ -575,7 +586,7 @@ app.put("/bookings/:id", (req, res) => {
 
 // Confirm booking
 app.post("/bookings/:id/confirm", (req, res) => {
-  const booking = bookingAPI.confirmBooking(req.params.id);
+  const booking = bookingAPI.confirmBooking(parseInt(req.params.id));
   if (booking) {
     res.send(booking);
   } else {
@@ -585,7 +596,7 @@ app.post("/bookings/:id/confirm", (req, res) => {
 
 // Cancel booking
 app.post("/bookings/:id/cancel", (req, res) => {
-  const booking = bookingAPI.cancelBooking(req.params.id);
+  const booking = bookingAPI.cancelBooking(parseInt(req.params.id));
   if (booking) {
     res.send(booking);
   } else {
@@ -595,13 +606,13 @@ app.post("/bookings/:id/cancel", (req, res) => {
 
 // Get bookings by customer phone
 app.get("/bookings/phone/:phone", (req, res) => {
-  const bookings = bookingAPI.getByPhone(req.params.phone);
+  const bookings = bookingAPI.getByUserPhone(req.params.phone);
   res.send(bookings);
 });
 
 // Delete booking
 app.delete("/bookings/:id", (req, res) => {
-  const booking = bookingAPI.delete(req.params.id);
+  const booking = bookingAPI.delete(parseInt(req.params.id));
   if (booking) {
     res.send(booking);
   } else {
