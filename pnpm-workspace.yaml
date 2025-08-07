@@ -3,8 +3,9 @@ packages:
   - apps/*
 
 onlyBuiltDependencies:
-  - "@swc/core"
-  - "@tailwindcss/oxide"
+  - '@parcel/watcher'
+  - '@swc/core'
+  - '@tailwindcss/oxide'
   - cypress
   - esbuild
   - nx
