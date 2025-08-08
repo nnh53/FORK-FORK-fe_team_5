@@ -1,6 +1,20 @@
-# FE_Team_5
+Context Diagram
 
-## Getting started
+![Context_diagram.png](documents/Context.png)
+
+System Architecture Diagram
+
+![Architecture_diagram.png](documents/Architecture.png)
+
+CI/CD Pipeline Diagram
+
+![CICD_diagram.png](documents/CICD.png)
+
+ERD
+
+![ERD.png](documents/ERD.png)
+
+## Getting started with GitLab
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
